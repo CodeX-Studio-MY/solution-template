@@ -1,0 +1,15 @@
+{
+  "app": { "name": "工作台", "skip": "跳到主要内容", "loadingModule": "加载中…" },
+  "actions": { "cancel": "取消", "save": "保存", "back": "返回", "retry": "重试", "signOut": "退出登录", "signIn": "登录" },
+  "errors": {
+    "generic": "出了点问题，请重试。",
+    "moduleFailed": "应用的这一部分无法加载。",
+    "moduleFailedHint": "其他部分仍可使用。请重试，如果问题持续请联系支持人员。",
+    "notFound": "找不到该页面。",
+    "notFoundHint": "请检查地址，或使用菜单查找所需内容。",
+    "noModules": "您的账户没有可用的应用。"
+  },
+  "customFields": { "title": "附加信息", "none": "无" },
+  "nav": { "home": "首页", "settings": "设置", "menu": "主导航", "openMenu": "打开导航" },
+  "home": { "welcome": "欢迎", "intro": "请从菜单中选择一个应用。", "yourApps": "您的应用" }
+}

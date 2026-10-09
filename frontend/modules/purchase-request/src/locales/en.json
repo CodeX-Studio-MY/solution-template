@@ -1,0 +1,61 @@
+{
+  "menu": "Purchase requests",
+  "status": { "draft": "Draft", "submitted": "Waiting for approval", "approved": "Approved", "rejected": "Rejected" },
+  "fields": {
+    "number": "Number",
+    "title": "Title",
+    "description": "Description",
+    "status": "Status",
+    "date": "Date",
+    "total": "Total",
+    "lines": "Lines",
+    "item": "Item",
+    "quantity": "Quantity",
+    "unitPrice": "Unit price",
+    "lineTotal": "Line total",
+    "reason": "Reason"
+  },
+  "list": {
+    "title": "Purchase requests",
+    "new": "New request",
+    "status": "Status",
+    "allStatuses": "All statuses",
+    "mine": "Only my requests",
+    "empty": "No purchase requests yet",
+    "emptyHint": "Create a request to get started."
+  },
+  "form": {
+    "newTitle": "New purchase request",
+    "editTitle": "Edit {{number}}",
+    "addLine": "Add line",
+    "removeLine": "Remove line {{n}}",
+    "save": "Save",
+    "cancel": "Cancel"
+  },
+  "detail": {
+    "edit": "Edit",
+    "submit": "Submit for approval",
+    "approve": "Approve",
+    "reject": "Reject",
+    "delete": "Delete",
+    "shareDraft": "Copy link to draft",
+    "deleteTitle": "Delete this request?",
+    "deleteText": "{{number}} will be deleted. This can't be undone.",
+    "rejectTitle": "Reject this request",
+    "quote": "Supplier quote",
+    "noQuote": "No quote attached",
+    "uploadQuote": "Attach quote",
+    "replaceQuote": "Replace quote",
+    "downloadQuote": "Download quote"
+  },
+  "timeline": {
+    "title": "History",
+    "created": "Created",
+    "submitted": "Submitted for approval",
+    "approvedStep": "Approved (step {{level}})",
+    "approved": "Approved",
+    "autoApproved": "Approved automatically",
+    "rejected": "Rejected",
+    "goodsReceived": "Goods received"
+  }
+}

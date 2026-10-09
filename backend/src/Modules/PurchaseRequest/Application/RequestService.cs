@@ -202,6 +202,7 @@ public sealed class RequestService(
     private async Task<RequestDto> ToDtoAsync(Domain.PurchaseRequest r, CancellationToken cancellationToken) => new(
         r.Id, r.Number, r.RequesterId, r.Title, r.Description, r.Status, r.BusinessDate, r.Currency, r.TotalAmount,
         [.. r.Lines.Select(l => new LineDto(l.Item, l.Quantity, l.UnitPrice, l.LineTotal))],
+        [.. r.Approvals.OrderBy(a => a.ApprovedOn).Select(a => new ApprovalDto(a.Level, a.ApproverId, a.ApprovedOn))],
         r.QuoteFileId, r.CreatedOn, r.SubmittedOn, r.DecidedOn, r.AutoApproved, r.RejectionReason, r.GoodsReceivedOn,
         await AllowedActionsAsync(r, cancellationToken),
         requests.ETagOf(r));

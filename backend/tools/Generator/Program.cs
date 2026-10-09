@@ -14,9 +14,9 @@ try
     switch (command)
     {
         case "generate":
-            return Generate(args.Contains("--check"), args.Contains("--skip-compose"));
+            return Generate(args.Contains("--check"), args.Contains("--skip-compose"), args.Contains("--skip-api"));
         default:
-            Console.Error.WriteLine($"Unknown command '{command}'. Commands: generate [--check] [--skip-compose]");
+            Console.Error.WriteLine($"Unknown command '{command}'. Commands: generate [--check] [--skip-compose] [--skip-api]");
             return 2;
     }
 }
@@ -26,7 +26,7 @@ catch (PlatformDefinitionException ex)
     return 1;
 }
 
-int Generate(bool checkOnly, bool skipCompose)
+int Generate(bool checkOnly, bool skipCompose, bool skipApi)
 {
     var platform = PlatformDefinition.Load(Path.Combine(repoRoot, "platform.yaml"));
 
@@ -37,6 +37,7 @@ int Generate(bool checkOnly, bool skipCompose)
     MigrationsEmitter.Emit(platform, files);
     AppHostEmitter.Emit(platform, files);
     AllInOneEmitter.Emit(platform, files);
+    TypeScriptPlatformEmitter.Emit(platform, files);
     ConfigurationEmitter.Emit(platform, files);
     ReadmeEmitter.Emit(platform, files);
     // Last: it lists the projects generated above.
@@ -44,7 +45,23 @@ int Generate(bool checkOnly, bool skipCompose)
     var changed = Report(files.Write(checkOnly));
     var total = files.Files.Count;
 
-    // Phase 2: docker compose, published from the AppHost as it now is on disk.
+    // Phase 2: the OpenAPI documents, error codes, events and typed API clients, built from the backend as it now is.
+    if (skipApi)
+    {
+        Console.WriteLine("Skipped the API files (--skip-api).");
+    }
+    else if (checkOnly && changed.Count > 0)
+    {
+        Console.WriteLine("Skipped the API check: the inputs above are out of date.");
+    }
+    else
+    {
+        var api = Report(ApiEmitter.Run(platform, repoRoot, checkOnly));
+        changed = [.. changed, .. api];
+        total += 1;
+    }
+
+    // Phase 3: docker compose, published from the AppHost as it now is on disk.
     if (skipCompose)
     {
         Console.WriteLine("Skipped deploy/docker-compose.yml (--skip-compose).");

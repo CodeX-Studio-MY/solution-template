@@ -1,0 +1,11 @@
+dist
+node_modules
+.turbo
+.rsbuild
+playwright-report
+test-results
+pnpm-lock.yaml
+# Generated: never formatted by hand, so regenerating can't create a diff.
+**/generated/**
+packages/api-clients/openapi
+packages/api-clients/src/service-paths.ts

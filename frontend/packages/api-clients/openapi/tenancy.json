@@ -1,0 +1,930 @@
+{
+  "openapi": "3.0.4",
+  "info": {
+    "title": "tenancy API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/tenancy/v1/me/modules": {
+      "get": {
+        "tags": [
+          "Acme.ApiExporter"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModuleManifest"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenancy/v1/me/tenant": {
+      "get": {
+        "tags": [
+          "Acme.ApiExporter"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantSummary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenancy/v1/support-access": {
+      "get": {
+        "tags": [
+          "support-access"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SupportAccessDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenancy/v1/support-access/{id}/approve": {
+      "post": {
+        "tags": [
+          "support-access"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupportAccessDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenancy/v1/support-access/{id}/deny": {
+      "post": {
+        "tags": [
+          "support-access"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupportAccessDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenancy/v1/support-access/{id}/revoke": {
+      "post": {
+        "tags": [
+          "support-access"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupportAccessDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenancy/v1/operator/sessions": {
+      "post": {
+        "tags": [
+          "operator"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignInBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenancy/v1/operator/tenants": {
+      "get": {
+        "tags": [
+          "operator"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TenantSummary"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "operator"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OnboardRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/tenancy/v1/operator/tenants/{id}": {
+      "get": {
+        "tags": [
+          "operator"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantSummary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenancy/v1/operator/tenants/{id}/plan": {
+      "put": {
+        "tags": [
+          "operator"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlanBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantSummary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenancy/v1/operator/tenants/{id}/modules/{module}": {
+      "put": {
+        "tags": [
+          "operator"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "module",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantSummary"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "operator"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "module",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantSummary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenancy/v1/operator/tenants/{id}/support-approval": {
+      "put": {
+        "tags": [
+          "operator"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequiredBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantSummary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenancy/v1/operator/tenants/{id}/suspend": {
+      "post": {
+        "tags": [
+          "operator"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantSummary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenancy/v1/operator/tenants/{id}/resume": {
+      "post": {
+        "tags": [
+          "operator"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantSummary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenancy/v1/operator/tenants/{id}/offboard": {
+      "post": {
+        "tags": [
+          "operator"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantSummary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenancy/v1/operator/tenants/{id}/cancel-offboarding": {
+      "post": {
+        "tags": [
+          "operator"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantSummary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenancy/v1/operator/tenants/{id}/complete-deletion": {
+      "post": {
+        "tags": [
+          "operator"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantSummary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenancy/v1/operator/support-access": {
+      "post": {
+        "tags": [
+          "operator"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SupportAccessRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupportAccessDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenancy/v1/operator/support-access/{id}/token": {
+      "post": {
+        "tags": [
+          "operator"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupportTokenDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ModuleManifest": {
+        "required": [
+          "modules"
+        ],
+        "type": "object",
+        "properties": {
+          "modules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ModuleManifestEntry"
+            }
+          }
+        }
+      },
+      "ModuleManifestEntry": {
+        "required": [
+          "id",
+          "entry"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "entry": {
+            "type": "string"
+          }
+        },
+        "description": "The frontend module manifest for the signed-in tenant: which remotes the shell registers."
+      },
+      "OnboardRequest": {
+        "required": [
+          "slug",
+          "displayName",
+          "plan",
+          "adminEmail",
+          "adminName"
+        ],
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "plan": {
+            "type": "string"
+          },
+          "adminEmail": {
+            "type": "string"
+          },
+          "adminName": {
+            "type": "string"
+          },
+          "serverPool": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "PlanBody": {
+        "required": [
+          "plan"
+        ],
+        "type": "object",
+        "properties": {
+          "plan": {
+            "type": "string"
+          }
+        }
+      },
+      "RequiredBody": {
+        "required": [
+          "required"
+        ],
+        "type": "object",
+        "properties": {
+          "required": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Role": {
+        "enum": [
+          "user",
+          "manager",
+          "admin"
+        ],
+        "description": "Roles, lowest to highest. A higher role includes everything a lower one can do."
+      },
+      "SessionDto": {
+        "required": [
+          "token",
+          "expiresOn"
+        ],
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "expiresOn": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "SignInBody": {
+        "required": [
+          "email",
+          "password",
+          "totpCode"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "totpCode": {
+            "type": "string"
+          }
+        }
+      },
+      "SupportAccessDto": {
+        "required": [
+          "id",
+          "tenantId",
+          "tenantSlug",
+          "operatorId",
+          "operatorName",
+          "reason",
+          "role",
+          "module",
+          "expiresOn",
+          "status"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tenantId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tenantSlug": {
+            "type": "string"
+          },
+          "operatorId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "operatorName": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "role": {
+            "$ref": "#/components/schemas/Role"
+          },
+          "module": {
+            "type": "string"
+          },
+          "expiresOn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "$ref": "#/components/schemas/SupportAccessStatus"
+          }
+        }
+      },
+      "SupportAccessRequest": {
+        "required": [
+          "tenantSlug",
+          "reason",
+          "role",
+          "module",
+          "minutes"
+        ],
+        "type": "object",
+        "properties": {
+          "tenantSlug": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "role": {
+            "$ref": "#/components/schemas/Role"
+          },
+          "module": {
+            "type": "string"
+          },
+          "minutes": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "format": "int32"
+          }
+        }
+      },
+      "SupportAccessStatus": {
+        "enum": [
+          "pending",
+          "approved",
+          "denied",
+          "revoked"
+        ]
+      },
+      "SupportTokenDto": {
+        "required": [
+          "accessToken",
+          "expiresOn"
+        ],
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "expiresOn": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "TenantStatus": {
+        "enum": [
+          "provisioning",
+          "active",
+          "suspended",
+          "pendingDeletion",
+          "deleted"
+        ],
+        "description": "Tenant lifecycle: Provisioning \u2192 Active \u2192 Suspended (read-only) \u2192 PendingDeletion \u2192 Deleted."
+      },
+      "TenantSummary": {
+        "required": [
+          "id",
+          "slug",
+          "displayName",
+          "status",
+          "plan",
+          "modules",
+          "deleteAfter",
+          "requireSupportApproval"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/TenantStatus"
+          },
+          "plan": {
+            "type": "string"
+          },
+          "modules": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "deleteAfter": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "requireSupportApproval": {
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Acme.ApiExporter"
+    },
+    {
+      "name": "support-access"
+    },
+    {
+      "name": "operator"
+    }
+  ]
+}

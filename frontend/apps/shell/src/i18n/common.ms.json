@@ -1,0 +1,22 @@
+{
+  "app": { "name": "Ruang Kerja", "skip": "Langkau ke kandungan", "loadingModule": "Memuatkan…" },
+  "actions": {
+    "cancel": "Batal",
+    "save": "Simpan",
+    "back": "Kembali",
+    "retry": "Cuba lagi",
+    "signOut": "Log keluar",
+    "signIn": "Log masuk"
+  },
+  "errors": {
+    "generic": "Sesuatu telah berlaku. Sila cuba lagi.",
+    "moduleFailed": "Bahagian aplikasi ini tidak dapat dimuatkan.",
+    "moduleFailedHint": "Bahagian lain masih berfungsi. Cuba lagi, atau hubungi sokongan jika ia berterusan.",
+    "notFound": "Kami tidak menjumpai halaman itu.",
+    "notFoundHint": "Semak alamat, atau gunakan menu untuk mencari apa yang anda perlukan.",
+    "noModules": "Tiada aplikasi tersedia untuk akaun anda."
+  },
+  "customFields": { "title": "Maklumat tambahan", "none": "Tiada" },
+  "nav": { "home": "Utama", "settings": "Tetapan", "menu": "Navigasi utama", "openMenu": "Buka navigasi" },
+  "home": { "welcome": "Selamat datang", "intro": "Pilih aplikasi daripada menu.", "yourApps": "Aplikasi anda" }
+}

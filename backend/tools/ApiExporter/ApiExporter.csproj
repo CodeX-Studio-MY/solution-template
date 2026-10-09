@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <!-- Builds every service host in memory (nothing connects to anything) and writes what the frontend is generated from:
+       each service's OpenAPI document, the error-code union, and docs/events.md. Run by scripts/generate. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <!-- Generated and read by the exporter itself; not a tenant-facing host. -->
+    <NoWarn>$(NoWarn);CA1812</NoWarn>
+  </PropertyGroup>
+  <!-- The same module list as AllInOne.Host, generated from platform.yaml. -->
+  <Import Project="..\..\src\Hosts\AllInOne.Host\Generated\ModuleProjects.g.props" />
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Core.Hosting\Core.Hosting.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Microsoft.AspNetCore.TestHost" />
+  </ItemGroup>
+</Project>

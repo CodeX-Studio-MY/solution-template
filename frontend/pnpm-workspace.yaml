@@ -1,0 +1,68 @@
+packages:
+  - apps/*
+  - packages/*
+  - modules/*
+  - tooling
+  - e2e
+
+# Every dependency version is pinned HERE, once. Packages say "catalog:" and never repeat a version.
+# Module Federation reads the shared-singleton versions from the installed packages, so they can't drift from this list either.
+catalog:
+  # Runtime (shared singletons)
+  react: 19.3.0
+  react-dom: 19.3.0
+  react-router: 8.4.0
+  "@mui/material": 9.5.0
+  "@mui/icons-material": 9.5.0
+  "@emotion/react": 11.14.0
+  "@emotion/styled": 11.14.1
+  "@emotion/cache": 11.14.0
+  zustand: 5.0.15
+  i18next: 26.4.2
+  react-i18next: 17.0.16
+  # Runtime (not shared)
+  openapi-fetch: 0.17.0
+  "@module-federation/enhanced": 2.9.2
+  # Build
+  "@rsbuild/core": 2.2.12
+  "@rsbuild/plugin-react": 2.1.1
+  "@module-federation/rsbuild-plugin": 2.9.2
+  openapi-typescript: 7.13.0
+  turbo: 2.11.7
+  typescript: 6.0.3
+  # Types
+  "@types/react": 19.3.0
+  "@types/react-dom": 19.3.0
+  "@types/node": 26.6.4
+  # Quality
+  eslint: 10.12.0
+  "@eslint/js": 10.0.1
+  typescript-eslint: 8.71.1
+  eslint-plugin-boundaries: 7.2.0
+  eslint-plugin-react-hooks: 7.1.1
+  globals: 17.13.0
+  eslint-import-resolver-typescript: 4.4.5
+  prettier: 3.9.9
+  # Tests
+  vitest: 5.0.3
+  jsdom: 30.1.2
+  "@testing-library/react": 16.3.3
+  "@testing-library/dom": 10.4.2
+  "@testing-library/jest-dom": 7.0.1
+  "@testing-library/user-event": 14.6.7
+  "@playwright/test": 1.64.0
+  "@axe-core/playwright": 4.13.0
+
+# Supply chain: install scripts only for packages that need them.
+minimumReleaseAgeExclude:
+  - "@mui/core-downloads-tracker@9.5.0"
+  - "@mui/icons-material@9.5.0"
+  - "@mui/material@9.5.0"
+  - "@mui/private-theming@9.5.0"
+  - "@mui/styled-engine@9.5.0"
+  - "@mui/system@9.5.0"
+  - "@mui/types@9.5.0"
+  - "@mui/utils@9.5.0"
+
+onlyBuiltDependencies:
+  - esbuild

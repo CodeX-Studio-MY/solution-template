@@ -1,0 +1,32 @@
+{
+  "name": "acme-frontend",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@12.10.1",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "build": "turbo run build && node scripts/stage.mjs",
+    "dev": "turbo run dev --parallel",
+    "typecheck": "turbo run typecheck",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "e2e": "pnpm --filter @acme/e2e test",
+    "stage": "node scripts/stage.mjs"
+  },
+  "devDependencies": {
+    "turbo": "catalog:",
+    "typescript": "catalog:",
+    "prettier": "catalog:",
+    "eslint": "catalog:",
+    "@eslint/js": "catalog:",
+    "typescript-eslint": "catalog:",
+    "eslint-plugin-boundaries": "catalog:",
+    "eslint-plugin-react-hooks": "catalog:",
+    "globals": "catalog:",
+    "eslint-import-resolver-typescript": "catalog:"
+  }
+}

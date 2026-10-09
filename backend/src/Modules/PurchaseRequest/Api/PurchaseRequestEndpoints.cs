@@ -27,7 +27,7 @@ internal static class PurchaseRequestEndpoints
             var created = await service.CreateAsync(body, ct);
             response.Headers.ETag = created.ETag;
             return Results.Created($"{PlatformServices.PurchaseRequest.RoutePrefix}/v1/requests/{created.Id}", created);
-        }).RequireModuleRole(Modules.PurchaseRequest, Role.User).RequireIdempotency<PurchaseRequestDbContext>();
+        }).RequireModuleRole(Modules.PurchaseRequest, Role.User).RequireIdempotency<PurchaseRequestDbContext>().Produces<RequestDto>(StatusCodes.Status201Created);
 
         requests.MapGet("/{id:guid}", async (Guid id, RequestService service, HttpResponse response, CancellationToken ct) =>
             With(response, await service.GetAsync(id, ct))).RequireModuleRole(Modules.PurchaseRequest, Role.User);
@@ -39,7 +39,7 @@ internal static class PurchaseRequestEndpoints
         {
             await service.DeleteAsync(id, ifMatch, ct);
             return Results.NoContent();
-        }).RequireModuleRole(Modules.PurchaseRequest, Role.User);
+        }).RequireModuleRole(Modules.PurchaseRequest, Role.User).Produces(StatusCodes.Status204NoContent);
 
         requests.MapPost("/{id:guid}/submit", async (Guid id, [FromHeader(Name = "If-Match")] string? ifMatch, RequestService service, HttpResponse response, CancellationToken ct) =>
             With(response, await service.SubmitAsync(id, ifMatch, ct))).RequireModuleRole(Modules.PurchaseRequest, Role.User);

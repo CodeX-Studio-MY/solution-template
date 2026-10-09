@@ -42,6 +42,6 @@ public static class PlatformFiles
         app.MapGet($"{LocalDiskStorage.RoutePrefix}/{{token}}", (string token, LocalDiskStorage storage) =>
             storage.Resolve(token) is { } file
                 ? Results.File(file.Path, file.ContentType, file.DownloadName)
-                : Results.NotFound()).AllowAnonymous();
+                : Results.NotFound()).AllowAnonymous().ExcludeFromDescription();
     }
 }

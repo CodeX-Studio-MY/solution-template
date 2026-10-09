@@ -8,6 +8,9 @@ public sealed record SaveRequestInput(string Title, string? Description, IReadOn
 
 public sealed record RejectInput(string Reason);
 
+/// <summary>One approval on a request: which step (level) and who, for the timeline.</summary>
+public sealed record ApprovalDto(int Level, Guid ApproverId, DateTime ApprovedOn);
+
 public sealed record LineDto(string Item, decimal Quantity, decimal UnitPrice, decimal LineTotal);
 
 /// <summary>What a screen needs to show a request, including the actions this caller may take. The frontend shows buttons from <see cref="AllowedActions"/> and never re-implements the rules.</summary>
@@ -22,6 +25,7 @@ public sealed record RequestDto(
     string Currency,
     decimal Total,
     IReadOnlyList<LineDto> Lines,
+    IReadOnlyList<ApprovalDto> Approvals,
     Guid? QuoteFileId,
     DateTime CreatedOn,
     DateTime? SubmittedOn,

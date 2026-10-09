@@ -1,0 +1,15 @@
+{
+  "app": { "name": "Workspace", "skip": "Skip to content", "loadingModule": "Loading…" },
+  "actions": { "cancel": "Cancel", "save": "Save", "back": "Back", "retry": "Try again", "signOut": "Sign out", "signIn": "Sign in" },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "moduleFailed": "This part of the app could not be loaded.",
+    "moduleFailedHint": "The rest of the app still works. Try again, or contact support if it keeps happening.",
+    "notFound": "We couldn't find that page.",
+    "notFoundHint": "Check the address, or use the menu to find what you need.",
+    "noModules": "No applications are available for your account."
+  },
+  "customFields": { "title": "Additional information", "none": "None" },
+  "nav": { "home": "Home", "settings": "Settings", "menu": "Main navigation", "openMenu": "Open navigation" },
+  "home": { "welcome": "Welcome", "intro": "Choose an application from the menu.", "yourApps": "Your applications" }
+}
