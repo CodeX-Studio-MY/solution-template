@@ -1,0 +1,122 @@
+using Acme.Core.Errors;
+using Acme.Core.Hosting;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace Acme.Core.Data.SqlServer;
+
+public sealed class SqlServerDatabaseProvider : IDatabaseProvider
+{
+    public const string ProviderName = "sqlserver";
+    private const string RowVersion = "RowVersion";
+
+    public string Name => ProviderName;
+
+    public string MigrationsAssemblySuffix => "SqlServer";
+
+    public string NotDeletedFilter => $"[{nameof(ISoftDeletable.IsDeleted)}] = 0";
+
+    public string NotNullFilter(string propertyName) => $"[{propertyName}] IS NOT NULL";
+
+    // REGEXP_LIKE needs SQL Server 2025 / Azure SQL (compatibility level 170).
+    public string RegexCheck(string propertyName, string pattern) =>
+        $"REGEXP_LIKE([{propertyName}], '{pattern.Replace("'", "''", StringComparison.Ordinal)}')";
+
+    public string BuildConnectionString(string baseConnectionString, string databaseName, int maxPoolSize) =>
+        new SqlConnectionStringBuilder(baseConnectionString)
+        {
+            InitialCatalog = databaseName,
+            MaxPoolSize = maxPoolSize,
+        }.ConnectionString;
+
+    public void Configure(DbContextOptionsBuilder options, string connectionString, string schema, string migrationsAssembly) =>
+        options.UseSqlServer(connectionString, sql =>
+        {
+            sql.MigrationsHistoryTable("__EFMigrationsHistory", schema);
+            sql.MigrationsAssembly(migrationsAssembly);
+            // SQL Server 2025 / Azure SQL: native json columns.
+            sql.UseCompatibilityLevel(170);
+        });
+
+    public void ConfigureConventions(ModelConfigurationBuilder configuration)
+    {
+        // Guid keys: EF Core's SQL Server provider generates sequential GUIDs client-side by default,
+        // which suits SQL Server's uniqueidentifier sort order. UUIDv7 would fragment the index.
+    }
+
+    public void ConfigureConcurrencyToken(EntityTypeBuilder entity) =>
+        entity.Property<byte[]>(RowVersion).IsRowVersion();
+
+    public string? GetConcurrencyToken(EntityEntry entry) =>
+        entry.Property(RowVersion).CurrentValue is byte[] { Length: > 0 } value ? Convert.ToHexString(value) : null;
+
+    public void SetOriginalConcurrencyToken(EntityEntry entry, string token)
+    {
+        try
+        {
+            entry.Property(RowVersion).OriginalValue = Convert.FromHexString(token);
+        }
+        catch (FormatException)
+        {
+            throw new PreconditionFailedException("The ETag is not valid.");
+        }
+    }
+
+    public void AddServices(IServiceCollection services, string catalogConnectionString)
+    {
+        services.AddSingleton<ISequenceService, SqlServerSequenceService>();
+        services.AddSingleton<IDistributedLock, SqlServerDistributedLock>();
+        services.AddHealthChecks().AddSqlServer(catalogConnectionString, name: "catalog-db", tags: [HealthTags.Ready]);
+    }
+}
+
+/// <summary><c>UPDATE … OUTPUT</c>, creating the counter row on first use.</summary>
+internal sealed class SqlServerSequenceService : ISequenceService
+{
+    public async Task<long> NextAsync(ModuleDbContext db, string sequenceName, CancellationToken cancellationToken = default)
+    {
+        var (schema, table, name, value) = DbCommandRunner.SequenceCounterNames(db);
+        var target = $"[{schema}].[{table}]";
+        var parameters = new Dictionary<string, object> { ["@name"] = sequenceName };
+
+        var update = $"UPDATE {target} SET [{value}] = [{value}] + 1 OUTPUT inserted.[{value}] WHERE [{name}] = @name;";
+        if (await DbCommandRunner.ExecuteScalarAsync(db, update, parameters, cancellationToken) is long next)
+            return next;
+
+        // First use: create the row (HOLDLOCK serialises concurrent creators), then increment it.
+        var insert = $"""
+            INSERT INTO {target} ([{name}], [{value}])
+            SELECT @name, 0 WHERE NOT EXISTS (SELECT 1 FROM {target} WITH (UPDLOCK, HOLDLOCK) WHERE [{name}] = @name);
+            """;
+        try
+        {
+            await DbCommandRunner.ExecuteScalarAsync(db, insert, parameters, cancellationToken);
+        }
+        catch (SqlException ex) when (ex.Number is 2601 or 2627)
+        {
+            // Another request created it first.
+        }
+        return (long)(await DbCommandRunner.ExecuteScalarAsync(db, update, parameters, cancellationToken))!;
+    }
+}
+
+/// <summary><c>sp_getapplock</c> owned by the current transaction.</summary>
+internal sealed class SqlServerDistributedLock : IDistributedLock
+{
+    public async Task AcquireAsync(PlatformDbContext db, string key, CancellationToken cancellationToken = default)
+    {
+        if (db.Database.CurrentTransaction is null)
+            throw new InvalidOperationException("A distributed lock needs an open transaction.");
+        const string sql = """
+            DECLARE @result int;
+            EXEC @result = sp_getapplock @Resource = @key, @LockMode = 'Exclusive', @LockOwner = 'Transaction', @LockTimeout = 30000;
+            SELECT @result;
+            """;
+        var result = await DbCommandRunner.ExecuteScalarAsync(db, sql, new Dictionary<string, object> { ["@key"] = key }, cancellationToken);
+        if (result is not int code || code < 0)
+            throw new TimeoutException($"Could not acquire the lock '{key}' (sp_getapplock returned {result}).");
+    }
+}

@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <PackageReference Include="NetArchTest.Rules" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Every production assembly, so the rules see the whole system. The Migrator brings in every module and migrations project. -->
+    <ProjectReference Include="..\..\src\Migrator\Migrator.csproj" />
+    <ProjectReference Include="..\..\src\Core.Hosting\Core.Hosting.csproj" />
+  </ItemGroup>
+</Project>

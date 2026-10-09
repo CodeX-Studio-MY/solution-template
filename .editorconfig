@@ -1,0 +1,21 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+indent_style = space
+indent_size = 4
+trim_trailing_whitespace = true
+
+[*.{json,yaml,yml,ts,tsx,js,mjs,css,md,props,targets,csproj,slnx,xml}]
+indent_size = 2
+
+[*.cs]
+dotnet_sort_system_directives_first = true
+csharp_style_namespace_declarations = file_scoped:warning
+dotnet_diagnostic.IDE0005.severity = warning
+
+# EF Core migrations are tool-generated (dotnet ef migrations add); analyzers treat them as generated code.
+[backend/src/**/Migrations/**.cs]
+generated_code = true

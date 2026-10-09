@@ -1,0 +1,5 @@
+P:System.DateTime.Now;Use TimeProvider or ITenantClock.
+P:System.DateTime.Today;Use ITenantClock.Today.
+P:System.DateTime.UtcNow;Inject TimeProvider instead of the static clock.
+P:System.DateTimeOffset.Now;Use TimeProvider or ITenantClock.
+P:System.DateTimeOffset.UtcNow;Inject TimeProvider instead of the static clock.

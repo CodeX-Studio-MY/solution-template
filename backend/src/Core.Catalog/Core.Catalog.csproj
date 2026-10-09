@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    The catalog database's tenant directory: tenants, placement, modules, plans, entitlements, migration state.
+    Every host reads it to resolve tenants; only Tenancy, Identity, the Migrator and Core may write it (architecture tests).
+  -->
+  <PropertyGroup>
+    <IsPackable>true</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Core\Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="$(PlatformProductPascal).Core.Tests" />
+  </ItemGroup>
+</Project>

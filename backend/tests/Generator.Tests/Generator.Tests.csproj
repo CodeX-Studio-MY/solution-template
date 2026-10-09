@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\..\tools\Generator\Generator.csproj" />
+  </ItemGroup>
+</Project>

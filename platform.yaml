@@ -1,0 +1,30 @@
+# SINGLE SOURCE OF TRUTH for the application's structure (see docs/adr and SAAS_TEMPLATE_PROMPT.md section 2.1).
+# Edit this file, then run scripts/generate. Never repeat these facts anywhere else.
+
+product: acme
+org: CodeX Studio
+defaults:
+  timezone: Asia/Kuala_Lumpur
+  currency: MYR
+  locales: [en, ms, zh]
+cloud: azure
+database:
+  providers: [sqlserver, postgresql]   # which one an environment uses is runtime config (Database:Provider)
+
+roles: [user, manager, admin]          # lowest to highest
+plans: [standard, plus]
+
+services:                              # what runs, and how it's routed: /api/{service-key}/*
+                                       # databases: where the service keeps data (tenant is the default)
+  - { key: identity,           port: 5001, owns: [access-management], databases: [tenant, catalog] }
+  - { key: tenancy,            port: 5002, owns: [tenant-settings, billing], databases: [catalog] }
+  - { key: notification,       port: 5003, owns: [] }
+  - { key: purchase-request,   port: 5101, owns: [purchase-request] }
+  - { key: cost-center-budget, port: 5102, owns: [cost-center-budget] }
+
+modules:                               # what is authorized and entitled: roles claim, plans
+  - { key: access-management,  name: Access Management,  plans: [standard, plus] }
+  - { key: tenant-settings,    name: Tenant Settings,    plans: [standard, plus] }
+  - { key: billing,            name: Billing,            plans: [standard, plus] }
+  - { key: purchase-request,   name: Purchase Requests,  plans: [standard, plus] }
+  - { key: cost-center-budget, name: Cost Center Budget, plans: [plus] }

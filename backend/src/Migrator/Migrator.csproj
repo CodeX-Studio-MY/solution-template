@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- The ONLY place migrations are applied. Run by the pipeline before new code rolls out. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <Import Project="Generated/MigrationsProjects.g.props" />
+  <ItemGroup>
+    <ProjectReference Include="..\Core.Hosting\Core.Hosting.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="$(PlatformProductPascal).Integration.Tests" />
+    <InternalsVisibleTo Include="$(PlatformProductPascal).Architecture.Tests" />
+  </ItemGroup>
+</Project>

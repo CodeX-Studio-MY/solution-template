@@ -1,0 +1,19 @@
+# .NET
+bin/
+obj/
+*.user
+.vs/
+TestResults/
+# Node
+node_modules/
+dist/
+.turbo/
+playwright-report/
+test-results/
+# Secrets and local state: never commit
+.env
+*.pfx
+*.pem
+!deploy/.env.example
+.DS_Store
+.idea/
