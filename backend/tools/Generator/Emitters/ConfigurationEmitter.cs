@@ -30,11 +30,14 @@ internal static class ConfigurationEmitter
     private static IEnumerable<Setting> Settings(Type type)
     {
         var defaults = Activator.CreateInstance(type);
-        foreach (var property in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+        // Only bindable (settable) properties are configuration; computed ones (for example Issuer) are derived.
+        foreach (var property in type.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(p => p.CanWrite))
         {
             var setting = property.GetCustomAttribute<SettingAttribute>()
                 ?? throw new InvalidOperationException($"{type.Name}.{property.Name} needs a [Setting] description.");
-            var isMap = property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(Dictionary<,>);
+            var isMap = property.PropertyType.IsGenericType
+                && (property.PropertyType.GetGenericTypeDefinition() == typeof(Dictionary<,>) || property.PropertyType.GetGenericTypeDefinition() == typeof(List<>));
+            var isList = isMap && property.PropertyType.GetGenericTypeDefinition() == typeof(List<>);
             var value = property.GetValue(defaults);
             var hasDefault = value switch
             {
@@ -58,7 +61,7 @@ internal static class ConfigurationEmitter
                 property.GetCustomAttribute<SecretAttribute>() is not null,
                 hasDefault ? Convert.ToString(value, System.Globalization.CultureInfo.InvariantCulture) : null,
                 setting.Description,
-                setting.Example,
+                isList ? "0" : setting.Example,
                 string.Join("; ", constraints));
         }
     }
@@ -127,7 +130,7 @@ internal static class ConfigurationEmitter
             foreach (var setting in section.Settings)
             {
                 if (setting.IsMap)
-                    sb.AppendLine($"        public static string {setting.Name}(string key) => $\"{section.Name}__{setting.Name}__{{key}}\";");
+                    sb.AppendLine($"        public static string {setting.Name}(object key) => $\"{section.Name}__{setting.Name}__{{key}}\";");
                 else
                     sb.AppendLine($"        public const string {setting.Name} = \"{section.Name}__{setting.Name}\";");
             }
@@ -143,6 +146,7 @@ internal static class ConfigurationEmitter
         _ when type == typeof(int) => "integer",
         _ when type == typeof(bool) => "boolean",
         _ when type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Dictionary<,>) => "map of string",
+        _ when type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>) => "list of string (one variable per index)",
         _ => type.Name,
     };
 

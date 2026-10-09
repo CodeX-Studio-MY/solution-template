@@ -34,3 +34,9 @@ public enum PrincipalType
     Machine,
     Service,
 }
+
+public static class PrincipalTypeExtensions
+{
+    /// <summary>The lowercase name used in tokens and audit entries, for example <c>machine</c>.</summary>
+    public static string ToClaimValue(this PrincipalType type) => type.ToString().ToLowerInvariant();
+}

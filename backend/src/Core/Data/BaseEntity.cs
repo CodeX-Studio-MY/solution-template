@@ -41,3 +41,6 @@ public interface ISoftDeletable
 
     void MarkDeleted(DateTime utcNow);
 }
+
+/// <summary>Rows that are only ever inserted (audit logs). Updates and deletes are refused on save.</summary>
+public interface IAppendOnly;

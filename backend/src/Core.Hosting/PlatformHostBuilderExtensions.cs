@@ -3,6 +3,10 @@ using Acme.Core.Configuration;
 using Acme.Core.Data;
 using Acme.Core.Data.PostgreSql;
 using Acme.Core.Data.SqlServer;
+using Acme.Core.Hosting.Auth;
+using Acme.Core.Hosting.DataProtection;
+using Acme.Core.Hosting.Redis;
+using Acme.Core.ServiceCalls;
 using Acme.Core.Composition;
 using Acme.Core.Platform;
 using Microsoft.AspNetCore.Authorization;
@@ -29,8 +33,8 @@ public static class PlatformHostBuilderExtensions
         if (hosted.Count == services.Length)
         {
             ListenOnPlatformPort(builder, services[0]);
-            builder.AddServiceDefaults(services[0].Key);
-            AddKernel(builder);
+            builder.AddPlatformInfrastructure(services[0].Key);
+            AddSecurity(builder);
         }
         return builder;
     }
@@ -44,13 +48,22 @@ public static class PlatformHostBuilderExtensions
             throw new InvalidOperationException(
                 $"{typeof(TModule).Name} belongs to service '{TModule.Service.Key}', which this host doesn't run. Add it to AddPlatform.");
         TModule.Register(builder);
-        builder.Services.AddSingleton(new ModuleEndpoints(TModule.Service, TModule.MapEndpoints));
+        builder.Services.AddSingleton(new ModuleEndpoints(TModule.Service, TModule.MapEndpoints, TModule.MapRootEndpoints));
         return builder;
     }
 
-    private static void AddKernel(WebApplicationBuilder builder)
+    /// <summary>
+    /// The infrastructure every public or internal host shares: observability, configuration validation, tenancy, the catalog,
+    /// the database provider, Redis, Data Protection and the JSON convention. Used by <c>AddPlatform</c> and by the Gateway.
+    /// </summary>
+    public static WebApplicationBuilder AddPlatformInfrastructure(this WebApplicationBuilder builder, string serviceName)
     {
+        builder.AddServiceDefaults(serviceName);
         builder.Services.AddPlatformKernel(builder.Configuration);
+
+        // One JSON convention for every API: camelCase names, enums as camelCase strings (the generated TypeScript types match).
+        builder.Services.ConfigureHttpJsonOptions(json =>
+            json.SerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter(System.Text.Json.JsonNamingPolicy.CamelCase)));
 
         // Both providers are registered; Database:Provider picks the one this environment uses.
         builder.Services.AddSingleton<IDatabaseProvider, SqlServerDatabaseProvider>();
@@ -62,13 +75,20 @@ public static class PlatformHostBuilderExtensions
         current.AddServices(builder.Services, database.CatalogConnectionString);
 
         builder.Services.AddTenantCatalog();
+        builder.Services.AddPlatformRedis(builder.Configuration);
+        builder.Services.AddServiceClientOptions(builder.Configuration);
+        builder.Services.AddPlatformDataProtection(builder.Configuration);
+        return builder;
+    }
 
+    private static void AddSecurity(WebApplicationBuilder builder)
+    {
         // Secure by default: every endpoint requires an authenticated principal unless marked [AllowAnonymous].
-        builder.Services.AddAuthentication(NoCredentialsAuthenticationHandler.SchemeName)
-            .AddScheme<Microsoft.AspNetCore.Authentication.AuthenticationSchemeOptions, NoCredentialsAuthenticationHandler>(
-                NoCredentialsAuthenticationHandler.SchemeName, configureOptions: null);
+        builder.Services.AddPlatformTokenValidation();
         builder.Services.AddAuthorizationBuilder()
             .SetFallbackPolicy(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build());
+        builder.Services.AddSingleton<AccessVersionChecker>();
+        builder.Services.AddSingleton<IAuthorizationMiddlewareResultHandler, PlatformAuthorizationResultHandler>();
     }
 
     /// <summary>Listens on the service's port from platform.yaml unless the environment sets URLs (Aspire, containers).</summary>
@@ -90,12 +110,7 @@ public static class PlatformHostBuilderExtensions
     }
 }
 
-/// <summary>The services this host runs (one, or all of them in <c>AllInOne.Host</c>).</summary>
-public sealed class HostedPlatformServices
-{
-    internal List<PlatformService> Services { get; } = [];
-
-    public IReadOnlyList<PlatformService> All => Services;
-}
-
-internal sealed record ModuleEndpoints(PlatformService Service, Action<Microsoft.AspNetCore.Routing.IEndpointRouteBuilder> Map);
+internal sealed record ModuleEndpoints(
+    PlatformService Service,
+    Action<Microsoft.AspNetCore.Routing.IEndpointRouteBuilder> Map,
+    Action<Microsoft.AspNetCore.Routing.IEndpointRouteBuilder> MapRoot);

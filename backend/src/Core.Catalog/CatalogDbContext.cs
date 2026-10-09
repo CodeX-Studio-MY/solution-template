@@ -10,7 +10,7 @@ public sealed class CatalogDbContext(DbContextOptions<CatalogDbContext> options)
     public const string SchemaName = "catalog";
 
     /// <summary>Module key format, also enforced by a check constraint.</summary>
-    public const string ModuleKeyPattern = "^[a-z][a-z0-9-]{1,29}$";
+    public const string ModuleKeyPattern = Acme.Core.Platform.KeyRules.PatternText;
 
     public DbSet<CatalogTenant> Tenants => Set<CatalogTenant>();
 
@@ -21,6 +21,8 @@ public sealed class CatalogDbContext(DbContextOptions<CatalogDbContext> options)
     public DbSet<TenantModule> TenantModules => Set<TenantModule>();
 
     public DbSet<TenantMigrationState> MigrationStates => Set<TenantMigrationState>();
+
+    public DbSet<PlanLimit> PlanLimits => Set<PlanLimit>();
 
     protected override void ConfigureModel(ModelBuilder modelBuilder)
     {
@@ -35,6 +37,7 @@ public sealed class CatalogDbContext(DbContextOptions<CatalogDbContext> options)
             tenant.Property(t => t.Currency).HasMaxLength(3).IsFixedLength();
             tenant.Property(t => t.Locale).HasMaxLength(16);
             tenant.Property(t => t.Status).HasConversion<string>().HasMaxLength(20);
+            tenant.Property(t => t.RequireSupportApproval).HasDefaultValue(true);
             tenant.ComplexProperty(t => t.Placement, placement =>
             {
                 placement.Property(p => p.Provider).HasMaxLength(20);
@@ -81,6 +84,13 @@ public sealed class CatalogDbContext(DbContextOptions<CatalogDbContext> options)
             state.Property(s => s.LastMigration).HasMaxLength(256);
             state.Property(s => s.Outcome).HasConversion<string>().HasMaxLength(20);
             state.HasOne<CatalogTenant>().WithMany().HasForeignKey(s => s.TenantId);
+        });
+
+        modelBuilder.Entity<PlanLimit>(limit =>
+        {
+            limit.ToTable("PlanLimits");
+            limit.HasKey(l => l.Plan);
+            limit.Property(l => l.Plan).HasMaxLength(30);
         });
 
         SeedPlatformData(modelBuilder);

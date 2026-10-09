@@ -101,6 +101,9 @@ namespace Acme.Core.Catalog.Migrations.SqlServer.Migrations.Catalog
                         .HasColumnType("nchar(3)")
                         .IsFixedLength();
 
+                    b.Property<DateTime?>("DeleteAfter")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("DisplayName")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -115,6 +118,11 @@ namespace Acme.Core.Catalog.Migrations.SqlServer.Migrations.Catalog
                         .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)");
+
+                    b.Property<bool>("RequireSupportApproval")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
 
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
@@ -172,6 +180,23 @@ namespace Acme.Core.Catalog.Migrations.SqlServer.Migrations.Catalog
                         .IsUnique();
 
                     b.ToTable("Tenants", "catalog");
+                });
+
+            modelBuilder.Entity("Acme.Core.Catalog.Entities.PlanLimit", b =>
+                {
+                    b.Property<string>("Plan")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<int>("PerPrincipalPerMinute")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PerTenantPerMinute")
+                        .HasColumnType("int");
+
+                    b.HasKey("Plan");
+
+                    b.ToTable("PlanLimits", "catalog");
                 });
 
             modelBuilder.Entity("Acme.Core.Catalog.Entities.PlanModule", b =>

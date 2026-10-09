@@ -12,7 +12,11 @@ internal sealed class PlatformInfrastructure
     public const string DefaultServerPool = "default";
 
     public const int DashboardHostPort = 18888;
+    public const int PublicPort = 7443;
     public const int MailpitUiHostPort = 8025;
+
+    /// <summary>The generated, persisted secrets shared by the stack. Values never appear in the repository.</summary>
+    private readonly Secrets _secrets;
 
     private PlatformInfrastructure(
         string provider,
@@ -21,8 +25,10 @@ internal sealed class PlatformInfrastructure
         IResourceBuilder<IResourceWithConnectionString> tenantServer,
         IResourceBuilder<IResourceWithConnectionString> redis,
         IResourceBuilder<IResourceWithConnectionString> rabbitMq,
-        IResourceBuilder<ProjectResource> migrator)
+        IResourceBuilder<ProjectResource> migrator,
+        Secrets secrets)
     {
+        _secrets = secrets;
         Provider = provider;
         BaseDomain = baseDomain;
         Catalog = catalog;
@@ -31,6 +37,10 @@ internal sealed class PlatformInfrastructure
         RabbitMq = rabbitMq;
         Migrator = migrator;
     }
+
+    public static string AppHostDirectory => AppContext.BaseDirectory.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
+        ? Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", ".."))
+        : AppContext.BaseDirectory;
 
     public string Provider { get; }
 
@@ -101,7 +111,7 @@ internal sealed class PlatformInfrastructure
         var migrator = builder.AddProject("migrator", "../Migrator/Migrator.csproj")
             .WithArgs("--catalog", "--all");
 
-        var infrastructure = new PlatformInfrastructure(provider, baseDomain, catalog, server, redis, rabbitMq, migrator);
+        var infrastructure = new PlatformInfrastructure(provider, baseDomain, catalog, server, redis, rabbitMq, migrator, Secrets.Add(builder));
         infrastructure.ConfigureDatabase(migrator).WaitFor(catalog);
         return infrastructure;
     }
@@ -110,13 +120,85 @@ internal sealed class PlatformInfrastructure
     private static string Volume(string name) => $"{PlatformInfo.Product}-{name}";
 
     /// <summary>Gives a service host its configuration and starts it after the Migrator has finished.</summary>
-    public IResourceBuilder<ProjectResource> ConfigureService(IResourceBuilder<ProjectResource> service) =>
-        ConfigureDatabase(service)
+    public IResourceBuilder<ProjectResource> ConfigureService(IResourceBuilder<ProjectResource> service)
+    {
+        service = ConfigureDatabase(service)
             .WithEnvironment(ConfigKeys.Tenancy.BaseDomain, BaseDomain)
+            .WithEnvironment(ConfigKeys.Tenancy.PublicPort, PublicPort.ToString(System.Globalization.CultureInfo.InvariantCulture))
             .WithEnvironment(ConfigKeys.Redis.ConnectionString, Redis)
+            .WithEnvironment(ConfigKeys.DataProtection.KeyEncryptionKey, _secrets.DataProtectionKey)
+            .WithEnvironment(ConfigKeys.ServiceClient.ClientSecret, _secrets.ServiceSecrets[service.Resource.Name])
             .WithHttpHealthCheck("/health/ready")
             .WaitFor(Redis)
             .WaitForCompletion(Migrator);
+
+        if (service.Resource.Name == PlatformServices.Identity.Key)
+        {
+            // Only the token server holds the signing and encryption keys; it also registers every platform client.
+            service = service
+                // The token server sits on the private network behind the Gateway, which terminates TLS.
+                .WithEnvironment(ConfigKeys.TokenServer.RequireTransportSecurity, "false")
+                .WithEnvironment(ConfigKeys.TokenServer.SigningKeys(0), _secrets.SigningKey)
+                .WithEnvironment(ConfigKeys.TokenServer.EncryptionKeys(0), _secrets.EncryptionKey)
+                .WithEnvironment(ConfigKeys.TokenServer.PlatformClientSecrets(PlatformClients.Bff), _secrets.BffSecret);
+            foreach (var platformService in PlatformServices.All)
+                service = service.WithEnvironment(ConfigKeys.TokenServer.PlatformClientSecrets(platformService.ClientId), _secrets.ServiceSecrets[platformService.Key]);
+        }
+
+        if (service.Resource.Name == PlatformServices.Tenancy.Key)
+        {
+            // Local development applies a new tenant's migrations by running the Migrator project for that tenant.
+            var migratorProject = Path.GetFullPath("../Migrator/Migrator.csproj", AppHostDirectory);
+            service = service
+                .WithEnvironment(ConfigKeys.Onboarding.MigratorCommand, "dotnet")
+                .WithEnvironment(ConfigKeys.Onboarding.MigratorArguments, $"run --project {migratorProject} --no-launch-profile -- --tenant {{tenant}}");
+        }
+        return service;
+    }
+
+    /// <summary>
+    /// Points every service (and the Gateway) at the token server's internal address for discovery, JWKS and token requests,
+    /// so nothing inside the network depends on the public <c>login.</c> hostname resolving.
+    /// </summary>
+    public static void WireTokenServer(IReadOnlyList<IResourceBuilder<ProjectResource>> services, IResourceBuilder<ProjectResource> gateway)
+    {
+        var identity = services.Single(s => s.Resource.Name == PlatformServices.Identity.Key);
+        var endpoint = identity.GetEndpoint("http");
+        foreach (var project in services.Concat([gateway]))
+        {
+            project
+                .WithEnvironment(ConfigKeys.Auth.MetadataAddress, ReferenceExpression.Create($"{endpoint}/.well-known/openid-configuration"))
+                .WithEnvironment(ConfigKeys.Auth.TokenEndpoint, ReferenceExpression.Create($"{endpoint}/connect/token"))
+                .WithEnvironment(ConfigKeys.Auth.RequireHttpsMetadata, "false");
+        }
+    }
+
+    /// <summary>The Gateway: the only public entry point. Local development publishes it on HTTPS at <c>https://{tenant}.localhost:{PublicPort}</c>.</summary>
+    public IResourceBuilder<ProjectResource> AddGateway(IDistributedApplicationBuilder builder, IReadOnlyList<IResourceBuilder<ProjectResource>> services)
+    {
+        var gateway = ConfigureDatabase(builder.AddProject("gateway", "../Gateway/Gateway.csproj"))
+            .WithHttpsEndpoint(port: PublicPort, name: "https")
+            .WithExternalHttpEndpoints()
+            .WithEnvironment(ConfigKeys.Tenancy.BaseDomain, BaseDomain)
+            .WithEnvironment(ConfigKeys.Tenancy.PublicPort, PublicPort.ToString(System.Globalization.CultureInfo.InvariantCulture))
+            .WithEnvironment(ConfigKeys.Redis.ConnectionString, Redis)
+            .WithEnvironment(ConfigKeys.DataProtection.KeyEncryptionKey, _secrets.DataProtectionKey)
+            .WithEnvironment(ConfigKeys.Bff.ClientSecret, _secrets.BffSecret)
+            .WithHttpHealthCheck("/health/ready")
+            .WaitFor(Redis)
+            .WaitForCompletion(Migrator);
+        foreach (var service in services)
+            gateway = gateway.WaitFor(service).WithReference(service);   // WithReference lets the Gateway's service discovery resolve http://{service-key}
+
+        // A certificate for *.localhost (made by scripts/dev-up with mkcert) lets browsers trust the __Host- cookies.
+        if (builder.Configuration["Dev:CertificatePath"] is { Length: > 0 } certificate && builder.Configuration["Dev:CertificateKeyPath"] is { Length: > 0 } key)
+        {
+            gateway = gateway
+                .WithEnvironment("ASPNETCORE_Kestrel__Certificates__Default__Path", certificate)
+                .WithEnvironment("ASPNETCORE_Kestrel__Certificates__Default__KeyPath", key);
+        }
+        return gateway;
+    }
 
     private IResourceBuilder<ProjectResource> ConfigureDatabase(IResourceBuilder<ProjectResource> project) =>
         project
@@ -124,4 +206,34 @@ internal sealed class PlatformInfrastructure
             .WithEnvironment(ConfigKeys.Database.CatalogConnectionString, Catalog)
             .WithEnvironment(ConfigKeys.Database.Servers(DefaultServerPool), TenantServer)
             .WithEnvironment(ConfigKeys.Tenancy.BaseDomain, BaseDomain);
+}
+
+/// <summary>The secrets the stack needs, generated once and persisted in the AppHost's user secrets.</summary>
+internal sealed class Secrets
+{
+    public required IResourceBuilder<ParameterResource> SigningKey { get; init; }
+
+    public required IResourceBuilder<ParameterResource> EncryptionKey { get; init; }
+
+    public required IResourceBuilder<ParameterResource> DataProtectionKey { get; init; }
+
+    public required IResourceBuilder<ParameterResource> BffSecret { get; init; }
+
+    /// <summary>One client secret per service, by service key.</summary>
+    public required IReadOnlyDictionary<string, IResourceBuilder<ParameterResource>> ServiceSecrets { get; init; }
+
+    public static Secrets Add(IDistributedApplicationBuilder builder)
+    {
+        var generated = new GenerateParameterDefault { MinLength = 40, Special = false };
+        return new Secrets
+        {
+            SigningKey = builder.AddParameter("token-signing-key", new EcSigningKeyDefault(), secret: true, persist: true),
+            EncryptionKey = builder.AddParameter("token-encryption-key", new Base64KeyDefault(), secret: true, persist: true),
+            DataProtectionKey = builder.AddParameter("data-protection-key", new Base64KeyDefault(), secret: true, persist: true),
+            BffSecret = builder.AddParameter("bff-client-secret", generated, secret: true, persist: true),
+            ServiceSecrets = PlatformServices.All.ToDictionary(
+                s => s.Key,
+                s => builder.AddParameter($"client-secret-{s.Key}", generated, secret: true, persist: true)),
+        };
+    }
 }

@@ -41,6 +41,15 @@ public interface IDatabaseProvider
     /// <summary>SQL filter for a nullable column that is set, used by filtered unique indexes.</summary>
     string NotNullFilter(string propertyName);
 
+    /// <summary>Creates the database on the server of <paramref name="serverConnectionString"/> if it doesn't exist. Used by tenant onboarding.</summary>
+    Task EnsureDatabaseAsync(string serverConnectionString, string databaseName, CancellationToken cancellationToken = default);
+
+    /// <summary>Drops the database if it exists, closing its pooled connections first. Used by offboarding after the grace period.</summary>
+    Task DropDatabaseAsync(string serverConnectionString, string databaseName, CancellationToken cancellationToken = default);
+
+    /// <summary>SQL for a check constraint that exactly one of two nullable columns is set.</summary>
+    string ExactlyOneSetCheck(string firstProperty, string secondProperty);
+
     /// <summary>SQL for a check constraint that the column matches a regular expression.</summary>
     string RegexCheck(string propertyName, string pattern);
 

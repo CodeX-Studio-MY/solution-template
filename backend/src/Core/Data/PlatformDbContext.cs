@@ -27,6 +27,9 @@ public abstract class PlatformDbContext : DbContext
     /// <summary>Provider-neutral SQL for a check constraint that <paramref name="propertyName"/> matches <paramref name="pattern"/>.</summary>
     protected string MatchesPatternSql(string propertyName, string pattern) => Provider.RegexCheck(propertyName, pattern);
 
+    /// <summary>Provider-neutral SQL for a check constraint that exactly one of two nullable columns is set.</summary>
+    protected string ExactlyOneSetSql(string firstProperty, string secondProperty) => Provider.ExactlyOneSetCheck(firstProperty, secondProperty);
+
     /// <summary>Configures the module's own entities.</summary>
     protected abstract void ConfigureModel(ModelBuilder modelBuilder);
 

@@ -53,3 +53,13 @@ public sealed class TenantMigrationState
 
     public DateTime UpdatedOn { get; set; }
 }
+
+/// <summary>Rate limits for a plan. Plans without a row use the RateLimit configuration defaults.</summary>
+public sealed class PlanLimit
+{
+    public string Plan { get; init; } = "";
+
+    public int PerTenantPerMinute { get; set; }
+
+    public int PerPrincipalPerMinute { get; set; }
+}

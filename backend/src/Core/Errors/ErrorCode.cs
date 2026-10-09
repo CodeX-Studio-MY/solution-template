@@ -27,6 +27,12 @@ public static class PlatformErrors
     public static readonly ErrorCode TenantHeaderNotAllowed = new("platform.tenant-header-not-allowed", 403, "errors.platform.tenantHeaderNotAllowed");
     public static readonly ErrorCode TenantReadOnly = new("platform.tenant-read-only", 403, "errors.platform.tenantReadOnly");
     public static readonly ErrorCode TenantUnavailable = new("platform.tenant-unavailable", 403, "errors.platform.tenantUnavailable");
+    public static readonly ErrorCode ModuleNotEntitled = new("platform.module-not-entitled", 403, "errors.platform.moduleNotEntitled");
+    public static readonly ErrorCode PrincipalTypeNotAllowed = new("platform.principal-type-not-allowed", 403, "errors.platform.principalTypeNotAllowed");
+    public static readonly ErrorCode AccessChanged = new("platform.access-changed", 401, "errors.platform.accessChanged");
+    public static readonly ErrorCode AccessCheckUnavailable = new("platform.access-check-unavailable", 503, "errors.platform.accessCheckUnavailable");
+    public static readonly ErrorCode RateLimited = new("platform.rate-limited", 429, "errors.platform.rateLimited");
+    public static readonly ErrorCode ServiceTokenUnavailable = new("platform.service-token-unavailable", 403, "errors.platform.serviceTokenUnavailable");
     public static readonly ErrorCode TenantNotFound = new("platform.tenant-not-found", 404, "errors.platform.tenantNotFound");
     public static readonly ErrorCode NotFound = new("platform.not-found", 404, "errors.platform.notFound");
     public static readonly ErrorCode Conflict = new("platform.conflict", 409, "errors.platform.conflict");

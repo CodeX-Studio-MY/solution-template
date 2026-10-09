@@ -1,7 +1,8 @@
-using Acme.Identity.Infrastructure;
-using Acme.Core.Data;
 using Acme.Core.Composition;
+using Acme.Core.Data;
 using Acme.Core.Platform;
+using Acme.Identity.Api;
+using Acme.Identity.Infrastructure;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Hosting;
 
@@ -16,9 +17,18 @@ public sealed class IdentityModule : IPlatformModule
     {
         builder.Services.AddModuleDbContext<IdentityDbContext>(Service.Schema);
         builder.Services.AddCatalogDbContext<IdentityCatalogDbContext>(Service.Schema);
+        IdentityModuleSetup.Add(builder.Services, builder.Configuration);
     }
 
     public static void MapEndpoints(IEndpointRouteBuilder api)
     {
+        AccessManagementEndpoints.Map(api);
+        PlatformEndpoints.Map(api);
+    }
+
+    public static void MapRootEndpoints(IEndpointRouteBuilder app)
+    {
+        ConnectEndpoints.Map(app);
+        AccountEndpoints.Map(app);
     }
 }

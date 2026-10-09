@@ -46,7 +46,8 @@ internal sealed class CatalogTenantDirectory(
             .OrderBy(t => t.Slug)
             .ToListAsync(cancellationToken);
         var modules = await EnabledModulesAsync(db, tenants.Select(t => t.Id).ToList(), cancellationToken);
-        return tenants.Select(t => ToInfo(t, modules)).ToList();
+        var limits = await db.PlanLimits.AsNoTracking().ToDictionaryAsync(l => l.Plan, cancellationToken);
+        return tenants.Select(t => ToInfo(t, modules, limits.GetValueOrDefault(t.Plan))).ToList();
     }
 
     public void Invalidate(Guid tenantId) => cache.Remove(IdKey(tenantId));
@@ -61,7 +62,8 @@ internal sealed class CatalogTenantDirectory(
         if (tenant is null)
             return null;
         var modules = await EnabledModulesAsync(db, [tenant.Id], cancellationToken);
-        return ToInfo(tenant, modules);
+        var limit = await db.PlanLimits.AsNoTracking().SingleOrDefaultAsync(l => l.Plan == tenant.Plan, cancellationToken);
+        return ToInfo(tenant, modules, limit);
     }
 
     private static async Task<ILookup<Guid, string>> EnabledModulesAsync(
@@ -78,7 +80,7 @@ internal sealed class CatalogTenantDirectory(
         return rows.ToLookup(r => r.TenantId, r => r.ModuleKey);
     }
 
-    internal static TenantInfo ToInfo(CatalogTenant tenant, ILookup<Guid, string> modules) => new(
+    internal static TenantInfo ToInfo(CatalogTenant tenant, ILookup<Guid, string> modules, PlanLimit? limit) => new(
         tenant.Id,
         tenant.Slug,
         tenant.DisplayName,
@@ -92,7 +94,10 @@ internal sealed class CatalogTenantDirectory(
             tenant.Placement.Provider,
             tenant.Placement.ServerPool,
             tenant.Placement.DatabaseName,
-            tenant.Placement.SecretReference));
+            tenant.Placement.SecretReference),
+        limit is null ? null : new PlanLimits(limit.PerTenantPerMinute, limit.PerPrincipalPerMinute),
+        tenant.RequireSupportApproval,
+        tenant.DeleteAfter);
 
     private static string IdKey(Guid id) => $"tenant:id:{id}";
 

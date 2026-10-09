@@ -40,6 +40,11 @@ internal sealed partial class PlatformExceptionHandler(
             problem.Extensions["arguments"] = withArguments.Arguments;
 
         httpContext.Response.StatusCode = error.Status;
+        if (exception is PlatformException { Headers.Count: > 0 } withHeaders)
+        {
+            foreach (var (name, value) in withHeaders.Headers)
+                httpContext.Response.Headers[name] = value;
+        }
         return await problemDetails.TryWriteAsync(new ProblemDetailsContext
         {
             HttpContext = httpContext,

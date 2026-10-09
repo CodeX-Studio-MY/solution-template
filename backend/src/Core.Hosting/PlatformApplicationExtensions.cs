@@ -1,3 +1,4 @@
+using Acme.Core.Hosting.Auth;
 using Acme.Core.Tenancy;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -18,17 +19,30 @@ public static class PlatformApplicationExtensions
         app.UseExceptionHandler();
         app.UseAuthentication();
         app.UseMiddleware<TenantResolutionMiddleware>();
+        app.UseMiddleware<AccessVersionMiddleware>();
+        app.UseMiddleware<RateLimitMiddleware>();
         app.UseAuthorization();
 
-        // Liveness: the process responds. No dependencies, so a database blip doesn't restart containers.
-        app.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = _ => false }).AllowAnonymous();
-        // Readiness: the catalog database, RabbitMQ and Redis.
-        app.MapHealthChecks("/health/ready", new HealthCheckOptions { Predicate = check => check.Tags.Contains(HealthTags.Ready) })
-            .AllowAnonymous();
+        app.MapPlatformHealth();
 
         foreach (var module in app.Services.GetServices<ModuleEndpoints>())
+        {
             module.Map(app.MapGroup(module.Service.RoutePrefix));
+            module.MapRoot(app);
+        }
 
+        return app;
+    }
+
+    /// <summary>
+    /// <c>/health/live</c> checks only that the process responds (no dependencies, so a database blip doesn't restart every container);
+    /// <c>/health/ready</c> checks the catalog database and Redis (and RabbitMQ once messaging is added).
+    /// </summary>
+    public static WebApplication MapPlatformHealth(this WebApplication app)
+    {
+        app.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = _ => false }).AllowAnonymous();
+        app.MapHealthChecks("/health/ready", new HealthCheckOptions { Predicate = check => check.Tags.Contains(HealthTags.Ready) })
+            .AllowAnonymous();
         return app;
     }
 }

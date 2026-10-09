@@ -1,4 +1,5 @@
 using System.Reflection;
+using Acme.Core.Platform;
 using NetArchTest.Rules;
 
 namespace Acme.Architecture.Tests;
@@ -23,7 +24,6 @@ public sealed class ModuleBoundaryTests
         var forbidden = new[]
         {
             $"{Solution.Product}.Core.Hosting",
-            $"{Solution.Product}.Core.Catalog",
             $"{Solution.Product}.Core.Data.SqlServer",
             $"{Solution.Product}.Core.Data.PostgreSql",
             "Microsoft.EntityFrameworkCore.SqlServer",
@@ -32,6 +32,18 @@ public sealed class ModuleBoundaryTests
             "Npgsql.EntityFrameworkCore.PostgreSQL",
         };
         Load(module).GetReferencedAssemblies().Select(r => r.Name!).Intersect(forbidden).ShouldBeEmpty();
+    }
+
+    /// <summary>Only Tenancy owns the tenant directory in the catalog; no other module may reference it.</summary>
+    [Fact]
+    public void Only_Tenancy_references_the_catalog_project()
+    {
+        var tenancy = $"{Solution.Product}.{Solution.Pascal(PlatformServices.Tenancy.Key)}";
+        var offenders = Solution.ModuleAssemblies
+            .Where(a => a.GetName().Name != tenancy)
+            .Where(a => a.GetReferencedAssemblies().Any(r => r.Name == $"{Solution.Product}.Core.Catalog"))
+            .Select(a => a.GetName().Name);
+        offenders.ShouldBeEmpty();
     }
 
     [Theory]

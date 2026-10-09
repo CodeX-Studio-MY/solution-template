@@ -18,4 +18,12 @@ public interface IPlatformModule
 
     /// <summary>Maps the module's endpoints. <paramref name="api"/> is already under <c>/api/{service-key}</c>.</summary>
     static abstract void MapEndpoints(IEndpointRouteBuilder api);
+
+    /// <summary>
+    /// Maps endpoints that must live at the host root rather than under the service's route prefix
+    /// (the token server's <c>/connect/*</c> and <c>/.well-known/*</c>). Most modules map nothing here.
+    /// </summary>
+    static virtual void MapRootEndpoints(IEndpointRouteBuilder app)
+    {
+    }
 }

@@ -7,6 +7,41 @@ Hosts validate this schema at startup and refuse to start on missing or invalid 
 
 Standard variables read by libraries directly (for example `OTEL_EXPORTER_OTLP_ENDPOINT`, `ASPNETCORE_URLS`) are not listed here.
 
+## Auth
+
+How every service validates access tokens. The issuer is https://login.{Tenancy:BaseDomain}.
+
+| Environment variable | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `Auth__MetadataAddress` | string | no |  | Internal URL of the token server's discovery document, when services can't reach the public issuer. Example: `http://identity/.well-known/openid-configuration`. |
+| `Auth__TokenEndpoint` | string | no |  | Internal URL of the token endpoint used for service tokens and token exchange, when it differs from {issuer}connect/token. Example: `http://identity/connect/token`. |
+| `Auth__RequireHttpsMetadata` | boolean | no | `True` | Require HTTPS for the discovery document. Only turn off for an internal HTTP address on a private network. |
+| `Auth__ClockSkewSeconds` | integer | no | `30` | Allowed clock skew for exp and nbf, in seconds (at most 30). Allowed: 0–30. |
+| `Auth__AccessVersionCacheSeconds` | integer | no | `3` | How long a principal's access_version from Redis is cached in memory, in seconds. Allowed: 0–60. |
+| `Auth__AccessVersionGraceSeconds` | integer | no | `60` | If Redis is unavailable, how long the last known access_version is used before failing closed (503), in seconds. Allowed: 0–3600. |
+
+## Bff
+
+The Gateway acting as the web app's backend-for-frontend (RFC 10017): sessions, tokens and static files.
+
+| Environment variable | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `Bff__ClientSecret` | string | yes |  | The Gateway's OAuth client secret (a confidential client). Must match TokenServer:PlatformClientSecrets for the BFF client. **Secret.** |
+| `Bff__SessionDays` | integer | no | `7` | How long a browser session lasts without activity, in days. It matches the refresh token's sliding lifetime. Allowed: 1–30. |
+| `Bff__AllInOneAddress` | string | no |  | When every service runs in one process (AllInOne.Host), route all /api traffic to this address instead of one host per service. Example: `http://allinone`. |
+| `Bff__ShellRoot` | string | no |  | Directory with the built shell app (index.html and its assets), served by the Gateway on every tenant host. Empty disables it. Example: `/app/shell`. |
+| `Bff__ModulesRoot` | string | no |  | Directory with the built frontend modules, served at /mfe/{module-key}/{version}/. Empty disables it (a CDN serves them). Example: `/app/mfe`. |
+| `Bff__ExtraSources` | string | no |  | Extra origins the browser may connect to or load scripts from, besides the app itself and the module CDN (space separated). Example: `https://cdn.example.com`. |
+
+## DataProtection
+
+Protects BFF sessions, antiforgery tokens and stored secrets. The key ring is shared in Redis, wrapped by a key from the secret store.
+
+| Environment variable | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `DataProtection__KeyEncryptionKey` | string | yes |  | Key-encryption key (256 bits, base64). The ring in Redis is encrypted with it; rotate by adding a new key and keeping the old to decrypt. **Secret.** |
+| `DataProtection__ApplicationName` | string | yes | `platform` | The application name that keys are isolated by. The same for every service that must share the ring. |
+
 ## Database
 
 The catalog database, tenant database servers and the database provider.
@@ -20,6 +55,45 @@ The catalog database, tenant database servers and the database provider.
 | `Database__TenantCacheSeconds` | integer | no | `30` | How long a tenant's resolved connection is cached, in seconds. Allowed: 1–3600. |
 | `Database__MigrationParallelism` | integer | no | `4` | How many tenants the Migrator migrates in parallel with --all. Allowed: 1–64. |
 
+## Frontend
+
+Where the frontend modules are served from. Per-tenant versions are data in the catalog.
+
+| Environment variable | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `Frontend__ModuleBaseUrl` | string | yes | `/mfe` | Base URL of the module CDN (or '/mfe' when the Gateway serves them). Module entries are {base}/{module-key}/{version}/mf-manifest.json. Example: `/mfe`. |
+| `Frontend__DefaultModuleVersion` | string | yes | `0.0.0-dev` | Module version served to tenants that have no version set in the catalog. |
+
+## Onboarding
+
+How the Tenancy module provisions, migrates and deletes tenants.
+
+| Environment variable | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `Onboarding__DefaultServerPool` | string | yes | `default` | The tenant server pool new tenants are placed on (a key of Database:Servers). Example: `default`. |
+| `Onboarding__MigratorCommand` | string | no | `dotnet` | Command that applies one tenant's migrations. Tenancy never applies migrations itself; the pipeline's Migrator does. {tenant} is replaced by the tenant ID. Example: `dotnet`. |
+| `Onboarding__MigratorArguments` | string | no |  | Arguments for the migrator command. {tenant} is replaced by the tenant ID. Example: `Acme.Migrator.dll --tenant {tenant}`. |
+| `Onboarding__DeletionGraceDays` | integer | no | `30` | Days a tenant stays in PendingDeletion (after its data export) before its database and files are deleted. Allowed: 0–3650. |
+
+## Operators
+
+The platform operator realm (our own support staff).
+
+| Environment variable | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `Operators__SessionMinutes` | integer | no | `30` | How long an operator's console session lasts, in minutes. Allowed: 5–240. |
+
+## RateLimit
+
+Distributed rate limits (Redis). A tenant's plan can override the per-tenant and per-principal limits.
+
+| Environment variable | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `RateLimit__PerTenantPerMinute` | integer | no | `1200` | Requests per minute for one tenant, across all instances, unless the plan sets its own. Allowed: 1–1000000. |
+| `RateLimit__PerPrincipalPerMinute` | integer | no | `300` | Requests per minute for one principal, across all instances, unless the plan sets its own. Allowed: 1–1000000. |
+| `RateLimit__AuthPerAddressPerMinute` | integer | no | `30` | Requests per minute per client address for sign-in, token, enrollment and password-reset endpoints. Allowed: 1–10000. |
+| `RateLimit__PerInstancePerSecond` | integer | no | `1000` | Coarse per-instance protection: requests per second this instance accepts in total. Allowed: 1–1000000. |
+
 ## Redis
 
 The Redis-protocol store (Valkey locally) for cache, locks, rate limits and the SignalR backplane.
@@ -28,10 +102,35 @@ The Redis-protocol store (Valkey locally) for cache, locks, rate limits and the 
 |---|---|---|---|---|
 | `Redis__ConnectionString` | string | yes |  | StackExchange.Redis connection string. **Secret.** Example: `localhost:6379`. |
 
+## ServiceClient
+
+This service's own client credentials, for system work and for exchanging users' tokens when calling other services.
+
+| Environment variable | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `ServiceClient__ClientSecret` | string | no |  | This service's client secret (from the secret store). Its client ID is derived from its service key. **Secret.** |
+
 ## Tenancy
 
-How requests are mapped to tenants.
+How requests are mapped to tenants, and the public origins derived from the base domain.
 
 | Environment variable | Type | Required | Default | Description |
 |---|---|---|---|---|
 | `Tenancy__BaseDomain` | string | yes |  | Base domain: tenants are served at {tenant}.{BaseDomain}, sign-in at login.{BaseDomain}. Allowed: matches `^[a-z0-9.-]+$`. Example: `localhost`. |
+| `Tenancy__PublicPort` | Nullable`1 | no |  | Public HTTPS port of the Gateway, when it isn't 443 (local development). Allowed: 1–65535. Example: `7443`. |
+
+## TokenServer
+
+The token server in the Identity module: keys, lifetimes, platform clients and password rules. Keys come only from the secret store.
+
+| Environment variable | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `TokenServer__SigningKeys__0` | list of string (one variable per index) | no |  | ES256 signing keys, PEM (EC P-256 private key). The first signs; the others stay published until their tokens expire. One entry per key. **Secret.** Example: `0`. |
+| `TokenServer__EncryptionKeys__0` | list of string (one variable per index) | no |  | Encryption keys for authorization codes and refresh tokens, base64 (256 bits). The first encrypts; the others still decrypt. One entry per key. **Secret.** Example: `0`. |
+| `TokenServer__PlatformClientSecrets__acme-bff` | map of string | no |  | Client secrets of platform clients, by client ID (the BFF and each service). Each service holds its own in ServiceClient:ClientSecret. **Secret.** Example: `acme-bff`. |
+| `TokenServer__AccessTokenMinutes` | integer | no | `15` | Access token lifetime for users and machines, in minutes. Allowed: 1–60. |
+| `TokenServer__ServiceAccessTokenMinutes` | integer | no | `10` | Access token lifetime for service principals, in minutes (5 to 15). Allowed: 1–15. |
+| `TokenServer__RefreshTokenDays` | integer | no | `7` | Refresh token lifetime, in days (sliding: renewed and rotated on each use). Allowed: 1–30. |
+| `TokenServer__InvitationHours` | integer | no | `72` | How long an emailed invitation link is valid, in hours. Allowed: 1–168. |
+| `TokenServer__RequireTransportSecurity` | boolean | no | `True` | Require HTTPS on the token server's endpoints. Turn off only when it sits on a private network behind the Gateway, which terminates TLS (the AppHost and compose do). |
+| `TokenServer__BreachedPasswordCheck` | boolean | no | `True` | Reject passwords found in the Have I Been Pwned breached-password list (k-anonymity API). |

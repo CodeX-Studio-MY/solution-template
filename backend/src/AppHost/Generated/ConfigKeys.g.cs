@@ -4,21 +4,84 @@ namespace Acme.AppHost;
 /// <summary>Environment variable names from the configuration schema in Core.</summary>
 internal static class ConfigKeys
 {
+    public static class Auth
+    {
+        public const string MetadataAddress = "Auth__MetadataAddress";
+        public const string TokenEndpoint = "Auth__TokenEndpoint";
+        public const string RequireHttpsMetadata = "Auth__RequireHttpsMetadata";
+        public const string ClockSkewSeconds = "Auth__ClockSkewSeconds";
+        public const string AccessVersionCacheSeconds = "Auth__AccessVersionCacheSeconds";
+        public const string AccessVersionGraceSeconds = "Auth__AccessVersionGraceSeconds";
+    }
+    public static class Bff
+    {
+        public const string ClientSecret = "Bff__ClientSecret";
+        public const string SessionDays = "Bff__SessionDays";
+        public const string AllInOneAddress = "Bff__AllInOneAddress";
+        public const string ShellRoot = "Bff__ShellRoot";
+        public const string ModulesRoot = "Bff__ModulesRoot";
+        public const string ExtraSources = "Bff__ExtraSources";
+    }
+    public static class DataProtection
+    {
+        public const string KeyEncryptionKey = "DataProtection__KeyEncryptionKey";
+        public const string ApplicationName = "DataProtection__ApplicationName";
+    }
     public static class Database
     {
         public const string Provider = "Database__Provider";
         public const string CatalogConnectionString = "Database__CatalogConnectionString";
-        public static string Servers(string key) => $"Database__Servers__{key}";
+        public static string Servers(object key) => $"Database__Servers__{key}";
         public const string MaxPoolSize = "Database__MaxPoolSize";
         public const string TenantCacheSeconds = "Database__TenantCacheSeconds";
         public const string MigrationParallelism = "Database__MigrationParallelism";
+    }
+    public static class Frontend
+    {
+        public const string ModuleBaseUrl = "Frontend__ModuleBaseUrl";
+        public const string DefaultModuleVersion = "Frontend__DefaultModuleVersion";
+    }
+    public static class Onboarding
+    {
+        public const string DefaultServerPool = "Onboarding__DefaultServerPool";
+        public const string MigratorCommand = "Onboarding__MigratorCommand";
+        public const string MigratorArguments = "Onboarding__MigratorArguments";
+        public const string DeletionGraceDays = "Onboarding__DeletionGraceDays";
+    }
+    public static class Operators
+    {
+        public const string SessionMinutes = "Operators__SessionMinutes";
+    }
+    public static class RateLimit
+    {
+        public const string PerTenantPerMinute = "RateLimit__PerTenantPerMinute";
+        public const string PerPrincipalPerMinute = "RateLimit__PerPrincipalPerMinute";
+        public const string AuthPerAddressPerMinute = "RateLimit__AuthPerAddressPerMinute";
+        public const string PerInstancePerSecond = "RateLimit__PerInstancePerSecond";
     }
     public static class Redis
     {
         public const string ConnectionString = "Redis__ConnectionString";
     }
+    public static class ServiceClient
+    {
+        public const string ClientSecret = "ServiceClient__ClientSecret";
+    }
     public static class Tenancy
     {
         public const string BaseDomain = "Tenancy__BaseDomain";
+        public const string PublicPort = "Tenancy__PublicPort";
+    }
+    public static class TokenServer
+    {
+        public static string SigningKeys(object key) => $"TokenServer__SigningKeys__{key}";
+        public static string EncryptionKeys(object key) => $"TokenServer__EncryptionKeys__{key}";
+        public static string PlatformClientSecrets(object key) => $"TokenServer__PlatformClientSecrets__{key}";
+        public const string AccessTokenMinutes = "TokenServer__AccessTokenMinutes";
+        public const string ServiceAccessTokenMinutes = "TokenServer__ServiceAccessTokenMinutes";
+        public const string RefreshTokenDays = "TokenServer__RefreshTokenDays";
+        public const string InvitationHours = "TokenServer__InvitationHours";
+        public const string RequireTransportSecurity = "TokenServer__RequireTransportSecurity";
+        public const string BreachedPasswordCheck = "TokenServer__BreachedPasswordCheck";
     }
 }

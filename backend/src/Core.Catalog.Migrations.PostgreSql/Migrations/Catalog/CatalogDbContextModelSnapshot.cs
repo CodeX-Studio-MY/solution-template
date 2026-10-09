@@ -110,6 +110,10 @@ namespace Acme.Core.Catalog.Migrations.PostgreSql.Migrations.Catalog
                         .HasColumnName("currency")
                         .IsFixedLength();
 
+                    b.Property<DateTime?>("DeleteAfter")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("delete_after");
+
                     b.Property<string>("DisplayName")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -127,6 +131,12 @@ namespace Acme.Core.Catalog.Migrations.PostgreSql.Migrations.Catalog
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)")
                         .HasColumnName("plan");
+
+                    b.Property<bool>("RequireSupportApproval")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("require_support_approval");
 
                     b.Property<uint>("RowVersion")
                         .IsConcurrencyToken()
@@ -196,6 +206,27 @@ namespace Acme.Core.Catalog.Migrations.PostgreSql.Migrations.Catalog
                         .HasDatabaseName("ix_tenants_slug");
 
                     b.ToTable("Tenants", "catalog");
+                });
+
+            modelBuilder.Entity("Acme.Core.Catalog.Entities.PlanLimit", b =>
+                {
+                    b.Property<string>("Plan")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("plan");
+
+                    b.Property<int>("PerPrincipalPerMinute")
+                        .HasColumnType("integer")
+                        .HasColumnName("per_principal_per_minute");
+
+                    b.Property<int>("PerTenantPerMinute")
+                        .HasColumnType("integer")
+                        .HasColumnName("per_tenant_per_minute");
+
+                    b.HasKey("Plan")
+                        .HasName("pk_plan_limits");
+
+                    b.ToTable("PlanLimits", "catalog");
                 });
 
             modelBuilder.Entity("Acme.Core.Catalog.Entities.PlanModule", b =>

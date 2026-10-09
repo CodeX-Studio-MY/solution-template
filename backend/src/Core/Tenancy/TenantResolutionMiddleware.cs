@@ -46,6 +46,17 @@ public sealed partial class TenantResolutionMiddleware(
         var subdomain = SubdomainOf(context.Request.Host.Host, options.Value.BaseDomain);
         var ct = context.RequestAborted;
 
+        if (context.GetEndpoint()?.Metadata.GetMetadata<TenantFromParameter>() is not null && user.Identity?.IsAuthenticated != true)
+        {
+            var named = context.Request.Query[TenantFromParameter.Name].ToString();
+            if (string.IsNullOrEmpty(named) && context.Request.HasFormContentType)
+                named = (await context.Request.ReadFormAsync(ct))[TenantFromParameter.Name].ToString();
+            var found = string.IsNullOrEmpty(named) ? null : await directory.FindBySlugAsync(named, ct);
+            if (found is null || !found.CanRead)
+                throw new NotFoundException(PlatformErrors.TenantNotFound);
+            return found;
+        }
+
         if (user.Identity?.IsAuthenticated == true)
         {
             var tokenTenantId = user.GetTenantId();

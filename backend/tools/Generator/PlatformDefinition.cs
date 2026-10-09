@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using Acme.Core.Platform;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
@@ -156,12 +157,6 @@ public sealed class ModuleDefinition
     public List<string> Plans { get; set; } = [];
 
     public string Pascal => Naming.Pascal(Key);
-}
-
-public static class KeyRules
-{
-    public static readonly Regex Pattern = new("^[a-z][a-z0-9-]{1,29}$", RegexOptions.Compiled);
-    public static readonly IReadOnlySet<string> Reserved = new SortedSet<string> { "admin", "api", "bff", "health", "login", "mfe", "static" };
 }
 
 public sealed class PlatformDefinitionException(string message) : Exception(message);

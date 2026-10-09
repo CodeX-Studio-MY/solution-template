@@ -17,6 +17,9 @@ public enum TenantStatus
 /// <param name="SecretReference">Optional secret-store reference (for example an AWS Secrets Manager ARN) for the credentials.</param>
 public sealed record TenantPlacement(string Provider, string ServerPool, string DatabaseName, string? SecretReference);
 
+/// <summary>Rate limits from the tenant's plan, when the plan sets its own.</summary>
+public sealed record PlanLimits(int PerTenantPerMinute, int PerPrincipalPerMinute);
+
 /// <summary>A tenant as the catalog describes it.</summary>
 public sealed record TenantInfo(
     Guid Id,
@@ -28,7 +31,10 @@ public sealed record TenantInfo(
     string Currency,
     string Locale,
     IReadOnlySet<string> EnabledModules,
-    TenantPlacement Placement)
+    TenantPlacement Placement,
+    PlanLimits? Limits = null,
+    bool RequireSupportApproval = true,
+    DateTime? DeleteAfter = null)
 {
     /// <summary>Suspended tenants can sign in and read but not write.</summary>
     public bool CanRead => Status is TenantStatus.Active or TenantStatus.Suspended;

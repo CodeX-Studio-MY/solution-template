@@ -41,7 +41,19 @@ public sealed class CatalogTenant : BaseEntity, IAggregateRoot
 
     public TenantPlacementData Placement { get; private set; } = new();
 
+    /// <summary>When a tenant in <see cref="TenantStatus.PendingDeletion"/> is deleted for good (after the export and grace period).</summary>
+    public DateTime? DeleteAfter { get; private set; }
+
+    /// <summary>Whether platform operators need a tenant admin's approval for support access. On by default.</summary>
+    public bool RequireSupportApproval { get; private set; } = true;
+
     public void ChangeStatus(TenantStatus status) => Status = status;
+
+    public void ScheduleDeletion(DateTime? deleteAfter) => DeleteAfter = deleteAfter;
+
+    public void RequireApprovalForSupport(bool required) => RequireSupportApproval = required;
+
+    public void ChangePlacement(TenantPlacementData placement) => Placement = placement;
 
     public void ChangePlan(string plan) => Plan = plan;
 }

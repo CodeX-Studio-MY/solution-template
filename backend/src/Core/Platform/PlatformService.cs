@@ -21,6 +21,16 @@ public sealed record PlatformService(
     /// <summary>The route prefix every endpoint of this service lives under.</summary>
     public string RoutePrefix => $"/api/{Key}";
 
+    /// <summary>This service's OAuth client ID, for its own service tokens and token exchange.</summary>
+    public string ClientId => $"{PlatformInfo.Product}-{Key}";
+
     /// <summary>The database schema name for this service's module (hyphens become underscores).</summary>
     public string Schema => Key.Replace('-', '_');
+}
+
+/// <summary>Platform OAuth clients that aren't services in platform.yaml.</summary>
+public static class PlatformClients
+{
+    /// <summary>The Gateway acting as the web app's BFF: a confidential client.</summary>
+    public const string Bff = PlatformInfo.Product + "-bff";
 }

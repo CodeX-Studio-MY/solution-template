@@ -17,6 +17,9 @@ public abstract class PlatformException : Exception
 
     /// <summary>Values the localized message can interpolate.</summary>
     public IReadOnlyDictionary<string, object?> Arguments { get; init; } = new Dictionary<string, object?>();
+
+    /// <summary>Response headers that belong to the error (for example <c>Retry-After</c> or <c>WWW-Authenticate</c>).</summary>
+    public virtual IReadOnlyDictionary<string, string> Headers { get; } = new Dictionary<string, string>();
 }
 
 public sealed class NotFoundException(ErrorCode? error = null, string? detail = null)

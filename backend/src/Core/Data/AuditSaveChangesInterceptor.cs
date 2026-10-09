@@ -41,7 +41,12 @@ internal sealed class AuditSaveChangesInterceptor(
         if (entries.Count == 0)
             return;
 
-        if (context is ModuleDbContext && tenant.HasTenant && !tenant.Tenant.CanWrite)
+        // Suspended tenants are read-only for their own principals. Platform maintenance (revoking tokens, offboarding,
+        // migrations) is done by platform service principals and is not blocked.
+        var isPlatformService = principal.Principal is { } user
+            && user.GetPrincipalType() == PrincipalType.Service
+            && user.HasPermission(PlatformPermissions.TenantAny);
+        if (context is ModuleDbContext && tenant.HasTenant && !tenant.Tenant.CanWrite && !isPlatformService)
             throw new ForbiddenException(PlatformErrors.TenantReadOnly);
 
         var now = time.GetUtcNow().UtcDateTime;
@@ -50,6 +55,9 @@ internal sealed class AuditSaveChangesInterceptor(
 
         foreach (var entry in entries)
         {
+            if (entry.Entity is IAppendOnly && entry.State != EntityState.Added)
+                throw new InvalidOperationException($"{entry.Entity.GetType().Name} is append-only: rows can't be changed or deleted.");
+
             if (entry.State == EntityState.Deleted && entry.Entity is ISoftDeletable softDeletable)
             {
                 entry.State = EntityState.Modified;

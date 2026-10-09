@@ -18,6 +18,8 @@ public static class CoreServiceCollectionExtensions
     {
         services.AddPlatformOptions<DatabaseOptions>(configuration);
         services.AddPlatformOptions<TenancyOptions>(configuration);
+        services.AddPlatformOptions<AuthOptions>(configuration);
+        services.AddPlatformOptions<RateLimitOptions>(configuration);
 
         services.TryAddSingleton(TimeProvider.System);
         services.AddHttpContextAccessor();
@@ -27,6 +29,8 @@ public static class CoreServiceCollectionExtensions
         services.TryAddScoped<ITenantContext>(sp => sp.GetRequiredService<TenantContext>());
         services.TryAddScoped<ITenantContextSetter>(sp => sp.GetRequiredService<TenantContext>());
         services.TryAddScoped<ITenantClock, TenantClock>();
+        services.TryAddScoped<Authorization.IAccessEvaluator, Authorization.AccessEvaluator>();
+        services.AddScoped<Microsoft.AspNetCore.Authorization.IAuthorizationHandler, Authorization.PlatformAuthorizationHandler>();
         services.TryAddSingleton<ITenantConnectionResolver, TenantConnectionResolver>();
         services.TryAddSingleton<IDatabaseProviderAccessor, DatabaseProviderAccessor>();
         services.AddScoped<IInterceptor, AuditSaveChangesInterceptor>();

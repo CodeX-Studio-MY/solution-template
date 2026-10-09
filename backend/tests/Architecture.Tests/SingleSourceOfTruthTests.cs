@@ -18,11 +18,15 @@ public sealed partial class SingleSourceOfTruthTests
         offenders.ShouldBeEmpty();
     }
 
+    /// <summary>The reserved route names are their own fact (they happen to include "admin").</summary>
+    private static readonly string[] ReservedKeyFile = ["Core/Platform/KeyRules.cs"];
+
     [Fact]
     public void Role_names_are_not_hard_coded()
     {
         var roles = Enum.GetValues<Role>().Select(Roles.Name).ToList();
-        var offenders = Scan(line => roles.Any(role => line.Contains($"\"{role}\"", StringComparison.Ordinal)));
+        var offenders = Scan(line => roles.Any(role => line.Contains($"\"{role}\"", StringComparison.Ordinal)))
+            .Where(o => !ReservedKeyFile.Any(allowed => o.StartsWith(allowed, StringComparison.Ordinal)));
         offenders.ShouldBeEmpty();
     }
 

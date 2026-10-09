@@ -9,6 +9,8 @@ builder.AddDockerComposeEnvironment("compose")
 
 // Local dev choices are configuration: Database:Provider (sqlserver or postgresql) and Tenancy:BaseDomain.
 var infrastructure = PlatformInfrastructure.Add(builder);
-PlatformResources.AddServices(builder, infrastructure);
+var services = PlatformResources.AddServices(builder, infrastructure);
+var gateway = infrastructure.AddGateway(builder, services);
+PlatformInfrastructure.WireTokenServer(services, gateway);
 
 builder.Build().Run();

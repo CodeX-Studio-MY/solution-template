@@ -87,13 +87,18 @@ public sealed class PlatformHostTests(Databases databases)
         return connectionString;
     }
 
-    private static async Task<WebApplication> StartAsync(string catalogConnectionString)
+    private async Task<WebApplication> StartAsync(string catalogConnectionString) =>
+        await StartAsync(catalogConnectionString, databases.RedisConnectionString);
+
+    private static async Task<WebApplication> StartAsync(string catalogConnectionString, string redis)
     {
         var builder = WebApplication.CreateBuilder(new WebApplicationOptions { EnvironmentName = "Production" });
         builder.WebHost.UseTestServer();
         builder.Configuration["Database:Provider"] = PostgreSqlDatabaseProvider.ProviderName;
         builder.Configuration["Database:CatalogConnectionString"] = catalogConnectionString;
         builder.Configuration["Tenancy:BaseDomain"] = "localhost";
+        builder.Configuration["Redis:ConnectionString"] = redis;
+        TestSecrets.Apply(builder);
         builder.AddPlatform(PlatformServices.PurchaseRequest);
         var app = builder.Build();
         app.UsePlatform();
