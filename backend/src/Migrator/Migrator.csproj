@@ -10,6 +10,7 @@
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="$(PlatformProductPascal).Integration.Tests" />
+    <InternalsVisibleTo Include="$(PlatformProductPascal).TestSupport" />
     <InternalsVisibleTo Include="$(PlatformProductPascal).Architecture.Tests" />
   </ItemGroup>
 </Project>

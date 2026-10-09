@@ -1,0 +1,37 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "CodeX Studio",
+  "classifications": ["Web", "Module"],
+  "identity": "Acme.Module.Backend",
+  "name": "Platform backend module",
+  "shortName": "acme-module",
+  "description": "A module of the platform: the module class library (Domain, Application, Infrastructure, Api), its thin host and its tests. Use scripts/new-module, which also adds it to platform.yaml, generates its migrations and creates the frontend module.",
+  "tags": { "language": "C#", "type": "item" },
+  "sourceName": "Sample",
+  "preferNameDirectory": false,
+  "symbols": {
+    "key": {
+      "type": "parameter",
+      "datatype": "text",
+      "isRequired": true,
+      "replaces": "sample-key",
+      "description": "The module key from platform.yaml, for example goods-receipt."
+    },
+    "camel": {
+      "type": "parameter",
+      "datatype": "text",
+      "isRequired": true,
+      "replaces": "sampleCamel",
+      "description": "The key in camelCase, for message keys, for example goodsReceipt."
+    },
+    "product": {
+      "type": "parameter",
+      "datatype": "text",
+      "defaultValue": "Acme",
+      "replaces": "Acme",
+      "description": "The product's PascalCase name from platform.yaml (the root namespace)."
+    }
+  },
+  "constraints": {},
+  "postActions": []
+}

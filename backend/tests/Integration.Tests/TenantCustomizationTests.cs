@@ -12,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Acme.Integration.Tests;
 
 /// <summary>Rungs 1 and 2: a tenant's settings and feature flags are data, edited by operators and (the allowed ones) by the tenant's own admin, and audited.</summary>
+[Trait("service", "tenancy")]
 public sealed class TenantCustomizationTests(Databases databases)
 {
     private const string Api = "/api/tenancy/v1";

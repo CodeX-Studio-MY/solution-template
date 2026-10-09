@@ -39,7 +39,8 @@ Protects BFF sessions, antiforgery tokens and stored secrets. The key ring is sh
 
 | Environment variable | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `DataProtection__KeyEncryptionKey` | string | yes |  | Key-encryption key (256 bits, base64). The ring in Redis is encrypted with it; rotate by adding a new key and keeping the old to decrypt. **Secret.** |
+| `DataProtection__KeyEncryptionKey` | string | yes |  | Key-encryption key (256 bits, base64). New keys in the ring in Redis are encrypted with it. To rotate it, put the new key here and the old one in PreviousKeyEncryptionKeys. **Secret.** |
+| `DataProtection__PreviousKeyEncryptionKeys__0` | list of string (one variable per index) | no |  | Earlier key-encryption keys (base64), used only to read ring entries written under them. Remove one once the ring entries it protects have expired (90 days after the last rotation). **Secret.** Example: `0`. |
 | `DataProtection__ApplicationName` | string | yes | `platform` | The application name that keys are isolated by. The same for every service that must share the ring. |
 
 ## Database

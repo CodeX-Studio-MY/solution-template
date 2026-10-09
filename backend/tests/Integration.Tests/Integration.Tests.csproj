@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
+    <ProjectReference Include="..\TestSupport\TestSupport.csproj" />
     <ProjectReference Include="..\..\src\Migrator\Migrator.csproj" />
     <ProjectReference Include="..\..\src\Core.Hosting\Core.Hosting.csproj" />
     <ProjectReference Include="..\..\src\Modules\PurchaseRequest\PurchaseRequest.csproj" />
@@ -18,5 +19,8 @@
     <PackageReference Include="Microsoft.AspNetCore.TestHost" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="Acme.TestSupport" />
   </ItemGroup>
 </Project>

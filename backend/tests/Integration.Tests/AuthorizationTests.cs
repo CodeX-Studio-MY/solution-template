@@ -11,6 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 namespace Acme.Integration.Tests;
 
 /// <summary>Token validation, module roles, principal types, entitlements, suspension, access_version and rate limits.</summary>
+[Trait("service", "identity")]
 public sealed class AuthorizationTests(Databases databases)
 {
     private static CancellationToken Ct => TestContext.Current.CancellationToken;
@@ -106,7 +107,7 @@ public sealed class AuthorizationTests(Databases databases)
         var token = kind switch
         {
             "tampered-roles" => TestTokens.Tamper(valid, p => p.Replace(":user", ":admin", StringComparison.Ordinal)),
-            "alg-none" => TestTokens.Unsigned(valid),
+            "alg-none" => TestTokens.WithoutSignature(valid),
             "hmac" => host.Tokens.Create(demo, roles: [PurchaseRequest(Role.User)],
                 credentials: new SigningCredentials(new SymmetricSecurityKey(RandomNumberGenerator.GetBytes(32)), SecurityAlgorithms.HmacSha256)),
             "expired" => host.Tokens.Create(demo, roles: [PurchaseRequest(Role.User)], expires: TimeProvider.System.GetUtcNow().UtcDateTime.AddMinutes(-2)),

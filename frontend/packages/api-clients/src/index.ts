@@ -2,11 +2,7 @@ import createClient, { type Client, type ClientOptions } from "openapi-fetch";
 import type { ServicePaths } from "./service-paths";
 
 export type { ServicePaths };
-export type { components as PurchaseRequestSchemas } from "./generated/purchase-request";
-export type { components as CostCenterBudgetSchemas } from "./generated/cost-center-budget";
-export type { components as TenancySchemas } from "./generated/tenancy";
-export type { components as IdentitySchemas } from "./generated/identity";
-export type { components as NotificationSchemas } from "./generated/notification";
+export * from "./schemas";
 
 /**
  * A typed client for one service: paths, parameters, bodies and responses all come from that service's OpenAPI document.

@@ -4,10 +4,10 @@ using Acme.Core.Messaging;
 using Acme.Core.Platform;
 using RabbitMQ.Client;
 
-namespace Acme.Integration.Tests;
+namespace Acme.TestSupport;
 
 /// <summary>Sends an event to the exchange the way a producer in another service would.</summary>
-internal static class EventSender
+public static class EventSender
 {
     public static async Task SendAsync<TEvent>(Databases databases, Guid tenantId, TEvent integrationEvent, Guid? eventId = null, CancellationToken cancellationToken = default)
         where TEvent : class

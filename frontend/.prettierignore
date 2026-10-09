@@ -9,3 +9,4 @@ pnpm-lock.yaml
 **/generated/**
 packages/api-clients/openapi
 packages/api-clients/src/service-paths.ts
+packages/api-clients/src/schemas.ts

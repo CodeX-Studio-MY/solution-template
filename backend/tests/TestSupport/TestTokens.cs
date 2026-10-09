@@ -6,10 +6,10 @@ using Acme.Core.Security;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Acme.Integration.Tests;
+namespace Acme.TestSupport;
 
 /// <summary>Mints access tokens the way the token server does (ES256, typ at+jwt), so services can be tested alone.</summary>
-internal sealed class TestTokens : IDisposable
+public sealed class TestTokens : IDisposable
 {
     public const string Issuer = "https://login.localhost/";
 
@@ -68,7 +68,7 @@ internal sealed class TestTokens : IDisposable
     }
 
     /// <summary>An unsigned token (<c>alg: none</c>).</summary>
-    public static string Unsigned(string token)
+    public static string WithoutSignature(string token)
     {
         var parts = token.Split('.');
         var header = Base64UrlEncoder.Encode("""{"alg":"none","typ":"at+jwt"}""");

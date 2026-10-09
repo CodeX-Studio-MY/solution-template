@@ -43,6 +43,7 @@ internal sealed partial class DemoData(IServiceProvider services)
             }
         }
 
+        await EnsureOperatorAsync(Path.Combine(Path.GetDirectoryName(Path.GetFullPath(invitationsFile))!, "operator.json"), cancellationToken);
         await CustomizePlusAsync(cancellationToken);
         await SeedTenantAsync("demo", withCostCenters: false, cancellationToken);
         await SeedTenantAsync("demo-plus", withCostCenters: true, cancellationToken);
@@ -67,6 +68,26 @@ internal sealed partial class DemoData(IServiceProvider services)
         var result = await scope.ServiceProvider.GetRequiredService<IOnboarding>()
             .OnboardAsync(new OnboardRequest(slug, name, plan, $"admin@{slug}.example", $"{name} Admin"), cancellationToken);
         return result.AdminInvitationUrl?.ToString();
+    }
+
+    /// <summary>
+    /// A platform operator for local development, so scripts/onboard-tenant can create more tenants. Its credentials are saved next to
+    /// the invitation links (git-ignored); a production operator is created with <c>Migrator --create-operator</c> and never saved.
+    /// </summary>
+    private async Task EnsureOperatorAsync(string file, CancellationToken cancellationToken)
+    {
+        if (File.Exists(file))
+            return;
+        await using var scope = services.CreateAsyncScope();
+        try
+        {
+            var created = await scope.ServiceProvider.GetRequiredService<IOperatorAccounts>().CreateAsync("dev-operator@example.com", "Dev Operator", cancellationToken);
+            await File.WriteAllTextAsync(file, JsonSerializer.Serialize(new { email = created.Email, password = created.Password, totpSecret = created.TotpSecret }, Indented), cancellationToken);
+        }
+        catch (Acme.Core.Errors.ConflictException)
+        {
+            // It exists from an earlier run whose credentials were lost: scripts/dev-down --reset starts clean.
+        }
     }
 
     /// <summary>What makes demo-plus different, as data: settings, the approval strategy, a flag and the brand colour (rungs 1 to 3).</summary>

@@ -1,0 +1,6 @@
+{
+  "menu": "__DISPLAY__",
+  "fields": { "name": "名称" },
+  "list": { "title": "__DISPLAY__", "empty": "这里还没有内容", "emptyHint": "在下方添加第一项。" },
+  "form": { "add": "添加" }
+}

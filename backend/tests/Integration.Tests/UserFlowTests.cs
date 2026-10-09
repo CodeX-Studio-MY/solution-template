@@ -11,6 +11,7 @@ using Microsoft.IdentityModel.JsonWebTokens;
 namespace Acme.Integration.Tests;
 
 /// <summary>Invitation → password → sign-in → authorization code with PKCE → tokens → refresh rotation.</summary>
+[Trait("service", "identity")]
 public sealed class UserFlowTests(Databases databases)
 {
     private const string BffClient = "acme-bff";

@@ -27,5 +27,6 @@
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="$(PlatformProductPascal).Integration.Tests" />
+    <InternalsVisibleTo Include="$(PlatformProductPascal).TestSupport" />
   </ItemGroup>
 </Project>

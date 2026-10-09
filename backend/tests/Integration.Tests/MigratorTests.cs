@@ -14,6 +14,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Acme.Integration.Tests;
 
+[Trait("service", "migrator")]
 public sealed class MigratorTests(Databases databases)
 {
     private static CancellationToken Ct => TestContext.Current.CancellationToken;

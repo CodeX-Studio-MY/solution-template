@@ -1,10 +1,10 @@
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Builder;
 
-namespace Acme.Integration.Tests;
+namespace Acme.TestSupport;
 
 /// <summary>Settings and secrets every platform host needs. Secrets are generated per test run; never stored.</summary>
-internal static class TestSecrets
+public static class TestSecrets
 {
     public static readonly string KeyEncryptionKey = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
 

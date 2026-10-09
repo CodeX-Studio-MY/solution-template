@@ -12,7 +12,7 @@ pkill -f "Acme.AppHost" 2>/dev/null || true
 if [ "${1:-}" = "--reset" ]; then
   sleep 5
   docker volume ls -q | grep '^acme-' | xargs -r docker volume rm >/dev/null 2>&1 || true
-  rm -f .dev/invitations.json .dev/invitations.json.done
+  rm -f .dev/invitations.json .dev/invitations.json.done .dev/operator.json
   echo "Stopped and reset."
 else
   echo "Stopped."

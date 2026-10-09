@@ -15,7 +15,8 @@ using Role = Acme.Core.Platform.Role;
 namespace Acme.Integration.Tests;
 
 /// <summary>The reference module end to end, on both database providers: API, rules, numbering, files, outbox and tenant isolation.</summary>
-[Collection(BrokerCollection.Name)]
+[Trait("service", "purchase-request")]
+[Collection(BrokerGroup.Name)]
 public sealed class PurchaseRequestTests(Databases databases)
 {
     private const string Api = "/api/purchase-request/v1";

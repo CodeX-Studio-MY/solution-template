@@ -48,6 +48,7 @@
     <Project Path="tests/Generator.Tests/Generator.Tests.csproj" />
     <Project Path="tests/Identity.Tests/Identity.Tests.csproj" />
     <Project Path="tests/Integration.Tests/Integration.Tests.csproj" />
+    <Project Path="tests/TestSupport/TestSupport.csproj" />
   </Folder>
   <Folder Name="/tools/">
     <Project Path="tools/ApiExporter/ApiExporter.csproj" />

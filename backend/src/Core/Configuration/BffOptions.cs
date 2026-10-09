@@ -31,8 +31,12 @@ public sealed record BffOptions
 public sealed record KeyRingOptions
 {
     [Required, Secret]
-    [Setting("Key-encryption key (256 bits, base64). The ring in Redis is encrypted with it; rotate by adding a new key and keeping the old to decrypt.")]
+    [Setting("Key-encryption key (256 bits, base64). New keys in the ring in Redis are encrypted with it. To rotate it, put the new key here and the old one in PreviousKeyEncryptionKeys.")]
     public string KeyEncryptionKey { get; init; } = "";
+
+    [Secret]
+    [Setting("Earlier key-encryption keys (base64), used only to read ring entries written under them. Remove one once the ring entries it protects have expired (90 days after the last rotation).")]
+    public List<string> PreviousKeyEncryptionKeys { get; init; } = [];
 
     [Required]
     [Setting("The application name that keys are isolated by. The same for every service that must share the ring.")]

@@ -1,0 +1,6 @@
+{
+  "menu": "__DISPLAY__",
+  "fields": { "name": "Nama" },
+  "list": { "title": "__DISPLAY__", "empty": "Belum ada apa-apa", "emptyHint": "Tambah yang pertama di bawah." },
+  "form": { "add": "Tambah" }
+}

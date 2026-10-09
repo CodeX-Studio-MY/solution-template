@@ -1,0 +1,8 @@
+[
+  { "ecosystem": "nuget", "name": "Apache.Arrow", "license": "Apache-2.0", "reason": "Apache License 2.0 shipped as a license file instead of an SPDX expression. A transitive dependency of the Testcontainers test tooling only." },
+  { "ecosystem": "nuget", "name": "Fractions", "license": "BSD-3-Clause", "reason": "BSD 3-Clause shipped as a license file instead of an SPDX expression. A transitive dependency of the build-time tooling." },
+  { "ecosystem": "nuget", "name": "Mono.Cecil", "license": "MIT", "reason": "MIT, declared with a license URL instead of an SPDX expression. A transitive dependency of the test tooling." },
+  { "ecosystem": "nuget", "name": "NetArchTest.Rules", "license": "MIT", "reason": "MIT (per the project's repository), but the package declares no license metadata. Used only by the architecture tests." },
+  { "ecosystem": "nuget", "name": "Microsoft.Data.SqlClient.SNI.runtime", "license": "Microsoft Software License Terms (free of charge)", "reason": "Microsoft's native SQL Server networking library, redistributable at no cost. Required by Microsoft.Data.SqlClient, the SQL Server provider." },
+  { "ecosystem": "nuget", "name": "Microsoft.Identity.Client.NativeInterop", "license": "Microsoft Software License Terms (free of charge)", "reason": "Microsoft's native interop for Azure authentication, redistributable at no cost. Required by Azure.Identity (managed identity for Blob storage)." }
+]

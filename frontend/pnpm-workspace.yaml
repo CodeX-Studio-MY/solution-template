@@ -67,3 +67,11 @@ minimumReleaseAgeExclude:
   - "@mui/system@9.5.0"
   - "@mui/types@9.5.0"
   - "@mui/utils@9.5.0"
+
+# Two build-time dependencies of eslint-plugin-boundaries had advisories (see docs/deviations.md, entry 66).
+overrides:
+  handlebars: ">=4.7.10"
+
+auditConfig:
+  ignoreGhsas:
+    - GHSA-vfj7-8cjw-p6xm # braces: stack exhaustion on deeply nested glob patterns; no patched release; a lint-time dependency that only reads our own patterns

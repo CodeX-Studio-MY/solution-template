@@ -49,6 +49,17 @@ public sealed partial class SingleSourceOfTruthTests
         offenders.ShouldBeEmpty();
     }
 
+    /// <summary>A feature flag's key is declared once, in Contracts; everything else uses the constant (or the generated frontend type).</summary>
+    [Fact]
+    public void Feature_flag_keys_are_written_only_where_they_are_declared()
+    {
+        var keys = Acme.Core.Customization.CustomizationRegistry.Features.Select(f => f.Key).ToList();
+        keys.ShouldNotBeEmpty();
+        var offenders = Scan(line => keys.Any(key => line.Contains($"\"{key}\"", StringComparison.Ordinal)))
+            .Where(o => !o.StartsWith("Contracts/", StringComparison.Ordinal));
+        offenders.ShouldBeEmpty();
+    }
+
     [Fact]
     public void Per_environment_settings_files_do_not_exist()
     {

@@ -16,7 +16,8 @@ using RabbitMQ.Client;
 namespace Acme.Integration.Tests;
 
 /// <summary>The messaging layer over RabbitMQ.Client: the inbox, entitlement filtering, retries, dead-letter queues and tracing.</summary>
-[Collection(BrokerCollection.Name)]
+[Trait("service", "purchase-request")]
+[Collection(BrokerGroup.Name)]
 public sealed class MessagingTests(Databases databases)
 {
     private static CancellationToken Ct => TestContext.Current.CancellationToken;

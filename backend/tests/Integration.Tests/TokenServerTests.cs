@@ -9,6 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Acme.Integration.Tests;
 
+[Trait("service", "identity")]
 public sealed class TokenServerTests(Databases databases)
 {
     private static CancellationToken Ct => TestContext.Current.CancellationToken;

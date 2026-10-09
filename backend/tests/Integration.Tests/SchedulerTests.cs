@@ -16,6 +16,7 @@ using Quartz;
 namespace Acme.Integration.Tests;
 
 /// <summary>The Scheduler: tenant-local timing of the reminder, and the clustered Quartz store created by the Migrator on both providers.</summary>
+[Trait("service", "scheduler")]
 public sealed class SchedulerTests(Databases databases)
 {
     private static CancellationToken Ct => TestContext.Current.CancellationToken;

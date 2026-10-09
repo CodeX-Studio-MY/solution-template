@@ -25,6 +25,13 @@ else
     services = PlatformResources.AddServices(builder, infrastructure);
     tokenServer = services.Single(s => s.Resource.Name == PlatformServices.Identity.Key);
 }
+// Services call each other by name (Tenancy invites a first admin through Identity, Notification asks Identity for contacts), so
+// each one gets the others' addresses for service discovery.
+foreach (var caller in services)
+{
+    foreach (var target in services.Where(s => s != caller))
+        caller.WithReference(target);
+}
 infrastructure.AddScheduler(builder);
 if (builder.Configuration["AppHost:Seed"] == "true")
     infrastructure.AddDevSeed(builder, tokenServer);

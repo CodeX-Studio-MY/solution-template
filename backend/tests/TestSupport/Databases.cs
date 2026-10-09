@@ -9,9 +9,7 @@ using Testcontainers.PostgreSql;
 using Testcontainers.RabbitMq;
 using Testcontainers.Redis;
 
-[assembly: AssemblyFixture(typeof(Acme.Integration.Tests.Databases))]
-
-namespace Acme.Integration.Tests;
+namespace Acme.TestSupport;
 
 /// <summary>
 /// One SQL Server 2025 and one PostgreSQL 18 container for the whole test run. Every test that touches data runs on both:

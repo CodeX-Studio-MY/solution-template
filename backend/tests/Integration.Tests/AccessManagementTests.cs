@@ -13,6 +13,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Acme.Integration.Tests;
 
+[Trait("service", "identity")]
 public sealed class AccessManagementTests(Databases databases)
 {
     private static CancellationToken Ct => TestContext.Current.CancellationToken;

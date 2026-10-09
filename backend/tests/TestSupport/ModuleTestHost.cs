@@ -17,14 +17,14 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
-namespace Acme.Integration.Tests;
+namespace Acme.TestSupport;
 
 /// <summary>
 /// One business module hosted exactly as in production (AddPlatform), on the chosen database provider, with real migrations,
 /// real RabbitMQ and Valkey, and tenants whose databases are created and migrated by the same code the Migrator uses.
 /// Tokens are minted by a test key that the host trusts.
 /// </summary>
-internal sealed class ModuleTestHost : IAsyncDisposable
+public sealed class ModuleTestHost : IAsyncDisposable
 {
     private readonly WebApplication _app;
     private readonly Databases _databases;
@@ -197,7 +197,7 @@ internal sealed class ModuleTestHost : IAsyncDisposable
     public Databases Databases => _databases;
 }
 
-internal sealed class ModuleTestHostScope(AsyncServiceScope scope) : IAsyncDisposable
+public sealed class ModuleTestHostScope(AsyncServiceScope scope) : IAsyncDisposable
 {
     public IServiceProvider Services => scope.ServiceProvider;
 

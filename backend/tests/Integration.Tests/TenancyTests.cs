@@ -15,6 +15,7 @@ using Npgsql;
 
 namespace Acme.Integration.Tests;
 
+[Trait("service", "tenancy")]
 public sealed class TenancyTests(Databases databases)
 {
     private const string Api = "/api/tenancy/v1";

@@ -10,6 +10,7 @@ using Role = Acme.Core.Platform.Role;
 namespace Acme.Integration.Tests;
 
 /// <summary>The Gateway as the BFF: sessions in Redis, no tokens in the browser, CSRF, security headers, per-service tokens.</summary>
+[Trait("service", "gateway")]
 public sealed class GatewayTests(Databases databases)
 {
     private const string Password = "correct horse battery staple";

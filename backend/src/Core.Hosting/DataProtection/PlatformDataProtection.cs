@@ -54,19 +54,38 @@ public sealed class AesGcmXmlEncryptor(byte[] key) : IXmlEncryptor
     }
 }
 
-/// <summary>Decrypts elements written by <see cref="AesGcmXmlEncryptor"/>. The key comes from configuration.</summary>
+/// <summary>
+/// Decrypts elements written by <see cref="AesGcmXmlEncryptor"/>. The current key is tried first, then the previous ones, so a
+/// key-encryption key can be rotated without invalidating the ring: AES-GCM authenticates, so a wrong key fails cleanly.
+/// </summary>
 public sealed class AesGcmXmlDecryptor(IServiceProvider services) : IXmlDecryptor
 {
     public XElement Decrypt(XElement encryptedElement)
     {
-        var key = Convert.FromBase64String(services.GetRequiredService<IOptions<KeyRingOptions>>().Value.KeyEncryptionKey);
+        var options = services.GetRequiredService<IOptions<KeyRingOptions>>().Value;
         var payload = Convert.FromBase64String(encryptedElement.Element("value")!.Value);
+        return Decrypt(payload, [options.KeyEncryptionKey, .. options.PreviousKeyEncryptionKeys]);
+    }
+
+    internal static XElement Decrypt(byte[] payload, IEnumerable<string> keys)
+    {
         var nonce = payload.AsSpan(0, 12);
         var tag = payload.AsSpan(12, 16);
         var cipher = payload.AsSpan(28);
-        var plaintext = new byte[cipher.Length];
-        using var aes = new AesGcm(key, 16);
-        aes.Decrypt(nonce, cipher, tag, plaintext);
-        return XElement.Parse(Encoding.UTF8.GetString(plaintext));
+        foreach (var candidate in keys)
+        {
+            var plaintext = new byte[cipher.Length];
+            try
+            {
+                using var aes = new AesGcm(Convert.FromBase64String(candidate), 16);
+                aes.Decrypt(nonce, cipher, tag, plaintext);
+                return XElement.Parse(Encoding.UTF8.GetString(plaintext));
+            }
+            catch (AuthenticationTagMismatchException)
+            {
+                // Written under another key: try the next one.
+            }
+        }
+        throw new CryptographicException("No configured key-encryption key can read this key-ring entry. Is the previous key missing from DataProtection:PreviousKeyEncryptionKeys?");
     }
 }

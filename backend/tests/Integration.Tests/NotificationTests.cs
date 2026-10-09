@@ -11,7 +11,8 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 namespace Acme.Integration.Tests;
 
 /// <summary>Notification: events become history, a real-time push and an email, per person and per tenant.</summary>
-[Collection(BrokerCollection.Name)]
+[Trait("service", "notification")]
+[Collection(BrokerGroup.Name)]
 public sealed class NotificationTests(Databases databases)
 {
     private static CancellationToken Ct => TestContext.Current.CancellationToken;

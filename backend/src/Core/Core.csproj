@@ -19,5 +19,6 @@
     <InternalsVisibleTo Include="$(AssemblyName).Hosting" />
     <InternalsVisibleTo Include="$(AssemblyName).Tests" />
     <InternalsVisibleTo Include="$(PlatformProductPascal).Integration.Tests" />
+    <InternalsVisibleTo Include="$(PlatformProductPascal).TestSupport" />
   </ItemGroup>
 </Project>

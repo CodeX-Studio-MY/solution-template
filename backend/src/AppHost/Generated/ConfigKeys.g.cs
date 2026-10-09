@@ -25,6 +25,7 @@ internal static class ConfigKeys
     public static class DataProtection
     {
         public const string KeyEncryptionKey = "DataProtection__KeyEncryptionKey";
+        public static string PreviousKeyEncryptionKeys(object key) => $"DataProtection__PreviousKeyEncryptionKeys__{key}";
         public const string ApplicationName = "DataProtection__ApplicationName";
     }
     public static class Database

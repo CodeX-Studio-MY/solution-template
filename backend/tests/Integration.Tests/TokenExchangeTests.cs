@@ -12,6 +12,7 @@ using Microsoft.IdentityModel.JsonWebTokens;
 namespace Acme.Integration.Tests;
 
 /// <summary>RFC 8693 token exchange: audience exchange between modules, and a user delegated onto a machine.</summary>
+[Trait("service", "identity")]
 public sealed class TokenExchangeTests(Databases databases)
 {
     private const string ExchangeGrant = "urn:ietf:params:oauth:grant-type:token-exchange";

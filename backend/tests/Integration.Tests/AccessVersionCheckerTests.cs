@@ -9,6 +9,7 @@ using NSubstitute.ExceptionExtensions;
 
 namespace Acme.Integration.Tests;
 
+[Trait("service", "identity")]
 public sealed class AccessVersionCheckerTests
 {
     private static CancellationToken Ct => TestContext.Current.CancellationToken;

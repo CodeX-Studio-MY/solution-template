@@ -19,7 +19,9 @@ namespace Acme.Integration.Tests;
 /// their data. <c>demo</c> (Standard plan) has the defaults; <c>demo-plus</c> (Plus plan) has its own settings, strategy, flag, custom field and the
 /// budget module. Both purchase-request and cost-center-budget run in one host, as in AllInOne.Host, over the real broker.
 /// </summary>
-[Collection(BrokerCollection.Name)]
+[Trait("service", "purchase-request")]
+[Trait("service", "cost-center-budget")]
+[Collection(BrokerGroup.Name)]
 public sealed class ScenarioTests(Databases databases)
 {
     private const string Requests = "/api/purchase-request/v1";
