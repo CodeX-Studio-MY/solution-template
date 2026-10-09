@@ -4,7 +4,13 @@ import { ApiError, readProblem } from "./problem";
 describe("ApiError", () => {
   it("carries the platform code, trace and field errors from ProblemDetails", async () => {
     const response = new Response(
-      JSON.stringify({ status: 422, code: "purchase-request.no-lines", message: "Add at least one line.", traceId: "abc", errors: [{ field: "lines", message: "Required" }] }),
+      JSON.stringify({
+        status: 422,
+        code: "purchase-request.no-lines",
+        message: "Add at least one line.",
+        traceId: "abc",
+        errors: [{ field: "lines", message: "Required" }],
+      }),
       { status: 422, headers: { "Content-Type": "application/problem+json" } },
     );
     const error = await readProblem(response);

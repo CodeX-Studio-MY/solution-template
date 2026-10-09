@@ -35,6 +35,7 @@ public sealed class TenancyModule : IPlatformModule
         services.AddScoped<ITenantExporter, NoExportYet>();
         services.AddScoped<IBillingProvider, NoBilling>();
         services.AddScoped<IModuleManifestProvider, ModuleManifestProvider>();
+        services.AddScoped<ITenantCustomization, TenantCustomization>();
         services.AddScoped<IOperatorAccounts, OperatorAccounts>();
         services.AddScoped<IOperatorSessions, OperatorSessions>();
         services.AddScoped<ISupportAccess, SupportAccess>();

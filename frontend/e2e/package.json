@@ -7,7 +7,8 @@
   "scripts": {
     "test": "playwright test",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test:stack": "playwright test -c playwright.stack.config.ts"
   },
   "devDependencies": {
     "@axe-core/playwright": "catalog:",

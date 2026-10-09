@@ -1,4 +1,6 @@
+using Acme.Contracts;
 using Acme.Core.Authorization;
+using Acme.Core.Customization;
 using Acme.Core.Http;
 using Acme.Core.Platform;
 using Acme.Core.Security;
@@ -58,6 +60,25 @@ internal static class PurchaseRequestEndpoints
 
         requests.MapGet("/{id:guid}/quote", async (Guid id, RequestService service, CancellationToken ct) =>
             new QuoteLink((await service.QuoteDownloadUrlAsync(id, ct)).ToString())).RequireModuleRole(Modules.PurchaseRequest, Role.User);
+
+        // Rung 2: draft sharing exists only for tenants that switched the flag on. Off, it behaves as if it were never built.
+        requests.MapPost("/{id:guid}/share-draft", async (Guid id, IFeatureFlags flags, RequestService service, CancellationToken ct) =>
+            await flags.IsEnabledAsync(PurchaseRequestFeatures.DraftSharing, ct) ? Results.Ok(await service.ShareDraftAsync(id, ct)) : Results.NotFound())
+            .RequireModuleRole(Modules.PurchaseRequest, Role.User)
+            .Produces<DraftLink>()
+            .Produces(StatusCodes.Status404NotFound);
+
+        // Rung 4: the tenant's extra fields. Everyone who fills the form reads them; admins define them.
+        var fields = v1.MapGroup("/custom-fields").WithTags("custom-fields");
+        fields.MapGet("", (string entity, CustomFieldService service, CancellationToken ct) => service.ListAsync(entity, ct))
+            .RequireModuleRole(Modules.PurchaseRequest, Role.User);
+        fields.MapPut("/{entity}/{key}", (string entity, string key, SaveCustomFieldInput body, CustomFieldService service, CancellationToken ct) => service.SaveAsync(entity, key, body, ct))
+            .RequireModuleRole(Modules.PurchaseRequest, Role.Admin);
+        fields.MapDelete("/{entity}/{key}", async (string entity, string key, CustomFieldService service, CancellationToken ct) =>
+        {
+            await service.DeleteAsync(entity, key, ct);
+            return Results.NoContent();
+        }).RequireModuleRole(Modules.PurchaseRequest, Role.Admin).Produces(StatusCodes.Status204NoContent);
 
         // A scanner or other device at the loading dock confirms delivery. Only machines may call it.
         v1.MapPost("/goods-received", async (GoodsReceivedInput body, RequestService service, CancellationToken ct) => await service.ReceiveGoodsAsync(body.RequestId, ct))

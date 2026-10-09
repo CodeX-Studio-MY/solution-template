@@ -1,5 +1,6 @@
 using Acme.Contracts;
 using Acme.Core.Composition;
+using Acme.Core.Customization;
 using Acme.Core.Data;
 using Acme.Core.Localization;
 using Acme.Core.Messaging;
@@ -28,10 +29,14 @@ public sealed class PurchaseRequestModule : IPlatformModule
 
         services.AddScoped<IRequestRepository, RequestRepository>();
         services.AddScoped<IQuoteFiles, QuoteFiles>();
-        services.AddScoped<IRequestSettings, DefaultRequestSettings>();
-        services.AddScoped<IApprovalPolicyResolver, ApprovalPolicyResolver>();
+        services.AddScoped<ICustomFieldStore, CustomFieldStore>();
+        services.AddScoped<CustomFieldService>();
         services.AddScoped<RequestService>();
-        services.AddKeyedScoped<IApprovalPolicy, SingleApproverPolicy>(SingleApproverPolicy.Key);
+
+        // Rung 3: the tenant's settings pick one of these; "single" is the default for a tenant that has chosen nothing.
+        services.AddKeyedScoped<IApprovalPolicy, SingleApproverPolicy>(ApprovalPolicyKeys.SingleApprover);
+        services.AddKeyedScoped<IApprovalPolicy, TwoLevelApprovalPolicy>(ApprovalPolicyKeys.TwoLevel);
+        services.AddTenantStrategy<IApprovalPolicy, PurchaseRequestSettings>(settings => settings.ApprovalPolicy, ApprovalPolicyKeys.SingleApprover);
 
         services.AddEventConsumer<ApprovalReminderDue.V1, ApprovalReminderConsumer, PurchaseRequestDbContext>(Service, Modules.PurchaseRequest);
     }

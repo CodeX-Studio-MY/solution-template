@@ -35,6 +35,9 @@ public interface IDatabaseProvider
     /// <summary>Sets the concurrency token the client last saw, so EF Core detects a conflicting update.</summary>
     void SetOriginalConcurrencyToken(EntityEntry entry, string token);
 
+    /// <summary>The native JSON column type (<c>json</c> on SQL Server 2025 and Azure SQL, <c>jsonb</c> on PostgreSQL).</summary>
+    string JsonColumnType { get; }
+
     /// <summary>SQL for a filtered unique index that ignores soft-deleted rows.</summary>
     string NotDeletedFilter { get; }
 

@@ -13,6 +13,18 @@ export interface Scenario {
 }
 
 export const purchaseRequestEntry = "/mfe/purchase-request/0.0.0-dev/mf-manifest.json";
+export const costCenterBudgetEntry = "/mfe/cost-center-budget/0.0.0-dev/mf-manifest.json";
+
+/** What demo-plus has that demo doesn't: a required cost center list, a budget module and its data. */
+export const costCenterField = {
+  key: "cost-center",
+  label: "Cost center",
+  type: "list",
+  required: true,
+  options: ["CC-100", "CC-200"],
+  displayOrder: 1,
+};
+export const budget = { code: "CC-100", name: "Facilities", currency: "MYR", amount: 10000, used: 1500, remaining: 8500, eTag: '"b1"' };
 
 const json = (route: Route, body: unknown, status = 200) =>
   route.fulfill({ status, contentType: "application/json", body: JSON.stringify(body) });
@@ -29,6 +41,7 @@ export const sampleRequest = {
   total: 2400,
   lines: [{ item: "Desk", quantity: 4, unitPrice: 600, lineTotal: 2400 }],
   approvals: [],
+  customFields: {},
   quoteFileId: null,
   createdOn: "2026-10-09T01:00:00Z",
   submittedOn: "2026-10-09T02:00:00Z",

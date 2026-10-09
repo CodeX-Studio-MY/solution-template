@@ -53,10 +53,25 @@ internal sealed class ModuleTestHost : IAsyncDisposable
     public HttpMessageHandler Handler => _app.GetTestServer().CreateHandler();
 
     /// <summary>Starts <typeparamref name="TModule"/>; tenants named like "demo-plus" get the Plus plan, the rest Standard.</summary>
-    public static async Task<ModuleTestHost> StartAsync<TModule>(Databases databases, string provider, Action<WebApplicationBuilder>? configure = null, params string[] tenantSlugs)
-        where TModule : IPlatformModule
+    public static Task<ModuleTestHost> StartAsync<TModule>(Databases databases, string provider, Action<WebApplicationBuilder>? configure = null, params string[] tenantSlugs)
+        where TModule : IPlatformModule =>
+        StartCoreAsync(databases, provider, [TModule.Service], builder => builder.AddModule<TModule>(), configure, tenantSlugs);
+
+    /// <summary>Starts two modules in one host (as AllInOne.Host does), so an event from one reaches the other.</summary>
+    public static Task<ModuleTestHost> StartAsync<TFirst, TSecond>(Databases databases, string provider, Action<WebApplicationBuilder>? configure = null, params string[] tenantSlugs)
+        where TFirst : IPlatformModule
+        where TSecond : IPlatformModule =>
+        StartCoreAsync(databases, provider, [TFirst.Service, TSecond.Service], builder => builder.AddModule<TFirst>().AddModule<TSecond>(), configure, tenantSlugs);
+
+    private static async Task<ModuleTestHost> StartCoreAsync(
+        Databases databases,
+        string provider,
+        PlatformService[] services,
+        Action<WebApplicationBuilder> addModules,
+        Action<WebApplicationBuilder>? configure,
+        string[] tenantSlugs)
     {
-        var service = TModule.Service;
+        var service = services[0];
         var dbProvider = Databases.Provider(provider);
         var server = databases.ServerConnectionString(provider);
         var catalog = databases.NewDatabase(provider, "catalog");
@@ -77,7 +92,8 @@ internal sealed class ModuleTestHost : IAsyncDisposable
         builder.Configuration["Tenancy:BaseDomain"] = "localhost";
         builder.Configuration["Redis:ConnectionString"] = databases.RedisConnectionString;
         TestSecrets.Apply(builder, databases);
-        builder.AddPlatform(service).AddModule<TModule>();
+        builder.AddPlatform(services);
+        addModules(builder);
         builder.Services.PostConfigure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
         {
             var configuration = new OpenIdConnectConfiguration { Issuer = TestTokens.Issuer };
@@ -137,6 +153,15 @@ internal sealed class ModuleTestHost : IAsyncDisposable
             type,
             roles.Select(r => RoleExtensions.ToModuleRole(r.Module, r.Role)),
             audience: Service.Audience,
+            subject: (subject ?? Guid.NewGuid()).ToString());
+
+    /// <summary>A token for one of the services this host runs (the first by default).</summary>
+    public string TokenFor(PlatformService audience, string slug, Guid? subject = null, PrincipalType type = PrincipalType.User, params (string Module, Role Role)[] roles) =>
+        Tokens.Create(
+            Tenants[slug].Id,
+            type,
+            roles.Select(r => RoleExtensions.ToModuleRole(r.Module, r.Role)),
+            audience: audience.Audience,
             subject: (subject ?? Guid.NewGuid()).ToString());
 
     /// <summary>Runs <paramref name="action"/> in a scope with the tenant set, like a request for it.</summary>

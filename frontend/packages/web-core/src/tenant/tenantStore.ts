@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import type { FeatureKey } from "../generated/features";
 import { platformDefaults } from "../generated/platform";
 import { getJson } from "../http/client";
 
@@ -84,6 +85,6 @@ export function useTenantSettings(): TenantSettings {
 }
 
 /** Whether a feature flag is on for this tenant. Unknown flags are off. */
-export function useFeature(key: string): boolean {
+export function useFeature(key: FeatureKey): boolean {
   return useTenantStore((state) => state.settings.features[key] === true);
 }

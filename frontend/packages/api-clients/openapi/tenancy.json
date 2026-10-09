@@ -24,6 +24,47 @@
         }
       }
     },
+    "/api/tenancy/v1/me/settings": {
+      "get": {
+        "tags": [
+          "Acme.ApiExporter"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiSettings"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenancy/v1/features": {
+      "get": {
+        "tags": [
+          "Acme.ApiExporter"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FeatureView"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/tenancy/v1/me/tenant": {
       "get": {
         "tags": [
@@ -36,6 +77,94 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/TenantSummary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenancy/v1/settings": {
+      "get": {
+        "tags": [
+          "settings"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SettingsView"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenancy/v1/settings/{moduleKey}": {
+      "get": {
+        "tags": [
+          "settings"
+        ],
+        "parameters": [
+          {
+            "name": "moduleKey",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettingsView"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "settings"
+        ],
+        "parameters": [
+          {
+            "name": "moduleKey",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JsonObject"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettingsView"
                 }
               }
             }
@@ -370,6 +499,168 @@
         }
       }
     },
+    "/api/tenancy/v1/operator/tenants/{id}/settings": {
+      "get": {
+        "tags": [
+          "operator"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SettingsView"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenancy/v1/operator/tenants/{id}/settings/{moduleKey}": {
+      "put": {
+        "tags": [
+          "operator"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "moduleKey",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JsonObject"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettingsView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenancy/v1/operator/tenants/{id}/features": {
+      "get": {
+        "tags": [
+          "operator"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FeatureView"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenancy/v1/operator/tenants/{id}/features/{key}": {
+      "put": {
+        "tags": [
+          "operator"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FeatureBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeatureView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/tenancy/v1/operator/tenants/{id}/support-approval": {
       "put": {
         "tags": [
@@ -622,6 +913,54 @@
   },
   "components": {
     "schemas": {
+      "FeatureBody": {
+        "required": [
+          "enabled"
+        ],
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "nullable": true
+          }
+        }
+      },
+      "FeatureView": {
+        "required": [
+          "key",
+          "moduleKey",
+          "description",
+          "default",
+          "override",
+          "effective"
+        ],
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "moduleKey": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "default": {
+            "type": "boolean"
+          },
+          "override": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "effective": {
+            "type": "boolean"
+          }
+        },
+        "description": "A feature flag for a tenant: its default, the tenant\u0027s own choice (if any) and the result."
+      },
+      "JsonObject": {
+        "type": "object"
+      },
       "ModuleManifest": {
         "required": [
           "modules"
@@ -728,6 +1067,59 @@
             "format": "date-time"
           }
         }
+      },
+      "SettingInfo": {
+        "required": [
+          "name",
+          "tenantEditable",
+          "default",
+          "allowedValues"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "tenantEditable": {
+            "type": "boolean"
+          },
+          "default": {},
+          "allowedValues": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "description": "One setting of a module, for the screens that edit it."
+      },
+      "SettingsView": {
+        "required": [
+          "moduleKey",
+          "values",
+          "overrides",
+          "settings"
+        ],
+        "type": "object",
+        "properties": {
+          "moduleKey": {
+            "type": "string"
+          },
+          "values": {
+            "$ref": "#/components/schemas/JsonObject"
+          },
+          "overrides": {
+            "$ref": "#/components/schemas/JsonObject"
+          },
+          "settings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SettingInfo"
+            }
+          }
+        },
+        "description": "A module\u0027s settings for a tenant: the effective values, what the tenant overrides, and what can be changed."
       },
       "SignInBody": {
         "required": [
@@ -913,12 +1305,41 @@
             "type": "boolean"
           }
         }
+      },
+      "UiSettings": {
+        "required": [
+          "branding",
+          "features",
+          "values"
+        ],
+        "type": "object",
+        "properties": {
+          "branding": {
+            "$ref": "#/components/schemas/JsonObject"
+          },
+          "features": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "boolean"
+            }
+          },
+          "values": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/JsonObject"
+            }
+          }
+        },
+        "description": "What the signed-in frontend needs: branding, every flag\u0027s effective value, and the values of settings exposed to the UI."
       }
     }
   },
   "tags": [
     {
       "name": "Acme.ApiExporter"
+    },
+    {
+      "name": "settings"
     },
     {
       "name": "support-access"

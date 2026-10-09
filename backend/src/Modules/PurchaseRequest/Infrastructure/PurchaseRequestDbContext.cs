@@ -1,3 +1,4 @@
+using Acme.Core.Customization;
 using Acme.Core.Data;
 using Acme.PurchaseRequest.Domain;
 using Microsoft.EntityFrameworkCore;
@@ -9,8 +10,11 @@ public sealed class PurchaseRequestDbContext(DbContextOptions<PurchaseRequestDbC
 {
     public DbSet<Domain.PurchaseRequest> Requests => Set<Domain.PurchaseRequest>();
 
+    public DbSet<CustomFieldDefinition> CustomFieldDefinitions => Set<CustomFieldDefinition>();
+
     protected override void ConfigureModel(ModelBuilder modelBuilder)
     {
+        modelBuilder.ConfigureCustomFieldDefinitions();
         modelBuilder.Entity<Domain.PurchaseRequest>(request =>
         {
             request.ToTable("Requests");
@@ -21,6 +25,8 @@ public sealed class PurchaseRequestDbContext(DbContextOptions<PurchaseRequestDbC
             request.Property(r => r.Status).HasConversion<string>().HasMaxLength(20);
             request.Property(r => r.Currency).HasMaxLength(3).IsFixedLength();
             request.Property(r => r.RejectionReason).HasMaxLength(500);
+            AsJsonColumn(request.Property(r => r.CustomFieldsJson));
+            request.Ignore(r => r.CustomFields);
             request.Ignore(r => r.Total);
             request.Ignore(r => r.IsEditable);
             request.HasIndex(r => new { r.Status, r.SubmittedOn });

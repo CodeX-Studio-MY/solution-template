@@ -4,7 +4,7 @@ namespace Acme.PurchaseRequest.Application;
 
 public sealed record LineInput(string Item, decimal Quantity, decimal UnitPrice);
 
-public sealed record SaveRequestInput(string Title, string? Description, IReadOnlyList<LineInput> Lines);
+public sealed record SaveRequestInput(string Title, string? Description, IReadOnlyList<LineInput> Lines, IReadOnlyDictionary<string, string?>? CustomFields = null);
 
 public sealed record RejectInput(string Reason);
 
@@ -26,6 +26,7 @@ public sealed record RequestDto(
     decimal Total,
     IReadOnlyList<LineDto> Lines,
     IReadOnlyList<ApprovalDto> Approvals,
+    IReadOnlyDictionary<string, string> CustomFields,
     Guid? QuoteFileId,
     DateTime CreatedOn,
     DateTime? SubmittedOn,
@@ -49,3 +50,12 @@ public static class RequestActions
     public const string Reject = "reject";
     public const string UploadQuote = "uploadQuote";
 }
+
+/// <summary>A custom field definition as the screens use it.</summary>
+public sealed record CustomFieldDto(string Key, string Label, string Type, bool Required, IReadOnlyList<string> Options, int DisplayOrder);
+
+/// <summary>What an admin sends to define or change a custom field.</summary>
+public sealed record SaveCustomFieldInput(string Label, string Type, bool Required, IReadOnlyList<string>? Options, int DisplayOrder);
+
+/// <summary>The link to a draft that its owner can hand to someone else.</summary>
+public sealed record DraftLink(string Url);

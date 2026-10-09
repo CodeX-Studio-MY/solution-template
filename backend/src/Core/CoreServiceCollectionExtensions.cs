@@ -1,3 +1,4 @@
+using Acme.Core.Customization;
 using Acme.Core.Configuration;
 using Acme.Core.Data;
 using Acme.Core.Errors;
@@ -40,6 +41,7 @@ public static class CoreServiceCollectionExtensions
         services.TryAddSingleton<Messaging.IEventPublisher, Messaging.OutboxEventPublisher>();
 
         services.AddPlatformLocalization();
+        services.AddCustomization();
         services.AddProblemDetails();
         services.AddExceptionHandler<PlatformExceptionHandler>();
         return services;

@@ -26,6 +26,8 @@ else
     tokenServer = services.Single(s => s.Resource.Name == PlatformServices.Identity.Key);
 }
 infrastructure.AddScheduler(builder);
+if (builder.Configuration["AppHost:Seed"] == "true")
+    infrastructure.AddDevSeed(builder, tokenServer);
 var gateway = infrastructure.AddGateway(builder, services, allInOne);
 PlatformInfrastructure.WireTokenServer(services, tokenServer, gateway);
 

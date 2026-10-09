@@ -165,7 +165,7 @@ internal sealed class PlatformInfrastructure
         return host.WithEnvironment(ConfigKeys.ServiceClient.LocalAddress, host.GetEndpoint("http"));
     }
 
-    private IResourceBuilder<ProjectResource> ConfigureService(IResourceBuilder<ProjectResource> service, IReadOnlyList<PlatformService> hosted)
+    private IResourceBuilder<ProjectResource> ConfigureService(IResourceBuilder<ProjectResource> service, IReadOnlyList<PlatformService> hosted, bool http = true)
     {
         service = ConfigureDatabase(service)
             .WithEnvironment(ConfigKeys.Tenancy.BaseDomain, BaseDomain)
@@ -173,10 +173,11 @@ internal sealed class PlatformInfrastructure
             .WithEnvironment(ConfigKeys.Redis.ConnectionString, Redis)
             .WithEnvironment(ConfigKeys.DataProtection.KeyEncryptionKey, _secrets.DataProtectionKey)
             .WithEnvironment(ConfigKeys.ServiceClient.ClientSecret, _secrets.ServiceSecrets[hosted[0].Key])
-            .WithHttpHealthCheck("/health/ready")
             .WaitFor(Redis)
             .WaitFor(RabbitMq)
             .WaitForCompletion(Migrator);
+        if (http)
+            service = service.WithHttpHealthCheck("/health/ready");
         WithMessagingAndFiles(service);
 
         if (hosted.Contains(PlatformServices.Identity))
@@ -201,6 +202,24 @@ internal sealed class PlatformInfrastructure
                 .WithEnvironment(ConfigKeys.Onboarding.MigratorArguments, $"run --project {migratorProject} --no-launch-profile -- --tenant {{tenant}}");
         }
         return service;
+    }
+
+    /// <summary>
+    /// Development only: onboards the demo tenants and seeds their sample data once the token server is up, then exits. It runs with
+    /// the configuration of the services it stands in for (Tenancy's onboarding calls Identity and runs the Migrator).
+    /// </summary>
+    public IResourceBuilder<ProjectResource> AddDevSeed(IDistributedApplicationBuilder builder, IResourceBuilder<ProjectResource> tokenServer)
+    {
+        var seed = ConfigureService(builder.AddProject("dev-seed", "../DevSeed/DevSeed.csproj"), PlatformServices.All, http: false)
+            .WithEnvironment(ConfigKeys.ServiceClient.LocalAddress, tokenServer.GetEndpoint("http"))
+            // Token requests go straight to the token server, like every service's, not out through the public Gateway.
+            .WithEnvironment(ConfigKeys.Auth.MetadataAddress, ReferenceExpression.Create($"{tokenServer.GetEndpoint("http")}/.well-known/openid-configuration"))
+            .WithEnvironment(ConfigKeys.Auth.TokenEndpoint, ReferenceExpression.Create($"{tokenServer.GetEndpoint("http")}/connect/token"))
+            .WithEnvironment(ConfigKeys.Auth.RequireHttpsMetadata, "false")
+            .WaitFor(tokenServer);
+        if (builder.Configuration["DevSeed:InvitationsFile"] is { Length: > 0 } invitations)
+            seed = seed.WithEnvironment("DevSeed__InvitationsFile", invitations);
+        return seed;
     }
 
     /// <summary>RabbitMQ, the object store and the mail catcher: what a host needs beyond the database and Valkey.</summary>
@@ -262,12 +281,21 @@ internal sealed class PlatformInfrastructure
         if (allInOne)
             gateway = gateway.WithEnvironment(ConfigKeys.Bff.AllInOneAddress, services.Single().GetEndpoint("http"));
 
+        // The built frontend (scripts/dev-up builds it): the Gateway serves the shell and the module bundles like a CDN would.
+        if (builder.Configuration["Dev:FrontendPath"] is { Length: > 0 } frontend)
+        {
+            gateway = gateway
+                .WithEnvironment(ConfigKeys.Bff.ShellRoot, Path.Combine(frontend, "shell"))
+                .WithEnvironment(ConfigKeys.Bff.ModulesRoot, Path.Combine(frontend, "mfe"));
+        }
+
         // A certificate for *.localhost (made by scripts/dev-up with mkcert) lets browsers trust the __Host- cookies.
         if (builder.Configuration["Dev:CertificatePath"] is { Length: > 0 } certificate && builder.Configuration["Dev:CertificateKeyPath"] is { Length: > 0 } key)
         {
-            gateway = gateway
-                .WithEnvironment("ASPNETCORE_Kestrel__Certificates__Default__Path", certificate)
-                .WithEnvironment("ASPNETCORE_Kestrel__Certificates__Default__KeyPath", key);
+            // Aspire's certificate API is still experimental; it is the supported way to replace the ASP.NET development certificate.
+#pragma warning disable ASPIRECERTIFICATES001
+            gateway = gateway.WithHttpsCertificate(System.Security.Cryptography.X509Certificates.X509Certificate2.CreateFromPemFile(certificate, key));
+#pragma warning restore ASPIRECERTIFICATES001
         }
         return gateway;
     }

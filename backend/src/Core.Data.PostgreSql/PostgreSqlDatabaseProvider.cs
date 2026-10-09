@@ -29,6 +29,8 @@ public sealed class PostgreSqlDatabaseProvider : IDatabaseProvider
     public string RegexCheck(string propertyName, string pattern) =>
         $"\"{SnakeCase(propertyName)}\" ~ '{pattern.Replace("'", "''", StringComparison.Ordinal)}'";
 
+    public string JsonColumnType => "jsonb";
+
     public string BuildConnectionString(string baseConnectionString, string databaseName, int maxPoolSize) =>
         new NpgsqlConnectionStringBuilder(baseConnectionString)
         {

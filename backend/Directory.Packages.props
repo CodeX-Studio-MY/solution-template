@@ -41,6 +41,7 @@
 
   <ItemGroup Label="Messaging, files and jobs">
     <PackageVersion Include="Quartz" Version="4.4.0" />
+    <PackageVersion Include="OpenFeature" Version="2.14.1" />
     <PackageVersion Include="Quartz.Extensions.Hosting" Version="4.4.0" />
     <PackageVersion Include="Quartz.Serialization.SystemTextJson" Version="4.4.0" />
     <PackageVersion Include="Azure.Storage.Blobs" Version="12.30.1" />

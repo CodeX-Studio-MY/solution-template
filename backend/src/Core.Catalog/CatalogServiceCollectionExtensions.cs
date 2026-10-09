@@ -1,3 +1,4 @@
+using Acme.Core.Customization;
 using Acme.Core.Data;
 using Acme.Core.Tenancy;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,6 +14,10 @@ public static class CatalogServiceCollectionExtensions
         services.AddMemoryCache();
         services.AddCatalogDbContext<CatalogDbContext>(CatalogDbContext.SchemaName);
         services.TryAddSingleton<ITenantDirectory, CatalogTenantDirectory>();
+        services.TryAddSingleton<TenantCustomizationStore>();
+        services.TryAddSingleton<ITenantSettingsStore>(sp => sp.GetRequiredService<TenantCustomizationStore>());
+        services.TryAddSingleton<ITenantFeatureStore>(sp => sp.GetRequiredService<TenantCustomizationStore>());
+        services.TryAddSingleton<ITenantCustomizationCache>(sp => sp.GetRequiredService<TenantCustomizationStore>());
         return services;
     }
 }

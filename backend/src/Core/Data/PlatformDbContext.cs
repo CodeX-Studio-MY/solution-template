@@ -30,6 +30,9 @@ public abstract class PlatformDbContext : DbContext
     /// <summary>Provider-neutral SQL for a check constraint that exactly one of two nullable columns is set.</summary>
     protected string ExactlyOneSetSql(string firstProperty, string secondProperty) => Provider.ExactlyOneSetCheck(firstProperty, secondProperty);
 
+    /// <summary>Stores a string property as a native JSON column (provider-neutral: <c>json</c> or <c>jsonb</c>).</summary>
+    protected void AsJsonColumn(Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder<string> property) => property.HasColumnType(Provider.JsonColumnType);
+
     /// <summary>Configures the module's own entities.</summary>
     protected abstract void ConfigureModel(ModelBuilder modelBuilder);
 

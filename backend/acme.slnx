@@ -10,6 +10,7 @@
     <Project Path="src/Core.Data.SqlServer/Core.Data.SqlServer.csproj" />
     <Project Path="src/Core.Hosting/Core.Hosting.csproj" />
     <Project Path="src/Core/Core.csproj" />
+    <Project Path="src/DevSeed/DevSeed.csproj" />
     <Project Path="src/Gateway/Gateway.csproj" />
     <Project Path="src/Migrator/Migrator.csproj" />
     <Project Path="src/Scheduler.Migrations.PostgreSql/Scheduler.Migrations.PostgreSql.csproj" />

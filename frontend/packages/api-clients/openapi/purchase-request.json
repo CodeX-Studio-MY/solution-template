@@ -408,6 +408,146 @@
         }
       }
     },
+    "/api/purchase-request/v1/requests/{id}/share-draft": {
+      "post": {
+        "tags": [
+          "requests"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftLink"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/purchase-request/v1/custom-fields": {
+      "get": {
+        "tags": [
+          "custom-fields"
+        ],
+        "parameters": [
+          {
+            "name": "entity",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CustomFieldDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/purchase-request/v1/custom-fields/{entity}/{key}": {
+      "put": {
+        "tags": [
+          "custom-fields"
+        ],
+        "parameters": [
+          {
+            "name": "entity",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveCustomFieldInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomFieldDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "custom-fields"
+        ],
+        "parameters": [
+          {
+            "name": "entity",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
     "/api/purchase-request/v1/goods-received": {
       "post": {
         "tags": [
@@ -470,6 +610,62 @@
           }
         },
         "description": "One approval on a request: which step (level) and who, for the timeline."
+      },
+      "CustomFieldDto": {
+        "required": [
+          "key",
+          "label",
+          "type",
+          "required",
+          "options",
+          "displayOrder"
+        ],
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "displayOrder": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "format": "int32"
+          }
+        },
+        "description": "A custom field definition as the screens use it."
+      },
+      "DraftLink": {
+        "required": [
+          "url"
+        ],
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string"
+          }
+        },
+        "description": "The link to a draft that its owner can hand to someone else."
       },
       "GoodsReceivedInput": {
         "required": [
@@ -678,6 +874,7 @@
           "total",
           "lines",
           "approvals",
+          "customFields",
           "quoteFileId",
           "createdOn",
           "submittedOn",
@@ -740,6 +937,12 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ApprovalDto"
+            }
+          },
+          "customFields": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
             }
           },
           "quoteFileId": {
@@ -845,6 +1048,47 @@
         },
         "description": "A row in a list: lighter than the full request."
       },
+      "SaveCustomFieldInput": {
+        "required": [
+          "label",
+          "type",
+          "required",
+          "options",
+          "displayOrder"
+        ],
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "displayOrder": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "format": "int32"
+          }
+        },
+        "description": "What an admin sends to define or change a custom field."
+      },
       "SaveRequestInput": {
         "required": [
           "title",
@@ -865,6 +1109,13 @@
             "items": {
               "$ref": "#/components/schemas/LineInput"
             }
+          },
+          "customFields": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "nullable": true
           }
         }
       }
@@ -873,6 +1124,9 @@
   "tags": [
     {
       "name": "requests"
+    },
+    {
+      "name": "custom-fields"
     },
     {
       "name": "devices"

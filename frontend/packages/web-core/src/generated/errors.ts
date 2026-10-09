@@ -10,6 +10,7 @@ export const errorCodes = {
   "access-management.principal-not-found": { status: 404, messageKey: "errors.identity.principalNotFound" },
   "access-management.service-principals-have-no-groups": { status: 422, messageKey: "errors.identity.servicePrincipalsHaveNoGroups" },
   "access-management.unknown-module": { status: 422, messageKey: "errors.identity.unknownModule" },
+  "cost-center-budget.not-found": { status: 404, messageKey: "errors.costCenterBudget.notFound" },
   "platform.access-changed": { status: 401, messageKey: "errors.platform.accessChanged" },
   "platform.access-check-unavailable": { status: 503, messageKey: "errors.platform.accessCheckUnavailable" },
   "platform.business-rule": { status: 422, messageKey: "errors.platform.businessRule" },
@@ -53,7 +54,9 @@ export const errorCodes = {
   "tenant-settings.support-access-invalid": { status: 422, messageKey: "errors.tenancy.supportAccessInvalid" },
   "tenant-settings.support-access-not-usable": { status: 403, messageKey: "errors.tenancy.supportAccessNotUsable" },
   "tenant-settings.tenant-not-found": { status: 404, messageKey: "errors.tenancy.tenantNotFound" },
+  "tenant-settings.unknown-feature": { status: 404, messageKey: "errors.tenancy.unknownFeature" },
   "tenant-settings.unknown-plan": { status: 422, messageKey: "errors.tenancy.unknownPlan" },
+  "tenant-settings.unknown-settings": { status: 404, messageKey: "errors.tenancy.unknownSettings" },
 } as const;
 
 export type ErrorCode = keyof typeof errorCodes;

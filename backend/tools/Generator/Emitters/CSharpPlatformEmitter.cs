@@ -101,6 +101,19 @@ internal static class CSharpPlatformEmitter
         sb.AppendLine("}");
 
         files.Add("backend/src/Core/Generated/Platform.g.cs", "//", sb.ToString());
+
+        // Shared contract types (settings, flags) name the module they belong to, and Contracts references nothing, so it gets its own copy.
+        var keys = new StringBuilder();
+        keys.AppendLine("#nullable enable");
+        keys.AppendLine($"namespace {ns}.Contracts;");
+        keys.AppendLine();
+        keys.AppendLine("/// <summary>Access module keys from platform.yaml, for contract types that name their module.</summary>");
+        keys.AppendLine("public static class ModuleKeys");
+        keys.AppendLine("{");
+        foreach (var module in platform.Modules)
+            keys.AppendLine($"    public const string {module.Pascal} = {Naming.Quote(module.Key)};");
+        keys.AppendLine("}");
+        files.Add("backend/src/Contracts/Generated/ModuleKeys.g.cs", "//", keys.ToString());
     }
 
     private static string Bool(bool value) => value ? "true" : "false";

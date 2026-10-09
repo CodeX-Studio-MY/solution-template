@@ -16,7 +16,8 @@ export interface CustomFieldDefinition {
   displayOrder: number;
 }
 
-export type CustomFieldValues = Record<string, string | number | null>;
+/** Values are strings on the wire (a number field sends its digits); the server parses and validates them. */
+export type CustomFieldValues = Record<string, string | null>;
 
 interface CustomFieldsSectionProps {
   /** The entity whose fields to show (for example `purchase-request`). */
@@ -62,8 +63,7 @@ export function CustomFieldsSection({ entity, service, values, onChange, errors 
           helperText: error?.message,
           id: `custom-${field.key}`,
         };
-        const set = (next: string) =>
-          onChange({ ...values, [field.key]: field.type === "number" && next !== "" ? Number(next) : next === "" ? null : next });
+        const set = (next: string) => onChange({ ...values, [field.key]: next === "" ? null : next });
         return field.type === "list" ? (
           <TextField key={field.key} {...common} select value={value} onChange={(e) => set(e.target.value)}>
             {!field.required ? <MenuItem value="">{t("common:customFields.none")}</MenuItem> : null}

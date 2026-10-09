@@ -3,17 +3,21 @@ using System.Text;
 namespace Acme.Generator.Emitters;
 
 /// <summary>
-/// AllInOne.Host runs every service's module in one process. Which modules exist is platform.yaml's business, so the project
+/// AllInOne.Host (and the development seeder, which needs the same modules) runs every service's module in one process. Which modules exist is platform.yaml's business, so the project
 /// references and the registration code are generated; the host's Program.cs has nothing to edit when a module is added.
 /// </summary>
 internal static class AllInOneEmitter
 {
-    private const string Dir = "backend/src/Hosts/AllInOne.Host/Generated";
-
     public static void Emit(PlatformDefinition platform, GeneratedFiles files)
     {
-        var references = string.Join("\n", platform.Services.Select(s => $"    <ProjectReference Include=\"$(MSBuildThisFileDirectory)..\\..\\..\\Modules\\{s.Pascal}\\{s.Pascal}.csproj\" />"));
-        files.AddXml($"{Dir}/ModuleProjects.g.props", $"""
+        Emit(platform, files, "backend/src/Hosts/AllInOne.Host/Generated", "AllInOne", @"..\..\Modules");
+        Emit(platform, files, "backend/src/DevSeed/Generated", "DevSeed", @"..\Modules");
+    }
+
+    private static void Emit(PlatformDefinition platform, GeneratedFiles files, string dir, string ns, string modulesRelative)
+    {
+        var references = string.Join("\n", platform.Services.Select(s => $"    <ProjectReference Include=\"$(MSBuildThisFileDirectory)..\\{modulesRelative}\\{s.Pascal}\\{s.Pascal}.csproj\" />"));
+        files.AddXml($"{dir}/ModuleProjects.g.props", $"""
             <Project>
               <ItemGroup>
             {references}
@@ -26,7 +30,7 @@ internal static class AllInOneEmitter
         sb.AppendLine("#nullable enable");
         sb.AppendLine($"using {product}.Core.Hosting;");
         sb.AppendLine();
-        sb.AppendLine($"namespace {product}.AllInOne;");
+        sb.AppendLine($"namespace {product}.{ns};");
         sb.AppendLine();
         sb.AppendLine("internal static class AllInOneModules");
         sb.AppendLine("{");
@@ -39,6 +43,6 @@ internal static class AllInOneEmitter
         sb.AppendLine("        return builder;");
         sb.AppendLine("    }");
         sb.AppendLine("}");
-        files.Add($"{Dir}/AllInOneModules.g.cs", "//", sb.ToString());
+        files.Add($"{dir}/AllInOneModules.g.cs", "//", sb.ToString());
     }
 }

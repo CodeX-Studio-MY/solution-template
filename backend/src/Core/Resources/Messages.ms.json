@@ -29,5 +29,9 @@
   "validation.unknownOption": "{0} mesti salah satu nilai yang dibenarkan.",
   "validation.fileType": "Fail mestilah salah satu daripada: {0}.",
   "validation.fileTooLarge": "Fail terlalu besar. Had ialah {0} MB.",
-  "validation.fileInfected": "Fail ditolak oleh imbasan keselamatan."
+  "validation.fileInfected": "Fail ditolak oleh imbasan keselamatan.",
+  "validation.unknownField": "{0} bukan medan bagi rekod ini.",
+  "validation.number": "{0} mestilah nombor.",
+  "validation.date": "{0} mestilah tarikh (tttt-bb-hh).",
+  "validation.notAnOption": "{0} mestilah salah satu pilihan yang disenaraikan."
 }

@@ -262,6 +262,32 @@ namespace Acme.Core.Catalog.Migrations.SqlServer.Migrations.Catalog
                         });
                 });
 
+            modelBuilder.Entity("Acme.Core.Catalog.Entities.TenantFeature", b =>
+                {
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("FeatureKey")
+                        .HasMaxLength(120)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(120)");
+
+                    b.Property<bool>("Enabled")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("TenantId", "FeatureKey");
+
+                    b.ToTable("TenantFeatures", "catalog");
+                });
+
             modelBuilder.Entity("Acme.Core.Catalog.Entities.TenantMigrationState", b =>
                 {
                     b.Property<Guid>("TenantId")
@@ -310,11 +336,48 @@ namespace Acme.Core.Catalog.Migrations.SqlServer.Migrations.Catalog
                     b.ToTable("TenantModules", "catalog");
                 });
 
+            modelBuilder.Entity("Acme.Core.Catalog.Entities.TenantSetting", b =>
+                {
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ModuleKey")
+                        .HasMaxLength(30)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(30)");
+
+                    b.Property<string>("Json")
+                        .IsRequired()
+                        .HasMaxLength(250000)
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("TenantId", "ModuleKey");
+
+                    b.ToTable("TenantSettings", "catalog");
+                });
+
             modelBuilder.Entity("Acme.Core.Catalog.Entities.PlanModule", b =>
                 {
                     b.HasOne("Acme.Core.Catalog.Entities.CatalogModule", null)
                         .WithMany()
                         .HasForeignKey("ModuleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Acme.Core.Catalog.Entities.TenantFeature", b =>
+                {
+                    b.HasOne("Acme.Core.Catalog.Entities.CatalogTenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -336,6 +399,15 @@ namespace Acme.Core.Catalog.Migrations.SqlServer.Migrations.Catalog
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Acme.Core.Catalog.Entities.CatalogTenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Acme.Core.Catalog.Entities.TenantSetting", b =>
+                {
                     b.HasOne("Acme.Core.Catalog.Entities.CatalogTenant", null)
                         .WithMany()
                         .HasForeignKey("TenantId")

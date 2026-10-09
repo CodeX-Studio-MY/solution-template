@@ -28,6 +28,8 @@ public sealed class SqlServerDatabaseProvider : IDatabaseProvider
     public string RegexCheck(string propertyName, string pattern) =>
         $"REGEXP_LIKE([{propertyName}], '{pattern.Replace("'", "''", StringComparison.Ordinal)}')";
 
+    public string JsonColumnType => "json";
+
     public string BuildConnectionString(string baseConnectionString, string databaseName, int maxPoolSize) =>
         new SqlConnectionStringBuilder(baseConnectionString)
         {

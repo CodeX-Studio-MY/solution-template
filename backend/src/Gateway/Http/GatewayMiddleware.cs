@@ -61,7 +61,7 @@ internal sealed class CsrfMiddleware(RequestDelegate next)
 /// HSTS, a Content-Security-Policy with a per-request style nonce, nosniff and a referrer policy. The CSP allows scripts only from
 /// the app and the module CDN, and connections only to the app, the CDN and the WebSocket origin.
 /// </summary>
-internal sealed class SecurityHeadersMiddleware(RequestDelegate next, IOptions<FrontendOptions> frontend, IOptions<BffOptions> bff)
+internal sealed class SecurityHeadersMiddleware(RequestDelegate next, IOptions<FrontendOptions> frontend, IOptions<BffOptions> bff, IOptions<TenancyOptions> tenancy)
 {
     public const string NonceItem = "csp-nonce";
 
@@ -74,6 +74,11 @@ internal sealed class SecurityHeadersMiddleware(RequestDelegate next, IOptions<F
         var extra = bff.Value.ExtraSources;
         var scripts = string.Join(' ', new[] { "'self'", cdn, extra }.Where(s => !string.IsNullOrWhiteSpace(s)));
         var connect = string.Join(' ', new[] { "'self'", $"wss://{origin}", cdn, extra }.Where(s => !string.IsNullOrWhiteSpace(s)));
+        // Signing in ends with a redirect from the sign-in host back to the tenant's host, and browsers apply form-action to the
+        // redirects that follow a form post. So the sign-in host (and only it) may send forms on to the tenants' hosts.
+        var forms = context.Request.Host.Host.Equals($"login.{tenancy.Value.BaseDomain}", StringComparison.OrdinalIgnoreCase)
+            ? $"'self' {tenancy.Value.TenantOrigin("*")}"
+            : "'self'";
 
         context.Response.OnStarting(() =>
         {
@@ -83,7 +88,7 @@ internal sealed class SecurityHeadersMiddleware(RequestDelegate next, IOptions<F
             headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
             headers["Content-Security-Policy"] =
                 $"default-src 'none'; script-src {scripts}; style-src 'self' 'nonce-{nonce}'; img-src 'self' data: blob:; font-src 'self'; " +
-                $"connect-src {connect}; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'";
+                $"connect-src {connect}; frame-ancestors 'none'; base-uri 'self'; form-action {forms}; object-src 'none'";
             return Task.CompletedTask;
         });
         await next(context);
@@ -91,7 +96,7 @@ internal sealed class SecurityHeadersMiddleware(RequestDelegate next, IOptions<F
 
     /// <summary>The origin of an absolute URL, or empty when the module base is a relative path served by the Gateway itself.</summary>
     private static string Origin(string url) =>
-        Uri.TryCreate(url, UriKind.Absolute, out var uri) ? uri.GetLeftPart(UriPartial.Authority) : "";
+        Uri.TryCreate(url, UriKind.Absolute, out var uri) && uri.Scheme is "http" or "https" ? uri.GetLeftPart(UriPartial.Authority) : "";
 }
 
 internal static class HostFilters

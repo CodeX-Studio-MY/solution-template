@@ -42,7 +42,8 @@ export function Component() {
   );
 
   const [draft, setDraft] = useState<ReturnType<typeof toForm> | undefined>(undefined);
-  const [customFields, setCustomFields] = useState<CustomFieldValues>({});
+  const [customDraft, setCustomFields] = useState<CustomFieldValues | undefined>(undefined);
+  const customFields: CustomFieldValues = customDraft ?? existing.data?.customFields ?? {};
   const [error, setError] = useState<Error | undefined>(undefined);
   const [saving, setSaving] = useState(false);
 
@@ -63,7 +64,7 @@ export function Component() {
       title: form.title,
       description: form.description === "" ? null : form.description,
       lines: form.lines.map((l) => ({ item: l.item, quantity: Number(l.quantity), unitPrice: Number(l.unitPrice) })),
-      ...(Object.keys(customFields).length > 0 ? { customFields } : {}),
+      customFields: Object.fromEntries(Object.entries(customFields).filter((entry): entry is [string, string] => entry[1] !== null)),
     };
     try {
       const saved = existing.data

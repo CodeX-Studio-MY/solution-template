@@ -18,5 +18,7 @@ public static class TenancyErrors
     public static readonly ErrorCode SupportAccessInvalid = new("tenant-settings.support-access-invalid", 422, "errors.tenancy.supportAccessInvalid");
     public static readonly ErrorCode GrantNotFound = new("tenant-settings.grant-not-found", 404, "errors.tenancy.grantNotFound");
     public static readonly ErrorCode OperatorExists = new("tenant-settings.operator-exists", 409, "errors.tenancy.operatorExists");
+    public static readonly ErrorCode UnknownSettings = new("tenant-settings.unknown-settings", 404, "errors.tenancy.unknownSettings");
+    public static readonly ErrorCode UnknownFeature = new("tenant-settings.unknown-feature", 404, "errors.tenancy.unknownFeature");
     public static readonly ErrorCode ReservedSlug = new("tenant-settings.reserved-slug", 400, "errors.tenancy.reservedSlug");
 }

@@ -53,7 +53,11 @@ catalog:
   "@playwright/test": 1.64.0
   "@axe-core/playwright": 4.13.0
 
-# Supply chain: install scripts only for packages that need them.
+# Supply chain: install scripts run only for packages listed here (the eslint import resolver's native binding).
+allowBuilds:
+  unrs-resolver: true
+
+# Packages newer than the release-age policy that this repository has reviewed and pinned.
 minimumReleaseAgeExclude:
   - "@mui/core-downloads-tracker@9.5.0"
   - "@mui/icons-material@9.5.0"
@@ -63,6 +67,3 @@ minimumReleaseAgeExclude:
   - "@mui/system@9.5.0"
   - "@mui/types@9.5.0"
   - "@mui/utils@9.5.0"
-
-onlyBuiltDependencies:
-  - esbuild

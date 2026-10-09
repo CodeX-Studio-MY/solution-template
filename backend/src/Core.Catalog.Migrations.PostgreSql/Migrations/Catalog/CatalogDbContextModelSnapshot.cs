@@ -296,6 +296,38 @@ namespace Acme.Core.Catalog.Migrations.PostgreSql.Migrations.Catalog
                         });
                 });
 
+            modelBuilder.Entity("Acme.Core.Catalog.Entities.TenantFeature", b =>
+                {
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<string>("FeatureKey")
+                        .HasMaxLength(120)
+                        .IsUnicode(false)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("feature_key");
+
+                    b.Property<bool>("Enabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("enabled");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("updated_by");
+
+                    b.Property<DateTime>("UpdatedOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_on");
+
+                    b.HasKey("TenantId", "FeatureKey")
+                        .HasName("pk_tenant_features");
+
+                    b.ToTable("TenantFeatures", "catalog");
+                });
+
             modelBuilder.Entity("Acme.Core.Catalog.Entities.TenantMigrationState", b =>
                 {
                     b.Property<Guid>("TenantId")
@@ -356,6 +388,40 @@ namespace Acme.Core.Catalog.Migrations.PostgreSql.Migrations.Catalog
                     b.ToTable("TenantModules", "catalog");
                 });
 
+            modelBuilder.Entity("Acme.Core.Catalog.Entities.TenantSetting", b =>
+                {
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<string>("ModuleKey")
+                        .HasMaxLength(30)
+                        .IsUnicode(false)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("module_key");
+
+                    b.Property<string>("Json")
+                        .IsRequired()
+                        .HasMaxLength(250000)
+                        .HasColumnType("character varying(250000)")
+                        .HasColumnName("json");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("updated_by");
+
+                    b.Property<DateTime>("UpdatedOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_on");
+
+                    b.HasKey("TenantId", "ModuleKey")
+                        .HasName("pk_tenant_settings");
+
+                    b.ToTable("TenantSettings", "catalog");
+                });
+
             modelBuilder.Entity("Acme.Core.Catalog.Entities.PlanModule", b =>
                 {
                     b.HasOne("Acme.Core.Catalog.Entities.CatalogModule", null)
@@ -364,6 +430,16 @@ namespace Acme.Core.Catalog.Migrations.PostgreSql.Migrations.Catalog
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_plan_modules_modules_module_id");
+                });
+
+            modelBuilder.Entity("Acme.Core.Catalog.Entities.TenantFeature", b =>
+                {
+                    b.HasOne("Acme.Core.Catalog.Entities.CatalogTenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_tenant_features_tenants_tenant_id");
                 });
 
             modelBuilder.Entity("Acme.Core.Catalog.Entities.TenantMigrationState", b =>
@@ -391,6 +467,16 @@ namespace Acme.Core.Catalog.Migrations.PostgreSql.Migrations.Catalog
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_tenant_modules_tenants_tenant_id");
+                });
+
+            modelBuilder.Entity("Acme.Core.Catalog.Entities.TenantSetting", b =>
+                {
+                    b.HasOne("Acme.Core.Catalog.Entities.CatalogTenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_tenant_settings_tenants_tenant_id");
                 });
 #pragma warning restore 612, 618
         }

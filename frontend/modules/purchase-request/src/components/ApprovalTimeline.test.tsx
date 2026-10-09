@@ -6,9 +6,27 @@ import type { RequestDto } from "../types";
 import { ApprovalTimeline } from "./ApprovalTimeline";
 
 const base: RequestDto = {
-  id: "1", number: "PR-1", requesterId: "u", title: "t", description: null, status: "submitted", businessDate: "2026-10-09", currency: "MYR", total: 10,
-  lines: [], approvals: [], quoteFileId: null, createdOn: "2026-10-09T01:00:00Z", submittedOn: "2026-10-09T02:00:00Z", decidedOn: null,
-  autoApproved: false, rejectionReason: null, goodsReceivedOn: null, allowedActions: [], eTag: "v1",
+  id: "1",
+  number: "PR-1",
+  requesterId: "u",
+  title: "t",
+  description: null,
+  status: "submitted",
+  businessDate: "2026-10-09",
+  currency: "MYR",
+  total: 10,
+  lines: [],
+  approvals: [],
+  customFields: {},
+  quoteFileId: null,
+  createdOn: "2026-10-09T01:00:00Z",
+  submittedOn: "2026-10-09T02:00:00Z",
+  decidedOn: null,
+  autoApproved: false,
+  rejectionReason: null,
+  goodsReceivedOn: null,
+  allowedActions: [],
+  eTag: "v1",
 };
 
 describe("ApprovalTimeline", () => {
@@ -20,7 +38,15 @@ describe("ApprovalTimeline", () => {
   it("lists what happened, oldest first, with each approval step", () => {
     render(
       <ApprovalTimeline
-        request={{ ...base, status: "approved", decidedOn: "2026-10-10T01:00:00Z", approvals: [{ level: 1, approverId: "m", approvedOn: "2026-10-09T05:00:00Z" }, { level: 2, approverId: "a", approvedOn: "2026-10-10T01:00:00Z" }] }}
+        request={{
+          ...base,
+          status: "approved",
+          decidedOn: "2026-10-10T01:00:00Z",
+          approvals: [
+            { level: 1, approverId: "m", approvedOn: "2026-10-09T05:00:00Z" },
+            { level: 2, approverId: "a", approvedOn: "2026-10-10T01:00:00Z" },
+          ],
+        }}
       />,
     );
     const items = screen.getAllByRole("listitem").map((li) => li.textContent ?? "");
@@ -32,7 +58,9 @@ describe("ApprovalTimeline", () => {
   });
 
   it("says why a request was rejected", () => {
-    render(<ApprovalTimeline request={{ ...base, status: "rejected", decidedOn: "2026-10-09T09:00:00Z", rejectionReason: "Over budget" }} />);
+    render(
+      <ApprovalTimeline request={{ ...base, status: "rejected", decidedOn: "2026-10-09T09:00:00Z", rejectionReason: "Over budget" }} />,
+    );
     expect(screen.getByText("Rejected")).toBeInTheDocument();
     expect(screen.getByText("Over budget")).toBeInTheDocument();
   });

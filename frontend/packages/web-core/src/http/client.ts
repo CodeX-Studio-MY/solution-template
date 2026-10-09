@@ -49,7 +49,8 @@ export async function platformFetch(input: Request): Promise<Response> {
 
 /** A typed client for one service. Paths are relative (`/api/{service}/v1/...`), so no host is ever in code. */
 export function api<K extends keyof ServicePaths>(service: K) {
-  return createServiceClient(service, { baseUrl: "", fetch: platformFetch });
+  // The page's own origin: requests are same-origin, so cookies flow and no host name is ever written in code.
+  return createServiceClient(service, { baseUrl: window.location.origin, fetch: platformFetch });
 }
 
 /** Result of an openapi-fetch call. */

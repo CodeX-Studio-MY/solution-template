@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using Acme.Contracts;
 using Acme.Core.Authorization;
+using Acme.Core.Customization;
 using Acme.Core.Errors;
 using Acme.Core.Http;
 using Acme.Core.Platform;
@@ -15,8 +16,9 @@ namespace Acme.PurchaseRequest.Application;
 /// <summary>The purchase-request use cases. Every business rule is in the domain or here; endpoints only translate HTTP.</summary>
 public sealed class RequestService(
     IRequestRepository requests,
-    IRequestSettings settings,
-    IApprovalPolicyResolver policies,
+    ITenantSettings<PurchaseRequestSettings> settings,
+    ITenantStrategy<IApprovalPolicy> policies,
+    ICustomFieldStore customFields,
     IQuoteFiles quotes,
     IAccessEvaluator access,
     ICurrentPrincipal principal,
@@ -44,13 +46,14 @@ public sealed class RequestService(
 
     public async Task<RequestDto> CreateAsync(SaveRequestInput input, CancellationToken cancellationToken = default)
     {
-        Validate(input);
+        var fields = await ValidateAsync(input, cancellationToken);
         var businessDate = clock.Today;
         var config = await settings.GetAsync(cancellationToken);
         var number = await NextNumberAsync(config.NumberFormat, businessDate, cancellationToken);
 
         var request = new Domain.PurchaseRequest(number, CurrentUserId, input.Title, input.Description, businessDate, tenant.Tenant.Currency);
         request.ReplaceDetails(input.Title, input.Description, input.Lines.Select(l => new RequestLine(l.Item, l.Quantity, l.UnitPrice)));
+        request.ReplaceCustomFields(fields);
         requests.Add(request);
         await requests.SaveAsync(cancellationToken);
         return await ToDtoAsync(request, cancellationToken);
@@ -58,9 +61,13 @@ public sealed class RequestService(
 
     public async Task<RequestDto> UpdateAsync(Guid id, string? ifMatch, SaveRequestInput input, CancellationToken cancellationToken = default)
     {
-        Validate(input);
+        var fields = await ValidateAsync(input, cancellationToken);
         var request = await FindEditableByOwnerAsync(id, ifMatch, cancellationToken);
-        Apply(() => request.ReplaceDetails(input.Title, input.Description, input.Lines.Select(l => new RequestLine(l.Item, l.Quantity, l.UnitPrice))));
+        Apply(() =>
+        {
+            request.ReplaceDetails(input.Title, input.Description, input.Lines.Select(l => new RequestLine(l.Item, l.Quantity, l.UnitPrice)));
+            request.ReplaceCustomFields(fields);
+        });
         await requests.SaveAsync(cancellationToken);
         return await ToDtoAsync(request, cancellationToken);
     }
@@ -77,14 +84,14 @@ public sealed class RequestService(
         var request = await FindEditableByOwnerAsync(id, ifMatch, cancellationToken);
         var now = time.GetUtcNow().UtcDateTime;
         Apply(() => request.Submit(now));
-        requests.Publish(new PurchaseRequestSubmitted.V1(request.Id, request.Number, request.RequesterId, request.TotalAmount, request.Currency, request.BusinessDate));
+        requests.Publish(new PurchaseRequestSubmitted.V1(request.Id, request.Number, request.RequesterId, request.TotalAmount, request.Currency, request.BusinessDate, CostCenterOf(request)));
 
         // Small requests don't need a person: below the tenant's threshold they are approved on submit.
         var config = await settings.GetAsync(cancellationToken);
         if (request.TotalAmount < config.AutoApproveBelow)
         {
             Apply(() => request.AutoApprove(now));
-            requests.Publish(new PurchaseRequestApproved.V1(request.Id, request.Number, request.RequesterId, request.RequesterId, request.TotalAmount, request.Currency, request.BusinessDate, AutoApproved: true));
+            requests.Publish(new PurchaseRequestApproved.V1(request.Id, request.Number, request.RequesterId, request.RequesterId, request.TotalAmount, request.Currency, request.BusinessDate, AutoApproved: true, CostCenterOf(request)));
         }
         await requests.SaveAsync(cancellationToken);
         return await ToDtoAsync(request, cancellationToken);
@@ -95,15 +102,16 @@ public sealed class RequestService(
         var request = await FindVisibleAsync(id, cancellationToken);
         requests.ApplyIfMatch(request, ifMatch);
 
-        var policy = await policies.ResolveAsync(cancellationToken);
-        var step = policy.NextStep(request) ?? throw new BusinessRuleException(PurchaseRequestErrors.NotSubmitted);
+        var policy = await policies.GetCurrentAsync(cancellationToken);
+        var rules = await RulesAsync(cancellationToken);
+        var step = policy.NextStep(request, rules) ?? throw new BusinessRuleException(PurchaseRequestErrors.NotSubmitted);
         if (!access.HasRole(Modules.PurchaseRequest, step.MinimumRole))
             throw new ForbiddenException(PurchaseRequestErrors.RoleTooLow);
 
         var now = time.GetUtcNow().UtcDateTime;
-        Apply(() => request.Approve(step.Level, CurrentUserId, now, policy.NextStep));
+        Apply(() => request.Approve(step.Level, CurrentUserId, now, r => policy.NextStep(r, rules)));
         if (request.Status == RequestStatus.Approved)
-            requests.Publish(new PurchaseRequestApproved.V1(request.Id, request.Number, request.RequesterId, CurrentUserId, request.TotalAmount, request.Currency, request.BusinessDate, AutoApproved: false));
+            requests.Publish(new PurchaseRequestApproved.V1(request.Id, request.Number, request.RequesterId, CurrentUserId, request.TotalAmount, request.Currency, request.BusinessDate, AutoApproved: false, CostCenterOf(request)));
         await requests.SaveAsync(cancellationToken);
         return await ToDtoAsync(request, cancellationToken);
     }
@@ -127,6 +135,17 @@ public sealed class RequestService(
         Apply(() => request.ReceiveGoods(time.GetUtcNow().UtcDateTime));
         await requests.SaveAsync(cancellationToken);
         return await ToDtoAsync(request, cancellationToken);
+    }
+
+    /// <summary>The link to one of the caller's own drafts (the feature flag is checked by the endpoint).</summary>
+    public async Task<DraftLink> ShareDraftAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        var request = await FindVisibleAsync(id, cancellationToken);
+        if (request.RequesterId != CurrentUserId)
+            throw new ForbiddenException(PurchaseRequestErrors.NotYours);
+        if (!request.IsEditable)
+            throw new BusinessRuleException(PurchaseRequestErrors.NotDraft);
+        return new DraftLink($"/{Modules.PurchaseRequest}/{request.Id}");
     }
 
     public async Task<RequestDto> AttachQuoteAsync(Guid id, string? ifMatch, Stream content, string claimedName, CancellationToken cancellationToken = default)
@@ -160,8 +179,8 @@ public sealed class RequestService(
 
         if (request.Status == RequestStatus.Submitted && !isOwner && access.Can(PurchaseRequestPermissions.Approve))
         {
-            var policy = await policies.ResolveAsync(cancellationToken);
-            var step = policy.NextStep(request);
+            var policy = await policies.GetCurrentAsync(cancellationToken);
+            var step = policy.NextStep(request, await RulesAsync(cancellationToken));
             var alreadyApproved = request.Approvals.Any(a => a.ApproverId == CurrentUserId);
             if (step is not null && !alreadyApproved && access.HasRole(Modules.PurchaseRequest, step.MinimumRole))
                 actions.Add(RequestActions.Approve);
@@ -203,6 +222,7 @@ public sealed class RequestService(
         r.Id, r.Number, r.RequesterId, r.Title, r.Description, r.Status, r.BusinessDate, r.Currency, r.TotalAmount,
         [.. r.Lines.Select(l => new LineDto(l.Item, l.Quantity, l.UnitPrice, l.LineTotal))],
         [.. r.Approvals.OrderBy(a => a.ApprovedOn).Select(a => new ApprovalDto(a.Level, a.ApproverId, a.ApprovedOn))],
+        r.CustomFields,
         r.QuoteFileId, r.CreatedOn, r.SubmittedOn, r.DecidedOn, r.AutoApproved, r.RejectionReason, r.GoodsReceivedOn,
         await AllowedActionsAsync(r, cancellationToken),
         requests.ETagOf(r));
@@ -229,7 +249,7 @@ public sealed class RequestService(
         }
     }
 
-    private static void Validate(SaveRequestInput input)
+    private async Task<Dictionary<string, string>> ValidateAsync(SaveRequestInput input, CancellationToken cancellationToken)
     {
         var v = new ValidationBuilder()
             .Required("title", input.Title, "Title")
@@ -248,8 +268,16 @@ public sealed class RequestService(
             if (line.UnitPrice < 0)
                 v.Add($"lines[{i}].unitPrice", "validation.range", "Unit price", 0, 1_000_000_000);
         }
+        var cleaned = CustomFieldValidator.Validate(await customFields.ListAsync(Modules.PurchaseRequest, cancellationToken), input.CustomFields, v);
         v.ThrowIfAny();
+        return cleaned;
     }
+
+    private async Task<ApprovalRules> RulesAsync(CancellationToken cancellationToken) =>
+        new((await settings.GetAsync(cancellationToken)).SecondApprovalAbove);
+
+    private static string? CostCenterOf(Domain.PurchaseRequest request) =>
+        request.CustomFields.GetValueOrDefault(WellKnownCustomFields.CostCenter);
 }
 
 /// <summary>Document numbers from a tenant's format, for example <c>PR-{date:yyyyMMdd}-{seq:0000}</c> → <c>PR-20261009-0007</c>. The date is the tenant's business date.</summary>

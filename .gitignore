@@ -17,3 +17,6 @@ test-results/
 !deploy/.env.example
 .DS_Store
 .idea/
+
+# Local development: certificates, logs, invitation links (scripts/dev-up)
+.dev/

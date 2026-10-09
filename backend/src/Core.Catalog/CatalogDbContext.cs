@@ -24,6 +24,10 @@ public sealed class CatalogDbContext(DbContextOptions<CatalogDbContext> options)
 
     public DbSet<PlanLimit> PlanLimits => Set<PlanLimit>();
 
+    public DbSet<TenantSetting> TenantSettings => Set<TenantSetting>();
+
+    public DbSet<TenantFeature> TenantFeatures => Set<TenantFeature>();
+
     protected override void ConfigureModel(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<CatalogTenant>(tenant =>
@@ -91,6 +95,25 @@ public sealed class CatalogDbContext(DbContextOptions<CatalogDbContext> options)
             limit.ToTable("PlanLimits");
             limit.HasKey(l => l.Plan);
             limit.Property(l => l.Plan).HasMaxLength(30);
+        });
+
+        modelBuilder.Entity<TenantSetting>(setting =>
+        {
+            setting.ToTable("TenantSettings");
+            setting.HasKey(s => new { s.TenantId, s.ModuleKey });
+            setting.Property(s => s.ModuleKey).HasMaxLength(CatalogModule.MaxKeyLength).IsUnicode(false);
+            setting.Property(s => s.Json).HasMaxLength(TenantSetting.MaxJsonLength);
+            setting.Property(s => s.UpdatedBy).HasMaxLength(200);
+            setting.HasOne<CatalogTenant>().WithMany().HasForeignKey(s => s.TenantId);
+        });
+
+        modelBuilder.Entity<TenantFeature>(feature =>
+        {
+            feature.ToTable("TenantFeatures");
+            feature.HasKey(f => new { f.TenantId, f.FeatureKey });
+            feature.Property(f => f.FeatureKey).HasMaxLength(TenantFeature.MaxKeyLength).IsUnicode(false);
+            feature.Property(f => f.UpdatedBy).HasMaxLength(200);
+            feature.HasOne<CatalogTenant>().WithMany().HasForeignKey(f => f.TenantId);
         });
 
         SeedPlatformData(modelBuilder);

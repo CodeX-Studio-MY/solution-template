@@ -20,6 +20,7 @@ import {
   ApiError,
   apiPath,
   eventBus,
+  features,
   platformFetch,
   readProblem,
   Slot,
@@ -28,8 +29,9 @@ import {
   useFeature,
   useFormatters,
   useResource,
+  wellKnownCustomFields,
 } from "@acme/web-core";
-import { ConfirmDialog, MoneyText, PageHeader, ProblemAlert } from "@acme/ui-kit";
+import { ConfirmDialog, CustomFieldsSummary, MoneyText, PageHeader, ProblemAlert } from "@acme/ui-kit";
 import { actions } from "../actions";
 import { basePath } from "../basePath";
 import { requests } from "../client";
@@ -39,12 +41,18 @@ import type { RequestDto } from "../types";
 
 type Pending = "delete" | "reject" | null;
 
+/** The cost center the tenant chose for this request, if it has that field. Other modules read it through the slot's props. */
+function costCenter(request: RequestDto): { costCenter?: string } {
+  const value = request.customFields[wellKnownCustomFields.costCenter];
+  return value ? { costCenter: value } : {};
+}
+
 export function Component() {
   const { t } = useTranslation("purchase-request");
   const { id = "" } = useParams();
   const navigate = useNavigate();
   const format = useFormatters();
-  const canShare = useFeature("purchase-request.draft-sharing");
+  const canShare = useFeature(features.purchaseRequestDraftSharing);
   const detail = useResource(() => unwrap(requests.GET("/api/purchase-request/v1/requests/{id}", { params: { path: { id } } })), [id]);
   const [pending, setPending] = useState<Pending>(null);
   const [reason, setReason] = useState("");
@@ -86,6 +94,17 @@ export function Component() {
       );
       if (!response.ok) throw await readProblem(response);
     });
+  }
+
+  /** Asks the server for the draft's link (404 unless the tenant has the feature) and puts it on the clipboard. */
+  async function shareDraft() {
+    try {
+      const link = await unwrap(requests.POST("/api/purchase-request/v1/requests/{id}/share-draft", { params: { path: { id } } }));
+      await navigator.clipboard.writeText(new URL(link.url, window.location.origin).toString());
+      eventBus.emit("notify", { message: t("detail.linkCopied"), severity: "success" });
+    } catch (e) {
+      setError(e as Error);
+    }
   }
 
   async function openQuote() {
@@ -154,7 +173,7 @@ export function Component() {
               </Button>
             ) : null}
             {canShare && allowed.has(actions.edit) ? (
-              <Button disabled={busy} onClick={() => void navigator.clipboard.writeText(window.location.href)}>
+              <Button disabled={busy} onClick={() => void shareDraft()}>
                 {t("detail.shareDraft")}
               </Button>
             ) : null}
@@ -173,6 +192,7 @@ export function Component() {
                 </Typography>
               </Stack>
               {request.description ? <Typography sx={{ mb: 2 }}>{request.description}</Typography> : null}
+              <CustomFieldsSummary entity="purchase-request" values={request.customFields} />
               <Table size="small" aria-label={t("fields.lines")}>
                 <TableHead>
                   <TableRow>
@@ -237,7 +257,11 @@ export function Component() {
               {/* Other modules may add a panel here (for example the remaining budget). With nothing registered it renders nothing. */}
               <Slot
                 name="purchase-request.detail.side-panel"
-                props={{ requestId: request.id, total: { amount: Number(request.total), currency: request.currency } }}
+                props={{
+                  requestId: request.id,
+                  total: { amount: Number(request.total), currency: request.currency },
+                  ...costCenter(request),
+                }}
               />
             </Stack>
           </Grid>

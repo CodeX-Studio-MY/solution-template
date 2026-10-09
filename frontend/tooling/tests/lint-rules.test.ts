@@ -1,3 +1,4 @@
+import { readdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { ESLint } from "eslint";
@@ -64,8 +65,35 @@ describe("frontend lint rules", () => {
     ]);
   });
 
+  it("keeps modules apart: purchase-request and cost-center-budget never import each other", async () => {
+    expect(await messages('import "../../../cost-center-budget/src/manifest";', moduleFile)).toEqual([
+      expect.stringContaining("Modules never import other modules"),
+    ]);
+    expect(await messages('import "../../../purchase-request/src/manifest";', "modules/cost-center-budget/src/pages/Example.tsx")).toEqual([
+      expect.stringContaining("Modules never import other modules"),
+    ]);
+  });
+
   it("allows what is meant to be allowed", async () => {
     expect(await messages('import { useFormatters } from "@acme/web-core";\nexport const a = useFormatters;', moduleFile)).toEqual([]);
     expect(await messages('import { PageHeader } from "@acme/ui-kit";\nexport const a = PageHeader;', moduleFile)).toEqual([]);
+  });
+});
+
+describe("frontend packages", () => {
+  it("no module depends on another module or on the shell, in package.json either", () => {
+    const modules = readdirSync(join(root, "modules"), { withFileTypes: true }).filter((e) => e.isDirectory());
+    expect(modules.length).toBeGreaterThanOrEqual(2);
+    for (const module of modules) {
+      const manifest = JSON.parse(readFileSync(join(root, "modules", module.name, "package.json"), "utf8")) as {
+        dependencies?: Record<string, string>;
+        devDependencies?: Record<string, string>;
+      };
+      const names = Object.keys({ ...manifest.dependencies, ...manifest.devDependencies }).filter((n) => n.startsWith("@acme/"));
+      expect(
+        names.filter((n) => n.startsWith("@acme/mfe-") || n === "@acme/shell"),
+        module.name,
+      ).toEqual([]);
+    }
   });
 });

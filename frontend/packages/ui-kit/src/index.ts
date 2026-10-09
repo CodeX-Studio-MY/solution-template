@@ -9,3 +9,4 @@ export { ProblemAlert } from "./components/ProblemAlert";
 export { EmptyState } from "./components/EmptyState";
 export { ConfirmDialog } from "./components/ConfirmDialog";
 export { CustomFieldsSection, type CustomFieldDefinition, type CustomFieldValues } from "./components/CustomFieldsSection";
+export { CustomFieldsSummary } from "./components/CustomFieldsSummary";

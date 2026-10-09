@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Acme.Core.Data;
 
 namespace Acme.PurchaseRequest.Domain;
@@ -108,6 +109,12 @@ public sealed class PurchaseRequest : BaseEntity, IAggregateRoot, ISoftDeletable
 
     public IReadOnlyList<RequestApproval> Approvals => _approvals;
 
+    /// <summary>The tenant's extra fields (rung 4) as a JSON object of key → text, kept in one native JSON column.</summary>
+    public string CustomFieldsJson { get; private set; } = "{}";
+
+    public IReadOnlyDictionary<string, string> CustomFields =>
+        JsonSerializer.Deserialize<Dictionary<string, string>>(CustomFieldsJson) ?? [];
+
     public Guid? QuoteFileId { get; private set; }
 
     public DateTime? SubmittedOn { get; private set; }
@@ -127,6 +134,12 @@ public sealed class PurchaseRequest : BaseEntity, IAggregateRoot, ISoftDeletable
     public DateTime? DeletedOn { get; private set; }
 
     public bool IsEditable => Status == RequestStatus.Draft;
+
+    public void ReplaceCustomFields(IReadOnlyDictionary<string, string> values)
+    {
+        EnsureDraft();
+        CustomFieldsJson = JsonSerializer.Serialize(values.OrderBy(v => v.Key, StringComparer.Ordinal).ToDictionary(v => v.Key, v => v.Value));
+    }
 
     public void ReplaceDetails(string title, string? description, IEnumerable<RequestLine> lines)
     {

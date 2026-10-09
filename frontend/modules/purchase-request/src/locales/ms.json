@@ -38,6 +38,7 @@
     "approve": "Luluskan",
     "reject": "Tolak",
     "delete": "Padam",
+    "linkCopied": "Pautan disalin",
     "shareDraft": "Salin pautan draf",
     "deleteTitle": "Padam permohonan ini?",
     "deleteText": "{{number}} akan dipadam. Ini tidak boleh dibuat asal.",

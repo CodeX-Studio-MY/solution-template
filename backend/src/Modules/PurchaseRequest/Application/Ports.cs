@@ -1,3 +1,4 @@
+using Acme.Core.Customization;
 using Acme.Core.Http;
 using Acme.PurchaseRequest.Domain;
 
@@ -35,26 +36,16 @@ public interface IQuoteFiles
     Task<Uri> DownloadUrlAsync(Guid fileId, CancellationToken cancellationToken = default);
 }
 
-/// <summary>The tenant's choices for this module. Values are data in the catalog; every one has a default so a new tenant works with zero configuration.</summary>
-public sealed record PurchaseRequestSettings
+/// <summary>The tenant's custom field definitions for the module's entities (rung 4).</summary>
+public interface ICustomFieldStore
 {
-    /// <summary>Requests below this total are approved on submit.</summary>
-    public decimal AutoApproveBelow { get; init; } = 500m;
+    Task<IReadOnlyList<CustomFieldDefinition>> ListAsync(string entity, CancellationToken cancellationToken = default);
 
-    /// <summary>The key of the approval strategy.</summary>
-    public string ApprovalPolicy { get; init; } = SingleApproverPolicy.Key;
+    Task<CustomFieldDefinition?> FindAsync(string entity, string key, CancellationToken cancellationToken = default);
 
-    /// <summary>How request numbers look. <c>{date:format}</c> is the business date, <c>{seq:format}</c> the day's counter.</summary>
-    public string NumberFormat { get; init; } = "PR-{date:yyyyMMdd}-{seq:0000}";
-}
+    void Add(CustomFieldDefinition definition);
 
-public interface IRequestSettings
-{
-    Task<PurchaseRequestSettings> GetAsync(CancellationToken cancellationToken = default);
-}
+    void Remove(CustomFieldDefinition definition);
 
-/// <summary>Chooses the approval strategy for the current tenant.</summary>
-public interface IApprovalPolicyResolver
-{
-    Task<IApprovalPolicy> ResolveAsync(CancellationToken cancellationToken = default);
+    Task SaveAsync(CancellationToken cancellationToken = default);
 }

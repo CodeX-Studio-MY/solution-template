@@ -29,5 +29,9 @@
   "validation.unknownOption": "{0}必须是允许的值之一。",
   "validation.fileType": "文件必须是以下类型之一：{0}。",
   "validation.fileTooLarge": "文件太大。上限为 {0} MB。",
-  "validation.fileInfected": "该文件未通过安全扫描。"
+  "validation.fileInfected": "该文件未通过安全扫描。",
+  "validation.unknownField": "{0} 不是此记录的字段。",
+  "validation.number": "{0} 必须是数字。",
+  "validation.date": "{0} 必须是日期（yyyy-mm-dd）。",
+  "validation.notAnOption": "{0} 必须是所列选项之一。"
 }

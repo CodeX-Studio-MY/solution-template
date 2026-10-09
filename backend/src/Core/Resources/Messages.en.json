@@ -29,5 +29,9 @@
   "validation.unknownOption": "{0} must be one of the allowed values.",
   "validation.fileType": "The file must be one of: {0}.",
   "validation.fileTooLarge": "The file is too large. The limit is {0} MB.",
-  "validation.fileInfected": "The file was rejected by the security scan."
+  "validation.fileInfected": "The file was rejected by the security scan.",
+  "validation.unknownField": "{0} is not a field of this record.",
+  "validation.number": "{0} must be a number.",
+  "validation.date": "{0} must be a date (yyyy-mm-dd).",
+  "validation.notAnOption": "{0} must be one of the listed options."
 }

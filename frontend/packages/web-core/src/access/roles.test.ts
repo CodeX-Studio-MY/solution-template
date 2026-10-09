@@ -10,7 +10,14 @@ describe("roles", () => {
   });
 
   it("keeps the highest role per module and ignores anything it doesn't understand", () => {
-    const roles = parseRoles(["purchase-request:user", "purchase-request:manager", "cost-center-budget:admin", "garbage", "x:nonsense", ":user"]);
+    const roles = parseRoles([
+      "purchase-request:user",
+      "purchase-request:manager",
+      "cost-center-budget:admin",
+      "garbage",
+      "x:nonsense",
+      ":user",
+    ]);
     expect(roles).toEqual({ "purchase-request": "manager", "cost-center-budget": "admin" });
   });
 

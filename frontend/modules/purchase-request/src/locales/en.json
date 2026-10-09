@@ -38,6 +38,7 @@
     "approve": "Approve",
     "reject": "Reject",
     "delete": "Delete",
+    "linkCopied": "Link copied",
     "shareDraft": "Copy link to draft",
     "deleteTitle": "Delete this request?",
     "deleteText": "{{number}} will be deleted. This can't be undone.",

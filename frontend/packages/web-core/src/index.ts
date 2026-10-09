@@ -1,5 +1,7 @@
 export * from "./generated/platform";
 export { errorCodes, type ErrorCode } from "./generated/errors";
+export { featureFlags, features, type FeatureKey } from "./generated/features";
+export { wellKnownCustomFields } from "./generated/custom-fields";
 
 export { api, apiJson, apiPath, unwrap, unwrapEmpty, getJson, platformFetch, signInUrl, setRedirect, loginPath } from "./http/client";
 export { ApiError, readProblem, type FieldError, type ProblemDetails } from "./http/problem";
