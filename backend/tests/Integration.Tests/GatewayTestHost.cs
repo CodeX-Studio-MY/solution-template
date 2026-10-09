@@ -56,6 +56,8 @@ internal sealed class GatewayTestHost : IAsyncDisposable
             host.UseSetting("Redis:ConnectionString", databases.RedisConnectionString);
             host.UseSetting("DataProtection:KeyEncryptionKey", TestSecrets.KeyEncryptionKey);
             host.UseSetting("Bff:ClientSecret", BffSecret);
+            foreach (var (key, value) in TestSecrets.Settings(databases))
+                host.UseSetting(key, value);
             host.ConfigureTestServices(services =>
             {
                 // Everything the Gateway calls over HTTP lands on the Identity test server.

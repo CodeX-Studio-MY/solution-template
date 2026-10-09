@@ -83,6 +83,19 @@ The platform operator realm (our own support staff).
 |---|---|---|---|---|
 | `Operators__SessionMinutes` | integer | no | `30` | How long an operator's console session lasts, in minutes. Allowed: 5–240. |
 
+## RabbitMq
+
+The message broker (RabbitMQ 4.x, quorum queues) and the outbox relay.
+
+| Environment variable | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `RabbitMq__ConnectionString` | string | yes |  | AMQP connection URI. In the cloud, use the broker's private endpoint. **Secret.** Example: `amqp://user:password@rabbitmq:5672`. |
+| `RabbitMq__Prefetch` | integer | no | `16` | How many unacknowledged messages one consumer holds at a time (prefetch). Allowed: 1–500. |
+| `RabbitMq__MaxAttempts` | integer | no | `3` | How many times a failing message is tried (with growing delays) before it goes to the dead-letter queue. Allowed: 1–10. |
+| `RabbitMq__OutboxSweepMinutes` | integer | no | `5` | The outbox relay's slow sweep over every tenant, in minutes. It finds rows whose signal was lost. Allowed: 1–60. |
+| `RabbitMq__RelayParallelism` | integer | no | `4` | How many tenants the relay publishes for in parallel. Allowed: 1–64. |
+| `RabbitMq__OutboxRetentionDays` | integer | no | `7` | How long published outbox rows are kept before the sweep deletes them, in days. Allowed: 1–365. |
+
 ## RateLimit
 
 Distributed rate limits (Redis). A tenant's plan can override the per-tenant and per-principal limits.
@@ -109,6 +122,39 @@ This service's own client credentials, for system work and for exchanging users'
 | Environment variable | Type | Required | Default | Description |
 |---|---|---|---|---|
 | `ServiceClient__ClientSecret` | string | no |  | This service's client secret (from the secret store). Its client ID is derived from its service key. **Secret.** |
+| `ServiceClient__LocalAddress` | string | no |  | This process's own address, used for calls to services the same host runs (AllInOne.Host). Empty: http://localhost:{port of the first hosted service}. Example: `http://localhost:5001`. |
+
+## Smtp
+
+Outgoing email from the Notification module (Mailpit locally).
+
+| Environment variable | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `Smtp__Host` | string | yes |  | SMTP server host. Example: `mailpit`. |
+| `Smtp__Port` | integer | no | `1025` | SMTP server port. Allowed: 1–65535. |
+| `Smtp__UseTls` | boolean | no | `False` | Use STARTTLS. Off for Mailpit, on for real servers. |
+| `Smtp__User` | string | no |  | SMTP user name. Leave empty if the server needs none. |
+| `Smtp__Password` | string | no |  | SMTP password, from the secret store. **Secret.** |
+| `Smtp__FromAddress` | string | yes |  | The From address of platform emails. Example: `no-reply@example.com`. |
+| `Smtp__FromName` | string | no | `Notifications` | The From name of platform emails. |
+
+## Storage
+
+Object storage for uploaded files. Services are stateless: files never live on a container's disk.
+
+| Environment variable | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `Storage__Provider` | string | yes |  | Which store: azure (Blob), aws (S3 or an S3-compatible emulator), or local (a folder, for development only). Allowed: one of `azure`, `aws`, `local`. Example: `azure`. |
+| `Storage__Container` | string | yes | `files` | Container (Azure) or bucket (S3) holding every tenant's files. Object keys start with {tenantId}/. |
+| `Storage__ConnectionString` | string | no |  | Azure Blob connection string (local development with Azurite). Leave empty in the cloud and set AccountUrl, so managed identity is used. **Secret.** |
+| `Storage__AccountUrl` | string | no |  | Azure Blob account URL, for managed identity (no secret). Example: `https://myaccount.blob.core.windows.net`. |
+| `Storage__ServiceUrl` | string | no |  | S3 service URL, only for an S3-compatible emulator such as SeaweedFS. Leave empty for AWS. Example: `http://seaweedfs:8333`. |
+| `Storage__Region` | string | no |  | S3 region. Example: `ap-southeast-1`. |
+| `Storage__AccessKey` | string | no |  | S3 access key, for an emulator. In AWS, the task or instance role is used. **Secret.** |
+| `Storage__SecretKey` | string | no |  | S3 secret key, for an emulator. **Secret.** |
+| `Storage__LocalPath` | string | no |  | Folder for the local provider. Development only. Example: `/tmp/acme-files`. |
+| `Storage__MaxUploadMegabytes` | integer | no | `10` | The largest upload accepted, in megabytes. Allowed: 1–1024. |
+| `Storage__SignedUrlMinutes` | integer | no | `10` | How long a download link works, in minutes. Links are signed and short-lived. Allowed: 1–1440. |
 
 ## Tenancy
 

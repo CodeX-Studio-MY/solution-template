@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <!-- Every module in one process (development, small deployments). The module references are generated from platform.yaml. -->
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <Import Project="Generated/ModuleProjects.g.props" />
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core.Hosting\Core.Hosting.csproj" />
+  </ItemGroup>
+</Project>

@@ -52,6 +52,15 @@ internal static class ConfigKeys
     {
         public const string SessionMinutes = "Operators__SessionMinutes";
     }
+    public static class RabbitMq
+    {
+        public const string ConnectionString = "RabbitMq__ConnectionString";
+        public const string Prefetch = "RabbitMq__Prefetch";
+        public const string MaxAttempts = "RabbitMq__MaxAttempts";
+        public const string OutboxSweepMinutes = "RabbitMq__OutboxSweepMinutes";
+        public const string RelayParallelism = "RabbitMq__RelayParallelism";
+        public const string OutboxRetentionDays = "RabbitMq__OutboxRetentionDays";
+    }
     public static class RateLimit
     {
         public const string PerTenantPerMinute = "RateLimit__PerTenantPerMinute";
@@ -66,6 +75,31 @@ internal static class ConfigKeys
     public static class ServiceClient
     {
         public const string ClientSecret = "ServiceClient__ClientSecret";
+        public const string LocalAddress = "ServiceClient__LocalAddress";
+    }
+    public static class Smtp
+    {
+        public const string Host = "Smtp__Host";
+        public const string Port = "Smtp__Port";
+        public const string UseTls = "Smtp__UseTls";
+        public const string User = "Smtp__User";
+        public const string Password = "Smtp__Password";
+        public const string FromAddress = "Smtp__FromAddress";
+        public const string FromName = "Smtp__FromName";
+    }
+    public static class Storage
+    {
+        public const string Provider = "Storage__Provider";
+        public const string Container = "Storage__Container";
+        public const string ConnectionString = "Storage__ConnectionString";
+        public const string AccountUrl = "Storage__AccountUrl";
+        public const string ServiceUrl = "Storage__ServiceUrl";
+        public const string Region = "Storage__Region";
+        public const string AccessKey = "Storage__AccessKey";
+        public const string SecretKey = "Storage__SecretKey";
+        public const string LocalPath = "Storage__LocalPath";
+        public const string MaxUploadMegabytes = "Storage__MaxUploadMegabytes";
+        public const string SignedUrlMinutes = "Storage__SignedUrlMinutes";
     }
     public static class Tenancy
     {

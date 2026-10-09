@@ -36,6 +36,7 @@ int Generate(bool checkOnly, bool skipCompose)
     CSharpPlatformEmitter.Emit(platform, files);
     MigrationsEmitter.Emit(platform, files);
     AppHostEmitter.Emit(platform, files);
+    AllInOneEmitter.Emit(platform, files);
     ConfigurationEmitter.Emit(platform, files);
     ReadmeEmitter.Emit(platform, files);
     // Last: it lists the projects generated above.

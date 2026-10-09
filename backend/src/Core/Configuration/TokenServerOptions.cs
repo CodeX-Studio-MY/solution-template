@@ -46,4 +46,8 @@ public sealed record ServiceClientOptions
     [Secret]
     [Setting("This service's client secret (from the secret store). Its client ID is derived from its service key.")]
     public string? ClientSecret { get; init; }
+
+    [Url]
+    [Setting("This process's own address, used for calls to services the same host runs (AllInOne.Host). Empty: http://localhost:{port of the first hosted service}.", Example = "http://localhost:5001")]
+    public string? LocalAddress { get; init; }
 }

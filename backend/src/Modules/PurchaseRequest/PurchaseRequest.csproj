@@ -5,6 +5,10 @@
     <ProjectReference Include="..\..\Core\Core.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Contracts\Contracts.csproj" />
+    <EmbeddedResource Include="Resources\Messages.*.json" WithCulture="false" />
+  </ItemGroup>
+  <ItemGroup>
     <InternalsVisibleTo Include="$(AssemblyName).Tests" />
   </ItemGroup>
 </Project>

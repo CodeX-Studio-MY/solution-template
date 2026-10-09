@@ -16,6 +16,9 @@ public sealed record MachineEnrollmentDto(Guid PrincipalId, string Code, DateTim
 
 public sealed record MachineRegistrationDto(Guid PrincipalId, string ClientId);
 
+/// <summary>A person to contact: for notifications and emails.</summary>
+public sealed record ContactDto(Guid Id, string DisplayName, string? Email);
+
 /// <summary>
 /// Users, machines, services, groups and their module roles in the current tenant. Every change raises the affected
 /// principals' <c>access_version</c> (for a group change, every member's) and is written to the audit log.
@@ -70,6 +73,12 @@ public interface IAccessManagement
     Task<IReadOnlyList<AssignmentDto>> ListPrincipalAssignmentsAsync(Guid principalId, CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<AssignmentDto>> ListGroupAssignmentsAsync(Guid groupId, CancellationToken cancellationToken = default);
+
+    /// <summary>How to reach a user (name and email), for notifications. Returns null for unknown or inactive principals.</summary>
+    Task<ContactDto?> GetContactAsync(Guid principalId, CancellationToken cancellationToken = default);
+
+    /// <summary>Active users whose effective role in <paramref name="moduleKey"/> is at least <paramref name="minimumRole"/> (entitlement applied).</summary>
+    Task<IReadOnlyList<ContactDto>> ListModuleMembersAsync(string moduleKey, Role minimumRole, CancellationToken cancellationToken = default);
 
     Task<EffectiveAccessDto> GetEffectiveAccessAsync(Guid principalId, CancellationToken cancellationToken = default);
 }

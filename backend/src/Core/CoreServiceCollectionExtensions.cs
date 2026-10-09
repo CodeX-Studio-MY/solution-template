@@ -1,6 +1,7 @@
 using Acme.Core.Configuration;
 using Acme.Core.Data;
 using Acme.Core.Errors;
+using Acme.Core.Localization;
 using Acme.Core.Security;
 using Acme.Core.Tenancy;
 using Acme.Core.Time;
@@ -34,7 +35,11 @@ public static class CoreServiceCollectionExtensions
         services.TryAddSingleton<ITenantConnectionResolver, TenantConnectionResolver>();
         services.TryAddSingleton<IDatabaseProviderAccessor, DatabaseProviderAccessor>();
         services.AddScoped<IInterceptor, AuditSaveChangesInterceptor>();
+        services.TryAddSingleton<Messaging.IOutboxSignal, Messaging.NoOutboxSignal>();
+        services.AddScoped<IInterceptor, Messaging.OutboxSignalInterceptor>();
+        services.TryAddSingleton<Messaging.IEventPublisher, Messaging.OutboxEventPublisher>();
 
+        services.AddPlatformLocalization();
         services.AddProblemDetails();
         services.AddExceptionHandler<PlatformExceptionHandler>();
         return services;

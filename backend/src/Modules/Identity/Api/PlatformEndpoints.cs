@@ -24,6 +24,10 @@ internal static class PlatformEndpoints
             var invitation = await accounts.InviteAsync(body.Email, body.DisplayName, body.Modules.Select(m => (m, Acme.Core.Platform.Role.Admin)), ct);
             return new { invitation.PrincipalId, invitation.ExpiresOn, url = invitation.Url };
         }).RequirePlatformService();
+        platform.MapGet("/principals/{id:guid}/contact", async (Guid id, IAccessManagement access, CancellationToken ct) =>
+            await access.GetContactAsync(id, ct) is { } contact ? Results.Ok(contact) : Results.NotFound()).RequirePlatformService();
+        platform.MapGet("/module-members", (string module, Acme.Core.Platform.Role? minRole, IAccessManagement access, CancellationToken ct) =>
+            access.ListModuleMembersAsync(module, minRole ?? Acme.Core.Platform.Role.Manager, ct)).RequirePlatformService();
         platform.MapPut("/bff-redirect-uris", async ([FromBody] RedirectUrisBody body, ITenantSecurity security, CancellationToken ct) =>
         {
             await security.SetBffRedirectUrisAsync(body.Add ?? [], body.Remove ?? [], ct);

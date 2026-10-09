@@ -259,6 +259,33 @@ internal sealed class AccessManagement(
         return [.. rows.Select(ToDto).OrderBy(a => a.Module, StringComparer.Ordinal)];
     }
 
+    public async Task<ContactDto?> GetContactAsync(Guid principalId, CancellationToken cancellationToken = default)
+    {
+        var row = await (from p in db.Principals.AsNoTracking()
+                         join u in db.Users.AsNoTracking() on p.Id equals u.Id into users
+                         from user in users.DefaultIfEmpty()
+                         where p.Id == principalId && p.IsActive && p.Type == PrincipalType.User
+                         select new { p.Id, p.DisplayName, Email = user == null ? null : user.Email }).SingleOrDefaultAsync(cancellationToken);
+        return row is null ? null : new ContactDto(row.Id, row.DisplayName, row.Email);
+    }
+
+    public async Task<IReadOnlyList<ContactDto>> ListModuleMembersAsync(string moduleKey, Role minimumRole, CancellationToken cancellationToken = default)
+    {
+        _ = ModuleId(moduleKey);
+        var users = await (from p in db.Principals.AsNoTracking()
+                           join u in db.Users.AsNoTracking() on p.Id equals u.Id
+                           where p.IsActive && p.Type == PrincipalType.User
+                           select new ContactDto(p.Id, p.DisplayName, u.Email)).ToListAsync(cancellationToken);
+        var members = new List<ContactDto>();
+        foreach (var user in users)
+        {
+            var access = await principals.ResolveAsync(user.Id, cancellationToken);
+            if (access.Roles.TryGetValue(moduleKey, out var role) && role >= minimumRole)
+                members.Add(user);
+        }
+        return members;
+    }
+
     public async Task<EffectiveAccessDto> GetEffectiveAccessAsync(Guid principalId, CancellationToken cancellationToken = default)
     {
         await FindPrincipalAsync(principalId, cancellationToken);

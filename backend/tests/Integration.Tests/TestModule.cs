@@ -67,6 +67,7 @@ internal sealed class TestModuleHost : IAsyncDisposable
         Time = new FakeTimeProvider(new DateTimeOffset(2026, 3, 1, 9, 0, 0, TimeSpan.Zero));
 
         var services = new ServiceCollection();
+        services.AddLogging();
         services.AddSingleton<TimeProvider>(Time);
         services.AddScoped<ICurrentPrincipal>(_ => new TestPrincipal("user-1"));
         services.AddPlatformKernel(new ConfigurationBuilder().Build());

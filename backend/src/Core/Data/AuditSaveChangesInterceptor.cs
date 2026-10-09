@@ -46,12 +46,14 @@ internal sealed class AuditSaveChangesInterceptor(
         var isPlatformService = principal.Principal is { } user
             && user.GetPrincipalType() == PrincipalType.Service
             && user.HasPermission(PlatformPermissions.TenantAny);
-        if (context is ModuleDbContext && tenant.HasTenant && !tenant.Tenant.CanWrite && !isPlatformService)
+        // Marking an outbox row as published is the platform's own bookkeeping: events from before a suspension still flow.
+        var onlyOutboxBookkeeping = entries.All(e => e.Entity is Messaging.OutboxMessage && e.State == EntityState.Modified);
+        if (context is ModuleDbContext && tenant.HasTenant && !tenant.Tenant.CanWrite && !isPlatformService && !onlyOutboxBookkeeping)
             throw new ForbiddenException(PlatformErrors.TenantReadOnly);
 
         var now = time.GetUtcNow().UtcDateTime;
         // When a user is signed in on a machine, the user is recorded; the machine is kept in the audit log.
-        var by = principal.Id;
+        var by = principal.Id ?? "system";   // background work (consumers, jobs) has no signed-in principal
 
         foreach (var entry in entries)
         {

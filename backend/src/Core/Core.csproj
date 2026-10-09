@@ -5,11 +5,17 @@
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <ProjectReference Include="..\Contracts\Contracts.csproj" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Messages.{locale}.json: the platform's own text, in every locale from platform.yaml. -->
+    <EmbeddedResource Include="Resources\Messages.*.json" WithCulture="false" />
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="$(AssemblyName).Data.SqlServer" />
     <InternalsVisibleTo Include="$(AssemblyName).Data.PostgreSql" />
+    <InternalsVisibleTo Include="$(AssemblyName).Hosting" />
     <InternalsVisibleTo Include="$(AssemblyName).Tests" />
     <InternalsVisibleTo Include="$(PlatformProductPascal).Integration.Tests" />
   </ItemGroup>

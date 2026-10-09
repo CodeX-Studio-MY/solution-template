@@ -1,4 +1,6 @@
 using Acme.Core.Hosting.Auth;
+using Microsoft.AspNetCore.Http;
+using Acme.Core.Hosting.Files;
 using Acme.Core.Tenancy;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -17,6 +19,14 @@ public static class PlatformApplicationExtensions
             ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost,
         });
         app.UseExceptionHandler();
+        // Create endpoints with an Idempotency-Key hash the body to spot a reused key; that needs a body that can be read twice,
+        // and minimal-API binding reads it before any endpoint filter runs.
+        app.Use((context, next) =>
+        {
+            if (context.Request.Headers.ContainsKey(Acme.Core.Security.PlatformHeaders.IdempotencyKey))
+                context.Request.EnableBuffering();
+            return next(context);
+        });
         app.UseAuthentication();
         app.UseMiddleware<TenantResolutionMiddleware>();
         app.UseMiddleware<AccessVersionMiddleware>();
@@ -24,6 +34,7 @@ public static class PlatformApplicationExtensions
         app.UseAuthorization();
 
         app.MapPlatformHealth();
+        app.MapLocalFileDownloads();
 
         foreach (var module in app.Services.GetServices<ModuleEndpoints>())
         {

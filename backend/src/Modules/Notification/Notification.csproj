@@ -3,8 +3,15 @@
   <!-- Folders: Domain (depends on nothing), Application (on Domain), Api and Infrastructure (on Application). -->
   <ItemGroup>
     <ProjectReference Include="..\..\Core\Core.csproj" />
+    <ProjectReference Include="..\..\Contracts\Contracts.csproj" />
+    <EmbeddedResource Include="Resources\Messages.*.json" WithCulture="false" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.StackExchangeRedis" />
+    <PackageReference Include="MailKit" />
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="$(AssemblyName).Tests" />
+    <InternalsVisibleTo Include="$(PlatformProductPascal).Integration.Tests" />
   </ItemGroup>
 </Project>

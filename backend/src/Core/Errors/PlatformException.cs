@@ -43,9 +43,55 @@ public sealed class PreconditionFailedException(string? detail = null)
 public sealed class PreconditionRequiredException(string? detail = null)
     : PlatformException(PlatformErrors.PreconditionRequired, detail);
 
-/// <summary>Validation failed (400), with errors per field.</summary>
-public sealed class ValidationException(IReadOnlyDictionary<string, string[]> errors, ErrorCode? error = null)
-    : PlatformException(error ?? PlatformErrors.Validation)
+/// <summary>One problem with one field: a message key (from the localization catalog) and the values it interpolates.</summary>
+public sealed record FieldError(string Field, string Key, IReadOnlyList<object?> Arguments)
 {
-    public IReadOnlyDictionary<string, string[]> Errors { get; } = errors;
+    public FieldError(string field, string key, params object?[] arguments)
+        : this(field, key, (IReadOnlyList<object?>)arguments)
+    {
+    }
+}
+
+/// <summary>Validation failed (400), with errors per field. Messages are keys, localized when the response is written.</summary>
+public sealed class ValidationException : PlatformException
+{
+    public ValidationException(IEnumerable<FieldError> errors, ErrorCode? error = null)
+        : base(error ?? PlatformErrors.Validation)
+    {
+        Errors = [.. errors];
+    }
+
+    /// <summary>Plain text or message keys per field.</summary>
+    public ValidationException(IReadOnlyDictionary<string, string[]> errors, ErrorCode? error = null)
+        : this(errors.SelectMany(e => e.Value.Select(message => new FieldError(e.Key, message, (IReadOnlyList<object?>)[]))), error)
+    {
+    }
+
+    public IReadOnlyList<FieldError> Errors { get; }
+}
+
+/// <summary>Collects field errors, then throws one <see cref="ValidationException"/> if there are any.</summary>
+public sealed class ValidationBuilder
+{
+    private readonly List<FieldError> _errors = [];
+
+    public bool HasErrors => _errors.Count > 0;
+
+    public ValidationBuilder Add(string field, string key, params object?[] arguments)
+    {
+        _errors.Add(new FieldError(field, key, arguments));
+        return this;
+    }
+
+    public ValidationBuilder Required(string field, string? value, string label) =>
+        string.IsNullOrWhiteSpace(value) ? Add(field, "validation.required", label) : this;
+
+    public ValidationBuilder MaxLength(string field, string? value, int max, string label) =>
+        value is not null && value.Length > max ? Add(field, "validation.maxLength", label, max) : this;
+
+    public void ThrowIfAny()
+    {
+        if (_errors.Count > 0)
+            throw new ValidationException(_errors);
+    }
 }

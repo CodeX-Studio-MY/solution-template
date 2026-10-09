@@ -2,14 +2,21 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Migrator\Migrator.csproj" />
     <ProjectReference Include="..\..\src\Core.Hosting\Core.Hosting.csproj" />
+    <ProjectReference Include="..\..\src\Modules\PurchaseRequest\PurchaseRequest.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Notification\Notification.csproj" />
+    <ProjectReference Include="..\..\src\Scheduler\Scheduler.csproj" />
     <ProjectReference Include="..\..\src\Gateway\Gateway.csproj" Aliases="GatewayApp" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Testcontainers.MsSql" />
     <PackageReference Include="Testcontainers.PostgreSql" />
     <PackageReference Include="Testcontainers.Redis" />
+    <PackageReference Include="Testcontainers.RabbitMq" />
+    <PackageReference Include="Testcontainers.Azurite" />
+    <PackageReference Include="Testcontainers" />
     <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" />
     <PackageReference Include="Microsoft.AspNetCore.TestHost" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" />
   </ItemGroup>
 </Project>

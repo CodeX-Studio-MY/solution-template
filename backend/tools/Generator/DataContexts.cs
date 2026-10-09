@@ -22,6 +22,8 @@ public static class DataContexts
         var contexts = new List<DataContext>
         {
             new("catalog", "catalog", $"{product}.Core.Catalog.CatalogDbContext", $"{product}.Core.Catalog.CatalogDbContext.SchemaName", "Core.Catalog/Core.Catalog"),
+            // Quartz's job store lives in the catalog database, in a schema of its own (the Scheduler is not a platform service).
+            new("scheduler", "catalog", $"{product}.Scheduler.SchedulerStoreDbContext", $"{product}.Scheduler.SchedulerStoreDbContext.SchemaName", "Scheduler/Scheduler"),
         };
         foreach (var service in platform.Services)
         {

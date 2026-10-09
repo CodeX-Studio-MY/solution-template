@@ -75,7 +75,7 @@ internal sealed class TestPlatformHost : IAsyncDisposable
         builder.Configuration["Database:CatalogConnectionString"] = catalog;
         builder.Configuration["Tenancy:BaseDomain"] = "localhost";
         builder.Configuration["Redis:ConnectionString"] = databases.RedisConnectionString;
-        TestSecrets.Apply(builder);
+        TestSecrets.Apply(builder, databases);
         builder.AddPlatform(PlatformServices.PurchaseRequest).AddModule<ProbeModule>();
         builder.Services.PostConfigure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
         {

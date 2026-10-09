@@ -9,6 +9,8 @@ internal static partial class MigrationTargets
     [
         new("catalog", (provider, connectionString) =>
             global::Acme.Core.Data.DbContextRegistration.Create<global::Acme.Core.Catalog.CatalogDbContext>(null, provider, connectionString, global::Acme.Core.Catalog.CatalogDbContext.SchemaName)),
+        new("scheduler", (provider, connectionString) =>
+            global::Acme.Core.Data.DbContextRegistration.Create<global::Acme.Scheduler.SchedulerStoreDbContext>(null, provider, connectionString, global::Acme.Scheduler.SchedulerStoreDbContext.SchemaName)),
         new("identity", (provider, connectionString) =>
             global::Acme.Core.Data.DbContextRegistration.Create<global::Acme.Identity.Infrastructure.IdentityCatalogDbContext>(null, provider, connectionString, global::Acme.Core.Platform.PlatformServices.Identity.Schema)),
         new("tenancy", (provider, connectionString) =>

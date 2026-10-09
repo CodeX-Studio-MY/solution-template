@@ -39,5 +39,7 @@ public static class PlatformErrors
     public static readonly ErrorCode PreconditionFailed = new("platform.precondition-failed", 412, "errors.platform.preconditionFailed");
     public static readonly ErrorCode BusinessRule = new("platform.business-rule", 422, "errors.platform.businessRule");
     public static readonly ErrorCode PreconditionRequired = new("platform.precondition-required", 428, "errors.platform.preconditionRequired");
+    public static readonly ErrorCode IdempotencyKeyReused = new("platform.idempotency-key-reused", 422, "errors.platform.idempotencyKeyReused");
+    public static readonly ErrorCode IdempotencyInProgress = new("platform.idempotency-in-progress", 409, "errors.platform.idempotencyInProgress");
     public static readonly ErrorCode Unexpected = new("platform.unexpected", 500, "errors.platform.unexpected");
 }

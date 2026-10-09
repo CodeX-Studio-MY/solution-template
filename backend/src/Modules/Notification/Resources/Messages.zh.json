@@ -1,0 +1,11 @@
+{
+  "notifications.approved.title": "申请 {0} 已批准",
+  "notifications.approved.body": "您的采购申请 {0}（{1} {2}）已获批准。",
+  "notifications.approved.emailSubject": "采购申请 {0} 已批准",
+  "notifications.rejected.title": "申请 {0} 已被拒绝",
+  "notifications.rejected.body": "您的采购申请 {0} 已被拒绝。原因：{1}",
+  "notifications.rejected.emailSubject": "采购申请 {0} 已被拒绝",
+  "notifications.approvalsWaiting.title": "有 {0} 个申请等待审批",
+  "notifications.approvalsWaiting.body": "有 {0} 个采购申请已等待超过两天，最早的自 {1} 起：{2}。",
+  "notifications.approvalsWaiting.emailSubject": "有 {0} 个采购申请等待您审批"
+}

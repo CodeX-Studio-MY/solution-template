@@ -46,7 +46,7 @@ internal sealed class TenancyTestHost : IAsyncDisposable
         builder.Configuration["Database:Servers:default"] = databases.ServerConnectionString(PostgreSqlDatabaseProvider.ProviderName);
         builder.Configuration["Tenancy:BaseDomain"] = "localhost";
         builder.Configuration["Redis:ConnectionString"] = databases.RedisConnectionString;
-        TestSecrets.Apply(builder);
+        TestSecrets.Apply(builder, databases);
         // One shared Valkey and no client address in the in-memory server: keep the per-address auth limit out of unrelated tests.
         builder.Configuration["RateLimit:AuthPerAddressPerMinute"] = "10000";
         builder.Configuration["ServiceClient:ClientSecret"] = ServiceSecret;

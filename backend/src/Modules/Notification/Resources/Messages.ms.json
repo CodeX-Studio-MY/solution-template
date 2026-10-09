@@ -1,0 +1,11 @@
+{
+  "notifications.approved.title": "Permintaan {0} diluluskan",
+  "notifications.approved.body": "Permintaan pembelian anda {0} ({1} {2}) telah diluluskan.",
+  "notifications.approved.emailSubject": "Permintaan pembelian {0} diluluskan",
+  "notifications.rejected.title": "Permintaan {0} ditolak",
+  "notifications.rejected.body": "Permintaan pembelian anda {0} telah ditolak. Sebab: {1}",
+  "notifications.rejected.emailSubject": "Permintaan pembelian {0} ditolak",
+  "notifications.approvalsWaiting.title": "{0} permintaan menunggu kelulusan",
+  "notifications.approvalsWaiting.body": "{0} permintaan pembelian telah menunggu lebih dua hari, yang tertua sejak {1}: {2}.",
+  "notifications.approvalsWaiting.emailSubject": "{0} permintaan pembelian menunggu kelulusan anda"
+}

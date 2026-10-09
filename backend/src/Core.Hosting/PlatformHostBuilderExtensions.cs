@@ -5,6 +5,8 @@ using Acme.Core.Data.PostgreSql;
 using Acme.Core.Data.SqlServer;
 using Acme.Core.Hosting.Auth;
 using Acme.Core.Hosting.DataProtection;
+using Acme.Core.Hosting.Files;
+using Acme.Core.Hosting.Messaging;
 using Acme.Core.Hosting.Redis;
 using Acme.Core.ServiceCalls;
 using Acme.Core.Composition;
@@ -34,6 +36,9 @@ public static class PlatformHostBuilderExtensions
         {
             ListenOnPlatformPort(builder, services[0]);
             builder.AddPlatformInfrastructure(services[0].Key);
+            // Service hosts publish and consume events and store files; the Gateway and the Scheduler need only what they use.
+            builder.Services.AddPlatformMessaging(builder.Configuration);
+            builder.Services.AddPlatformFiles(builder.Configuration);
             AddSecurity(builder);
         }
         return builder;
@@ -54,7 +59,7 @@ public static class PlatformHostBuilderExtensions
 
     /// <summary>
     /// The infrastructure every public or internal host shares: observability, configuration validation, tenancy, the catalog,
-    /// the database provider, Redis, Data Protection and the JSON convention. Used by <c>AddPlatform</c> and by the Gateway.
+    /// the database provider, Redis, Data Protection and the JSON convention. Used by <c>AddPlatform</c>, the Gateway and the Scheduler.
     /// </summary>
     public static WebApplicationBuilder AddPlatformInfrastructure(this WebApplicationBuilder builder, string serviceName)
     {

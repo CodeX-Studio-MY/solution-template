@@ -1,4 +1,5 @@
 using Acme.AppHost;
+using Acme.Core.Platform;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
@@ -9,8 +10,23 @@ builder.AddDockerComposeEnvironment("compose")
 
 // Local dev choices are configuration: Database:Provider (sqlserver or postgresql) and Tenancy:BaseDomain.
 var infrastructure = PlatformInfrastructure.Add(builder);
-var services = PlatformResources.AddServices(builder, infrastructure);
-var gateway = infrastructure.AddGateway(builder, services);
-PlatformInfrastructure.WireTokenServer(services, gateway);
+
+// AppHost:Layout picks how the services run: one host per service (the default, as in production) or all in one process.
+IReadOnlyList<IResourceBuilder<ProjectResource>> services;
+IResourceBuilder<ProjectResource> tokenServer;
+var allInOne = builder.Configuration["AppHost:Layout"] == "all-in-one";
+if (allInOne)
+{
+    tokenServer = infrastructure.AddAllInOne(builder);
+    services = [tokenServer];
+}
+else
+{
+    services = PlatformResources.AddServices(builder, infrastructure);
+    tokenServer = services.Single(s => s.Resource.Name == PlatformServices.Identity.Key);
+}
+infrastructure.AddScheduler(builder);
+var gateway = infrastructure.AddGateway(builder, services, allInOne);
+PlatformInfrastructure.WireTokenServer(services, tokenServer, gateway);
 
 builder.Build().Run();

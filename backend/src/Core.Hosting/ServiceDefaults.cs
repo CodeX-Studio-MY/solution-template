@@ -48,6 +48,7 @@ public static class ServiceDefaults
                 })
                 .AddHttpClientInstrumentation()
                 .AddSource("Npgsql")
+                .AddSource("Acme.Core.Messaging")
                 .AddSource(PlatformTelemetry.ActivitySourceName));
 
         if (!string.IsNullOrWhiteSpace(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]))

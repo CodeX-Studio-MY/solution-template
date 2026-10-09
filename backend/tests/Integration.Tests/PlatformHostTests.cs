@@ -90,7 +90,7 @@ public sealed class PlatformHostTests(Databases databases)
     private async Task<WebApplication> StartAsync(string catalogConnectionString) =>
         await StartAsync(catalogConnectionString, databases.RedisConnectionString);
 
-    private static async Task<WebApplication> StartAsync(string catalogConnectionString, string redis)
+    private async Task<WebApplication> StartAsync(string catalogConnectionString, string redis)
     {
         var builder = WebApplication.CreateBuilder(new WebApplicationOptions { EnvironmentName = "Production" });
         builder.WebHost.UseTestServer();
@@ -98,7 +98,7 @@ public sealed class PlatformHostTests(Databases databases)
         builder.Configuration["Database:CatalogConnectionString"] = catalogConnectionString;
         builder.Configuration["Tenancy:BaseDomain"] = "localhost";
         builder.Configuration["Redis:ConnectionString"] = redis;
-        TestSecrets.Apply(builder);
+        TestSecrets.Apply(builder, databases);
         builder.AddPlatform(PlatformServices.PurchaseRequest);
         var app = builder.Build();
         app.UsePlatform();
