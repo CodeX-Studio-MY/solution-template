@@ -70,7 +70,7 @@ flowchart LR
 
 ## Quick start
 
-Prerequisites: .NET SDK 10 (see `backend/global.json`), Docker (on Apple Silicon, Docker Desktop with Rosetta emulation, which SQL Server
+Prerequisites: .NET SDK 10 (see `global.json`), Docker (on Apple Silicon, Docker Desktop with Rosetta emulation, which SQL Server
 needs), Node.js 24 and pnpm (`corepack enable pnpm`), and [mkcert](https://github.com/FiloSottile/mkcert) for local HTTPS
 (`scripts/dev-up` installs it with Homebrew if it can).
 

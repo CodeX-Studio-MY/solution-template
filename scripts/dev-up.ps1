@@ -10,7 +10,11 @@ Set-Location (Join-Path $PSScriptRoot '..')
 foreach ($tool in 'dotnet', 'docker', 'node', 'mkcert') {
   if (-not (Get-Command $tool -ErrorAction SilentlyContinue)) { throw "$tool is required." }
 }
-if (-not (Get-Command pnpm -ErrorAction SilentlyContinue)) { corepack enable pnpm }
+if (-not (Get-Command pnpm -ErrorAction SilentlyContinue)) {
+  # Node.js 25 and later no longer ship corepack.
+  if (-not (Get-Command corepack -ErrorAction SilentlyContinue)) { throw 'pnpm is required: run "npm install -g corepack", then "corepack enable pnpm".' }
+  corepack enable pnpm
+}
 
 New-Item -ItemType Directory -Force .dev/certs | Out-Null
 $root = (Get-Location).Path

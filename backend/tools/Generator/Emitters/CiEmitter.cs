@@ -98,7 +98,7 @@ internal static class CiEmitter
     private static string DotnetSetup => $"""
               - uses: {SetupDotnet}
                 with:
-                  global-json-file: backend/global.json
+                  global-json-file: global.json
               - run: dotnet tool restore
                 working-directory: backend
         """;
@@ -121,7 +121,7 @@ internal static class CiEmitter
     [
         "platform.yaml",
         "backend/Directory.*.props",
-        "backend/global.json",
+        "global.json",
         "backend/BannedSymbols.txt",
     ];
 
@@ -215,7 +215,7 @@ internal static class CiEmitter
         """;
 
     private static string BackendCoreWorkflow(string solution) =>
-        Header("Backend core", ["backend/src/Core/**", "backend/src/Core.*/**", "backend/src/Contracts/**", "backend/tools/**", "backend/tests/**", "backend/Directory.*", "backend/global.json", "platform.yaml"], ".github/workflows/backend-core.yml") + $"""
+        Header("Backend core", ["backend/src/Core/**", "backend/src/Core.*/**", "backend/src/Contracts/**", "backend/tools/**", "backend/tests/**", "backend/Directory.*", "global.json", "platform.yaml"], ".github/workflows/backend-core.yml") + $"""
         jobs:
           build-test:
             runs-on: ubuntu-latest
@@ -277,7 +277,7 @@ internal static class CiEmitter
               - uses: {{{SetupDotnet}}}
                 if: matrix.language == 'csharp'
                 with:
-                  global-json-file: backend/global.json
+                  global-json-file: global.json
               - uses: {{{CodeQlInit}}}
                 with:
                   languages: ${{ matrix.language }}
@@ -294,7 +294,7 @@ internal static class CiEmitter
               - uses: {{{Checkout}}}
               - uses: {{{SetupDotnet}}}
                 with:
-                  global-json-file: backend/global.json
+                  global-json-file: global.json
               - name: NuGet packages with known vulnerabilities (direct and transitive)
                 run: |
                   dotnet restore {{{solution}}}
@@ -316,7 +316,7 @@ internal static class CiEmitter
               - uses: {{{Checkout}}}
               - uses: {{{SetupDotnet}}}
                 with:
-                  global-json-file: backend/global.json
+                  global-json-file: global.json
               - uses: {{{SetupPnpm}}}
                 with:
                   package_json_file: frontend/package.json
@@ -504,9 +504,9 @@ internal static class CiEmitter
 
     private static string AspireVersion(string repoRoot)
     {
-        var path = Path.Combine(repoRoot, "backend", "global.json");
+        var path = Path.Combine(repoRoot, "global.json");
         if (!File.Exists(path))
-            path = Path.Combine(repoRoot, "..", "backend", "global.json");
+            path = Path.Combine(repoRoot, "..", "global.json");
         using var json = JsonDocument.Parse(File.ReadAllText(path));
         return json.RootElement.GetProperty("msbuild-sdks").GetProperty("Aspire.AppHost.Sdk").GetString()!;
     }

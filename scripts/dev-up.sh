@@ -25,11 +25,12 @@ done
 case "$provider" in sqlserver|postgresql) ;; *) echo "--provider must be sqlserver or postgresql" >&2; exit 2 ;; esac
 
 need() { command -v "$1" >/dev/null 2>&1 || { echo "$1 is required. $2" >&2; exit 1; }; }
-need dotnet "Install the .NET SDK (see backend/global.json)."
+need dotnet "Install the .NET SDK (see global.json)."
 need docker "Install Docker Desktop (on Apple Silicon, enable Rosetta emulation for SQL Server)."
 need node "Install Node.js 24 or later."
 need curl "Install curl."
 if ! command -v pnpm >/dev/null 2>&1; then
+  need corepack 'Run "npm install -g corepack" (Node.js 25 and later no longer include it).'
   echo "Enabling pnpm with corepack..."
   mkdir -p "$HOME/.local/bin"
   corepack enable pnpm --install-directory "$HOME/.local/bin"

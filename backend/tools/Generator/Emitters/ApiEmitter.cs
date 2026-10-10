@@ -21,7 +21,7 @@ internal static class ApiEmitter
         if (exporter.ExitCode > 1 || (exporter.ExitCode == 1 && changed.Count == 0))
             throw new PlatformDefinitionException($"The API exporter failed:\n{exporter.Output}");
 
-        var pnpm = Pnpm();
+        var pnpm = PnpmPath.Resolve();
         var clients = Run(pnpm, repoRoot, ["--dir", "frontend", "--filter", $"@{platform.Product}/api-clients", "run", "generate", .. checkOnly ? CheckFlagForScript : []], allowExitCode1: true);
         changed.AddRange(ChangedPaths(clients.Output));
         if (clients.ExitCode > 1 || (clients.ExitCode == 1 && ChangedPaths(clients.Output).Count == 0))
@@ -35,15 +35,6 @@ internal static class ApiEmitter
             .Select(line => line.Trim())
             .Where(line => line.StartsWith("out of date: ", StringComparison.Ordinal) || line.StartsWith("updated: ", StringComparison.Ordinal))
             .Select(line => line[(line.IndexOf(": ", StringComparison.Ordinal) + 2)..])];
-
-    private static string Pnpm()
-    {
-        var fromEnvironment = Environment.GetEnvironmentVariable("PNPM");
-        if (!string.IsNullOrEmpty(fromEnvironment))
-            return fromEnvironment;
-        var local = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".local", "bin", "pnpm");
-        return File.Exists(local) ? local : "pnpm";
-    }
 
     private static (int ExitCode, string Output) Run(string fileName, string workingDirectory, string[] arguments, bool allowExitCode1)
     {

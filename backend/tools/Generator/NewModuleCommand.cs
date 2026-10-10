@@ -60,7 +60,7 @@ internal static class NewModuleCommand
         GenerateCommand.Run(repoRoot, checkOnly: false, skipCompose: false, skipApi: false);
 
         if (withFrontend)
-            Run(Pnpm(), Path.Combine(repoRoot, "frontend"), "install");
+            Run(PnpmPath.Resolve(),Path.Combine(repoRoot, "frontend"), "install");
 
         Console.WriteLine();
         Console.WriteLine($"Done. '{key}' is ready: backend/src/Modules/{pascal}, backend/src/Hosts/{pascal}.Host, backend/tests/{pascal}.Tests" + (withFrontend ? $", frontend/modules/{key}." : "."));
@@ -130,12 +130,6 @@ internal static class NewModuleCommand
     {
         var index = Array.IndexOf(args, name);
         return index >= 0 && index + 1 < args.Length ? args[index + 1] : null;
-    }
-
-    private static string Pnpm()
-    {
-        var local = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".local", "bin", "pnpm");
-        return Environment.GetEnvironmentVariable("PNPM") ?? (File.Exists(local) ? local : "pnpm");
     }
 
     private static void Run(string fileName, string workingDirectory, params string[] arguments)

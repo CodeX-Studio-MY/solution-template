@@ -1,0 +1,2 @@
+# Generated files are written with LF and checked byte for byte (scripts/generate --check), so every checkout uses LF, on Windows too.
+* text=auto eol=lf

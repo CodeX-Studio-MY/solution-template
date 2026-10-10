@@ -53,6 +53,20 @@ its shape:
 - A migration exists for every model change, per provider. (`MigrationsConsistencyTests`)
 - The frontend module imports only `ui-kit`, `web-core` and `api-clients`, never another module. (ESLint boundaries, with tests)
 
+## Changing the data model
+
+`scripts/new-module` creates the first migration only. After you change an entity or the `DbContext`, add a migration for **every**
+provider in `platform.yaml` (`MigrationsConsistencyTests` fails otherwise). From `backend/`:
+
+```sh
+dotnet tool restore
+dotnet ef migrations add AddSupplier -p src/Modules/GoodsReceipt.Migrations.SqlServer -s src/Modules/GoodsReceipt.Migrations.SqlServer -c GoodsReceiptDbContext -o Migrations/GoodsReceipt
+dotnet ef migrations add AddSupplier -p src/Modules/GoodsReceipt.Migrations.PostgreSql -s src/Modules/GoodsReceipt.Migrations.PostgreSql -c GoodsReceiptDbContext -o Migrations/GoodsReceipt
+```
+
+Migrations are expand-only: add columns and tables, never rename or drop in the same release. The Migrator applies them to every tenant
+database (`scripts/dev-up` runs it for you).
+
 ## Which parts of the specification you will want next
 
 - **Plans and entitlement**: `platform.yaml` lists the plans that include the module (the default is all of them). A module only some

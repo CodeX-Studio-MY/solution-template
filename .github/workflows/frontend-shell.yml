@@ -61,7 +61,7 @@ jobs:
           path: frontend/e2e/playwright-report
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
-          global-json-file: backend/global.json
+          global-json-file: global.json
       - run: dotnet tool restore
         working-directory: backend
       - name: Generated files are up to date
