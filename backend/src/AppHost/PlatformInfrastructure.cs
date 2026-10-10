@@ -199,7 +199,7 @@ internal sealed class PlatformInfrastructure
             var migratorProject = Path.GetFullPath("../Migrator/Migrator.csproj", AppHostDirectory);
             service = service
                 .WithEnvironment(ConfigKeys.Onboarding.MigratorCommand, "dotnet")
-                .WithEnvironment(ConfigKeys.Onboarding.MigratorArguments, $"run --project {migratorProject} --no-launch-profile -- --tenant {{tenant}}");
+                .WithEnvironment(ConfigKeys.Onboarding.MigratorArguments, $"run --project \"{migratorProject}\" --no-launch-profile -- --tenant {{tenant}}");
         }
         return service;
     }

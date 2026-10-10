@@ -14,9 +14,12 @@ internal sealed class ProcessTenantMigrator(IOptions<OnboardingOptions> options)
     public async Task MigrateAsync(Guid tenantId, CancellationToken cancellationToken = default)
     {
         var settings = options.Value;
-        var start = new ProcessStartInfo(settings.MigratorCommand) { RedirectStandardOutput = true, RedirectStandardError = true };
-        foreach (var argument in settings.MigratorArguments.Replace("{tenant}", tenantId.ToString(), StringComparison.Ordinal).Split(' ', StringSplitOptions.RemoveEmptyEntries))
-            start.ArgumentList.Add(argument);
+        // Arguments is parsed like a command line, so a quoted path with spaces (C:\Users\First Last\...) stays one argument.
+        var start = new ProcessStartInfo(settings.MigratorCommand, settings.MigratorArguments.Replace("{tenant}", tenantId.ToString(), StringComparison.Ordinal))
+        {
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+        };
 
         using var process = Process.Start(start) ?? throw new InvalidOperationException("The migrator could not be started.");
         var output = process.StandardOutput.ReadToEndAsync(cancellationToken);

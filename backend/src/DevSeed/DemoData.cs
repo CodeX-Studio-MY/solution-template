@@ -59,12 +59,13 @@ internal sealed partial class DemoData(IServiceProvider services)
         LogDone(logger);
     }
 
-    /// <summary>Onboards a tenant that doesn't exist yet. Returns the first admin's invitation link, or null if it was already there.</summary>
+    /// <summary>
+    /// Onboards a tenant, or resumes an onboarding that stopped part-way (an earlier failed run); one that finished does nothing.
+    /// Returns the first admin's invitation link, or null if it was sent by an earlier run.
+    /// </summary>
     private async Task<string?> OnboardAsync(string slug, string name, string plan, CancellationToken cancellationToken)
     {
         await using var scope = services.CreateAsyncScope();
-        if (await scope.ServiceProvider.GetRequiredService<ITenantDirectory>().FindBySlugAsync(slug, cancellationToken) is not null)
-            return null;
         var result = await scope.ServiceProvider.GetRequiredService<IOnboarding>()
             .OnboardAsync(new OnboardRequest(slug, name, plan, $"admin@{slug}.example", $"{name} Admin"), cancellationToken);
         return result.AdminInvitationUrl?.ToString();
