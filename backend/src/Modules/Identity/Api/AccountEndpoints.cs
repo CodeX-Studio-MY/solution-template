@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Acme.Core.Configuration;
 using Acme.Core.Security;
 using Acme.Core.Tenancy;
 using Acme.Identity.Application;
@@ -11,6 +12,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Acme.Identity.Api;
 
@@ -74,6 +76,7 @@ internal static class AccountEndpoints
         UserManager<PlatformUser> users,
         IdentityDbContext db,
         IAuditWriter audit,
+        IOptions<TenancyOptions> tenancy,
         TimeProvider time)
     {
         var form = await http.Request.ReadFormAsync(http.RequestAborted);
@@ -98,7 +101,7 @@ internal static class AccountEndpoints
                 user.ConsecutiveLockouts = 0;
                 await users.UpdateAsync(user);
                 await audit.WriteAsync(AuditKinds.SignIn, subject: user.Id.ToString(), actorId: user.Id.ToString(), actorType: PrincipalType.User.ToClaimValue(), cancellationToken: http.RequestAborted);
-                return Results.Redirect(SafeLocal(returnUrl));
+                return Results.Redirect(AfterSignIn(returnUrl, tenant.Tenant.Slug, tenancy.Value));
             }
         }
 
@@ -137,7 +140,7 @@ internal static class AccountEndpoints
         </form>
         """;
 
-    private static async Task<IResult> Mfa(HttpContext http, ITenantContext tenant, IAntiforgery antiforgery, SignInManager<PlatformUser> signIn, IAuditWriter audit)
+    private static async Task<IResult> Mfa(HttpContext http, ITenantContext tenant, IAntiforgery antiforgery, SignInManager<PlatformUser> signIn, IAuditWriter audit, IOptions<TenancyOptions> tenancy)
     {
         var form = await http.Request.ReadFormAsync(http.RequestAborted);
         await antiforgery.ValidateRequestAsync(http);
@@ -148,7 +151,7 @@ internal static class AccountEndpoints
         if (result.Succeeded)
         {
             await audit.WriteAsync(AuditKinds.SignIn, details: new { mfa = true }, cancellationToken: http.RequestAborted);
-            return Results.Redirect(SafeLocal(returnUrl));
+            return Results.Redirect(AfterSignIn(returnUrl, tenant.Tenant.Slug, tenancy.Value));
         }
         await audit.WriteAsync(AuditKinds.SignInFailed, details: new { mfa = true, lockedOut = result.IsLockedOut }, cancellationToken: http.RequestAborted);
         return Html.Page("Verification code", tenant.Tenant.DisplayName, MfaForm(http, tenant, antiforgery, returnUrl, ["That code is not right."]), status: StatusCodes.Status400BadRequest);
@@ -164,7 +167,7 @@ internal static class AccountEndpoints
         return Results.Content(options, "application/json");
     }
 
-    private static async Task<IResult> PasskeySignIn(HttpContext http, SignInManager<PlatformUser> signIn, UserManager<PlatformUser> users, IdentityDbContext db, IAuditWriter audit)
+    private static async Task<IResult> PasskeySignIn(HttpContext http, ITenantContext tenant, IOptions<TenancyOptions> tenancy, SignInManager<PlatformUser> signIn, UserManager<PlatformUser> users, IdentityDbContext db, IAuditWriter audit)
     {
         await ValidateHeaderCsrfAsync(http);
         var body = await http.Request.ReadFromJsonAsync<PasskeyBody>(http.RequestAborted);
@@ -180,7 +183,7 @@ internal static class AccountEndpoints
 
         var userId = http.User.FindFirstValue(ClaimTypes.NameIdentifier);
         await audit.WriteAsync(AuditKinds.SignIn, subject: userId, actorId: userId, actorType: PrincipalType.User.ToClaimValue(), details: new { passkey = true }, cancellationToken: http.RequestAborted);
-        return Results.Json(new { redirect = SafeLocal(body.ReturnUrl) });
+        return Results.Json(new { redirect = AfterSignIn(body.ReturnUrl, tenant.Tenant.Slug, tenancy.Value) });
     }
 
     private static async Task<IResult> PasskeyCreationOptions(HttpContext http, SignInManager<PlatformUser> signIn, UserManager<PlatformUser> users)
@@ -347,6 +350,17 @@ internal static class AccountEndpoints
         !string.IsNullOrEmpty(returnUrl) && returnUrl[0] == '/' && !returnUrl.StartsWith("//", StringComparison.Ordinal) && !returnUrl.StartsWith("/\\", StringComparison.Ordinal)
             ? returnUrl
             : "/";
+
+    /// <summary>
+    /// Where to send a person who has just signed in: the local path they came from (such as the authorize request the Gateway
+    /// started), or, when there is none, their tenant's own app. Accepting an invitation or resetting a password arrives here with
+    /// no return path, and the central sign-in host has no app of its own to land on.
+    /// </summary>
+    internal static string AfterSignIn(string? returnUrl, string tenantSlug, TenancyOptions tenancy)
+    {
+        var local = SafeLocal(returnUrl);
+        return local == "/" ? $"{tenancy.TenantOrigin(tenantSlug)}/" : local;
+    }
 
     private sealed record PasskeyBody(string? CredentialJson, string? ReturnUrl);
 }

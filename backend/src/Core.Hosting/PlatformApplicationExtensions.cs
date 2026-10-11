@@ -19,6 +19,8 @@ public static class PlatformApplicationExtensions
             ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost,
         });
         app.UseExceptionHandler();
+        // Enum filters in the query string work in the camelCase the API documents (`status=draft`), not only as `Draft`.
+        app.UseMiddleware<EnumQueryMiddleware>();
         // Create endpoints with an Idempotency-Key hash the body to spot a reused key; that needs a body that can be read twice,
         // and minimal-API binding reads it before any endpoint filter runs.
         app.Use((context, next) =>

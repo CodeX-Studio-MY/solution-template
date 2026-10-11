@@ -173,8 +173,9 @@ Each tenant has its own database, so the two admins are separate accounts. The `
 3. **Type a new password and press "Save password".** Rules: at least **15 characters** (8 once the account has a second factor),
    no required digits or symbols, and it must not appear in a known data breach. A passphrase of four or five words works well.
    The breach check calls the public Have I Been Pwned range API; offline, only the length rule applies.
-4. **Sign in** at the tenant address above with the admin email and your new password. You land on the home page. Each tenant's
-   link works once, so do the same for `demo-plus` with its own link.
+4. **Sign in.** After saving, you are taken to the sign-in page (on `login.localhost`). Enter the admin email and your new
+   password; you are then sent to your tenant's address (`https://demo.localhost:7443/`) and land on its home page. To sign in
+   later, open the tenant address directly. Each tenant's link works once, so do the same for `demo-plus` with its own link.
 
 Things to know:
 
@@ -188,7 +189,7 @@ Things to know:
   tenant sign-in pages above. Never reuse it outside development.
 - **Other users and roles.** Roles are `user`, `manager` and `admin`, per module; managers see the approval card on the home page.
   There is no screen for managing users yet: the seeded admin invites and assigns roles through the Identity access-management
-  API (`/api/identity/v1/principals`; see the generated OpenAPI document in `backend/src/Modules/Identity`).
+  API (`/api/identity/v1/principals`; the OpenAPI document is `frontend/packages/api-clients/openapi/identity.json`).
 
 ```sh
 scripts/add-postgresql                   # once: restores the PostgreSQL migrations (platform.yaml then lists both providers)
