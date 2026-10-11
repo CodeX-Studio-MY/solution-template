@@ -1,4 +1,3 @@
-using Acme.Core.Data.PostgreSql;
 using Acme.Core.Hosting;
 using Acme.Core.Platform;
 using Acme.Core.ServiceCalls;
@@ -41,9 +40,9 @@ internal sealed class TenancyTestHost : IAsyncDisposable
 
         var builder = WebApplication.CreateBuilder(new WebApplicationOptions { EnvironmentName = "Production" });
         builder.WebHost.UseTestServer();
-        builder.Configuration["Database:Provider"] = PostgreSqlDatabaseProvider.ProviderName;
+        builder.Configuration["Database:Provider"] = Databases.DefaultProvider;
         builder.Configuration["Database:CatalogConnectionString"] = identity.CatalogConnectionString;
-        builder.Configuration["Database:Servers:default"] = databases.ServerConnectionString(PostgreSqlDatabaseProvider.ProviderName);
+        builder.Configuration["Database:Servers:default"] = databases.ServerConnectionString(Databases.DefaultProvider);
         builder.Configuration["Tenancy:BaseDomain"] = "localhost";
         builder.Configuration["Redis:ConnectionString"] = databases.RedisConnectionString;
         TestSecrets.Apply(builder, databases);

@@ -7,7 +7,7 @@ using Role = Acme.Core.Platform.Role;
 
 namespace Acme.Sample.Tests;
 
-/// <summary>The module hosted exactly as in production, on both database providers, with real migrations and tenants.</summary>
+/// <summary>The module hosted exactly as in production, on every database provider in platform.yaml, with real migrations and tenants.</summary>
 [Trait("service", "sample-key")]
 public sealed class SampleApiTests(Databases databases)
 {

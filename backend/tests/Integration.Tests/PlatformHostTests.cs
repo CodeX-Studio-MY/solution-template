@@ -1,7 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
-using Acme.Core.Data.PostgreSql;
 using Acme.Core.Hosting;
 using Acme.Core.Platform;
 using Acme.Core.Security;
@@ -81,8 +80,8 @@ public sealed class PlatformHostTests(Databases databases)
 
     private async Task<string> CreateCatalogAsync()
     {
-        var connectionString = databases.NewDatabase(PostgreSqlDatabaseProvider.ProviderName, "catalog");
-        await using var db = MigrationTargets.Catalog[0].Create(new PostgreSqlDatabaseProvider(), connectionString);
+        var connectionString = databases.NewDatabase(Databases.DefaultProvider, "catalog");
+        await using var db = MigrationTargets.Catalog[0].Create(Databases.Provider(Databases.DefaultProvider), connectionString);
         await Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensions.MigrateAsync(db.Database, Ct);
         return connectionString;
     }
@@ -94,7 +93,7 @@ public sealed class PlatformHostTests(Databases databases)
     {
         var builder = WebApplication.CreateBuilder(new WebApplicationOptions { EnvironmentName = "Production" });
         builder.WebHost.UseTestServer();
-        builder.Configuration["Database:Provider"] = PostgreSqlDatabaseProvider.ProviderName;
+        builder.Configuration["Database:Provider"] = Databases.DefaultProvider;
         builder.Configuration["Database:CatalogConnectionString"] = catalogConnectionString;
         builder.Configuration["Tenancy:BaseDomain"] = "localhost";
         builder.Configuration["Redis:ConnectionString"] = redis;

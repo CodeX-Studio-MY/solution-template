@@ -1,6 +1,5 @@
 extern alias GatewayApp;
 
-using Acme.Core.Data.PostgreSql;
 using Acme.Core.Platform;
 using Acme.Identity.Application;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -50,7 +49,7 @@ internal sealed class GatewayTestHost : IAsyncDisposable
         var factory = new WebApplicationFactory<GatewayApp::Program>().WithWebHostBuilder(host =>
         {
             host.UseEnvironment("Production");
-            host.UseSetting("Database:Provider", PostgreSqlDatabaseProvider.ProviderName);
+            host.UseSetting("Database:Provider", Databases.DefaultProvider);
             host.UseSetting("Database:CatalogConnectionString", identity.CatalogConnectionString);
             host.UseSetting("Tenancy:BaseDomain", "localhost");
             host.UseSetting("Redis:ConnectionString", databases.RedisConnectionString);

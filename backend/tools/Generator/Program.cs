@@ -16,8 +16,10 @@ try
             return GenerateCommand.Run(repoRoot, args.Contains("--check"), args.Contains("--skip-compose"), args.Contains("--skip-api"));
         case "new-module":
             return NewModuleCommand.Run(repoRoot, args[1..]);
+        case "add-postgresql":
+            return AddPostgreSqlCommand.Run(repoRoot, args.Contains("--skip-compose"), args.Contains("--skip-api"));
         default:
-            Console.Error.WriteLine($"Unknown command '{command}'. Commands: generate [--check] [--skip-compose] [--skip-api] | new-module <key> [--name \"Display Name\"] [--no-frontend]");
+            Console.Error.WriteLine($"Unknown command '{command}'. Commands: generate [--check] [--skip-compose] [--skip-api] | new-module <key> [--name \"Display Name\"] [--no-frontend] | add-postgresql [--skip-compose] [--skip-api]");
             return 2;
     }
 }

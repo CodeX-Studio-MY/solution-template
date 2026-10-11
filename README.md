@@ -3,7 +3,7 @@
 The starting point for every new product: a secure, multi-tenant, observable platform that runs from day one.
 It follows `SAAS_TEMPLATE_PROMPT.md`; differences are recorded in [docs/deviations.md](docs/deviations.md).
 
-A reusable starting point for a multi-tenant SaaS product: one database per tenant (SQL Server 2025 or PostgreSQL 18), a module per
+A reusable starting point for a multi-tenant SaaS product: one database per tenant (SQL Server 2025; PostgreSQL 18 is supported and added back with `scripts/add-postgresql`), a module per
 business capability (backend and frontend with the same key), per-tenant plans and customization, a BFF with no tokens in the browser,
 and tests that enforce the architecture. A worked example (`purchase-request`, plus an add-on `cost-center-budget`) shows every pattern.
 
@@ -83,6 +83,7 @@ plan, customised), and each tenant's admin invitation link: open it, choose a pa
 ([docs/tenant-customization.md](docs/tenant-customization.md) explains each difference).
 
 ```sh
+scripts/add-postgresql                   # once: restores the PostgreSQL migrations (platform.yaml then lists both providers)
 scripts/dev-up --provider postgresql     # the same stack on PostgreSQL 18 (one configuration value: Database:Provider)
 scripts/dev-up --all-in-one              # every module in one process
 scripts/onboard-tenant acme-co --plan plus   # another isolated tenant in the running stack
@@ -92,7 +93,7 @@ scripts/dev-down [--reset]               # stop (and, with --reset, delete the l
 Run the checks:
 
 ```sh
-dotnet test --solution backend/acme.slnx     # unit, architecture, scenario and integration tests on BOTH databases (Docker required)
+dotnet test --solution backend/acme.slnx     # unit, architecture, scenario and integration tests on every database provider in platform.yaml (Docker required)
 cd frontend && pnpm install && pnpm typecheck lint test build && pnpm e2e    # Playwright against the built app (mocked API)
 cd frontend && pnpm e2e:stack                # the scenario against the running stack (after scripts/dev-up)
 scripts/generate.sh --check                  # nothing generated has drifted from its source
@@ -106,7 +107,7 @@ Without Aspire, `deploy/docker-compose.yml` (published from the AppHost) runs th
 
 ```
 platform.yaml                 the single source for structure
-backend/src/Core*             the shared kernel: tenancy, data (both providers), messaging, security, files, observability
+backend/src/Core*             the shared kernel: tenancy, data (SQL Server and PostgreSQL providers), messaging, security, files, observability
 backend/src/Contracts         versioned events and the settings / flag declarations modules share
 backend/src/Modules/*         one class library per module: Domain, Application, Infrastructure, Api
 backend/src/Hosts/*           a thin host per module, and AllInOne.Host

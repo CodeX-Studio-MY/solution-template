@@ -2,7 +2,6 @@ using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using Acme.Core.Catalog;
 using Acme.Core.Data;
-using Acme.Core.Data.PostgreSql;
 using Acme.Core.Hosting;
 using Acme.Core.Platform;
 using Acme.Core.Security;
@@ -72,8 +71,8 @@ internal sealed class IdentityTestHost : IAsyncDisposable
 
     public static async Task<IdentityTestHost> StartAsync(Databases databases, Action<WebApplicationBuilder>? configure, params string[] tenantSlugs)
     {
-        var catalog = databases.NewDatabase(PostgreSqlDatabaseProvider.ProviderName, "catalog");
-        var provider = new PostgreSqlDatabaseProvider();
+        var catalog = databases.NewDatabase(Databases.DefaultProvider, "catalog");
+        var provider = Databases.Provider(Databases.DefaultProvider);
         // Exactly the catalog contexts the Migrator applies (generated from platform.yaml).
         foreach (var target in Acme.Migrator.MigrationTargets.Catalog)
         {
@@ -84,9 +83,9 @@ internal sealed class IdentityTestHost : IAsyncDisposable
         var signingKey = ECDsa.Create(ECCurve.NamedCurves.nistP256);
         var builder = WebApplication.CreateBuilder(new WebApplicationOptions { EnvironmentName = "Production" });
         builder.WebHost.UseTestServer();
-        builder.Configuration["Database:Provider"] = PostgreSqlDatabaseProvider.ProviderName;
+        builder.Configuration["Database:Provider"] = Databases.DefaultProvider;
         builder.Configuration["Database:CatalogConnectionString"] = catalog;
-        builder.Configuration["Database:Servers:default"] = databases.ServerConnectionString(PostgreSqlDatabaseProvider.ProviderName);
+        builder.Configuration["Database:Servers:default"] = databases.ServerConnectionString(Databases.DefaultProvider);
         builder.Configuration["Tenancy:BaseDomain"] = "localhost";
         builder.Configuration["Redis:ConnectionString"] = databases.RedisConnectionString;
         TestSecrets.Apply(builder, databases);

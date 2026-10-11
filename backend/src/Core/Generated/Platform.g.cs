@@ -11,7 +11,7 @@ public static class PlatformInfo
     public const string DefaultTimeZone = "Asia/Kuala_Lumpur";
     public const string DefaultCurrency = "MYR";
     public static readonly IReadOnlyList<string> DefaultLocales = ["en", "ms", "zh"];
-    public static readonly IReadOnlyList<string> DatabaseProviders = ["sqlserver", "postgresql"];
+    public static readonly IReadOnlyList<string> DatabaseProviders = ["sqlserver"];
 }
 
 /// <summary>Access module keys: what roles and plans apply to.</summary>

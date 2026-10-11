@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Globalization;
 using System.Text;
 using Acme.Core.Platform;
@@ -132,26 +131,6 @@ internal static class NewModuleCommand
         return index >= 0 && index + 1 < args.Length ? args[index + 1] : null;
     }
 
-    private static void Run(string fileName, string workingDirectory, params string[] arguments)
-    {
-        Console.WriteLine($"> {fileName} {string.Join(' ', arguments)}");
-        var start = new ProcessStartInfo(fileName) { WorkingDirectory = workingDirectory };
-        foreach (var argument in arguments)
-            start.ArgumentList.Add(argument);
-        Process process;
-        try
-        {
-            process = Process.Start(start)!;
-        }
-        catch (System.ComponentModel.Win32Exception)
-        {
-            throw new PlatformDefinitionException($"'{fileName}' is required. Install it and run this again.");
-        }
-        using (process)
-        {
-            process.WaitForExit();
-            if (process.ExitCode != 0)
-                throw new PlatformDefinitionException($"'{fileName} {string.Join(' ', arguments)}' failed ({process.ExitCode}). platform.yaml was already changed; fix the problem and run scripts/generate, or revert the change.");
-        }
-    }
+    private static void Run(string fileName, string workingDirectory, params string[] arguments) =>
+        Processes.Run(fileName, workingDirectory, "platform.yaml was already changed; fix the problem and run scripts/generate, or revert the change.", arguments);
 }
