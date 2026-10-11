@@ -116,7 +116,7 @@ backend/tests/*               architecture, core, identity, integration (Testcon
 frontend/apps/shell           the host app; frontend/modules/* federated modules; frontend/packages/{ui-kit,web-core,api-clients}
 templates/                    the clean module templates scripts/new-module instantiates
 deploy/                       compose (generated), Dockerfiles, cloud placeholder
-docs/                         guides, ADRs, runbooks, the generated configuration and event catalogs, deviations
+docs/                         guides, ADRs, runbooks, the generated configuration, event and design-system references, deviations
 ```
 
 ## Guides

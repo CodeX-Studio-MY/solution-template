@@ -25,6 +25,13 @@ pnpm e2e                    # needs `pnpm build` first
 `pnpm dev` inside `apps/shell` or a module runs it with live reload and proxies `/api`, `/bff` and `/mfe` to a running Gateway
 (`GATEWAY_URL`, default `https://localhost:7443`); set `RSBUILD_PROXY=1` for the shell.
 
+## Design system
+
+Every visual decision (colour, type, radius, spacing, elevation, motion, density, layout) is in one file,
+`packages/ui-kit/src/theme/tokens.ts`. The MUI theme reads it, and `scripts/generate` derives the rest from it: `DesignTokens.g.cs` (Identity's
+server-rendered sign-in pages) and [docs/design-system.md](../docs/design-system.md). Change a value there, run `scripts/generate`, and commit
+the result; CI fails if a derived file is out of date. Node 24 or later is needed, because the generator runs the TypeScript file directly.
+
 ## Rules the build enforces
 
 - Colours live in `packages/ui-kit/src/theme/tokens.ts` only.

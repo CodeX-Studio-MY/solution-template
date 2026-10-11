@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text;
+using Acme.Core.Platform;
 using Microsoft.AspNetCore.Http;
 
 namespace Acme.Identity.Api;
@@ -46,17 +47,18 @@ internal static class Html
         </html>
         """;
 
-    public const string Css = """
-        :root { color-scheme: light dark; --fg: #1a1a1a; --bg: #fff; --accent: #1b5fcc; --muted: #5a5a5a; --border: #b9b9b9; }
-        @media (prefers-color-scheme: dark) { :root { --fg: #f0f0f0; --bg: #16181d; --accent: #7aa7ff; --muted: #b0b0b0; --border: #4a4d55; } }
-        body { margin: 0; font: 16px/1.5 system-ui, sans-serif; color: var(--fg); background: var(--bg); }
+    /// <summary>The sign-in pages' stylesheet. Every value comes from the design tokens (frontend/.../tokens.ts), never from here.</summary>
+    public static readonly string Css = $$"""
+        :root { color-scheme: light dark; --fg: {{DesignTokens.ColorTextLight}}; --bg: {{DesignTokens.ColorBackgroundPaperLight}}; --accent: {{DesignTokens.ColorPrimary}}; --on-accent: {{DesignTokens.ColorOnPrimaryLight}}; --muted: {{DesignTokens.ColorTextSecondaryLight}}; --border: {{DesignTokens.ColorBorderLight}}; --error: {{DesignTokens.ColorError}}; }
+        @media (prefers-color-scheme: dark) { :root { --fg: {{DesignTokens.ColorTextDark}}; --bg: {{DesignTokens.ColorBackgroundDark}}; --accent: {{DesignTokens.ColorPrimaryOnDark}}; --on-accent: {{DesignTokens.ColorOnPrimaryDark}}; --muted: {{DesignTokens.ColorTextSecondaryDark}}; --border: {{DesignTokens.ColorBorderDark}}; --error: {{DesignTokens.ColorErrorOnDark}}; } }
+        body { margin: 0; font: {{DesignTokens.FontSizeReading}}px/{{DesignTokens.FontLineHeightBody}} {{DesignTokens.FontFamily}}; color: var(--fg); background: var(--bg); }
         main { max-width: 26rem; margin: 3rem auto; padding: 0 1rem; }
         .tenant { color: var(--muted); margin-top: -0.5rem; }
-        input { box-sizing: border-box; width: 100%; padding: .6rem; font: inherit; border: 1px solid var(--border); border-radius: .3rem; color: inherit; background: transparent; }
-        button { padding: .6rem 1rem; font: inherit; border: 0; border-radius: .3rem; color: #fff; background: var(--accent); cursor: pointer; }
+        input { box-sizing: border-box; width: 100%; padding: .6rem; font: inherit; border: 1px solid var(--border); border-radius: {{DesignTokens.RadiusMd}}px; color: inherit; background: transparent; }
+        button { padding: .6rem 1rem; font: inherit; font-weight: {{DesignTokens.FontWeightMedium}}; border: 0; border-radius: {{DesignTokens.RadiusMd}}px; color: var(--on-accent); background: var(--accent); cursor: pointer; }
         button.secondary { color: var(--accent); background: transparent; border: 1px solid var(--accent); }
         :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
-        [role=alert] { color: #b3261e; padding-left: 1.2rem; }
+        [role=alert] { color: var(--error); padding-left: 1.2rem; }
         a { color: var(--accent); }
         """;
 }

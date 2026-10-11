@@ -18,6 +18,7 @@ internal static class GenerateCommand
         AllInOneEmitter.Emit(platform, files);
         TypeScriptPlatformEmitter.Emit(platform, files);
         ConfigurationEmitter.Emit(platform, files);
+        DesignEmitter.Emit(platform, files);
         ReadmeEmitter.Emit(platform, files);
         CiEmitter.Emit(platform, files);
         // Last: it lists the projects generated above.
