@@ -20,3 +20,7 @@ test-results/
 
 # Local development: certificates, logs, invitation links (scripts/dev-up)
 .dev/
+
+# Visual Studio creates these per project; only the AppHost's is ours (Aspire assigns every service its ports).
+**/Properties/launchSettings.json
+!backend/src/AppHost/Properties/launchSettings.json
