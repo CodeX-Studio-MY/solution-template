@@ -3,7 +3,6 @@
   <Folder Name="/src/">
     <Project Path="src/AppHost/AppHost.csproj" />
     <Project Path="src/Contracts/Contracts.csproj" />
-    <Project Path="src/Core.Catalog.Migrations.PostgreSql/Core.Catalog.Migrations.PostgreSql.csproj" />
     <Project Path="src/Core.Catalog.Migrations.SqlServer/Core.Catalog.Migrations.SqlServer.csproj" />
     <Project Path="src/Core.Catalog/Core.Catalog.csproj" />
     <Project Path="src/Core.Data.PostgreSql/Core.Data.PostgreSql.csproj" />
@@ -13,7 +12,6 @@
     <Project Path="src/DevSeed/DevSeed.csproj" />
     <Project Path="src/Gateway/Gateway.csproj" />
     <Project Path="src/Migrator/Migrator.csproj" />
-    <Project Path="src/Scheduler.Migrations.PostgreSql/Scheduler.Migrations.PostgreSql.csproj" />
     <Project Path="src/Scheduler.Migrations.SqlServer/Scheduler.Migrations.SqlServer.csproj" />
     <Project Path="src/Scheduler/Scheduler.csproj" />
   </Folder>
@@ -26,19 +24,14 @@
     <Project Path="src/Hosts/Tenancy.Host/Tenancy.Host.csproj" />
   </Folder>
   <Folder Name="/src/Modules/">
-    <Project Path="src/Modules/CostCenterBudget.Migrations.PostgreSql/CostCenterBudget.Migrations.PostgreSql.csproj" />
     <Project Path="src/Modules/CostCenterBudget.Migrations.SqlServer/CostCenterBudget.Migrations.SqlServer.csproj" />
     <Project Path="src/Modules/CostCenterBudget/CostCenterBudget.csproj" />
-    <Project Path="src/Modules/Identity.Migrations.PostgreSql/Identity.Migrations.PostgreSql.csproj" />
     <Project Path="src/Modules/Identity.Migrations.SqlServer/Identity.Migrations.SqlServer.csproj" />
     <Project Path="src/Modules/Identity/Identity.csproj" />
-    <Project Path="src/Modules/Notification.Migrations.PostgreSql/Notification.Migrations.PostgreSql.csproj" />
     <Project Path="src/Modules/Notification.Migrations.SqlServer/Notification.Migrations.SqlServer.csproj" />
     <Project Path="src/Modules/Notification/Notification.csproj" />
-    <Project Path="src/Modules/PurchaseRequest.Migrations.PostgreSql/PurchaseRequest.Migrations.PostgreSql.csproj" />
     <Project Path="src/Modules/PurchaseRequest.Migrations.SqlServer/PurchaseRequest.Migrations.SqlServer.csproj" />
     <Project Path="src/Modules/PurchaseRequest/PurchaseRequest.csproj" />
-    <Project Path="src/Modules/Tenancy.Migrations.PostgreSql/Tenancy.Migrations.PostgreSql.csproj" />
     <Project Path="src/Modules/Tenancy.Migrations.SqlServer/Tenancy.Migrations.SqlServer.csproj" />
     <Project Path="src/Modules/Tenancy/Tenancy.csproj" />
   </Folder>

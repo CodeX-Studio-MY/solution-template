@@ -23,6 +23,9 @@ while [ $# -gt 0 ]; do
   esac
 done
 case "$provider" in sqlserver|postgresql) ;; *) echo "--provider must be sqlserver or postgresql" >&2; exit 2 ;; esac
+if [ "$provider" = postgresql ] && ! grep -Eq '^[[:space:]]*providers:.*postgresql' "$(dirname "$0")/../platform.yaml"; then
+  echo "PostgreSQL migrations are not in this build (platform.yaml lists only sqlserver). Run scripts/add-postgresql first." >&2; exit 2
+fi
 
 need() { command -v "$1" >/dev/null 2>&1 || { echo "$1 is required. $2" >&2; exit 1; }; }
 need dotnet "Install the .NET SDK (see global.json)."

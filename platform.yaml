@@ -9,7 +9,7 @@ defaults:
   locales: [en, ms, zh]
 cloud: azure
 database:
-  providers: [sqlserver, postgresql]   # which one an environment uses is runtime config (Database:Provider)
+  providers: [sqlserver]   # PostgreSQL migrations are added back with scripts/add-postgresql; the environment picks one (Database:Provider)
 
 roles: [user, manager, admin]          # lowest to highest
 plans: [standard, plus]

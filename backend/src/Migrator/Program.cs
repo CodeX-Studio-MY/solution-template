@@ -7,6 +7,7 @@ using Acme.Core.Data.SqlServer;
 using Acme.Core.Hosting;
 using Acme.Core.Hosting.DataProtection;
 using Acme.Core.Hosting.Redis;
+using Acme.Core.Platform;
 using Acme.Core.Tenancy;
 using Acme.Migrator;
 using Microsoft.Extensions.DependencyInjection;
@@ -43,7 +44,13 @@ if (operatorIndex >= 0)
 using var host = builder.Build();
 var runner = host.Services.GetRequiredService<MigrationRunner>();
 var ct = host.Services.GetRequiredService<IHostApplicationLifetime>().ApplicationStopping;
-_ = host.Services.GetRequiredService<Microsoft.Extensions.Options.IOptions<DatabaseOptions>>().Value;
+var databaseOptions = host.Services.GetRequiredService<Microsoft.Extensions.Options.IOptions<DatabaseOptions>>().Value;
+if (!PlatformInfo.DatabaseProviders.Contains(databaseOptions.Provider))
+{
+    // The migrations of a provider that platform.yaml doesn't list were removed from this build.
+    Console.Error.WriteLine($"This build has no migrations for '{databaseOptions.Provider}' (platform.yaml lists: {string.Join(", ", PlatformInfo.DatabaseProviders)}). Run scripts/add-postgresql to add PostgreSQL.");
+    return 2;
+}
 
 if (operatorIndex >= 0)
 {

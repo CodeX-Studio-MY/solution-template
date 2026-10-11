@@ -1,5 +1,4 @@
-using Acme.Core.Data.PostgreSql;
-using Acme.Core.Data.SqlServer;
+using Acme.Core.Platform;
 using Acme.Migrator;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,7 +15,7 @@ public sealed class MigrationsConsistencyTests
     public static TheoryData<string, string> Targets()
     {
         var data = new TheoryData<string, string>();
-        foreach (var provider in new[] { SqlServerDatabaseProvider.ProviderName, PostgreSqlDatabaseProvider.ProviderName })
+        foreach (var provider in PlatformInfo.DatabaseProviders)
         {
             foreach (var target in MigrationTargets.Catalog.Concat(MigrationTargets.Tenant))
                 data.Add(provider, target.Name);
@@ -29,9 +28,8 @@ public sealed class MigrationsConsistencyTests
     public void The_model_has_no_changes_without_a_migration(string provider, string targetName)
     {
         var target = MigrationTargets.Catalog.Concat(MigrationTargets.Tenant).First(t => t.Name == targetName);
-        var connection = provider == SqlServerDatabaseProvider.ProviderName ? "Server=design-time;Database=design-time" : "Host=design-time;Database=design-time";
 
-        using var db = target.Create(Databases.Provider(provider), connection);
+        using var db = target.Create(Databases.Provider(provider), Databases.ModelOnlyConnectionString(provider));
 
         db.Database.HasPendingModelChanges().ShouldBeFalse($"{targetName} on {provider} has model changes without a migration. Run: dotnet ef migrations add <Name> (see docs/adding-a-module.md).");
     }

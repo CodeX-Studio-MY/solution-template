@@ -2,16 +2,15 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Acme.Core.Catalog;
-using Acme.Core.Data.PostgreSql;
 using Acme.Core.Platform;
 using Acme.Core.Tenancy;
 using Acme.Identity.Infrastructure;
 using Acme.Tenancy.Application;
 using Acme.Tenancy.Infrastructure;
+using Acme.Migrator;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.JsonWebTokens;
-using Npgsql;
 
 namespace Acme.Integration.Tests;
 
@@ -90,7 +89,7 @@ public sealed class TenancyTests(Databases databases)
         var tenant = await catalog.Tenants.AsNoTracking().SingleAsync(t => t.Id == tenantId, Ct);
         tenant.Status.ShouldBe(TenantStatus.Active);
         tenant.Placement.DatabaseName.ShouldBe("acme_acme_co");
-        tenant.Placement.Provider.ShouldBe(PostgreSqlDatabaseProvider.ProviderName);
+        tenant.Placement.Provider.ShouldBe(Databases.DefaultProvider);
         (await catalog.TenantModules.Where(t => t.TenantId == tenantId).CountAsync(Ct)).ShouldBe(Modules.All.Count(m => m.Plans.Contains(Plans.Standard)));
 
         // The tenant's database exists and is migrated: its first admin can accept the invitation.
@@ -281,11 +280,11 @@ public sealed class TenancyTests(Databases databases)
 
     private async Task<bool> DatabaseExistsAsync(string name)
     {
-        await using var connection = new NpgsqlConnection(new NpgsqlConnectionStringBuilder(databases.ServerConnectionString(PostgreSqlDatabaseProvider.ProviderName)) { Database = "postgres", Pooling = false }.ConnectionString);
-        await connection.OpenAsync(Ct);
-        await using var command = new NpgsqlCommand("SELECT 1 FROM pg_database WHERE datname = @name", connection);
-        command.Parameters.AddWithValue("name", name);
-        return await command.ExecuteScalarAsync(Ct) is not null;
+        // Provider-neutral: EF reports a missing database as "cannot connect".
+        var provider = Databases.Provider(Databases.DefaultProvider);
+        var connectionString = provider.BuildConnectionString(databases.ServerConnectionString(Databases.DefaultProvider), name, 1);
+        await using var db = MigrationTargets.Tenant[0].Create(provider, connectionString);
+        return await db.Database.CanConnectAsync(Ct);
     }
 
     /// <summary>A migrator that fails on its first call and then delegates to the real in-process one.</summary>

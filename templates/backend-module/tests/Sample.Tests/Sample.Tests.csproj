@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <!-- Unit tests of the domain, and integration tests of the module hosted as in production on both database providers
-       (real SQL Server 2025 and PostgreSQL 18 in containers; Docker is required). -->
+  <!-- Unit tests of the domain, and integration tests of the module hosted as in production on every database provider in platform.yaml
+       (real SQL Server 2025, and PostgreSQL 18 when listed, in containers; Docker is required). -->
   <ItemGroup>
     <ProjectReference Include="..\TestSupport\TestSupport.csproj" />
     <ProjectReference Include="..\..\src\Modules\Sample\Sample.csproj" />

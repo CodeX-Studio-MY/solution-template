@@ -3,7 +3,6 @@ using Acme.Core.Authorization;
 using Acme.Core.Catalog;
 using Acme.Core.Catalog.Entities;
 using Acme.Core.Composition;
-using Acme.Core.Data.PostgreSql;
 using Acme.Core.Hosting;
 using Acme.Core.Platform;
 using Acme.Core.Security;
@@ -64,14 +63,14 @@ internal sealed class TestPlatformHost : IAsyncDisposable
 
     public static async Task<TestPlatformHost> StartAsync(Databases databases, Action<WebApplicationBuilder>? configure = null, PlanLimit? limit = null)
     {
-        var catalog = databases.NewDatabase(PostgreSqlDatabaseProvider.ProviderName, "catalog");
-        await using (var db = MigrationTargets.Catalog[0].Create(new PostgreSqlDatabaseProvider(), catalog))
+        var catalog = databases.NewDatabase(Databases.DefaultProvider, "catalog");
+        await using (var db = MigrationTargets.Catalog[0].Create(Databases.Provider(Databases.DefaultProvider), catalog))
             await db.Database.MigrateAsync();
 
         var tokens = new TestTokens();
         var builder = WebApplication.CreateBuilder(new WebApplicationOptions { EnvironmentName = "Production" });
         builder.WebHost.UseTestServer();
-        builder.Configuration["Database:Provider"] = PostgreSqlDatabaseProvider.ProviderName;
+        builder.Configuration["Database:Provider"] = Databases.DefaultProvider;
         builder.Configuration["Database:CatalogConnectionString"] = catalog;
         builder.Configuration["Tenancy:BaseDomain"] = "localhost";
         builder.Configuration["Redis:ConnectionString"] = databases.RedisConnectionString;
@@ -132,7 +131,7 @@ internal sealed class TestPlatformHost : IAsyncDisposable
     internal static async Task AddTenantAsync(CatalogDbContext db, string slug, string plan, TenantStatus status, string? databaseName = null)
     {
         var tenant = new CatalogTenant(slug, slug, plan, PlatformInfo.DefaultTimeZone, PlatformInfo.DefaultCurrency, "en",
-            new TenantPlacementData { Provider = PostgreSqlDatabaseProvider.ProviderName, ServerPool = "default", DatabaseName = databaseName ?? slug });
+            new TenantPlacementData { Provider = Databases.DefaultProvider, ServerPool = "default", DatabaseName = databaseName ?? slug });
         tenant.ChangeStatus(status);
         db.Tenants.Add(tenant);
         await db.SaveChangesAsync();

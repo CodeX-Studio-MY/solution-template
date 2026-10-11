@@ -7,6 +7,9 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 Set-Location (Join-Path $PSScriptRoot '..')
+if ($Provider -eq 'postgresql' -and -not (Select-String -Path platform.yaml -Pattern '^\s*providers:.*postgresql' -Quiet)) {
+  throw 'PostgreSQL migrations are not in this build (platform.yaml lists only sqlserver). Run scripts/add-postgresql.ps1 first.'
+}
 foreach ($tool in 'dotnet', 'docker', 'node', 'mkcert') {
   if (-not (Get-Command $tool -ErrorAction SilentlyContinue)) { throw "$tool is required." }
 }

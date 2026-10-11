@@ -141,7 +141,7 @@ internal static class CiEmitter
               - run: dotnet build {solution} --no-restore --configuration Release
               - name: Architecture tests
                 run: dotnet test --project backend/tests/Architecture.Tests --no-build --configuration Release
-              # Testcontainers starts SQL Server 2025, PostgreSQL 18, RabbitMQ and Valkey; both providers run in every test.
+              # Testcontainers starts SQL Server 2025 (and PostgreSQL 18 when platform.yaml lists it), RabbitMQ and Valkey; every listed provider runs in every test.
               - name: Tests of this service
                 run: dotnet test --solution {solution} --no-build --configuration Release --filter-trait "service={key}" --ignore-exit-code 8
         {NodeSetup}
@@ -225,7 +225,7 @@ internal static class CiEmitter
         {DotnetSetup}
               - run: dotnet restore {solution}
               - run: dotnet build {solution} --no-restore --configuration Release
-              # Everything, on both database providers.
+              # Everything, on every database provider in platform.yaml.
               - run: dotnet test --solution {solution} --no-build --configuration Release
         """;
 

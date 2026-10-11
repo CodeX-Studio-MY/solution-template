@@ -1,6 +1,7 @@
 using Acme.Core.Data;
 using Acme.Core.Data.PostgreSql;
 using Acme.Core.Data.SqlServer;
+using Acme.Core.Platform;
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
 using Testcontainers.MsSql;
@@ -12,8 +13,9 @@ using Testcontainers.Redis;
 namespace Acme.TestSupport;
 
 /// <summary>
-/// One SQL Server 2025 and one PostgreSQL 18 container for the whole test run. Every test that touches data runs on both:
-/// a feature isn't done until it passes on both providers.
+/// One container per database provider listed in platform.yaml (SQL Server 2025, PostgreSQL 18) for the whole test run. Every test that
+/// touches data runs on every listed provider: a feature isn't done until it passes on all of them. PostgreSQL's container only starts
+/// when PostgreSQL is listed (scripts/add-postgresql adds it).
 /// </summary>
 public sealed class Databases : IAsyncLifetime
 {
@@ -25,7 +27,9 @@ public sealed class Databases : IAsyncLifetime
     public const string AzuriteImage = "mcr.microsoft.com/azure-storage/azurite:3.37.0";
 
     private readonly MsSqlContainer _sqlServer = new MsSqlBuilder(SqlServerImage).Build();
-    private readonly PostgreSqlContainer _postgreSql = new PostgreSqlBuilder(PostgreSqlImage).WithCommand("-c", "max_connections=1000").Build();
+    private readonly PostgreSqlContainer? _postgreSql = UsesPostgreSql
+        ? new PostgreSqlBuilder(PostgreSqlImage).WithCommand("-c", "max_connections=1000").Build()
+        : null;
     private readonly RedisContainer _valkey = new RedisBuilder(ValkeyImage).Build();
     private readonly RabbitMqContainer _rabbitMq = new RabbitMqBuilder(RabbitMqImage).Build();
     private readonly IContainer _mailpit = new ContainerBuilder(MailpitImage)
@@ -35,13 +39,23 @@ public sealed class Databases : IAsyncLifetime
         .Build();
     private readonly AzuriteContainer _azurite = new AzuriteBuilder(AzuriteImage).WithCommand("--skipApiVersionCheck").Build();
 
-    public static TheoryData<string> Providers => [SqlServerDatabaseProvider.ProviderName, PostgreSqlDatabaseProvider.ProviderName];
+    /// <summary>The providers of platform.yaml: what every data test runs on.</summary>
+    public static TheoryData<string> Providers => [.. PlatformInfo.DatabaseProviders];
+
+    /// <summary>The provider the hosted services (Identity, Tenancy, Gateway, ...) run on in tests: the first one listed.</summary>
+    public static string DefaultProvider => PlatformInfo.DatabaseProviders[0];
+
+    private static bool UsesPostgreSql => PlatformInfo.DatabaseProviders.Contains(PostgreSqlDatabaseProvider.ProviderName);
+
+    /// <summary>A connection string that is never opened, for tests that only build the model.</summary>
+    public static string ModelOnlyConnectionString(string provider) =>
+        provider == SqlServerDatabaseProvider.ProviderName ? "Server=model-only;Database=x" : "Host=model-only;Database=x";
 
     public async ValueTask InitializeAsync()
     {
         // The light containers start together; SQL Server (heavy, and emulated on Apple Silicon) starts after them, with one retry,
         // so a busy Docker VM doesn't make the whole run flaky.
-        await Task.WhenAll(_postgreSql.StartAsync(), _valkey.StartAsync(), _rabbitMq.StartAsync(), _azurite.StartAsync(), _mailpit.StartAsync());
+        await Task.WhenAll(_postgreSql?.StartAsync() ?? Task.CompletedTask, _valkey.StartAsync(), _rabbitMq.StartAsync(), _azurite.StartAsync(), _mailpit.StartAsync());
         try
         {
             await _sqlServer.StartAsync();
@@ -56,7 +70,8 @@ public sealed class Databases : IAsyncLifetime
     public async ValueTask DisposeAsync()
     {
         await _sqlServer.DisposeAsync();
-        await _postgreSql.DisposeAsync();
+        if (_postgreSql is not null)
+            await _postgreSql.DisposeAsync();
         await _valkey.DisposeAsync();
         await _rabbitMq.DisposeAsync();
         await _azurite.DisposeAsync();
@@ -80,7 +95,12 @@ public sealed class Databases : IAsyncLifetime
 
     /// <summary>The server's base connection string (a pool, in placement terms).</summary>
     public string ServerConnectionString(string provider) =>
-        provider == SqlServerDatabaseProvider.ProviderName ? _sqlServer.GetConnectionString() : _postgreSql.GetConnectionString();
+        provider switch
+        {
+            SqlServerDatabaseProvider.ProviderName => _sqlServer.GetConnectionString(),
+            PostgreSqlDatabaseProvider.ProviderName when _postgreSql is not null => _postgreSql.GetConnectionString(),
+            _ => throw new InvalidOperationException($"'{provider}' is not listed in platform.yaml (database.providers); scripts/add-postgresql adds PostgreSQL."),
+        };
 
     public static IDatabaseProvider Provider(string provider) =>
         provider == SqlServerDatabaseProvider.ProviderName ? new SqlServerDatabaseProvider() : new PostgreSqlDatabaseProvider();

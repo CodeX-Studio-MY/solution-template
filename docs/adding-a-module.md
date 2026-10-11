@@ -24,7 +24,7 @@ scripts/new-module goods-receipt --name "Goods Receipt"
 Nothing else needs a manual edit. Then:
 
 ```sh
-dotnet test --project backend/tests/GoodsReceipt.Tests      # both databases; creates, lists, renames, deletes, isolates tenants
+dotnet test --project backend/tests/GoodsReceipt.Tests      # every provider in platform.yaml; creates, lists, renames, deletes, isolates tenants
 cd frontend && pnpm exec turbo run typecheck lint test build --filter=@acme/mfe-goods-receipt...
 scripts/dev-up                                              # the module appears in the stack, in the menu of tenants that have it
 ```
@@ -42,7 +42,7 @@ its shape:
 | `Api/` | `RequireModuleRole` on every endpoint, `Idempotency-Key` on create, `If-Match` on changes, paging |
 | `Resources/Messages.*.json` | Messages in every locale from `platform.yaml` |
 | `Host/Program.cs` | About 10 lines: `AddPlatform(...)`, `AddModule<...>()`, `UsePlatform()` |
-| `Tests` | Domain unit tests, and integration tests of the module hosted exactly as in production on **both** providers, including tenant isolation |
+| `Tests` | Domain unit tests, and integration tests of the module hosted exactly as in production on every provider in `platform.yaml`, including tenant isolation |
 
 ## Rules the build enforces (so you don't have to remember them)
 
@@ -61,6 +61,12 @@ provider in `platform.yaml` (`MigrationsConsistencyTests` fails otherwise). From
 ```sh
 dotnet tool restore
 dotnet ef migrations add AddSupplier -p src/Modules/GoodsReceipt.Migrations.SqlServer -s src/Modules/GoodsReceipt.Migrations.SqlServer -c GoodsReceiptDbContext -o Migrations/GoodsReceipt
+```
+
+By default `platform.yaml` lists only `sqlserver`, so that is the only migration to add. After `scripts/add-postgresql` it lists both, and
+each change needs the same command for the PostgreSQL project too:
+
+```sh
 dotnet ef migrations add AddSupplier -p src/Modules/GoodsReceipt.Migrations.PostgreSql -s src/Modules/GoodsReceipt.Migrations.PostgreSql -c GoodsReceiptDbContext -o Migrations/GoodsReceipt
 ```
 

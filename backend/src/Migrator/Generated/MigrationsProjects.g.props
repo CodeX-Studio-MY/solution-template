@@ -2,18 +2,11 @@
 <Project>
   <ItemGroup>
     <ProjectReference Include="$(MSBuildThisFileDirectory)..\..\Core.Catalog.Migrations.SqlServer\Core.Catalog.Migrations.SqlServer.csproj" />
-    <ProjectReference Include="$(MSBuildThisFileDirectory)..\..\Core.Catalog.Migrations.PostgreSql\Core.Catalog.Migrations.PostgreSql.csproj" />
     <ProjectReference Include="$(MSBuildThisFileDirectory)..\..\Scheduler.Migrations.SqlServer\Scheduler.Migrations.SqlServer.csproj" />
-    <ProjectReference Include="$(MSBuildThisFileDirectory)..\..\Scheduler.Migrations.PostgreSql\Scheduler.Migrations.PostgreSql.csproj" />
     <ProjectReference Include="$(MSBuildThisFileDirectory)..\..\Modules\Identity.Migrations.SqlServer\Identity.Migrations.SqlServer.csproj" />
-    <ProjectReference Include="$(MSBuildThisFileDirectory)..\..\Modules\Identity.Migrations.PostgreSql\Identity.Migrations.PostgreSql.csproj" />
     <ProjectReference Include="$(MSBuildThisFileDirectory)..\..\Modules\Tenancy.Migrations.SqlServer\Tenancy.Migrations.SqlServer.csproj" />
-    <ProjectReference Include="$(MSBuildThisFileDirectory)..\..\Modules\Tenancy.Migrations.PostgreSql\Tenancy.Migrations.PostgreSql.csproj" />
     <ProjectReference Include="$(MSBuildThisFileDirectory)..\..\Modules\Notification.Migrations.SqlServer\Notification.Migrations.SqlServer.csproj" />
-    <ProjectReference Include="$(MSBuildThisFileDirectory)..\..\Modules\Notification.Migrations.PostgreSql\Notification.Migrations.PostgreSql.csproj" />
     <ProjectReference Include="$(MSBuildThisFileDirectory)..\..\Modules\PurchaseRequest.Migrations.SqlServer\PurchaseRequest.Migrations.SqlServer.csproj" />
-    <ProjectReference Include="$(MSBuildThisFileDirectory)..\..\Modules\PurchaseRequest.Migrations.PostgreSql\PurchaseRequest.Migrations.PostgreSql.csproj" />
     <ProjectReference Include="$(MSBuildThisFileDirectory)..\..\Modules\CostCenterBudget.Migrations.SqlServer\CostCenterBudget.Migrations.SqlServer.csproj" />
-    <ProjectReference Include="$(MSBuildThisFileDirectory)..\..\Modules\CostCenterBudget.Migrations.PostgreSql\CostCenterBudget.Migrations.PostgreSql.csproj" />
   </ItemGroup>
 </Project>

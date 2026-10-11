@@ -1,13 +1,14 @@
 using Acme.Core.Data;
 using Acme.Core.Data.PostgreSql;
 using Acme.Core.Data.SqlServer;
+using Acme.Core.Platform;
 using Acme.Migrator;
 
 namespace Acme.Architecture.Tests;
 
 public sealed class DataOwnershipTests
 {
-    public static TheoryData<string> Providers() => [SqlServerDatabaseProvider.ProviderName, PostgreSqlDatabaseProvider.ProviderName];
+    public static TheoryData<string> Providers() => [.. PlatformInfo.DatabaseProviders];
 
     [Theory]
     [MemberData(nameof(Providers))]
