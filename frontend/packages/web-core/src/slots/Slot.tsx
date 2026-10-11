@@ -60,6 +60,13 @@ class ExtensionBoundary extends Component<{ children: ReactNode; label: string }
   }
 }
 
+/** Whether anything the person may see fills the slot, so a host can leave out a heading that would sit over nothing. */
+export function useSlotHasExtensions(name: SlotName): boolean {
+  const extensions = useSlotRegistry((state) => state.extensions);
+  const moduleRoles = useSessionStore((state) => state.session?.moduleRoles ?? {});
+  return extensions.some((e) => e.definition.slot === name && canAccess(moduleRoles, e.moduleId, e.definition.requiredRole));
+}
+
 interface SlotComponentProps<S extends SlotName> {
   name: S;
   props: SlotProps[S];

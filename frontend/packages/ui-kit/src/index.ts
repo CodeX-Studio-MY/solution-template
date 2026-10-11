@@ -7,6 +7,7 @@ export { StatusChip, type Tone } from "./components/StatusChip";
 export { MoneyText } from "./components/MoneyText";
 export { ProblemAlert } from "./components/ProblemAlert";
 export { EmptyState } from "./components/EmptyState";
+export { DashboardCard } from "./components/DashboardCard";
 export { ConfirmDialog } from "./components/ConfirmDialog";
 export { CustomFieldsSection, type CustomFieldDefinition, type CustomFieldValues } from "./components/CustomFieldsSection";
 export { CustomFieldsSummary } from "./components/CustomFieldsSummary";

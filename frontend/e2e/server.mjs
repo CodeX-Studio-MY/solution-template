@@ -3,7 +3,7 @@
 import { createServer } from "node:http";
 import { randomBytes } from "node:crypto";
 import { readFile, stat } from "node:fs/promises";
-import { dirname, extname, join, normalize } from "node:path";
+import { dirname, extname, join, posix } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const dist = join(dirname(fileURLToPath(import.meta.url)), "..", "dist");
@@ -29,7 +29,8 @@ createServer(async (request, response) => {
   );
   response.setHeader("X-Content-Type-Options", "nosniff");
 
-  const safe = normalize(url.pathname).replace(/^(\.\.[/\\])+/, "");
+  // posix: a URL path always uses "/", also on Windows (where path.normalize would turn it into backslashes).
+  const safe = posix.normalize(url.pathname).replace(/^(\.\.\/)+/, "");
   const target = safe.startsWith("/mfe/") ? join(dist, safe) : join(dist, "shell", safe);
   const asset = await file(target);
   if (asset && !target.endsWith("index.html")) {

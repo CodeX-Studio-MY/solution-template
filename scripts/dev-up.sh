@@ -51,12 +51,12 @@ root=$(pwd)
 if [ ! -f .dev/certs/localhost.pem ] || [ ! -f .dev/certs/localhost-key.pem ]; then
   mkcert -cert-file .dev/certs/localhost.pem -key-file .dev/certs/localhost-key.pem localhost "*.localhost" 127.0.0.1 ::1
 fi
-if [ -t 0 ] && ! mkcert -check >/dev/null 2>&1; then
-  echo "Trusting the local certificate authority (mkcert asks for your password once)..."
-  mkcert -install || true
-fi
-if ! mkcert -check >/dev/null 2>&1; then
-  echo "Note: browsers won't trust the certificate until you run: mkcert -install"
+# mkcert has no "is it trusted?" command (there is no -check); -install does nothing when the CA is already in the trust store.
+if [ -t 0 ]; then
+  echo "Trusting the local certificate authority (mkcert asks for your password the first time)..."
+  mkcert -install || echo "Note: browsers won't trust the certificate until you run: mkcert -install"
+else
+  echo "Note: if browsers warn about the certificate, run: mkcert -install"
 fi
 
 if [ "$build" = 1 ]; then

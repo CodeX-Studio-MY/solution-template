@@ -6,6 +6,8 @@ import type { Money } from "../format/formatters";
  */
 export interface SlotProps {
   "purchase-request.detail.side-panel": { requestId: string; costCenter?: string; total: Money };
+  /** A card on the shell's home page. Modules contribute what needs a person's attention; the shell lays the cards out. */
+  "home.dashboard": Record<string, never>;
 }
 
 export type SlotName = keyof SlotProps;

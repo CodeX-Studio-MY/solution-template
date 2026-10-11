@@ -15,5 +15,10 @@ export default {
     { path: ":id/edit", lazy: () => import("./pages/RequestForm") },
   ],
   menu: [{ label: "menu", path: "", icon: "ReceiptLong", requiredRole: "user" }],
+  // Cards on the shell's home page. The shell knows nothing about purchase requests; it only offers the slot.
+  extensions: [
+    { slot: "home.dashboard", component: () => import("./slots/ApprovalsWaiting"), requiredRole: "manager" },
+    { slot: "home.dashboard", component: () => import("./slots/MyDrafts"), requiredRole: "user" },
+  ],
   i18n: { namespace: moduleKey, resources: { en, ms, zh } },
 } satisfies ModuleManifest;

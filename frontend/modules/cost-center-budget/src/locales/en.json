@@ -1,6 +1,12 @@
 {
   "menu": "Cost center budgets",
-  "fields": { "code": "Cost center", "name": "Name", "amount": "Budget", "used": "Used", "remaining": "Remaining" },
+  "fields": {
+    "code": "Cost center",
+    "name": "Name",
+    "amount": "Budget",
+    "used": "Used",
+    "remaining": "Remaining"
+  },
   "list": {
     "title": "Cost center budgets",
     "subtitle": "What each cost center may spend, and how much approved requests have used.",
@@ -8,6 +14,23 @@
     "emptyHint": "Add a budget for a cost center below.",
     "edit": "Change"
   },
-  "form": { "newTitle": "Add a budget", "editTitle": "Change the budget of {{code}}", "save": "Save", "cancel": "Cancel" },
-  "panel": { "title": "Budget of {{code}}", "remaining": "Remaining", "of": "of", "over": "This request is more than what is left." }
+  "form": {
+    "newTitle": "Add a budget",
+    "editTitle": "Change the budget of {{code}}",
+    "save": "Save",
+    "cancel": "Cancel"
+  },
+  "panel": {
+    "title": "Budget of {{code}}",
+    "remaining": "Remaining",
+    "of": "of",
+    "over": "This request is more than what is left."
+  },
+  "widgets": {
+    "overview": {
+      "title": "Budgets",
+      "none": "No budgets yet.",
+      "used": "{{used}} of {{amount}} used"
+    }
+  }
 }

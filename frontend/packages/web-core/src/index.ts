@@ -22,7 +22,7 @@ export { RequireModuleRole, useRouteAccess } from "./access/guards";
 
 export { eventBus, type AppEvents } from "./events/eventBus";
 
-export { Slot, registerExtensions, unregisterExtensions } from "./slots/Slot";
+export { Slot, useSlotHasExtensions, registerExtensions, unregisterExtensions } from "./slots/Slot";
 export type { SlotProps, SlotName } from "./slots/slotProps";
 
 export {

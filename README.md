@@ -70,17 +70,125 @@ flowchart LR
 
 ## Quick start
 
-Prerequisites: .NET SDK 10 (see `global.json`), Docker (on Apple Silicon, Docker Desktop with Rosetta emulation, which SQL Server
-needs), Node.js 24 and pnpm (`corepack enable pnpm`), and [mkcert](https://github.com/FiloSottile/mkcert) for local HTTPS
-(`scripts/dev-up` installs it with Homebrew if it can).
+### Prerequisites
+
+`scripts/dev-up` checks for the tools below and stops with a message if one is missing. Install them once.
+
+| Tool | Version | Why | Windows (winget) |
+|---|---|---|---|
+| [.NET SDK](https://dotnet.microsoft.com/download) | 10 (`global.json` pins 10.0.102 or a later 10.0 feature band) | builds and runs the backend and the Aspire AppHost | `winget install Microsoft.DotNet.SDK.10` |
+| [Docker Desktop](https://www.docker.com/products/docker-desktop/) | current, **running**, Linux containers | SQL Server, RabbitMQ, Valkey, Mailpit and Azurite run as containers | `winget install Docker.DockerDesktop` |
+| [Node.js](https://nodejs.org/) | **24 or later** (`frontend/package.json` requires it) | frontend build; the generator also reads the TypeScript design tokens with it | `winget install OpenJS.NodeJS.LTS` |
+| pnpm | 12.x (pinned by `packageManager`) | frontend workspace | `npm install -g pnpm` (see below) |
+| [mkcert](https://github.com/FiloSottile/mkcert) | any | a locally trusted HTTPS certificate for `localhost` and `*.localhost` | `winget install FiloSottile.mkcert` |
+| Git | any | clone and update the repository | `winget install Git.Git` |
+
+Optional: the Aspire CLI (`aspire`), only for `scripts/generate` without `--skip-compose` (it publishes
+`deploy/docker-compose.yml`). Without it, run `scripts/generate --skip-compose`.
+
+**One-time setup after installing**
+
+```powershell
+# pnpm. This works on every Node version and needs no administrator rights.
+npm install -g pnpm
+
+# Alternative: corepack. Node 25 and later no longer include it ("npm install -g corepack" first), and a Node installed under
+# C:\Program Files needs an administrator terminal, otherwise it fails with "EPERM: operation not permitted".
+# corepack enable pnpm
+
+# Trust the local certificate authority, so browsers accept https://*.localhost. Run once.
+mkcert -install
+
+# Windows blocks unsigned scripts by default. If dev-up.ps1 is refused:
+Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+```
+
+> **Restart your terminal, and VS Code, after installing.** A program reads `PATH` once, when it starts, so a terminal that was open
+> during the install says a tool "is not recognized" even though it is installed. In VS Code, a new terminal tab is **not**
+> enough, and neither is "Developer: Reload Window": VS Code's terminals inherit the environment VS Code itself started with. Quit
+> VS Code completely (File > Exit, so every window closes) and open it again. Without restarting, refresh the current
+> PowerShell window with:
+>
+> ```powershell
+> $env:Path = [Environment]::GetEnvironmentVariable('Path','Machine') + ';' + [Environment]::GetEnvironmentVariable('Path','User')
+> ```
+
+Then check:
+
+```powershell
+dotnet --version     # 10.0.x
+docker info          # prints server details, so Docker Desktop is running
+node --version       # v24 or later
+pnpm --version       # 12.x
+mkcert -version      # v1.4.x
+```
+
+**Resources and ports**
+
+- SQL Server alone needs 2 GB of memory in Docker; we recommend giving Docker Desktop 6 GB or more and keeping several GB of free
+  disk for the images. The first start pulls the images and builds the frontend, so it can take several minutes (the script waits up
+  to 20).
+- These ports must be free: `7443` (Gateway, HTTPS), `15100` (Aspire dashboard), `8025` (Mailpit), and the service ports in
+  `platform.yaml` (`5001`-`5003`, `5101`-`5102`).
+- `*.localhost` names (such as `demo.localhost`) resolve to your own machine in Chrome and Edge; no hosts-file entry is needed.
+- On macOS and Linux use `scripts/dev-up` (the shell script). It installs mkcert with Homebrew when it can and runs `mkcert -install`
+  for you. On Apple Silicon, Docker Desktop needs Rosetta emulation enabled, which SQL Server requires.
+
+### Start the stack
 
 ```sh
 scripts/dev-up                # certificate, frontend build, the whole stack, migrations, both demo tenants with sample data
 ```
 
-It prints the two tenants, `https://demo.localhost:7443/` (Standard plan, defaults) and `https://demo-plus.localhost:7443/` (Plus
-plan, customised), and each tenant's admin invitation link: open it, choose a password, sign in, and compare what the two tenants see
-([docs/tenant-customization.md](docs/tenant-customization.md) explains each difference).
+On Windows run `scripts/dev-up.ps1` from PowerShell (Windows PowerShell 5.1 and PowerShell 7 both work).
+
+**What can go wrong**
+
+| Symptom | Cause and fix |
+|---|---|
+| `... is not recognized` for `mkcert`, `pnpm`, `node`, `docker` | The terminal started before the install. Restart it and VS Code (see above). |
+| `EPERM: operation not permitted` from `corepack enable pnpm` | Node lives under `C:\Program Files`. Use `npm install -g pnpm` instead. |
+| A "Windows Security" dialog about a certificate | That is `mkcert -install` adding your local CA to the trusted roots. Click **Yes**. |
+| The browser warns about `https://demo.localhost:7443` | The local CA is not trusted yet: run `mkcert -install` and restart the browser. |
+| The script waits a long time at "Waiting for the Gateway" | The first start pulls several images and restores packages (up to 20 minutes). Watch `.dev/apphost.log` and the Docker Desktop containers. If nothing starts, check that Docker Desktop is running. |
+| A Windows Firewall prompt for `dotnet` | Allow it on private networks; the services listen on localhost. |
+| A port is already in use (`7443`, `15100`, `8025`, `5001`-`5003`, `5101`-`5102`) | Stop what uses it (`netstat -ano \| findstr :7443`), or run `scripts/dev-down.ps1` if it is a previous run of this stack. |
+| SQL Server container exits at once | Docker has too little memory (it needs 2 GB). Raise it in Docker Desktop, Settings, Resources. |
+
+It prints the two tenants and each tenant's admin invitation link. There are no default passwords: you choose one from the link.
+Compare what the two tenants see ([docs/tenant-customization.md](docs/tenant-customization.md) explains each difference).
+
+### First sign-in
+
+| Tenant | Address | Plan | Admin account (the only seeded user) |
+|---|---|---|---|
+| `demo` (Demo Co) | `https://demo.localhost:7443/` | Standard, defaults | `admin@demo.example` |
+| `demo-plus` (Demo Plus Co) | `https://demo-plus.localhost:7443/` | Plus, customised | `admin@demo-plus.example` |
+
+Each tenant has its own database, so the two admins are separate accounts. The `.example` addresses are not real mailboxes.
+
+1. **Copy the invitation link** that `dev-up` printed. It is also saved in `.dev/invitations.json` (git-ignored). It looks like
+   `https://login.localhost:7443/account/invitation?tenant=demo&token=...`, and it is single-use and short-lived.
+2. **Open it in your browser.** You see "Choose a password" for that tenant.
+3. **Type a new password and press "Save password".** Rules: at least **15 characters** (8 once the account has a second factor),
+   no required digits or symbols, and it must not appear in a known data breach. A passphrase of four or five words works well.
+   The breach check calls the public Have I Been Pwned range API; offline, only the length rule applies.
+4. **Sign in** at the tenant address above with the admin email and your new password. You land on the home page. Each tenant's
+   link works once, so do the same for `demo-plus` with its own link.
+
+Things to know:
+
+- **No email is sent in development.** Invitation and password-reset links are written to the Identity service's log, not to
+  Mailpit. If you lose a link, or use "Forgot password" on the sign-in page, open the Aspire dashboard
+  (`http://localhost:15100`), choose the `identity` resource, open its console logs and search for `Account link`.
+- **"This invitation is not valid any more"** means the link was used or expired. For a clean local start run
+  `scripts/dev-down.ps1 -Reset` and then `scripts/dev-up.ps1`, which seeds the tenants again with new links.
+- **Platform operator (no screen yet).** `dev-up` also creates a development operator, `dev-operator@example.com`, and saves
+  its password and TOTP key in `.dev/operator.json`. It is for the operator API (onboarding and managing tenants), not for the
+  tenant sign-in pages above. Never reuse it outside development.
+- **Other users and roles.** Roles are `user`, `manager` and `admin`, per module; managers see the approval card on the home page.
+  There is no screen for managing users yet: the seeded admin invites and assigns roles through the Identity access-management
+  API (`/api/identity/v1/principals`; see the generated OpenAPI document in `backend/src/Modules/Identity`).
 
 ```sh
 scripts/add-postgresql                   # once: restores the PostgreSQL migrations (platform.yaml then lists both providers)

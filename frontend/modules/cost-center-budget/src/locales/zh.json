@@ -1,6 +1,12 @@
 {
   "menu": "成本中心预算",
-  "fields": { "code": "成本中心", "name": "名称", "amount": "预算", "used": "已用", "remaining": "剩余" },
+  "fields": {
+    "code": "成本中心",
+    "name": "名称",
+    "amount": "预算",
+    "used": "已用",
+    "remaining": "剩余"
+  },
   "list": {
     "title": "成本中心预算",
     "subtitle": "每个成本中心可支出的金额，以及已批准申请已使用的金额。",
@@ -8,6 +14,23 @@
     "emptyHint": "在下方为成本中心添加预算。",
     "edit": "修改"
   },
-  "form": { "newTitle": "添加预算", "editTitle": "修改 {{code}} 的预算", "save": "保存", "cancel": "取消" },
-  "panel": { "title": "{{code}} 的预算", "remaining": "剩余", "of": "总额", "over": "此申请超过了剩余金额。" }
+  "form": {
+    "newTitle": "添加预算",
+    "editTitle": "修改 {{code}} 的预算",
+    "save": "保存",
+    "cancel": "取消"
+  },
+  "panel": {
+    "title": "{{code}} 的预算",
+    "remaining": "剩余",
+    "of": "总额",
+    "over": "此申请超过了剩余金额。"
+  },
+  "widgets": {
+    "overview": {
+      "title": "预算",
+      "none": "暂无预算。",
+      "used": "已使用 {{used}} / {{amount}}"
+    }
+  }
 }

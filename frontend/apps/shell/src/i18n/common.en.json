@@ -1,6 +1,17 @@
 {
-  "app": { "name": "Workspace", "skip": "Skip to content", "loadingModule": "Loading…" },
-  "actions": { "cancel": "Cancel", "save": "Save", "back": "Back", "retry": "Try again", "signOut": "Sign out", "signIn": "Sign in" },
+  "app": {
+    "name": "Workspace",
+    "skip": "Skip to content",
+    "loadingModule": "Loading…"
+  },
+  "actions": {
+    "cancel": "Cancel",
+    "save": "Save",
+    "back": "Back",
+    "retry": "Try again",
+    "signOut": "Sign out",
+    "signIn": "Sign in"
+  },
   "errors": {
     "generic": "Something went wrong. Please try again.",
     "moduleFailed": "This part of the app could not be loaded.",
@@ -9,7 +20,45 @@
     "notFoundHint": "Check the address, or use the menu to find what you need.",
     "noModules": "No applications are available for your account."
   },
-  "customFields": { "title": "Additional information", "none": "None" },
-  "nav": { "home": "Home", "settings": "Settings", "menu": "Main navigation", "openMenu": "Open navigation" },
-  "home": { "welcome": "Welcome", "intro": "Choose an application from the menu.", "yourApps": "Your applications" }
+  "customFields": {
+    "title": "Additional information",
+    "none": "None"
+  },
+  "nav": {
+    "home": "Home",
+    "settings": "Settings",
+    "menu": "Main navigation",
+    "openMenu": "Open navigation",
+    "workspace": "Workspace",
+    "applications": "Applications",
+    "collapse": "Collapse menu",
+    "expand": "Expand menu",
+    "breadcrumbs": "Breadcrumb"
+  },
+  "home": {
+    "welcome": "Welcome",
+    "intro": "Choose an application from the menu.",
+    "yourApps": "Your applications",
+    "subtitle": "Here is what needs your attention at {{name}}.",
+    "today": "At a glance",
+    "open": "Open"
+  },
+  "user": {
+    "menu": "Account menu",
+    "role": "Role: {{role}}",
+    "appearance": "Appearance",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "roles": {
+    "user": "User",
+    "manager": "Manager",
+    "admin": "Administrator"
+  },
+  "widgets": {
+    "loading": "Loading…",
+    "viewAll": "View all",
+    "none": "Nothing here right now."
+  }
 }

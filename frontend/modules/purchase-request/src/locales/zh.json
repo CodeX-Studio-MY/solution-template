@@ -1,6 +1,11 @@
 {
   "menu": "采购申请",
-  "status": { "draft": "草稿", "submitted": "待审批", "approved": "已批准", "rejected": "已拒绝" },
+  "status": {
+    "draft": "草稿",
+    "submitted": "待审批",
+    "approved": "已批准",
+    "rejected": "已拒绝"
+  },
   "fields": {
     "number": "编号",
     "title": "标题",
@@ -58,5 +63,17 @@
     "autoApproved": "已自动批准",
     "rejected": "已拒绝",
     "goodsReceived": "已收货"
+  },
+  "widgets": {
+    "approvals": {
+      "title": "等待您审批",
+      "none": "没有等待审批的申请。"
+    },
+    "drafts": {
+      "title": "我的草稿",
+      "none": "您没有草稿。",
+      "continue": "继续"
+    },
+    "count": "共 {{count}} 项"
   }
 }

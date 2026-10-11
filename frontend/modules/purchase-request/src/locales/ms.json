@@ -1,6 +1,11 @@
 {
   "menu": "Permohonan pembelian",
-  "status": { "draft": "Draf", "submitted": "Menunggu kelulusan", "approved": "Diluluskan", "rejected": "Ditolak" },
+  "status": {
+    "draft": "Draf",
+    "submitted": "Menunggu kelulusan",
+    "approved": "Diluluskan",
+    "rejected": "Ditolak"
+  },
   "fields": {
     "number": "Nombor",
     "title": "Tajuk",
@@ -58,5 +63,17 @@
     "autoApproved": "Diluluskan secara automatik",
     "rejected": "Ditolak",
     "goodsReceived": "Barang diterima"
+  },
+  "widgets": {
+    "approvals": {
+      "title": "Menunggu kelulusan anda",
+      "none": "Tiada permohonan menunggu kelulusan."
+    },
+    "drafts": {
+      "title": "Draf saya",
+      "none": "Anda tiada draf.",
+      "continue": "Teruskan"
+    },
+    "count": "{{count}} kesemuanya"
   }
 }

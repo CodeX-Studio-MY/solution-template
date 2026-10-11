@@ -1,5 +1,9 @@
 {
-  "app": { "name": "Ruang Kerja", "skip": "Langkau ke kandungan", "loadingModule": "Memuatkan…" },
+  "app": {
+    "name": "Ruang Kerja",
+    "skip": "Langkau ke kandungan",
+    "loadingModule": "Memuatkan…"
+  },
   "actions": {
     "cancel": "Batal",
     "save": "Simpan",
@@ -16,7 +20,45 @@
     "notFoundHint": "Semak alamat, atau gunakan menu untuk mencari apa yang anda perlukan.",
     "noModules": "Tiada aplikasi tersedia untuk akaun anda."
   },
-  "customFields": { "title": "Maklumat tambahan", "none": "Tiada" },
-  "nav": { "home": "Utama", "settings": "Tetapan", "menu": "Navigasi utama", "openMenu": "Buka navigasi" },
-  "home": { "welcome": "Selamat datang", "intro": "Pilih aplikasi daripada menu.", "yourApps": "Aplikasi anda" }
+  "customFields": {
+    "title": "Maklumat tambahan",
+    "none": "Tiada"
+  },
+  "nav": {
+    "home": "Utama",
+    "settings": "Tetapan",
+    "menu": "Navigasi utama",
+    "openMenu": "Buka navigasi",
+    "workspace": "Ruang kerja",
+    "applications": "Aplikasi",
+    "collapse": "Kecilkan menu",
+    "expand": "Besarkan menu",
+    "breadcrumbs": "Jejak navigasi"
+  },
+  "home": {
+    "welcome": "Selamat datang",
+    "intro": "Pilih aplikasi daripada menu.",
+    "yourApps": "Aplikasi anda",
+    "subtitle": "Inilah yang memerlukan perhatian anda di {{name}}.",
+    "today": "Sekilas pandang",
+    "open": "Buka"
+  },
+  "user": {
+    "menu": "Menu akaun",
+    "role": "Peranan: {{role}}",
+    "appearance": "Penampilan",
+    "light": "Cerah",
+    "dark": "Gelap",
+    "system": "Sistem"
+  },
+  "roles": {
+    "user": "Pengguna",
+    "manager": "Pengurus",
+    "admin": "Pentadbir"
+  },
+  "widgets": {
+    "loading": "Memuatkan…",
+    "viewAll": "Lihat semua",
+    "none": "Tiada apa-apa buat masa ini."
+  }
 }

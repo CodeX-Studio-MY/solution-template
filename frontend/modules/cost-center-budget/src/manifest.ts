@@ -19,6 +19,7 @@ export default {
       component: () => import("./slots/RemainingBudget"),
       requiredRole: "user",
     },
+    { slot: "home.dashboard", component: () => import("./slots/BudgetOverview"), requiredRole: "manager" },
   ],
   i18n: { namespace: moduleKey, resources: { en, ms, zh } },
 } satisfies ModuleManifest;

@@ -1,6 +1,11 @@
 {
   "menu": "Purchase requests",
-  "status": { "draft": "Draft", "submitted": "Waiting for approval", "approved": "Approved", "rejected": "Rejected" },
+  "status": {
+    "draft": "Draft",
+    "submitted": "Waiting for approval",
+    "approved": "Approved",
+    "rejected": "Rejected"
+  },
   "fields": {
     "number": "Number",
     "title": "Title",
@@ -58,5 +63,17 @@
     "autoApproved": "Approved automatically",
     "rejected": "Rejected",
     "goodsReceived": "Goods received"
+  },
+  "widgets": {
+    "approvals": {
+      "title": "Waiting for your approval",
+      "none": "No requests are waiting for approval."
+    },
+    "drafts": {
+      "title": "My drafts",
+      "none": "You have no drafts.",
+      "continue": "Continue"
+    },
+    "count": "{{count}} in total"
   }
 }
