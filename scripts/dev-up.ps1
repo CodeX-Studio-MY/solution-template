@@ -7,6 +7,21 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 Set-Location (Join-Path $PSScriptRoot '..')
+
+# Programs such as mkcert and pnpm write progress and notices to stderr. Windows PowerShell 5.1 turns that into a terminating error
+# when the output is redirected and $ErrorActionPreference is 'Stop', so native commands run with it relaxed; their exit code is
+# still in $LASTEXITCODE for the caller to check.
+function Invoke-Native {
+  param([Parameter(Mandatory)][scriptblock]$Command)
+  $previous = $ErrorActionPreference
+  $ErrorActionPreference = 'Continue'
+  try {
+    & $Command 2>&1 | ForEach-Object {
+      # An error record's own message, so an empty stderr line is blank and not the name of its exception type.
+      Write-Host ($(if ($_ -is [System.Management.Automation.ErrorRecord]) { $_.Exception.Message } else { "$_" }))
+    }
+  } finally { $ErrorActionPreference = $previous }
+}
 if ($Provider -eq 'postgresql' -and -not (Select-String -Path platform.yaml -Pattern '^\s*providers:.*postgresql' -Quiet)) {
   throw 'PostgreSQL migrations are not in this build (platform.yaml lists only sqlserver). Run scripts/add-postgresql.ps1 first.'
 }
@@ -16,20 +31,28 @@ foreach ($tool in 'dotnet', 'docker', 'node', 'mkcert') {
 if (-not (Get-Command pnpm -ErrorAction SilentlyContinue)) {
   # Node.js 25 and later no longer ship corepack.
   if (-not (Get-Command corepack -ErrorAction SilentlyContinue)) { throw 'pnpm is required: run "npm install -g corepack", then "corepack enable pnpm".' }
-  corepack enable pnpm
+  Invoke-Native { corepack enable pnpm }
 }
 
 New-Item -ItemType Directory -Force .dev/certs | Out-Null
 $root = (Get-Location).Path
 if (-not (Test-Path .dev/certs/localhost.pem)) {
-  mkcert -cert-file .dev/certs/localhost.pem -key-file .dev/certs/localhost-key.pem localhost '*.localhost' 127.0.0.1 ::1
+  Invoke-Native { mkcert -cert-file .dev/certs/localhost.pem -key-file .dev/certs/localhost-key.pem localhost '*.localhost' 127.0.0.1 ::1 }
 }
 # mkcert has no "is it trusted?" command (there is no -check); -install does nothing when the CA is already in the trust store.
 # Windows asks once to add the local certificate authority to your trusted roots: answer Yes.
-mkcert -install
+Invoke-Native { mkcert -install }
 if ($LASTEXITCODE -ne 0) { Write-Host 'The local certificate authority is not trusted yet: browsers will warn until "mkcert -install" succeeds.' }
 
-if (-not $NoBuild) { Push-Location frontend; pnpm install --frozen-lockfile; pnpm build; Pop-Location }
+if (-not $NoBuild) {
+  Push-Location frontend
+  try {
+    Invoke-Native { pnpm install --frozen-lockfile }
+    if ($LASTEXITCODE -ne 0) { throw 'pnpm install failed.' }
+    Invoke-Native { pnpm build }
+    if ($LASTEXITCODE -ne 0) { throw 'The frontend build failed.' }
+  } finally { Pop-Location }
+}
 
 Remove-Item .dev/invitations.json.done -ErrorAction SilentlyContinue
 $env:Database__Provider = $Provider

@@ -40,10 +40,3 @@ public static class PurchaseRequestFeatures
     [FeatureFlag(ModuleKeys.PurchaseRequest, DefaultEnabled = false, Description = "Share a draft request with a link.")]
     public const string DraftSharing = "purchase-request.draft-sharing";
 }
-
-/// <summary>Custom field keys that modules agree on, so one module's data can feed another through events (rung 4 and 5).</summary>
-public static class WellKnownCustomFields
-{
-    /// <summary>The cost center a purchase request is charged to. The budget module uses it when a request is approved.</summary>
-    public const string CostCenter = "cost-center";
-}
