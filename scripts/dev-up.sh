@@ -74,7 +74,13 @@ echo $! > .dev/apphost.pid
 echo "Waiting for the Gateway (the first start pulls images and can take several minutes)..."
 n=0
 until curl -sk -m 5 -f -o /dev/null https://localhost:7443/health/ready; do
-  n=$((n + 1)); [ $n -gt 240 ] && { echo "The Gateway did not become ready. See .dev/apphost.log" >&2; exit 1; }
+  n=$((n + 1)); [ $n -gt 240 ] && {
+    echo "The stack did not become ready. Open the Aspire dashboard (http://localhost:15100) and look at the resource that failed:" >&2
+    echo "  - migrator failed with \"There is already an object named ...\": the local databases are from an earlier copy of this" >&2
+    echo "    product. Start clean with scripts/dev-down --reset, then scripts/dev-up (this deletes the local data)." >&2
+    echo "  - a service failed: its console log in the dashboard says why. Stop it with scripts/dev-down." >&2
+    exit 1
+  }
   sleep 5
 done
 echo "Waiting for the demo tenant..."

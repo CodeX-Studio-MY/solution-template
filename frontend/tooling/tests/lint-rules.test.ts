@@ -101,7 +101,7 @@ describe("frontend lint rules", () => {
 describe("frontend packages", () => {
   it("no module depends on another module or on the shell, in package.json either", () => {
     // Every real module (none in the template itself; the throwaway lint fixtures have no package.json).
-    const modules = readdirSync(join(root, "modules"), { withFileTypes: true }).filter(
+    const modules = (existsSync(join(root, "modules")) ? readdirSync(join(root, "modules"), { withFileTypes: true }) : []).filter(
       (e) => e.isDirectory() && existsSync(join(root, "modules", e.name, "package.json")),
     );
     for (const module of modules) {

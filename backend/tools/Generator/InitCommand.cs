@@ -37,9 +37,14 @@ internal static partial class InitCommand
         var platformPath = Path.Combine(repoRoot, "platform.yaml");
         var current = PlatformDefinition.Load(platformPath);
         var resuming = current.Product != TemplateProduct;
-        var answers = resuming ? InitAnswers.From(current, options) : InitAnswers.Ask(current, options);
+        var answers = resuming ? InitAnswers.From(current, options, RememberedModules(repoRoot)) : InitAnswers.Ask(current, options);
 
         Preflight(options);
+        var strays = StrayModuleFolders(repoRoot, PlatformDefinition.Load(platformPath), answers.Modules);
+        if (strays.Count > 0)
+            throw new PlatformDefinitionException(
+                "These folders are left over from an earlier run and belong to no module in platform.yaml:\n  " + string.Join("\n  ", strays) +
+                "\nDelete them (they are not tracked by git), then run scripts/generate again.");
         // A module key the platform's code already uses as a string would fail the architecture tests at the end: refuse it now.
         if (!resuming)
         {
@@ -65,14 +70,25 @@ internal static partial class InitCommand
             ? $"Continuing the scaffold of '{answers.Product}' ({Naming.Pascal(answers.Product)})."
             : $"Scaffolding '{answers.Product}' ({Naming.Pascal(answers.Product)}) from the template.");
 
-        // 1. The product's facts, then the one-time rename. Both are skipped when a previous run got this far.
+        // The modules asked for are written into the marker first, so a run that is repeated after a failure (with no options)
+        // still adds them.
+        RememberModules(repoRoot, answers.Modules);
+
+        // 1. The product's facts (once), then the rename. The rename runs on every run while the marker is here: it changes nothing
+        //    when an earlier run finished it, and finishes it when an earlier run was stopped part-way.
         if (!resuming)
         {
             WritePlatformYaml(platformPath, answers);
             PlatformDefinition.Load(platformPath);   // fails here, before anything else changes, if the answers don't validate
-            var renamed = ProductRenamer.Run(repoRoot, TemplateProduct, answers.Product);
-            Console.WriteLine($"Renamed '{TemplateProduct}' to '{answers.Product}' in {renamed.ChangedFiles.Count} files and {renamed.RenamedPaths.Count} paths.");
         }
+        var renamed = ProductRenamer.Run(repoRoot, TemplateProduct, answers.Product);
+        if (!resuming)
+            Console.WriteLine($"Renamed '{TemplateProduct}' to '{answers.Product}' in {renamed.ChangedFiles.Count} files and {renamed.RenamedPaths.Count} paths.");
+        else if (renamed.ChangedFiles.Count + renamed.RenamedPaths.Count > 0)
+            Console.WriteLine($"Finished an interrupted rename: {renamed.ChangedFiles.Count} files and {renamed.RenamedPaths.Count} paths still said '{TemplateProduct}'.");
+
+        if (!resuming)
+            OfferToDeleteOldDevData(answers.Product, options);
 
         // 2. From here on the code on disk has the product's namespaces, and this process was built against the template's: every
         //    step that compiles runs as a new process (dotnet run builds the generator again).
@@ -216,6 +232,95 @@ internal static partial class InitCommand
         }
     }
 
+    /// <summary>
+    /// Local data volumes named after the product (<c>{product}-sql-data</c>, ...) are left by an earlier copy of the same product. Its
+    /// databases have another migration history, so this copy's Migrator would fail on them and scripts/dev-up would never start.
+    /// They may hold someone's work, so they are only deleted when the person says so; --yes never deletes them.
+    /// </summary>
+    private static void OfferToDeleteOldDevData(string product, InitOptions options)
+    {
+        string[] volumes;
+        try
+        {
+            volumes = Processes.Capture("docker", Directory.GetCurrentDirectory(), "", "volume", "ls", "--quiet", "--filter", $"name=^{product}-")
+                .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        }
+        catch (PlatformDefinitionException)
+        {
+            return;   // Docker isn't installed or isn't running: nothing to check now
+        }
+        if (volumes.Length == 0)
+            return;
+
+        Console.WriteLine();
+        Console.WriteLine($"Docker already has local data for a '{product}' from an earlier copy: {string.Join(", ", volumes)}.");
+        Console.WriteLine("This copy can't start on it (its databases have another migration history).");
+        if (!options.Yes)
+        {
+            Console.Write("Delete that local data now? [y/N]: ");
+            if (string.Equals(Console.ReadLine()?.Trim(), "y", StringComparison.OrdinalIgnoreCase))
+            {
+                foreach (var volume in volumes)
+                    Processes.Capture("docker", Directory.GetCurrentDirectory(), "Stop the earlier copy (scripts/dev-down) and try again.", "volume", "rm", volume);
+                Console.WriteLine("Deleted.");
+                return;
+            }
+        }
+        Console.WriteLine($"Kept. Before scripts/dev-up, delete it with: docker volume rm {string.Join(" ", volumes)}  (or scripts/dev-down -Reset from the earlier copy).");
+    }
+
+    private const string ModulesLine = "modules-to-add:";
+
+    /// <summary>The modules an earlier, unfinished run was asked to add (kept in the marker file).</summary>
+    internal static IReadOnlyList<string> RememberedModules(string repoRoot)
+    {
+        var marker = Path.Combine(repoRoot, Marker);
+        var line = File.Exists(marker) ? File.ReadAllLines(marker).FirstOrDefault(l => l.StartsWith(ModulesLine, StringComparison.Ordinal)) : null;
+        return line is null ? [] : [.. line[ModulesLine.Length..].Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)];
+    }
+
+    /// <summary>Keeps <paramref name="modules"/> in the marker file, replacing what an earlier run kept.</summary>
+    internal static void RememberModules(string repoRoot, IReadOnlyList<string> modules)
+    {
+        var marker = Path.Combine(repoRoot, Marker);
+        var lines = File.ReadAllLines(marker).Where(l => !l.StartsWith(ModulesLine, StringComparison.Ordinal)).ToList();
+        if (modules.Count > 0)
+            lines.Add($"{ModulesLine} {string.Join(",", modules)}");
+        File.WriteAllText(marker, string.Join('\n', lines) + "\n", new UTF8Encoding(false));
+    }
+
+    /// <summary>
+    /// Module folders (backend module, migrations, host, tests, frontend module) whose module is neither in platform.yaml nor about
+    /// to be added: what an earlier, abandoned run left behind. They would be built, scanned and renamed with the product otherwise.
+    /// </summary>
+    internal static IReadOnlyList<string> StrayModuleFolders(string repoRoot, PlatformDefinition platform, IEnumerable<string> adding)
+    {
+        var keys = platform.Services.Select(s => s.Key).Concat(platform.Modules.Select(m => m.Key)).Concat(adding).ToHashSet(StringComparer.Ordinal);
+        var pascal = keys.Select(Naming.Pascal).ToHashSet(StringComparer.Ordinal);
+        // Folders of the platform that aren't named after a key.
+        string[] platformFolders = ["AllInOne.Host", "Architecture.Tests", "Core.Tests", "Generator.Tests", "Integration.Tests", "TestSupport"];
+
+        static IEnumerable<string> Folders(string path) =>
+            Directory.Exists(path) ? Directory.EnumerateDirectories(path).Select(Path.GetFileName).OfType<string>() : [];
+
+        var strays = new List<string>();
+        foreach (var (folder, nameOf) in new (string, Func<string, string>)[]
+        {
+            ("backend/src/Modules", name => name.Split('.')[0]),
+            ("backend/src/Hosts", name => name.Split('.')[0]),
+            ("backend/tests", name => name.Split('.')[0]),
+        })
+        {
+            strays.AddRange(Folders(Path.Combine(repoRoot, folder))
+                .Where(name => !platformFolders.Contains(name) && !pascal.Contains(nameOf(name)))
+                .Select(name => $"{folder}/{name}"));
+        }
+        strays.AddRange(Folders(Path.Combine(repoRoot, "frontend", "modules"))
+            .Where(name => !keys.Contains(name) && !name.StartsWith("lint-fixture-", StringComparison.Ordinal))
+            .Select(name => $"frontend/modules/{name}"));
+        return strays;
+    }
+
     /// <summary>Whether the module's first migration exists for every database provider.</summary>
     private static bool HasModuleMigrations(string repoRoot, string module)
     {
@@ -342,10 +447,14 @@ internal sealed record InitAnswers(
     }
 
     /// <summary>A resumed run: platform.yaml already has the product's values; only the modules may still be missing.</summary>
-    public static InitAnswers From(PlatformDefinition platform, InitOptions options)
+    /// <param name="platform">platform.yaml as the earlier run left it.</param>
+    /// <param name="options">This run's options.</param>
+    /// <param name="remembered">The modules the first run was asked to add; --modules on this run adds to them.</param>
+    public static InitAnswers From(PlatformDefinition platform, InitOptions options, IReadOnlyList<string> remembered)
     {
+        var modules = remembered.Concat(List(options["--modules"] ?? "")).Distinct(StringComparer.Ordinal).ToList();
         var answers = new InitAnswers(platform.Product, platform.Org, platform.Defaults.Timezone, platform.Defaults.Currency,
-            platform.Defaults.Locales, platform.Plans, platform.Cloud, List(options["--modules"] ?? ""));
+            platform.Defaults.Locales, platform.Plans, platform.Cloud, modules);
         answers.ValidateModules(platform);
         return answers;
     }

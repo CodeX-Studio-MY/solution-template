@@ -74,6 +74,15 @@ while ((Get-Date) -lt $deadline) {
   if ($status -eq '200') { break }
   Start-Sleep 5
 }
+if ($status -ne '200') {
+  Write-Host ''
+  Write-Host 'The stack did not become ready. Open the Aspire dashboard (http://localhost:15100) and look at the resource that failed:'
+  Write-Host '  - migrator failed with "There is already an object named ...": the local databases are from an earlier copy of this'
+  Write-Host '    product. Start clean with scripts/dev-down.ps1 -Reset, then scripts/dev-up.ps1 (this deletes the local data).'
+  Write-Host '  - a service failed: its console log in the dashboard says why.'
+  Write-Host 'Stop it with scripts/dev-down.ps1.'
+  exit 1
+}
 while (-not (Test-Path .dev/invitations.json.done) -and (Get-Date) -lt $deadline) { Start-Sleep 5 }
 Write-Host "demo       https://demo.localhost:7443/"
 Write-Host "More tenants: scripts/onboard-tenant.ps1 <slug> [--plan <plan>]"

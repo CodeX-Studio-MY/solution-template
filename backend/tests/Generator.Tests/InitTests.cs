@@ -65,6 +65,66 @@ public sealed class InitTests : IDisposable
     }
 
     [Fact]
+    public void Renaming_again_finishes_a_half_renamed_tree_and_then_changes_nothing()
+    {
+        var done = Write("src/Done.cs", "namespace Orchard.Core;");
+        var missed = Write("src/Missed.cs", $"namespace {Pascal}.Contracts;");
+
+        ProductRenamer.Run(_root, Lower, Target).ChangedFiles.ShouldBe([Path.Combine("src", "Missed.cs")]);
+        File.ReadAllText(done).ShouldBe("namespace Orchard.Core;");
+        File.ReadAllText(missed).ShouldBe("namespace Orchard.Contracts;");
+
+        var again = ProductRenamer.Run(_root, Lower, Target);
+        again.ChangedFiles.ShouldBeEmpty();
+        again.RenamedPaths.ShouldBeEmpty();
+    }
+
+    [Fact]
+    public void A_file_another_program_holds_stops_the_rename_before_anything_changes()
+    {
+        var first = Write("a/First.cs", Pascal);
+        var held = Write($"b/{Lower}.slnx", Pascal);
+
+        using (new FileStream(held, FileMode.Open, FileAccess.Read, FileShare.None))
+        {
+            var error = Should.Throw<PlatformDefinitionException>(() => ProductRenamer.Run(_root, Lower, Target));
+            error.Message.ShouldContain($"{Lower}.slnx");
+            error.Message.ShouldContain("scripts/generate again");
+        }
+        File.ReadAllText(first).ShouldBe(Pascal);   // untouched: all or nothing
+
+        ProductRenamer.Run(_root, Lower, Target);   // released: the run again succeeds
+        File.ReadAllText(first).ShouldBe("Orchard");
+        File.Exists(Path.Combine(_root, "b", "orchard.slnx")).ShouldBeTrue();
+    }
+
+    [Fact]
+    public void Module_folders_left_by_an_earlier_run_are_found()
+    {
+        foreach (var dir in new[] { "backend/src/Modules/Identity", "backend/src/Modules/Master.Migrations.SqlServer", "backend/src/Hosts/AllInOne.Host",
+            "backend/src/Hosts/CropPlanning.Host", "backend/tests/TestSupport", "backend/tests/Master.Tests", "frontend/modules/master",
+            "frontend/modules/crop-planning", "frontend/modules/lint-fixture-a" })
+            Directory.CreateDirectory(Path.Combine(_root, dir));
+
+        InitCommand.StrayModuleFolders(_root, Template(), ["crop-planning"]).ShouldBe(
+            ["backend/src/Modules/Master.Migrations.SqlServer", "backend/tests/Master.Tests", "frontend/modules/master"], ignoreOrder: true);
+    }
+
+    [Fact]
+    public void The_modules_asked_for_are_remembered_for_a_repeated_run()
+    {
+        Write(InitCommand.Marker, "This repository is the solution template.\n");
+
+        InitCommand.RememberModules(_root, ["crop-planning", "livestock"]);
+        InitCommand.RememberedModules(_root).ShouldBe(["crop-planning", "livestock"]);
+        File.ReadAllText(Path.Combine(_root, InitCommand.Marker)).ShouldStartWith("This repository is the solution template.");
+
+        // A repeated run with no options adds them; --modules on it adds more.
+        var resumed = InitAnswers.From(Template(), InitOptions.Parse(["--modules", "orchards"]), InitCommand.RememberedModules(_root));
+        resumed.Modules.ShouldBe(["crop-planning", "livestock", "orchards"]);
+    }
+
+    [Fact]
     public void A_byte_order_mark_is_kept()
     {
         var file = Write("a.cs", Pascal, bom: true);

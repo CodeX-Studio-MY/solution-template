@@ -14,7 +14,9 @@ const out = join(root, "dist");
 await rm(out, { recursive: true, force: true });
 await cp(join(root, "apps", "shell", "dist"), join(out, "shell"), { recursive: true });
 
-for (const entry of await readdir(join(root, "modules"), { withFileTypes: true })) {
+// A product with no business module yet has no modules to stage (and git keeps no empty folder).
+const modules = join(root, "modules");
+for (const entry of existsSync(modules) ? await readdir(modules, { withFileTypes: true }) : []) {
   const dist = join(root, "modules", entry.name, "dist");
   if (!entry.isDirectory() || !existsSync(dist)) continue;
   const target = join(out, "mfe", entry.name, version);
