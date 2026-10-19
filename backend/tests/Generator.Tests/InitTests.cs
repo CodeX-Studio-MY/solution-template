@@ -106,8 +106,23 @@ public sealed class InitTests : IDisposable
             "frontend/modules/crop-planning", "frontend/modules/lint-fixture-a" })
             Directory.CreateDirectory(Path.Combine(_root, dir));
 
-        InitCommand.StrayModuleFolders(_root, Template(), ["crop-planning"]).ShouldBe(
+        ModuleFolders.Strays(_root, Template(), ["crop-planning"]).ShouldBe(
             ["backend/src/Modules/Master.Migrations.SqlServer", "backend/tests/Master.Tests", "frontend/modules/master"], ignoreOrder: true);
+    }
+
+    [Fact]
+    public void A_stray_module_folder_is_left_out_of_the_solution()
+    {
+        Write("backend/src/Hosts/Identity.Host/Identity.Host.csproj", "<Project />");
+        Write("backend/src/Hosts/Master.Host/Master.Host.csproj", "<Project />");   // written back by an editor, say
+        var platform = Template();
+        var files = new GeneratedFiles(_root);
+
+        Emitters.SolutionEmitter.Emit(platform, files);
+
+        var solution = files.Files[$"backend/{platform.Product}.slnx"];
+        solution.ShouldContain("src/Hosts/Identity.Host/Identity.Host.csproj");
+        solution.ShouldNotContain("Master.Host");
     }
 
     [Fact]

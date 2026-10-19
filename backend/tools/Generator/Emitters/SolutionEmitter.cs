@@ -2,7 +2,10 @@ using System.Text;
 
 namespace Saaskit.Generator.Emitters;
 
-/// <summary>backend/{product}.slnx: every project under backend/, so a new module never needs a manual solution edit.</summary>
+/// <summary>
+/// backend/{product}.slnx: every project under backend/, so a new module never needs a manual solution edit, except those in folders
+/// that belong to no module in platform.yaml (see <see cref="ModuleFolders"/>), which would break the build.
+/// </summary>
 internal static class SolutionEmitter
 {
     public static void Emit(PlatformDefinition platform, GeneratedFiles files)
@@ -15,8 +18,15 @@ internal static class SolutionEmitter
         var generated = files.Files.Keys
             .Where(p => p.StartsWith("backend/", StringComparison.Ordinal) && p.EndsWith(".csproj", StringComparison.Ordinal))
             .Select(p => p["backend/".Length..]);
+        var strays = ModuleFolders.Strays(files.RepoRoot, platform, [])
+            .Where(s => s.StartsWith("backend/", StringComparison.Ordinal))
+            .Select(s => s["backend/".Length..] + "/")
+            .ToList();
+        foreach (var stray in strays)
+            Console.WriteLine($"Left out of the solution: backend/{stray} belongs to no module in platform.yaml (delete it if it is left over).");
         var projects = onDisk.Concat(generated)
             .Where(p => !p.StartsWith("templates/", StringComparison.Ordinal))
+            .Where(p => !strays.Any(s => p.StartsWith(s, StringComparison.Ordinal)))
             .Distinct(StringComparer.Ordinal)
             .OrderBy(p => p, StringComparer.Ordinal)
             .ToList();

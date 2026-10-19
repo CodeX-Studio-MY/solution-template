@@ -40,11 +40,9 @@ internal static partial class InitCommand
         var answers = resuming ? InitAnswers.From(current, options, RememberedModules(repoRoot)) : InitAnswers.Ask(current, options);
 
         Preflight(options);
-        var strays = StrayModuleFolders(repoRoot, PlatformDefinition.Load(platformPath), answers.Modules);
+        var strays = ModuleFolders.Strays(repoRoot, PlatformDefinition.Load(platformPath), answers.Modules);
         if (strays.Count > 0)
-            throw new PlatformDefinitionException(
-                "These folders are left over from an earlier run and belong to no module in platform.yaml:\n  " + string.Join("\n  ", strays) +
-                "\nDelete them (they are not tracked by git), then run scripts/generate again.");
+            throw new PlatformDefinitionException(ModuleFolders.Explain(strays));
         // A module key the platform's code already uses as a string would fail the architecture tests at the end: refuse it now.
         if (!resuming)
         {
@@ -114,6 +112,10 @@ internal static partial class InitCommand
         Generator(repoRoot, ["generate", .. compose]);
 
         // 3. A first check that what was generated builds and follows the rules. The integration tests need Docker and take longer.
+        //    Folders can appear while this runs (an editor saving a tab of a deleted file), so they are checked again first.
+        var late = ModuleFolders.Strays(repoRoot, PlatformDefinition.Load(platformPath), []);
+        if (late.Count > 0)
+            throw new PlatformDefinitionException(ModuleFolders.Explain(late));
         if (!options.SkipChecks)
         {
             Step("dotnet", repoRoot, "build", $"backend/{answers.Product}.slnx");
@@ -287,38 +289,6 @@ internal static partial class InitCommand
         if (modules.Count > 0)
             lines.Add($"{ModulesLine} {string.Join(",", modules)}");
         File.WriteAllText(marker, string.Join('\n', lines) + "\n", new UTF8Encoding(false));
-    }
-
-    /// <summary>
-    /// Module folders (backend module, migrations, host, tests, frontend module) whose module is neither in platform.yaml nor about
-    /// to be added: what an earlier, abandoned run left behind. They would be built, scanned and renamed with the product otherwise.
-    /// </summary>
-    internal static IReadOnlyList<string> StrayModuleFolders(string repoRoot, PlatformDefinition platform, IEnumerable<string> adding)
-    {
-        var keys = platform.Services.Select(s => s.Key).Concat(platform.Modules.Select(m => m.Key)).Concat(adding).ToHashSet(StringComparer.Ordinal);
-        var pascal = keys.Select(Naming.Pascal).ToHashSet(StringComparer.Ordinal);
-        // Folders of the platform that aren't named after a key.
-        string[] platformFolders = ["AllInOne.Host", "Architecture.Tests", "Core.Tests", "Generator.Tests", "Integration.Tests", "TestSupport"];
-
-        static IEnumerable<string> Folders(string path) =>
-            Directory.Exists(path) ? Directory.EnumerateDirectories(path).Select(Path.GetFileName).OfType<string>() : [];
-
-        var strays = new List<string>();
-        foreach (var (folder, nameOf) in new (string, Func<string, string>)[]
-        {
-            ("backend/src/Modules", name => name.Split('.')[0]),
-            ("backend/src/Hosts", name => name.Split('.')[0]),
-            ("backend/tests", name => name.Split('.')[0]),
-        })
-        {
-            strays.AddRange(Folders(Path.Combine(repoRoot, folder))
-                .Where(name => !platformFolders.Contains(name) && !pascal.Contains(nameOf(name)))
-                .Select(name => $"{folder}/{name}"));
-        }
-        strays.AddRange(Folders(Path.Combine(repoRoot, "frontend", "modules"))
-            .Where(name => !keys.Contains(name) && !name.StartsWith("lint-fixture-", StringComparison.Ordinal))
-            .Select(name => $"frontend/modules/{name}"));
-        return strays;
     }
 
     /// <summary>Whether the module's first migration exists for every database provider.</summary>
