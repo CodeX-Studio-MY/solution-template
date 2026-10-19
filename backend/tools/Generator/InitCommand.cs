@@ -1,7 +1,7 @@
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace Farm360.Generator;
+namespace Saaskit.Generator;
 
 /// <summary>
 /// <c>scripts/generate</c> on a fresh copy of the template (the <c>.template</c> marker is there): scaffolds the product. It asks for
@@ -40,6 +40,12 @@ internal static partial class InitCommand
         var answers = resuming ? InitAnswers.From(current, options) : InitAnswers.Ask(current, options);
 
         Preflight(options);
+        // A module key the platform's code already uses as a string would fail the architecture tests at the end: refuse it now.
+        if (!resuming)
+        {
+            foreach (var module in answers.Modules)
+                KeyCollisions.Check(repoRoot, module);
+        }
 
         // It changes this folder in place, so say which one, in case this is the template's own clone. Only --yes skips the question:
         // without an answer (no input, or input that isn't "y") nothing changes.
@@ -80,12 +86,13 @@ internal static partial class InitCommand
         // A module an earlier run added to platform.yaml but stopped before its migrations is resumed, not added again.
         var existing = PlatformDefinition.Load(platformPath).Modules.Select(m => m.Key).ToHashSet(StringComparer.Ordinal);
         string[] compose = skipCompose ? ["--skip-compose"] : [];
+        string[] moduleOptions = [.. compose, "--no-catalog-migration"];   // the catalog is recreated once, below
         foreach (var module in answers.Modules)
         {
             if (!existing.Contains(module))
-                Generator(repoRoot, ["new-module", module, .. compose]);
+                Generator(repoRoot, ["new-module", module, .. moduleOptions]);
             else if (!HasModuleMigrations(repoRoot, module))
-                Generator(repoRoot, ["new-module", module, "--resume", .. compose]);
+                Generator(repoRoot, ["new-module", module, "--resume", .. moduleOptions]);
         }
         RecreateCatalogMigrations(repoRoot);
         Generator(repoRoot, ["generate", .. compose]);
@@ -219,8 +226,15 @@ internal static partial class InitCommand
     }
 
     /// <summary>Runs the generator as a new process, so it is built from the code as it now is on disk.</summary>
+    /// <remarks>
+    /// It builds into its own folder: this process is still running from bin/, and Windows won't let a build replace or delete files
+    /// that a running program has loaded.
+    /// </remarks>
     private static void Generator(string repoRoot, string[] arguments) =>
-        Step("dotnet", repoRoot, ["run", "--project", "backend/tools/Generator", "--", .. arguments]);
+        Step("dotnet", repoRoot, ["run", "--project", "backend/tools/Generator", "--property:OutDir=" + ChildOutput(repoRoot), "--", .. arguments]);
+
+    private static string ChildOutput(string repoRoot) =>
+        Path.Combine(repoRoot, "backend", "tools", "Generator", "bin", "init") + Path.DirectorySeparatorChar;
 
     private static void Commit(string repoRoot, string product)
     {
@@ -366,8 +380,8 @@ internal sealed record InitAnswers(
     {
         foreach (var module in Modules)
         {
-            if (!Farm360.Core.Platform.KeyRules.Pattern.IsMatch(module) || Farm360.Core.Platform.KeyRules.Reserved.Contains(module))
-                throw new PlatformDefinitionException($"'{module}' is not a valid module key: it must match {Farm360.Core.Platform.KeyRules.Pattern} and not be reserved.");
+            if (!Saaskit.Core.Platform.KeyRules.Pattern.IsMatch(module) || Saaskit.Core.Platform.KeyRules.Reserved.Contains(module))
+                throw new PlatformDefinitionException($"'{module}' is not a valid module key: it must match {Saaskit.Core.Platform.KeyRules.Pattern} and not be reserved.");
             // A business module an earlier run added (a service of the same key that owns it) is resumed; any other existing key is
             // one of the platform's own services or modules.
             var service = platform.Services.FirstOrDefault(s => s.Key == module);

@@ -7,4 +7,5 @@
 set -eu
 cd "$(dirname "$0")/.."
 PATH="$HOME/.local/bin:$PATH"
-exec dotnet run --project backend/tools/Generator -- new-module "$@"
+# The generator builds into its own folder, so building the solution never has to replace files it is running from.
+exec dotnet run --project backend/tools/Generator "--property:OutDir=$(pwd)/backend/tools/Generator/bin/run/" -- new-module "$@"

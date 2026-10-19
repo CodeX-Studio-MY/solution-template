@@ -4,5 +4,6 @@
 # the rest of the message, so it stays 'Continue'; the exit code is passed on.
 $ErrorActionPreference = 'Continue'
 Set-Location (Join-Path $PSScriptRoot '..') -ErrorAction Stop
-dotnet run --project backend/tools/Generator -- add-postgresql @args
+# The generator builds into its own folder, so building the solution never has to replace files it is running from.
+dotnet run --project backend/tools/Generator "--property:OutDir=$PWD/backend/tools/Generator/bin/run/" -- add-postgresql @args
 exit $LASTEXITCODE

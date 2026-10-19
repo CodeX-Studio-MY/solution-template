@@ -14,12 +14,14 @@ internal static class NewModuleCommand
 {
     public static int Run(string repoRoot, string[] args)
     {
-        var key = args.FirstOrDefault(a => !a.StartsWith("--", StringComparison.Ordinal)) ?? throw new PlatformDefinitionException("Usage: scripts/new-module <module-key> [--name \"Display Name\"] [--no-frontend] [--skip-compose] [--resume]");
+        var key = args.FirstOrDefault(a => !a.StartsWith("--", StringComparison.Ordinal)) ?? throw new PlatformDefinitionException("Usage: scripts/new-module <module-key> [--name \"Display Name\"] [--no-frontend] [--skip-compose] [--resume] [--no-catalog-migration]");
         var displayName = Option(args, "--name") ?? DisplayName(key);
         var withFrontend = !args.Contains("--no-frontend");
         var skipCompose = args.Contains("--skip-compose");
         // --resume: the module is already in platform.yaml and on disk (an earlier run stopped part-way); finish the remaining steps.
         var resume = args.Contains("--resume");
+        // --no-catalog-migration: the caller makes the catalog's migration itself (scripts/generate on the template recreates it once).
+        var catalogMigration = !args.Contains("--no-catalog-migration");
 
         var platform = PlatformDefinition.Load(Path.Combine(repoRoot, "platform.yaml"));
         var pascal = Naming.Pascal(key);
@@ -32,6 +34,7 @@ internal static class NewModuleCommand
         else
         {
             Check(platform, key);
+            KeyCollisions.Check(repoRoot, key);
             var port = Math.Max(5100, platform.Services.Max(s => s.Port)) + 1;
             var frontendPort = 3100 + platform.Modules.Count + 1;
 
@@ -66,7 +69,7 @@ internal static class NewModuleCommand
 
             // The catalog lists every module and which plans include it (seed data from platform.yaml), so it changes too.
             var catalog = $"src/Core.Catalog.Migrations.{provider.Suffix}";
-            if (!HasMigration(Path.Combine(backend, catalog, "Migrations", "Catalog"), $"Module{pascal}"))
+            if (catalogMigration && !HasMigration(Path.Combine(backend, catalog, "Migrations", "Catalog"), $"Module{pascal}"))
             {
                 Run("dotnet", backend, "restore", catalog);
                 Run("dotnet", backend, "ef", "migrations", "add", $"Module{pascal}", "-p", catalog, "-s", catalog, "-c", "CatalogDbContext", "-o", "Migrations/Catalog");

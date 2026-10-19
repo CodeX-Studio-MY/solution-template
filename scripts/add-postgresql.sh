@@ -3,4 +3,5 @@
 # Usage: scripts/add-postgresql.sh [--skip-compose] [--skip-api]
 set -eu
 cd "$(dirname "$0")/.."
-exec dotnet run --project backend/tools/Generator -- add-postgresql "$@"
+# The generator builds into its own folder, so building the solution never has to replace files it is running from.
+exec dotnet run --project backend/tools/Generator "--property:OutDir=$(pwd)/backend/tools/Generator/bin/run/" -- add-postgresql "$@"

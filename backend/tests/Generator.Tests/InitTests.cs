@@ -108,6 +108,17 @@ public sealed class InitTests : IDisposable
         Should.Throw<PlatformDefinitionException>(() => (Answers() with { Currency = "ringgit" }).Validate(Template()));
 
     [Fact]
+    public void A_key_the_platform_already_uses_as_a_name_is_refused()
+    {
+        // SQL Server's system database: a module named "master" would fail the hard-coded-key architecture test.
+        KeyCollisions.Find(RepoRoot.Find(), "master").ShouldNotBeEmpty();
+        Should.Throw<PlatformDefinitionException>(() => KeyCollisions.Check(RepoRoot.Find(), "master"));
+    }
+
+    [Fact]
+    public void An_ordinary_key_does_not_collide() => KeyCollisions.Find(RepoRoot.Find(), "crop-planning").ShouldBeEmpty();
+
+    [Fact]
     public void Template_only_sections_are_removed_from_the_readme()
     {
         var readme = $"# Title\n{InitCommand.TemplateSectionStart}\nStart a product.\n{InitCommand.TemplateSectionEnd}\n## Kept\n";

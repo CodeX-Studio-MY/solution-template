@@ -20,14 +20,17 @@ async function messages(code: string, file: string) {
 const fixtures = ["lint-fixture-a", "lint-fixture-b"];
 const moduleFile = `modules/${fixtures[0]}/src/pages/Example.tsx`;
 
-beforeAll(() => {
+beforeAll(async () => {
   for (const name of fixtures) {
     const dir = join(root, "modules", name, "src");
     if (existsSync(dir)) continue;
     mkdirSync(dir, { recursive: true });
     writeFileSync(join(dir, "manifest.ts"), "export {};\n");
   }
-});
+  // The first lint loads the type-aware config for the whole workspace, which takes long when there are many modules or the
+  // machine is busy. Pay that once here, with room to spare, so each test measures only its own rule.
+  await messages("export {};\n", moduleFile);
+}, 180_000);
 
 afterAll(() => {
   for (const name of fixtures) rmSync(join(root, "modules", name), { recursive: true, force: true });

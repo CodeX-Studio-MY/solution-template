@@ -10,5 +10,6 @@ Set-Location (Join-Path $PSScriptRoot '..') -ErrorAction Stop
 # PowerShell turns an unquoted list such as basic,pro into an array; pass it on as the comma-separated value it was typed as.
 $rest = @(foreach ($arg in $args) { if ($arg -is [array]) { $arg -join ',' } elseif ($arg -ne '--template') { $arg } })
 $command = if ((Test-Path .template) -and ($args -notcontains '--template') -and ($args -notcontains '--check')) { 'init' } else { 'generate' }
-dotnet run --project backend/tools/Generator -- $command @rest
+# The generator builds into its own folder, so building the solution never has to replace files it is running from.
+dotnet run --project backend/tools/Generator "--property:OutDir=$PWD/backend/tools/Generator/bin/run/" -- $command @rest
 exit $LASTEXITCODE

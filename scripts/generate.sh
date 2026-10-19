@@ -19,4 +19,5 @@ for arg in "$@"; do
   shift
   [ "$arg" = "--template" ] || set -- "$@" "$arg"
 done
-exec dotnet run --project backend/tools/Generator -- "$command" "$@"
+# The generator builds into its own folder, so building the solution never has to replace files it is running from.
+exec dotnet run --project backend/tools/Generator "--property:OutDir=$(pwd)/backend/tools/Generator/bin/run/" -- "$command" "$@"
