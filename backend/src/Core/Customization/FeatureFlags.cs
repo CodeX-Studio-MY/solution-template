@@ -1,9 +1,9 @@
-using Acme.Core.Tenancy;
+using Saaskit.Core.Tenancy;
 using OpenFeature;
 using OpenFeature.Constant;
 using OpenFeature.Model;
 
-namespace Acme.Core.Customization;
+namespace Saaskit.Core.Customization;
 
 /// <summary>The tenant's flag overrides, as the catalog holds them. Implemented by <c>Core.Catalog</c>.</summary>
 public interface ITenantFeatureStore
@@ -57,7 +57,7 @@ public sealed class CatalogFeatureProvider(ITenantFeatureStore store) : FeatureP
         Task.FromResult(new ResolutionDetails<Value>(flagKey, defaultValue, ErrorType.TypeMismatch, Reason.Error));
 }
 
-internal sealed class OpenFeatureFlags(FeatureProvider provider, ITenantContext tenant, Acme.Core.Security.ICurrentPrincipal principal) : IFeatureFlags
+internal sealed class OpenFeatureFlags(FeatureProvider provider, ITenantContext tenant, Saaskit.Core.Security.ICurrentPrincipal principal) : IFeatureFlags
 {
     public async Task<bool> IsEnabledAsync(string featureKey, CancellationToken cancellationToken = default)
     {

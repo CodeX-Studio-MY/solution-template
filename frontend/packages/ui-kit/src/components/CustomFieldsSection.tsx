@@ -3,7 +3,7 @@ import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { useTranslation } from "react-i18next";
-import { apiJson, useResource, type FieldError, type ServiceKey } from "@acme/web-core";
+import { apiJson, useResource, type FieldError, type ServiceKey } from "@saaskit/web-core";
 
 /** One extra field a tenant defined for an entity. The server validates the values; this only renders and collects them. */
 export interface CustomFieldDefinition {
@@ -20,7 +20,7 @@ export interface CustomFieldDefinition {
 export type CustomFieldValues = Record<string, string | null>;
 
 interface CustomFieldsSectionProps {
-  /** The entity whose fields to show (for example `purchase-request`). */
+  /** The entity whose fields to show (for example `goods-receipt`). */
   entity: string;
   /** The service that owns the definitions (default: the entity key, which is the service key for module entities). */
   service?: ServiceKey;

@@ -1,4 +1,4 @@
-namespace Acme.Core.Catalog.Entities;
+namespace Saaskit.Core.Catalog.Entities;
 
 /// <summary>A tenant's setting overrides for one module (a JSON object holding only the values that differ from the defaults).</summary>
 public sealed class TenantSetting

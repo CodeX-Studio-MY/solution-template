@@ -1,4 +1,4 @@
-namespace Acme.Core.Security;
+namespace Saaskit.Core.Security;
 
 /// <summary>
 /// The current <c>access_version</c> of each principal. Identity increments it when assignments, group membership

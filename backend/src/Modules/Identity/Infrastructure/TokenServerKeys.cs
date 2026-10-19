@@ -1,8 +1,8 @@
 using System.Security.Cryptography;
-using Acme.Core.Configuration;
+using Saaskit.Core.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Acme.Identity.Infrastructure;
+namespace Saaskit.Identity.Infrastructure;
 
 /// <summary>
 /// Loads the token server's keys from configuration (the secret store). The private key exists only in the Identity

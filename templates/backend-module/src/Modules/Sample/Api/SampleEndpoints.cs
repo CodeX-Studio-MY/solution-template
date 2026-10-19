@@ -1,14 +1,14 @@
-using Acme.Core.Authorization;
-using Acme.Core.Http;
-using Acme.Core.Platform;
-using Acme.Sample.Application;
-using Acme.Sample.Infrastructure;
+using Saaskit.Core.Authorization;
+using Saaskit.Core.Http;
+using Saaskit.Core.Platform;
+using Saaskit.Sample.Application;
+using Saaskit.Sample.Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 
-namespace Acme.Sample.Api;
+namespace Saaskit.Sample.Api;
 
 /// <summary>
 /// The HTTP surface, mounted under <c>/api/{module-key}</c> by the platform. Every endpoint requires a signed-in principal (the

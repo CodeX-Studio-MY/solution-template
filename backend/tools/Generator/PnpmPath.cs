@@ -1,4 +1,4 @@
-namespace Acme.Generator;
+namespace Saaskit.Generator;
 
 /// <summary>
 /// Where pnpm is: the <c>PNPM</c> environment variable, the standalone installer's <c>~/.local/bin/pnpm</c>, or the PATH.

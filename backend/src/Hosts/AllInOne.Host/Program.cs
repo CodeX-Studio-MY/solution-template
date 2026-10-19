@@ -1,5 +1,5 @@
-using Acme.AllInOne;
-using Acme.Core.Hosting;
+using Saaskit.AllInOne;
+using Saaskit.Core.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 

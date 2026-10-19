@@ -1,6 +1,6 @@
-using Acme.Core.Composition;
-using Acme.Core.Configuration;
-using Acme.Core.Security;
+using Saaskit.Core.Composition;
+using Saaskit.Core.Configuration;
+using Saaskit.Core.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -8,7 +8,7 @@ using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Acme.Core.Hosting.Auth;
+namespace Saaskit.Core.Hosting.Auth;
 
 /// <summary>
 /// Access token validation, identical in every service: ES256 only, keys only from the configured issuer,

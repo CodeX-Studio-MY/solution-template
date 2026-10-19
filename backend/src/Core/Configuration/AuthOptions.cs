@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Acme.Core.Configuration;
+namespace Saaskit.Core.Configuration;
 
 [OptionsSection("Auth", "How every service validates access tokens. The issuer is https://login.{Tenancy:BaseDomain}.")]
 public sealed record AuthOptions

@@ -1,5 +1,5 @@
 {
-  "name": "acme-frontend",
+  "name": "saaskit-frontend",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@12.10.1",
@@ -14,9 +14,9 @@
     "test": "turbo run test",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "e2e": "pnpm --filter @acme/e2e test",
+    "e2e": "pnpm --filter @saaskit/e2e test",
     "stage": "node scripts/stage.mjs",
-    "e2e:stack": "pnpm --filter @acme/e2e test:stack"
+    "e2e:stack": "pnpm --filter @saaskit/e2e test:stack"
   },
   "devDependencies": {
     "turbo": "catalog:",

@@ -1,15 +1,15 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
-using Acme.Core.Platform;
-using Acme.Identity.Application;
-using Acme.Identity.Domain;
-using Acme.Identity.Infrastructure;
+using Saaskit.Core.Platform;
+using Saaskit.Identity.Application;
+using Saaskit.Identity.Domain;
+using Saaskit.Identity.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.JsonWebTokens;
 
-namespace Acme.Integration.Tests;
+namespace Saaskit.Integration.Tests;
 
 /// <summary>RFC 8693 token exchange: audience exchange between modules, and a user delegated onto a machine.</summary>
 [Trait("service", "identity")]
@@ -17,7 +17,7 @@ public sealed class TokenExchangeTests(Databases databases)
 {
     private const string ExchangeGrant = "urn:ietf:params:oauth:grant-type:token-exchange";
     private const string AccessTokenType = "urn:ietf:params:oauth:token-type:access_token";
-    private const string ServiceClient = "acme-purchase-request";
+    private const string ServiceClient = PlatformInfo.Product + "-notification";
     private const string ServiceSecret = "service-test-secret";
 
     private static CancellationToken Ct => TestContext.Current.CancellationToken;
@@ -26,7 +26,7 @@ public sealed class TokenExchangeTests(Databases databases)
     {
         var host = await UserFlowTests.StartWithBffAsync(databases);
         await host.InTenantAsync("demo", sp => sp.GetRequiredService<IClientRegistry>()
-            .RegisterAsync(ServiceClient, "purchase-request", null, new ClientCredential(Secret: ServiceSecret), [ExchangeGrant], Ct));
+            .RegisterAsync(ServiceClient, "notification", null, new ClientCredential(Secret: ServiceSecret), [ExchangeGrant], Ct));
         var email = await UserFlowTests.CreateUserAsync(host, "tan@example.com", Role.Manager);
 
         var (verifier, challenge) = LoginBrowser.Pkce();
@@ -62,15 +62,15 @@ public sealed class TokenExchangeTests(Databases databases)
         var (host, userToken, userId) = await StartWithUserAsync(databases);
         await using var hostScope = host;
 
-        var response = await ExchangeAsync(host, userToken, PlatformServices.CostCenterBudget.Audience);
+        var response = await ExchangeAsync(host, userToken, PlatformServices.Notification.Audience);
         var body = await response.Content.ReadFromJsonAsync<JsonElement>(Ct);
         response.StatusCode.ShouldBe(HttpStatusCode.OK, body.ToString());
 
         var token = new JsonWebTokenHandler().ReadJsonWebToken(body.GetProperty("access_token").GetString());
-        token.Audiences.ShouldBe([PlatformServices.CostCenterBudget.Audience]);
+        token.Audiences.ShouldBe([PlatformServices.Notification.Audience]);
         token.Subject.ShouldBe(userId.ToString());   // the other module still sees the user
         token.GetClaim("principal_type").Value.ShouldBe("user");
-        token.GetClaim("roles").Value.ShouldBe("purchase-request:manager");
+        token.GetClaim("roles").Value.ShouldBe("tenant-settings:manager");
         token.TryGetClaim("act", out _).ShouldBeFalse();
     }
 
@@ -79,7 +79,7 @@ public sealed class TokenExchangeTests(Databases databases)
     {
         var (host, userToken, userId) = await StartWithUserAsync(databases);
         await using var hostScope = host;
-        var machineKey = await host.RegisterMachineAsync("demo", "demo-tablet", roles: [(Modules.PurchaseRequest, Role.Admin)]);
+        var machineKey = await host.RegisterMachineAsync("demo", "demo-tablet", roles: [(Modules.TenantSettings, Role.Admin)]);
         var kid = await host.InTenantAsync("demo", async sp =>
             new Microsoft.IdentityModel.Tokens.JsonWebKeySet((await sp.GetRequiredService<IdentityCatalogDbContext>().OidcApplications.SingleAsync(a => a.ClientId == "demo-tablet", Ct)).JsonWebKeySet).Keys.Single().Kid);
         var machineId = await host.InTenantAsync("demo", async sp => (await sp.GetRequiredService<IdentityDbContext>().Principals.SingleAsync(p => p.ClientId == "demo-tablet", Ct)).Id);
@@ -92,7 +92,7 @@ public sealed class TokenExchangeTests(Databases databases)
         }), Ct);
         var machineToken = (await machineResponse.Content.ReadFromJsonAsync<JsonElement>(Ct)).GetProperty("access_token").GetString()!;
 
-        var response = await ExchangeAsync(host, userToken, PlatformServices.PurchaseRequest.Audience, actorToken: machineToken);
+        var response = await ExchangeAsync(host, userToken, PlatformServices.Tenancy.Audience, actorToken: machineToken);
         var body = await response.Content.ReadFromJsonAsync<JsonElement>(Ct);
         response.StatusCode.ShouldBe(HttpStatusCode.OK, body.ToString());
 
@@ -101,7 +101,7 @@ public sealed class TokenExchangeTests(Databases databases)
         using var act = JsonDocument.Parse(token.GetClaim("act").Value);
         act.RootElement.GetProperty("sub").GetString().ShouldBe(machineId.ToString());
         // Authorized with the user's roles (manager), not the machine's (admin).
-        token.GetClaim("roles").Value.ShouldBe("purchase-request:manager");
+        token.GetClaim("roles").Value.ShouldBe("tenant-settings:manager");
 
         // The audit log records both the user and the machine.
         await host.InTenantAsync("demo", async sp =>
@@ -119,13 +119,13 @@ public sealed class TokenExchangeTests(Databases databases)
         await using var hostScope = host;
 
         // An actor token that is not a machine token we issued.
-        (await ExchangeAsync(host, userToken, PlatformServices.PurchaseRequest.Audience, actorToken: userToken)).StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        (await ExchangeAsync(host, userToken, PlatformServices.Tenancy.Audience, actorToken: userToken)).StatusCode.ShouldBe(HttpStatusCode.BadRequest);
         // A client without the token-exchange grant.
-        (await ExchangeAsync(host, userToken, PlatformServices.PurchaseRequest.Audience, client: "acme-bff", secret: "bff-test-secret")).StatusCode.ShouldNotBe(HttpStatusCode.OK);
+        (await ExchangeAsync(host, userToken, PlatformServices.Tenancy.Audience, client: PlatformClients.Bff, secret: "bff-test-secret")).StatusCode.ShouldNotBe(HttpStatusCode.OK);
         // An audience that isn't a platform service.
-        (await ExchangeAsync(host, userToken, "acme:something-else")).StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        (await ExchangeAsync(host, userToken, $"{PlatformInfo.Product}:something-else")).StatusCode.ShouldBe(HttpStatusCode.BadRequest);
         // Wrong client secret.
-        (await ExchangeAsync(host, userToken, PlatformServices.PurchaseRequest.Audience, secret: "nope")).StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+        (await ExchangeAsync(host, userToken, PlatformServices.Tenancy.Audience, secret: "nope")).StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
 
         // Once the user's access changes, the old token can no longer be exchanged.
         await host.InTenantAsync("demo", async sp =>
@@ -134,6 +134,6 @@ public sealed class TokenExchangeTests(Databases databases)
             (await db.Principals.SingleAsync(p => p.Id == userId, Ct)).BumpAccessVersion();
             await db.SaveChangesAsync(Ct);
         });
-        (await ExchangeAsync(host, userToken, PlatformServices.PurchaseRequest.Audience)).StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        (await ExchangeAsync(host, userToken, PlatformServices.Tenancy.Audience)).StatusCode.ShouldBe(HttpStatusCode.BadRequest);
     }
 }

@@ -1,4 +1,4 @@
-import { useFormatters } from "@acme/web-core";
+import { useFormatters } from "@saaskit/web-core";
 
 interface MoneyTextProps {
   amount: number | string;

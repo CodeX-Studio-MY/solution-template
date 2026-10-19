@@ -1,15 +1,14 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
-using Acme.Contracts;
-using Acme.Core.Catalog;
-using Acme.Core.Platform;
-using Acme.Tenancy.Application;
-using Acme.Tenancy.Infrastructure;
+using Saaskit.Core.Catalog;
+using Saaskit.Core.Platform;
+using Saaskit.Tenancy.Application;
+using Saaskit.Tenancy.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Acme.Integration.Tests;
+namespace Saaskit.Integration.Tests;
 
 /// <summary>Rungs 1 and 2: a tenant's settings and feature flags are data, edited by operators and (the allowed ones) by the tenant's own admin, and audited.</summary>
 [Trait("service", "tenancy")]
@@ -45,7 +44,7 @@ public sealed class TenantCustomizationTests(Databases databases)
 
     private static async Task<Guid> OnboardAsync(HttpClient op, string slug)
     {
-        var result = await Read(await op.PostAsJsonAsync($"{Api}/operator/tenants", new { slug, displayName = slug, plan = Plans.Standard, adminEmail = $"admin@{slug}.example.com", adminName = "Admin" }, Ct), HttpStatusCode.Created);
+        var result = await Read(await op.PostAsJsonAsync($"{Api}/operator/tenants", new { slug, displayName = slug, plan = Fixture.BasePlan, adminEmail = $"admin@{slug}.example.com", adminName = "Admin" }, Ct), HttpStatusCode.Created);
         return result.GetProperty("tenantId").GetGuid();
     }
 
@@ -58,7 +57,7 @@ public sealed class TenantCustomizationTests(Databases databases)
 
         var ui = await Read(await Caller(host, tenantId, "fresh", $"{Modules.TenantSettings}:user").GetAsync($"{Api}/me/settings", Ct));
         ui.GetProperty("branding").GetProperty("primaryColor").GetString().ShouldBe("");
-        ui.GetProperty("features").GetProperty(PurchaseRequestFeatures.DraftSharing).GetBoolean().ShouldBeFalse();
+        ui.GetProperty("features").GetProperty(FixtureFeatures.DraftSharing).GetBoolean().ShouldBeFalse();
     }
 
     [Fact]
@@ -68,14 +67,14 @@ public sealed class TenantCustomizationTests(Databases databases)
         var op = await OperatorAsync(host);
         var tenantId = await OnboardAsync(op, "plus");
 
-        var changed = await Read(await op.PutAsJsonAsync($"{Api}/operator/tenants/{tenantId}/settings/{Modules.PurchaseRequest}",
+        var changed = await Read(await op.PutAsJsonAsync($"{Api}/operator/tenants/{tenantId}/settings/{Fixture.Entitled}",
             new { autoApproveBelow = 200, approvalPolicy = "two-level" }, Ct));
         changed.GetProperty("values").GetProperty("autoApproveBelow").GetDecimal().ShouldBe(200m);
         changed.GetProperty("values").GetProperty("approvalPolicy").GetString().ShouldBe("two-level");
         changed.GetProperty("values").GetProperty("secondApprovalAbove").GetDecimal().ShouldBe(5000m, "what the tenant didn't set stays at the default");
 
         // The stored override has only what differs; a null puts a setting back to its default.
-        var reset = await Read(await op.PutAsJsonAsync($"{Api}/operator/tenants/{tenantId}/settings/{Modules.PurchaseRequest}", new { approvalPolicy = (string?)null }, Ct));
+        var reset = await Read(await op.PutAsJsonAsync($"{Api}/operator/tenants/{tenantId}/settings/{Fixture.Entitled}", new { approvalPolicy = (string?)null }, Ct));
         reset.GetProperty("values").GetProperty("approvalPolicy").GetString().ShouldBe("single");
         reset.GetProperty("overrides").EnumerateObject().Select(p => p.Name).ShouldBe(["autoApproveBelow"]);
 
@@ -91,7 +90,7 @@ public sealed class TenantCustomizationTests(Databases databases)
         await using var host = await TenancyTestHost.StartAsync(databases);
         var op = await OperatorAsync(host);
         var tenantId = await OnboardAsync(op, "bad");
-        var url = $"{Api}/operator/tenants/{tenantId}/settings/{Modules.PurchaseRequest}";
+        var url = $"{Api}/operator/tenants/{tenantId}/settings/{Fixture.Entitled}";
 
         (await op.PutAsJsonAsync(url, new { autoApproveBelow = -5 }, Ct)).StatusCode.ShouldBe(HttpStatusCode.BadRequest);
         (await op.PutAsJsonAsync(url, new { approvalPolicy = "does-not-exist" }, Ct)).StatusCode.ShouldBe(HttpStatusCode.BadRequest);
@@ -112,16 +111,16 @@ public sealed class TenantCustomizationTests(Databases databases)
         var branding = await Read(await admin.PutAsJsonAsync($"{Api}/settings/{Modules.TenantSettings}", new { primaryColor = "#aa3300" }, Ct));
         branding.GetProperty("values").GetProperty("primaryColor").GetString().ShouldBe("#aa3300");
 
-        // The approval strategy is the operator's call, not the tenant's.
-        var strategy = await admin.PutAsJsonAsync($"{Api}/settings/{Modules.PurchaseRequest}", new { approvalPolicy = "two-level" }, Ct);
+        // The strategy is the operator's call, not the tenant's.
+        var strategy = await admin.PutAsJsonAsync($"{Api}/settings/{Fixture.Entitled}", new { approvalPolicy = "two-level" }, Ct);
         strategy.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
         // The threshold is one the tenant may set itself.
-        (await admin.PutAsJsonAsync($"{Api}/settings/{Modules.PurchaseRequest}", new { autoApproveBelow = 250 }, Ct)).StatusCode.ShouldBe(HttpStatusCode.OK);
+        (await admin.PutAsJsonAsync($"{Api}/settings/{Fixture.Entitled}", new { autoApproveBelow = 250 }, Ct)).StatusCode.ShouldBe(HttpStatusCode.OK);
 
         // The UI sees branding straight away; settings not exposed to the UI stay out of it.
         var ui = await Read(await Caller(host, tenantId, "self", $"{Modules.TenantSettings}:user").GetAsync($"{Api}/me/settings", Ct));
         ui.GetProperty("branding").GetProperty("primaryColor").GetString().ShouldBe("#aa3300");
-        ui.GetProperty("values").TryGetProperty(Modules.PurchaseRequest, out _).ShouldBeFalse();
+        ui.GetProperty("values").TryGetProperty(Fixture.Entitled, out _).ShouldBeFalse();
 
         // Ordinary users can't read or change settings.
         var user = Caller(host, tenantId, "self", $"{Modules.TenantSettings}:user");
@@ -137,22 +136,22 @@ public sealed class TenantCustomizationTests(Databases databases)
         var one = await OnboardAsync(op, "flag-one");
         var two = await OnboardAsync(op, "flag-two");
 
-        var on = await Read(await op.PutAsJsonAsync($"{Api}/operator/tenants/{one}/features/{PurchaseRequestFeatures.DraftSharing}", new { enabled = true }, Ct));
+        var on = await Read(await op.PutAsJsonAsync($"{Api}/operator/tenants/{one}/features/{FixtureFeatures.DraftSharing}", new { enabled = true }, Ct));
         on.GetProperty("effective").GetBoolean().ShouldBeTrue();
 
-        (await Read(await Caller(host, one, "flag-one", $"{Modules.TenantSettings}:user").GetAsync($"{Api}/me/settings", Ct))).GetProperty("features").GetProperty(PurchaseRequestFeatures.DraftSharing).GetBoolean().ShouldBeTrue();
-        (await Read(await Caller(host, two, "flag-two", $"{Modules.TenantSettings}:user").GetAsync($"{Api}/me/settings", Ct))).GetProperty("features").GetProperty(PurchaseRequestFeatures.DraftSharing).GetBoolean().ShouldBeFalse();
+        (await Read(await Caller(host, one, "flag-one", $"{Modules.TenantSettings}:user").GetAsync($"{Api}/me/settings", Ct))).GetProperty("features").GetProperty(FixtureFeatures.DraftSharing).GetBoolean().ShouldBeTrue();
+        (await Read(await Caller(host, two, "flag-two", $"{Modules.TenantSettings}:user").GetAsync($"{Api}/me/settings", Ct))).GetProperty("features").GetProperty(FixtureFeatures.DraftSharing).GetBoolean().ShouldBeFalse();
 
         // Back to the default with a null.
-        var back = await Read(await op.PutAsJsonAsync($"{Api}/operator/tenants/{one}/features/{PurchaseRequestFeatures.DraftSharing}", new { enabled = (bool?)null }, Ct));
+        var back = await Read(await op.PutAsJsonAsync($"{Api}/operator/tenants/{one}/features/{FixtureFeatures.DraftSharing}", new { enabled = (bool?)null }, Ct));
         back.GetProperty("override").ValueKind.ShouldBe(JsonValueKind.Null);
         back.GetProperty("effective").GetBoolean().ShouldBeFalse();
 
         (await op.PutAsJsonAsync($"{Api}/operator/tenants/{one}/features/not-a-flag", new { enabled = true }, Ct)).StatusCode.ShouldBe(HttpStatusCode.NotFound);
 
         var admin = Caller(host, one, "flag-one", $"{Modules.TenantSettings}:admin");
-        (await Read(await admin.GetAsync($"{Api}/features", Ct))).EnumerateArray().Select(f => f.GetProperty("key").GetString()).ShouldContain(PurchaseRequestFeatures.DraftSharing);
-        (await admin.PutAsJsonAsync($"{Api}/features/{PurchaseRequestFeatures.DraftSharing}", new { enabled = true }, Ct)).StatusCode.ShouldBe(HttpStatusCode.NotFound);
+        (await Read(await admin.GetAsync($"{Api}/features", Ct))).EnumerateArray().Select(f => f.GetProperty("key").GetString()).ShouldContain(FixtureFeatures.DraftSharing);
+        (await admin.PutAsJsonAsync($"{Api}/features/{FixtureFeatures.DraftSharing}", new { enabled = true }, Ct)).StatusCode.ShouldBe(HttpStatusCode.NotFound);
     }
 
     [Fact]
@@ -162,7 +161,7 @@ public sealed class TenantCustomizationTests(Databases databases)
         var op = await OperatorAsync(host);
         var a = await OnboardAsync(op, "iso-a");
         var b = await OnboardAsync(op, "iso-b");
-        await op.PutAsJsonAsync($"{Api}/operator/tenants/{a}/settings/{Modules.PurchaseRequest}", new { autoApproveBelow = 999 }, Ct);
+        await op.PutAsJsonAsync($"{Api}/operator/tenants/{a}/settings/{Fixture.Entitled}", new { autoApproveBelow = 999 }, Ct);
 
         await using var scope = host.Services.CreateAsyncScope();
         var catalog = scope.ServiceProvider.GetRequiredService<CatalogDbContext>();

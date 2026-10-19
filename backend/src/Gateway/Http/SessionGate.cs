@@ -1,10 +1,10 @@
-using Acme.Core.Tenancy;
-using Acme.Gateway.Proxy;
-using Acme.Gateway.Sessions;
+using Saaskit.Core.Tenancy;
+using Saaskit.Gateway.Proxy;
+using Saaskit.Gateway.Sessions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Acme.Gateway.Http;
+namespace Saaskit.Gateway.Http;
 
 /// <summary>Context item keys shared between the gate and the proxy transforms.</summary>
 internal static class SessionItems

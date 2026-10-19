@@ -1,4 +1,4 @@
-namespace Acme.Identity.Application;
+namespace Saaskit.Identity.Application;
 
 /// <summary>How a machine or service client authenticates at the token endpoint.</summary>
 /// <param name="PublicKeyJwk">The client's public key as a JWK (<c>private_key_jwt</c>, RFC 7523); the private key never leaves the client.</param>

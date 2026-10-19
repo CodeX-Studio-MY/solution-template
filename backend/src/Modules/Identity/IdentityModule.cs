@@ -1,12 +1,12 @@
-using Acme.Core.Composition;
-using Acme.Core.Data;
-using Acme.Core.Platform;
-using Acme.Identity.Api;
-using Acme.Identity.Infrastructure;
+using Saaskit.Core.Composition;
+using Saaskit.Core.Data;
+using Saaskit.Core.Platform;
+using Saaskit.Identity.Api;
+using Saaskit.Identity.Infrastructure;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Hosting;
 
-namespace Acme.Identity;
+namespace Saaskit.Identity;
 
 /// <summary>Token server, users, machines, service clients, groups and module roles.</summary>
 public sealed class IdentityModule : IPlatformModule

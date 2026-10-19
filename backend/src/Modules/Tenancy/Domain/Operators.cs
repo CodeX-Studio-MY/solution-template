@@ -1,7 +1,7 @@
-using Acme.Core.Data;
-using Acme.Core.Platform;
+using Saaskit.Core.Data;
+using Saaskit.Core.Platform;
 
-namespace Acme.Tenancy.Domain;
+namespace Saaskit.Tenancy.Domain;
 
 /// <summary>
 /// A platform operator: our own support staff. A separate realm from every tenant's users, stored in the catalog.

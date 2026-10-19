@@ -1,7 +1,7 @@
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { useTranslation } from "react-i18next";
-import { apiJson, useResource, type ServiceKey } from "@acme/web-core";
+import { apiJson, useResource, type ServiceKey } from "@saaskit/web-core";
 import type { CustomFieldDefinition } from "./CustomFieldsSection";
 
 interface CustomFieldsSummaryProps {

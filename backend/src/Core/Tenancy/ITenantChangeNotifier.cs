@@ -1,4 +1,4 @@
-namespace Acme.Core.Tenancy;
+namespace Saaskit.Core.Tenancy;
 
 /// <summary>
 /// Tells every instance that a tenant's entitlements, settings, flags or status changed, so cached copies are dropped

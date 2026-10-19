@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Acme.Core.Data;
+namespace Saaskit.Core.Data;
 
 /// <summary>
 /// Everything that differs between database providers. Business code never sees it:

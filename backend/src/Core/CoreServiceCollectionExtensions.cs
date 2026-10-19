@@ -1,17 +1,17 @@
-using Acme.Core.Customization;
-using Acme.Core.Configuration;
-using Acme.Core.Data;
-using Acme.Core.Errors;
-using Acme.Core.Localization;
-using Acme.Core.Security;
-using Acme.Core.Tenancy;
-using Acme.Core.Time;
+using Saaskit.Core.Customization;
+using Saaskit.Core.Configuration;
+using Saaskit.Core.Data;
+using Saaskit.Core.Errors;
+using Saaskit.Core.Localization;
+using Saaskit.Core.Security;
+using Saaskit.Core.Tenancy;
+using Saaskit.Core.Time;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace Acme.Core;
+namespace Saaskit.Core;
 
 public static class CoreServiceCollectionExtensions
 {

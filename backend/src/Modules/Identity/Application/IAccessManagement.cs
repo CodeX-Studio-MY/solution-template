@@ -1,7 +1,7 @@
-using Acme.Core.Platform;
-using Acme.Core.Security;
+using Saaskit.Core.Platform;
+using Saaskit.Core.Security;
 
-namespace Acme.Identity.Application;
+namespace Saaskit.Identity.Application;
 
 public sealed record PrincipalDto(Guid Id, PrincipalType Type, string DisplayName, bool IsActive, string? ClientId, DateTime? LastSeenOn, string ETag);
 

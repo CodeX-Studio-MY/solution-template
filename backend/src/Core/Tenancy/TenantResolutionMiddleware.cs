@@ -1,12 +1,12 @@
 using System.Diagnostics;
-using Acme.Core.Configuration;
-using Acme.Core.Errors;
-using Acme.Core.Security;
+using Saaskit.Core.Configuration;
+using Saaskit.Core.Errors;
+using Saaskit.Core.Security;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Acme.Core.Tenancy;
+namespace Saaskit.Core.Tenancy;
 
 /// <summary>
 /// Resolves the tenant of a request. Runs after authentication.

@@ -1,10 +1,10 @@
 using System.Security.Claims;
-using Acme.Core.Platform;
-using Acme.Core.Security;
-using Acme.Core.Tenancy;
-using Acme.Identity.Application;
-using Acme.Identity.Infrastructure;
-using Acme.Identity.Infrastructure.OpenIddict;
+using Saaskit.Core.Platform;
+using Saaskit.Core.Security;
+using Saaskit.Core.Tenancy;
+using Saaskit.Identity.Application;
+using Saaskit.Identity.Infrastructure;
+using Saaskit.Identity.Infrastructure.OpenIddict;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
@@ -16,7 +16,7 @@ using Microsoft.Extensions.DependencyInjection;
 using OpenIddict.Abstractions;
 using OpenIddict.Server.AspNetCore;
 
-namespace Acme.Identity.Api;
+namespace Saaskit.Identity.Api;
 
 /// <summary>The OAuth 2.0 / OpenID Connect endpoints at the host root: authorize, token and logout.</summary>
 internal static class ConnectEndpoints
@@ -100,7 +100,7 @@ internal static class ConnectEndpoints
         }
 
         var ttl = application.TenantId is null || claims.GetPrincipalType() == PrincipalType.Service
-            ? TimeSpan.FromMinutes(services.GetRequiredService<Microsoft.Extensions.Options.IOptions<Acme.Core.Configuration.TokenServerOptions>>().Value.ServiceAccessTokenMinutes)
+            ? TimeSpan.FromMinutes(services.GetRequiredService<Microsoft.Extensions.Options.IOptions<Saaskit.Core.Configuration.TokenServerOptions>>().Value.ServiceAccessTokenMinutes)
             : (TimeSpan?)null;
         return SignIn(claims, request, audiences, ttl);
     }

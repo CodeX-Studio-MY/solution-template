@@ -1,12 +1,12 @@
 using System.Diagnostics;
 using System.Text.Json;
-using Acme.Core.Data;
-using Acme.Core.Tenancy;
+using Saaskit.Core.Data;
+using Saaskit.Core.Tenancy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Acme.Core.Messaging;
+namespace Saaskit.Core.Messaging;
 
 /// <summary>One consumer: which event, which handler, which module owns it, and which context holds its inbox.</summary>
 public sealed record EventConsumerRegistration(
@@ -39,7 +39,7 @@ public enum ConsumeOutcome
 /// </summary>
 public sealed partial class ConsumerPipeline(IServiceScopeFactory scopes, ITenantDirectory directory, TimeProvider time, ILogger<ConsumerPipeline> logger)
 {
-    private static readonly System.Diagnostics.ActivitySource Source = new("Acme.Core.Messaging");
+    private static readonly System.Diagnostics.ActivitySource Source = new("Saaskit.Core.Messaging");
 
     public async Task<ConsumeOutcome> ProcessAsync(EventConsumerRegistration registration, EventEnvelope envelope, CancellationToken cancellationToken)
     {

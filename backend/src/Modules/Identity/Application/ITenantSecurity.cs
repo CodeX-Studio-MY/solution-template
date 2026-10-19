@@ -1,4 +1,4 @@
-namespace Acme.Identity.Application;
+namespace Saaskit.Identity.Application;
 
 /// <summary>Platform operations on a tenant's security state, called by Tenancy (suspension, offboarding) with a service token.</summary>
 public interface ITenantSecurity

@@ -2,15 +2,15 @@
 #nullable enable
 using Microsoft.EntityFrameworkCore.Design;
 
-namespace Acme.Scheduler.Migrations.SqlServer;
+namespace Saaskit.Scheduler.Migrations.SqlServer;
 
 /// <summary>Lets <c>dotnet ef</c> build SchedulerStoreDbContext for SqlServer.</summary>
-internal sealed class SchedulerStoreDbContextDesignTimeFactory : IDesignTimeDbContextFactory<global::Acme.Scheduler.SchedulerStoreDbContext>
+internal sealed class SchedulerStoreDbContextDesignTimeFactory : IDesignTimeDbContextFactory<global::Saaskit.Scheduler.SchedulerStoreDbContext>
 {
-    public global::Acme.Scheduler.SchedulerStoreDbContext CreateDbContext(string[] args) =>
-        global::Acme.Core.Data.DbContextRegistration.Create<global::Acme.Scheduler.SchedulerStoreDbContext>(
+    public global::Saaskit.Scheduler.SchedulerStoreDbContext CreateDbContext(string[] args) =>
+        global::Saaskit.Core.Data.DbContextRegistration.Create<global::Saaskit.Scheduler.SchedulerStoreDbContext>(
             null,
-            new global::Acme.Core.Data.SqlServer.SqlServerDatabaseProvider(),
+            new global::Saaskit.Core.Data.SqlServer.SqlServerDatabaseProvider(),
             "Server=design-time;Database=design-time",
-            global::Acme.Scheduler.SchedulerStoreDbContext.SchemaName);
+            global::Saaskit.Scheduler.SchedulerStoreDbContext.SchemaName);
 }

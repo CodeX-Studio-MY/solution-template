@@ -2,7 +2,7 @@ using System.Globalization;
 using System.Text;
 using System.Text.Json;
 
-namespace Acme.Generator.Emitters;
+namespace Saaskit.Generator.Emitters;
 
 /// <summary>
 /// From the design tokens (frontend/packages/ui-kit/src/theme/tokens.ts, the single source for every visual decision):

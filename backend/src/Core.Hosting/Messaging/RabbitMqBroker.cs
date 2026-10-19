@@ -1,9 +1,9 @@
 using System.Diagnostics;
 using System.Text;
-using Acme.Core.Messaging;
+using Saaskit.Core.Messaging;
 using RabbitMQ.Client;
 
-namespace Acme.Core.Hosting.Messaging;
+namespace Saaskit.Core.Hosting.Messaging;
 
 /// <summary>
 /// Publishes with publisher confirms: <see cref="PublishAsync"/> returns only when the broker has taken responsibility for the
@@ -11,7 +11,7 @@ namespace Acme.Core.Hosting.Messaging;
 /// </summary>
 internal sealed class RabbitMqBroker(RabbitMqConnection connection) : IMessageBroker, IAsyncDisposable
 {
-    private static readonly ActivitySource Source = new("Acme.Core.Messaging");
+    private static readonly ActivitySource Source = new("Saaskit.Core.Messaging");
     private readonly SemaphoreSlim _gate = new(1, 1);
     private IChannel? _channel;
 

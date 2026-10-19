@@ -1,10 +1,10 @@
-using Acme.Core.Platform;
-using Acme.Identity.Application;
-using Acme.Identity.Domain;
+using Saaskit.Core.Platform;
+using Saaskit.Identity.Application;
+using Saaskit.Identity.Domain;
 using Microsoft.EntityFrameworkCore;
 using OpenIddict.Abstractions;
 
-namespace Acme.Identity.Infrastructure;
+namespace Saaskit.Identity.Infrastructure;
 
 internal sealed class TenantSecurity(IdentityDbContext db, IClientRegistry clients, IAuditWriter audit) : ITenantSecurity
 {

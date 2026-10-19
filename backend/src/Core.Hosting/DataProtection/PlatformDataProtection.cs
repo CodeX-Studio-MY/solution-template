@@ -1,8 +1,8 @@
 using System.Security.Cryptography;
 using System.Text;
 using System.Xml.Linq;
-using Acme.Core.Configuration;
-using Acme.Core.Platform;
+using Saaskit.Core.Configuration;
+using Saaskit.Core.Platform;
 using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.AspNetCore.DataProtection.XmlEncryption;
 using Microsoft.Extensions.Configuration;
@@ -10,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using StackExchange.Redis;
 
-namespace Acme.Core.Hosting.DataProtection;
+namespace Saaskit.Core.Hosting.DataProtection;
 
 /// <summary>
 /// The ASP.NET Core Data Protection key ring, shared by every instance in Redis and wrapped (AES-GCM) by a key from the

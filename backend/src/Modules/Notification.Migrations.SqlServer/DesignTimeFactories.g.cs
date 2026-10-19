@@ -2,15 +2,15 @@
 #nullable enable
 using Microsoft.EntityFrameworkCore.Design;
 
-namespace Acme.Notification.Migrations.SqlServer;
+namespace Saaskit.Notification.Migrations.SqlServer;
 
 /// <summary>Lets <c>dotnet ef</c> build NotificationDbContext for SqlServer.</summary>
-internal sealed class NotificationDbContextDesignTimeFactory : IDesignTimeDbContextFactory<global::Acme.Notification.Infrastructure.NotificationDbContext>
+internal sealed class NotificationDbContextDesignTimeFactory : IDesignTimeDbContextFactory<global::Saaskit.Notification.Infrastructure.NotificationDbContext>
 {
-    public global::Acme.Notification.Infrastructure.NotificationDbContext CreateDbContext(string[] args) =>
-        global::Acme.Core.Data.DbContextRegistration.Create<global::Acme.Notification.Infrastructure.NotificationDbContext>(
+    public global::Saaskit.Notification.Infrastructure.NotificationDbContext CreateDbContext(string[] args) =>
+        global::Saaskit.Core.Data.DbContextRegistration.Create<global::Saaskit.Notification.Infrastructure.NotificationDbContext>(
             null,
-            new global::Acme.Core.Data.SqlServer.SqlServerDatabaseProvider(),
+            new global::Saaskit.Core.Data.SqlServer.SqlServerDatabaseProvider(),
             "Server=design-time;Database=design-time",
-            global::Acme.Core.Platform.PlatformServices.Notification.Schema);
+            global::Saaskit.Core.Platform.PlatformServices.Notification.Schema);
 }

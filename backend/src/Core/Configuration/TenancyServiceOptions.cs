@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Acme.Core.Configuration;
+namespace Saaskit.Core.Configuration;
 
 [OptionsSection("Onboarding", "How the Tenancy module provisions, migrates and deletes tenants.")]
 public sealed record OnboardingOptions
@@ -12,7 +12,7 @@ public sealed record OnboardingOptions
     [Setting("Command that applies one tenant's migrations. Tenancy never applies migrations itself; the pipeline's Migrator does. {tenant} is replaced by the tenant ID.", Example = "dotnet")]
     public string MigratorCommand { get; init; } = "dotnet";
 
-    [Setting("Arguments for the migrator command. {tenant} is replaced by the tenant ID.", Example = "Acme.Migrator.dll --tenant {tenant}")]
+    [Setting("Arguments for the migrator command. {tenant} is replaced by the tenant ID.", Example = "Saaskit.Migrator.dll --tenant {tenant}")]
     public string MigratorArguments { get; init; } = "";
 
     [Range(0, 3650)]

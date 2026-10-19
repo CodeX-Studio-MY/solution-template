@@ -1,6 +1,6 @@
-using Acme.Core.Platform;
+using Saaskit.Core.Platform;
 
-namespace Acme.AppHost;
+namespace Saaskit.AppHost;
 
 /// <summary>
 /// The shared infrastructure for local development: the selected database, Valkey, RabbitMQ, object storage

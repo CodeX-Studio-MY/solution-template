@@ -1,8 +1,8 @@
-using Acme.Core.Platform;
-using Acme.Migrator;
+using Saaskit.Core.Platform;
+using Saaskit.Migrator;
 using Microsoft.EntityFrameworkCore;
 
-namespace Acme.Integration.Tests;
+namespace Saaskit.Integration.Tests;
 
 /// <summary>
 /// The model and the migrations of every context never drift apart, for every database provider (SAAS_TEMPLATE_PROMPT 4.13): a change

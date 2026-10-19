@@ -44,5 +44,5 @@ the result; CI fails if a derived file is out of date. Node 24 or later is neede
 
 ## Adding a module
 
-Copy `modules/purchase-request`, rename it to the module key from `platform.yaml`, and implement `src/manifest.ts`. (`scripts/new-module`
-does this and the backend side together in milestone 6.)
+Run `scripts/new-module <key>` from the repository root. It creates `modules/<key>` from `templates/frontend-module` together with the
+backend side, the gateway route and the typed API client; then implement `src/manifest.ts` and the pages.

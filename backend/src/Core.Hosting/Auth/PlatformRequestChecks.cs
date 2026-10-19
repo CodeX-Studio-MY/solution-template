@@ -1,16 +1,16 @@
 using System.Threading.RateLimiting;
-using Acme.Core.Configuration;
-using Acme.Core.Errors;
-using Acme.Core.Hosting.Redis;
-using Acme.Core.Security;
-using Acme.Core.Tenancy;
+using Saaskit.Core.Configuration;
+using Saaskit.Core.Errors;
+using Saaskit.Core.Hosting.Redis;
+using Saaskit.Core.Security;
+using Saaskit.Core.Tenancy;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 
-namespace Acme.Core.Hosting.Auth;
+namespace Saaskit.Core.Hosting.Auth;
 
 /// <summary>Rejects tokens whose <c>access_version</c> is stale (401). Runs after authentication and tenant resolution.</summary>
 internal sealed class AccessVersionMiddleware(RequestDelegate next)

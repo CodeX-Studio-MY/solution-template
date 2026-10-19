@@ -1,4 +1,4 @@
-namespace Acme.Core.Errors;
+namespace Saaskit.Core.Errors;
 
 /// <summary>
 /// One entry in a module's error catalog: a stable code, its HTTP status and the i18n key of its message.

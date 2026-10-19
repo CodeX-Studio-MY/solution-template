@@ -1,6 +1,6 @@
-using Acme.Core.Tenancy;
+using Saaskit.Core.Tenancy;
 
-namespace Acme.Tenancy.Domain;
+namespace Saaskit.Tenancy.Domain;
 
 /// <summary>
 /// The tenant lifecycle: Provisioning → Active → Suspended (read-only) → PendingDeletion → Deleted.

@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Acme.Core.Configuration;
+namespace Saaskit.Core.Configuration;
 
 [OptionsSection("Bff", "The Gateway acting as the web app's backend-for-frontend (RFC 10017): sessions, tokens and static files.")]
 public sealed record BffOptions

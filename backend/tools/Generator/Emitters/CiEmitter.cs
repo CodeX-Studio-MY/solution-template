@@ -1,7 +1,7 @@
 using System.Text;
 using System.Text.Json;
 
-namespace Acme.Generator.Emitters;
+namespace Saaskit.Generator.Emitters;
 
 /// <summary>
 /// .github/workflows/*.yml: one workflow per backend service and per frontend module, each with path filters, generated from

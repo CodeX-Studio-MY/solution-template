@@ -1,10 +1,10 @@
-namespace Acme.Generator.Tests;
+namespace Saaskit.Generator.Tests;
 
 public sealed class PlatformDefinitionTests
 {
     private static PlatformDefinition Valid() => new()
     {
-        Product = "acme",
+        Product = "saaskit",
         Org = "Org",
         Defaults = new DefaultsDefinition { Timezone = "Asia/Kuala_Lumpur", Currency = "MYR", Locales = ["en"] },
         Cloud = "azure",
@@ -13,10 +13,10 @@ public sealed class PlatformDefinitionTests
         Plans = ["standard", "plus"],
         Services =
         [
-            new ServiceDefinition { Key = "purchase-request", Port = 5101, Owns = ["purchase-request"] },
+            new ServiceDefinition { Key = "goods-receipt", Port = 5101, Owns = ["goods-receipt"] },
             new ServiceDefinition { Key = "notification", Port = 5003 },
         ],
-        Modules = [new ModuleDefinition { Key = "purchase-request", Name = "Purchase Requests", Plans = ["standard"] }],
+        Modules = [new ModuleDefinition { Key = "goods-receipt", Name = "Goods Receipts", Plans = ["standard"] }],
     };
 
     [Fact]
@@ -30,9 +30,9 @@ public sealed class PlatformDefinitionTests
     }
 
     [Theory]
-    [InlineData("PurchaseRequest")]
+    [InlineData("GoodsReceipt")]
     [InlineData("1abc")]
-    [InlineData("purchase_request")]
+    [InlineData("goods_receipt")]
     [InlineData("a-module-key-that-is-much-too-long")]
     public void Module_keys_must_match_the_pattern(string key)
     {
@@ -61,7 +61,7 @@ public sealed class PlatformDefinitionTests
     public void Duplicate_module_keys_are_rejected()
     {
         var definition = Valid();
-        definition.Modules.Add(new ModuleDefinition { Key = "purchase-request", Name = "Again", Plans = ["standard"] });
+        definition.Modules.Add(new ModuleDefinition { Key = "goods-receipt", Name = "Again", Plans = ["standard"] });
         Should.Throw<PlatformDefinitionException>(definition.Validate).Message.ShouldContain("more than once");
     }
 

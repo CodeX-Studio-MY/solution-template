@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Acme.Core.Configuration;
+namespace Saaskit.Core.Configuration;
 
 [OptionsSection("Redis", "The Redis-protocol store (Valkey locally) for cache, locks, rate limits and the SignalR backplane.")]
 public sealed record RedisOptions

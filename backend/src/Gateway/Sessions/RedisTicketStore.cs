@@ -1,12 +1,12 @@
-using Acme.Core.Configuration;
-using Acme.Core.Platform;
+using Saaskit.Core.Configuration;
+using Saaskit.Core.Platform;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Options;
 using StackExchange.Redis;
 
-namespace Acme.Gateway.Sessions;
+namespace Saaskit.Gateway.Sessions;
 
 /// <summary>
 /// Browser sessions kept server-side in Redis. The cookie holds only an opaque session ID; the ticket (claims and the

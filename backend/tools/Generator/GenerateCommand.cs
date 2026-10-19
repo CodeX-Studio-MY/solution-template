@@ -1,6 +1,6 @@
-using Acme.Generator.Emitters;
+using Saaskit.Generator.Emitters;
 
-namespace Acme.Generator;
+namespace Saaskit.Generator;
 
 /// <summary>Everything <c>scripts/generate</c> does, in order.</summary>
 internal static class GenerateCommand

@@ -1,4 +1,4 @@
-namespace Acme.Core.Platform;
+namespace Saaskit.Core.Platform;
 
 /// <summary>
 /// A service declared in <c>platform.yaml</c>: something that runs and is routed at <c>/api/{Key}/*</c>.

@@ -1,13 +1,13 @@
-using Acme.Core.Configuration;
-using Acme.Core.Messaging;
-using Acme.Core.Platform;
-using Acme.Core.Tenancy;
+using Saaskit.Core.Configuration;
+using Saaskit.Core.Messaging;
+using Saaskit.Core.Platform;
+using Saaskit.Core.Tenancy;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using StackExchange.Redis;
 
-namespace Acme.Core.Hosting.Messaging;
+namespace Saaskit.Core.Hosting.Messaging;
 
 /// <summary>Signals "tenant X has pending outbox rows in schema S" on a Redis stream.</summary>
 internal sealed class RedisOutboxSignal(IConnectionMultiplexer redis) : IOutboxSignal

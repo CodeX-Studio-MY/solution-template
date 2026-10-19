@@ -1,14 +1,14 @@
 using System.Security.Claims;
-using Acme.Core;
-using Acme.Core.Data;
-using Acme.Core.Security;
-using Acme.Core.Tenancy;
+using Saaskit.Core;
+using Saaskit.Core.Data;
+using Saaskit.Core.Security;
+using Saaskit.Core.Tenancy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Time.Testing;
 
-namespace Acme.Integration.Tests;
+namespace Saaskit.Integration.Tests;
 
 /// <summary>A module-shaped context used to test the platform's data conventions on both providers.</summary>
 public sealed class TestModuleDbContext(DbContextOptions<TestModuleDbContext> options) : ModuleDbContext(options)

@@ -8,7 +8,7 @@
     "/api/tenancy/v1/me/modules": {
       "get": {
         "tags": [
-          "Acme.ApiExporter"
+          "Saaskit.ApiExporter"
         ],
         "responses": {
           "200": {
@@ -27,7 +27,7 @@
     "/api/tenancy/v1/me/settings": {
       "get": {
         "tags": [
-          "Acme.ApiExporter"
+          "Saaskit.ApiExporter"
         ],
         "responses": {
           "200": {
@@ -46,7 +46,7 @@
     "/api/tenancy/v1/features": {
       "get": {
         "tags": [
-          "Acme.ApiExporter"
+          "Saaskit.ApiExporter"
         ],
         "responses": {
           "200": {
@@ -68,7 +68,7 @@
     "/api/tenancy/v1/me/tenant": {
       "get": {
         "tags": [
-          "Acme.ApiExporter"
+          "Saaskit.ApiExporter"
         ],
         "responses": {
           "200": {
@@ -1336,7 +1336,7 @@
   },
   "tags": [
     {
-      "name": "Acme.ApiExporter"
+      "name": "Saaskit.ApiExporter"
     },
     {
       "name": "settings"

@@ -3,7 +3,7 @@ import { CacheProvider } from "@emotion/react";
 import { createRoot } from "react-dom/client";
 import Alert from "@mui/material/Alert";
 import CircularProgress from "@mui/material/CircularProgress";
-import { useSessionStore, useTenantStore, type ModuleManifest } from "@acme/web-core";
+import { useSessionStore, useTenantStore, type ModuleManifest } from "@saaskit/web-core";
 import { App } from "./App";
 import { emotionCache } from "./emotionCache";
 import { setupI18n } from "./i18n/setup";

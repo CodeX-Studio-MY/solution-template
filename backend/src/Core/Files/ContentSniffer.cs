@@ -1,4 +1,4 @@
-namespace Acme.Core.Files;
+namespace Saaskit.Core.Files;
 
 /// <summary>Finds a file's real type from its first bytes (magic numbers), because the client's <c>Content-Type</c> and file name can lie.</summary>
 public static class ContentSniffer

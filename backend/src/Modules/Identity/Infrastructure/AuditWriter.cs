@@ -1,11 +1,11 @@
 using System.Diagnostics;
 using System.Text.Json;
-using Acme.Core.Security;
-using Acme.Identity.Application;
-using Acme.Identity.Domain;
+using Saaskit.Core.Security;
+using Saaskit.Identity.Application;
+using Saaskit.Identity.Domain;
 using Microsoft.AspNetCore.Http;
 
-namespace Acme.Identity.Infrastructure;
+namespace Saaskit.Identity.Infrastructure;
 
 internal sealed class AuditWriter(IdentityDbContext db, ICurrentPrincipal principal, IHttpContextAccessor http, TimeProvider time) : IAuditWriter
 {

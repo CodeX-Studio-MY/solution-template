@@ -1,10 +1,10 @@
 using System.Globalization;
 using System.Text.Json;
-using Acme.Core.Data;
-using Acme.Core.Errors;
+using Saaskit.Core.Data;
+using Saaskit.Core.Errors;
 using Microsoft.EntityFrameworkCore;
 
-namespace Acme.Core.Customization;
+namespace Saaskit.Core.Customization;
 
 public enum CustomFieldType
 {
@@ -33,7 +33,7 @@ public sealed class CustomFieldDefinition : BaseEntity
         Update(label, type, required, options, displayOrder);
     }
 
-    /// <summary>The entity type the field belongs to (for example <c>purchase-request</c>).</summary>
+    /// <summary>The entity type the field belongs to (for example <c>goods-receipt</c>).</summary>
     public string Entity { get; private set; } = "";
 
     /// <summary>Lowercase letters, digits and hyphens; unique per entity. This is the key in the entity's <c>customFields</c>.</summary>

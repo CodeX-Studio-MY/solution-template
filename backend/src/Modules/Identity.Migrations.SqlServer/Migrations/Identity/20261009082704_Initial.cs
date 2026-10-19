@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Acme.Identity.Migrations.SqlServer.Migrations.Identity
+namespace Saaskit.Identity.Migrations.SqlServer.Migrations.Identity
 {
     /// <inheritdoc />
     public partial class Initial : Migration

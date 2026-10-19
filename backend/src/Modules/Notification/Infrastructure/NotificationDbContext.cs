@@ -1,8 +1,8 @@
-using Acme.Core.Data;
-using Acme.Notification.Domain;
+using Saaskit.Core.Data;
+using Saaskit.Notification.Domain;
 using Microsoft.EntityFrameworkCore;
 
-namespace Acme.Notification.Infrastructure;
+namespace Saaskit.Notification.Infrastructure;
 
 /// <summary>The notification history, in each tenant's database.</summary>
 public sealed class NotificationDbContext(DbContextOptions<NotificationDbContext> options) : ModuleDbContext(options)

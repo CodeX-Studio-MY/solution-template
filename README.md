@@ -5,7 +5,40 @@ It follows `SAAS_TEMPLATE_PROMPT.md`; differences are recorded in [docs/deviatio
 
 A reusable starting point for a multi-tenant SaaS product: one database per tenant (SQL Server 2025; PostgreSQL 18 is supported and added back with `scripts/add-postgresql`), a module per
 business capability (backend and frontend with the same key), per-tenant plans and customization, a BFF with no tokens in the browser,
-and tests that enforce the architecture. A worked example (`purchase-request`, plus an add-on `cost-center-budget`) shows every pattern.
+and tests that enforce the architecture. It ships **no business module**: you add yours with `scripts/new-module`, from clean templates
+that show every pattern.
+
+<!-- BEGIN TEMPLATE ONLY -->
+## Start a product from this template
+
+1. Make a copy: **Use this template** on GitHub, or `git clone` it into a folder named after your product.
+2. Install the [prerequisites](#prerequisites) once.
+3. Run the generator. On a fresh copy it scaffolds the product; it asks for anything you don't pass:
+
+   ```powershell
+   scripts/generate.ps1 --product farm360 --org "CodeX Studio" --modules crop-planning,livestock
+   ```
+
+   (`scripts/generate.sh` on macOS and Linux.) It writes your answers into `platform.yaml`, renames the template's placeholder
+   (`saaskit`, `Saaskit`, `@saaskit/*`) to your product everywhere, adds the first business modules (backend, frontend, migrations, CI), generates
+   everything, installs, builds and checks, removes what only the template needs, and makes the first commit. If a step fails, fix it
+   and run the same command again: it continues where it stopped.
+
+   | Option | Default | Meaning |
+   |---|---|---|
+   | `--product` | asked | The product key: lowercase letters and digits (`farm360`). It becomes the C# root namespace (`Farm360.Core`), the npm scope (`@farm360/ui-kit`), token audiences and container names. |
+   | `--org` | `CodeX Studio` | The organization, for package metadata. |
+   | `--timezone`, `--currency`, `--locales` | `Asia/Kuala_Lumpur`, `MYR`, `en,ms,zh` | Defaults for new tenants. |
+   | `--plans` | `standard,plus` | The plans you sell, lowest first. |
+   | `--cloud` | `azure` | `azure` or `aws`. |
+   | `--modules` | none | The first business modules, as keys (`crop-planning,livestock`). Add more later with `scripts/new-module`. |
+   | `--yes` | | Ask nothing; use the defaults for what isn't passed (`--product` is still required). |
+   | `--skip-checks`, `--no-git` | | Skip the build and checks; don't commit. |
+
+4. `scripts/dev-up.ps1` starts it all; sign in at `https://demo.localhost:7443/` (see [First sign-in](#first-sign-in)).
+
+Maintaining the template itself: `scripts/generate.ps1 --template` regenerates it without scaffolding, and `--check` never scaffolds.
+<!-- END TEMPLATE ONLY -->
 
 > **Single source of truth.** Every fact is defined once. The application's structure lives in
 > [`platform.yaml`](platform.yaml); runtime configuration in the typed options records in `backend/src/Core/Configuration`.
@@ -23,19 +56,18 @@ flowchart LR
     id["identity<br/>OpenIddict token server"]
     tn["tenancy<br/>catalog, lifecycle, settings"]
     nt["notification<br/>SignalR + email"]
-    pr["purchase-request"]
-    cc["cost-center-budget"]
+    bm["your business modules<br/>(scripts/new-module)"]
     sc["scheduler<br/>Quartz, clustered"]
   end
-  gw -- "access token per service audience" --> id & tn & nt & pr & cc
-  pr & cc & nt & sc <-- "events (outbox / inbox)" --> mq[(RabbitMQ<br/>quorum queues)]
+  gw -- "access token per service audience" --> id & tn & nt & bm
+  bm & nt & sc <-- "events (outbox / inbox)" --> mq[(RabbitMQ<br/>quorum queues)]
   tn --> cat[(Catalog database)]
   id --> cat
   sc --> cat
-  pr & cc & nt & id --> t1[(Tenant A database)]
-  pr & cc & nt & id --> t2[(Tenant B database)]
+  bm & nt & id --> t1[(Tenant A database)]
+  bm & nt & id --> t2[(Tenant B database)]
   services --> kv[(Valkey)]
-  pr --> files[(Object storage)]
+  bm --> files[(Object storage)]
 ```
 
 - **A tenant is a connection, not a filter.** Every request resolves a tenant (from the host name and the token), and the tenant decides
@@ -56,16 +88,12 @@ flowchart LR
 | `identity` | `/api/identity/*` | 5001 | `access-management` | tenant, catalog |
 | `tenancy` | `/api/tenancy/*` | 5002 | `tenant-settings`, `billing` | catalog |
 | `notification` | `/api/notification/*` | 5003 | — | tenant |
-| `purchase-request` | `/api/purchase-request/*` | 5101 | `purchase-request` | tenant |
-| `cost-center-budget` | `/api/cost-center-budget/*` | 5102 | `cost-center-budget` | tenant |
 
 | Module | Name | Plans |
 |---|---|---|
 | `access-management` | Access Management | standard, plus |
 | `tenant-settings` | Tenant Settings | standard, plus |
 | `billing` | Billing | standard, plus |
-| `purchase-request` | Purchase Requests | standard, plus |
-| `cost-center-budget` | Cost Center Budget | plus |
 <!-- END GENERATED: modules -->
 
 ## Quick start
@@ -137,7 +165,7 @@ mkcert -version      # v1.4.x
 ### Start the stack
 
 ```sh
-scripts/dev-up                # certificate, frontend build, the whole stack, migrations, both demo tenants with sample data
+scripts/dev-up                # certificate, frontend build, the whole stack, migrations, the demo tenant
 ```
 
 On Windows run `scripts/dev-up.ps1` from PowerShell (Windows PowerShell 5.1 and PowerShell 7 both work).
@@ -155,17 +183,16 @@ On Windows run `scripts/dev-up.ps1` from PowerShell (Windows PowerShell 5.1 and 
 | A port is already in use (`7443`, `15100`, `8025`, `5001`-`5003`, `5101`-`5102`) | Stop what uses it (`netstat -ano \| findstr :7443`), or run `scripts/dev-down.ps1` if it is a previous run of this stack. |
 | SQL Server container exits at once | Docker has too little memory (it needs 2 GB). Raise it in Docker Desktop, Settings, Resources. |
 
-It prints the two tenants and each tenant's admin invitation link. There are no default passwords: you choose one from the link.
-Compare what the two tenants see ([docs/tenant-customization.md](docs/tenant-customization.md) explains each difference).
+It prints the demo tenant and its admin invitation link. There are no default passwords: you choose one from the link.
 
 ### First sign-in
 
 | Tenant | Address | Plan | Admin account (the only seeded user) |
 |---|---|---|---|
-| `demo` (Demo Co) | `https://demo.localhost:7443/` | Standard, defaults | `admin@demo.example` |
-| `demo-plus` (Demo Plus Co) | `https://demo-plus.localhost:7443/` | Plus, customised | `admin@demo-plus.example` |
+| `demo` (Demo Co) | `https://demo.localhost:7443/` | The first plan in `platform.yaml` | `admin@demo.example` |
 
-Each tenant has its own database, so the two admins are separate accounts. The `.example` addresses are not real mailboxes.
+Every tenant has its own database and its own accounts. The `.example` addresses are not real mailboxes. Add more tenants with
+`scripts/onboard-tenant <slug> --plan <plan>`.
 
 1. **Copy the invitation link** that `dev-up` printed. It is also saved in `.dev/invitations.json` (git-ignored). It looks like
    `https://login.localhost:7443/account/invitation?tenant=demo&token=...`, and it is single-use and short-lived.
@@ -175,7 +202,7 @@ Each tenant has its own database, so the two admins are separate accounts. The `
    The breach check calls the public Have I Been Pwned range API; offline, only the length rule applies.
 4. **Sign in.** After saving, you are taken to the sign-in page (on `login.localhost`). Enter the admin email and your new
    password; you are then sent to your tenant's address (`https://demo.localhost:7443/`) and land on its home page. To sign in
-   later, open the tenant address directly. Each tenant's link works once, so do the same for `demo-plus` with its own link.
+   later, open the tenant address directly. The link works once.
 
 Things to know:
 
@@ -187,7 +214,7 @@ Things to know:
 - **Platform operator (no screen yet).** `dev-up` also creates a development operator, `dev-operator@example.com`, and saves
   its password and TOTP key in `.dev/operator.json`. It is for the operator API (onboarding and managing tenants), not for the
   tenant sign-in pages above. Never reuse it outside development.
-- **Other users and roles.** Roles are `user`, `manager` and `admin`, per module; managers see the approval card on the home page.
+- **Other users and roles.** Roles are `user`, `manager` and `admin`, per module.
   There is no screen for managing users yet: the seeded admin invites and assigns roles through the Identity access-management
   API (`/api/identity/v1/principals`; the OpenAPI document is `frontend/packages/api-clients/openapi/identity.json`).
 
@@ -195,16 +222,16 @@ Things to know:
 scripts/add-postgresql                   # once: restores the PostgreSQL migrations (platform.yaml then lists both providers)
 scripts/dev-up --provider postgresql     # the same stack on PostgreSQL 18 (one configuration value: Database:Provider)
 scripts/dev-up --all-in-one              # every module in one process
-scripts/onboard-tenant acme-co --plan plus   # another isolated tenant in the running stack
+scripts/onboard-tenant saaskit-co --plan plus   # another isolated tenant in the running stack
 scripts/dev-down [--reset]               # stop (and, with --reset, delete the local data)
 ```
 
 Run the checks:
 
 ```sh
-dotnet test --solution backend/acme.slnx     # unit, architecture, scenario and integration tests on every database provider in platform.yaml (Docker required)
+dotnet test --solution backend/saaskit.slnx     # unit, architecture and integration tests on every database provider in platform.yaml (Docker required)
 cd frontend && pnpm install && pnpm typecheck lint test build && pnpm e2e    # Playwright against the built app (mocked API)
-cd frontend && pnpm e2e:stack                # the scenario against the running stack (after scripts/dev-up)
+cd frontend && pnpm e2e:stack                # sign-in against the running stack (after scripts/dev-up)
 scripts/generate.sh --check                  # nothing generated has drifted from its source
 scripts/check-licenses.sh                    # the license policy
 ```
@@ -242,7 +269,7 @@ Nothing in a module depends on its neighbours, so it can move without code chang
   `backend/tests/{Name}.Tests` to the new repository's `backend/` tree (with `Core`, `Contracts`, `Directory.*` and `TestSupport` as a
   package or submodule, since `Core` is packable), keep its entry in the product's `platform.yaml`, and build its image from
   `deploy/docker/service.Dockerfile`. Events and settings are in `Contracts`, which stays shared and versioned.
-- **Frontend module**: copy `frontend/modules/{key}`. It depends only on `@acme/ui-kit`, `@acme/web-core` and `@acme/api-clients`
+- **Frontend module**: copy `frontend/modules/{key}`. It depends only on `@saaskit/ui-kit`, `@saaskit/web-core` and `@saaskit/api-clients`
   (publish them to a private registry), and a tenant's manifest points at its `mf-manifest.json` wherever it is hosted; the
   catalog stores the version, the base URL is configuration. No other module or the shell imports it.
 

@@ -1,10 +1,10 @@
-using Acme.Core.Http;
-using Acme.Notification.Application;
+using Saaskit.Core.Http;
+using Saaskit.Notification.Application;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
-namespace Acme.Notification.Api;
+namespace Saaskit.Notification.Api;
 
 /// <summary>A person's own notifications. Available to every signed-in principal; there is no module role to hold.</summary>
 internal static class NotificationEndpoints

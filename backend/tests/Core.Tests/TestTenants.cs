@@ -1,6 +1,6 @@
-using Acme.Core.Tenancy;
+using Saaskit.Core.Tenancy;
 
-namespace Acme.Core.Tests;
+namespace Saaskit.Core.Tests;
 
 internal static class TestTenants
 {

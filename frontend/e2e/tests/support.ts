@@ -1,7 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, type Page, type Route } from "@playwright/test";
 
-/** The API is mocked in the browser: these tests are about the shell, the loaded module and the rules the UI follows. */
+/** The API is mocked in the browser: these tests are about the shell, module loading and the rules the UI follows. */
 export interface Scenario {
   roles?: string[];
   modules?: { id: string; entry: string }[];
@@ -12,51 +12,13 @@ export interface Scenario {
   routes?: Record<string, (route: Route) => Promise<void> | void>;
 }
 
-export const purchaseRequestEntry = "/mfe/purchase-request/0.0.0-dev/mf-manifest.json";
-export const costCenterBudgetEntry = "/mfe/cost-center-budget/0.0.0-dev/mf-manifest.json";
-
-/** What demo-plus has that demo doesn't: a required cost center list, a budget module and its data. */
-export const costCenterField = {
-  key: "cost-center",
-  label: "Cost center",
-  type: "list",
-  required: true,
-  options: ["CC-100", "CC-200"],
-  displayOrder: 1,
-};
-export const budget = { code: "CC-100", name: "Facilities", currency: "MYR", amount: 10000, used: 1500, remaining: 8500, eTag: '"b1"' };
-
 const json = (route: Route, body: unknown, status = 200) =>
   route.fulfill({ status, contentType: "application/json", body: JSON.stringify(body) });
 
-export const sampleRequest = {
-  id: "11111111-1111-1111-1111-111111111111",
-  number: "PR-20261009-0001",
-  requesterId: "22222222-2222-2222-2222-222222222222",
-  title: "Standing desks",
-  description: "For the new office",
-  status: "submitted",
-  businessDate: "2026-10-09",
-  currency: "MYR",
-  total: 2400,
-  lines: [{ item: "Desk", quantity: 4, unitPrice: 600, lineTotal: 2400 }],
-  approvals: [],
-  customFields: {},
-  quoteFileId: null,
-  createdOn: "2026-10-09T01:00:00Z",
-  submittedOn: "2026-10-09T02:00:00Z",
-  decidedOn: null,
-  autoApproved: false,
-  rejectionReason: null,
-  goodsReceivedOn: null,
-  allowedActions: ["approve", "reject"],
-  eTag: '"v1"',
-};
-
 export async function mockApp(page: Page, scenario: Scenario = {}) {
   const {
-    roles = ["purchase-request:user"],
-    modules = [{ id: "purchase-request", entry: purchaseRequestEntry }],
+    roles = [],
+    modules = [],
     features = {},
     branding = {},
     signedIn = true,
@@ -75,28 +37,6 @@ export async function mockApp(page: Page, scenario: Scenario = {}) {
       }),
     "GET /api/tenancy/v1/me/modules": (route) => json(route, { modules }),
     "GET /api/tenancy/v1/me/settings": (route) => json(route, { branding, features, values: {} }),
-    "GET /api/purchase-request/v1/requests": (route) =>
-      json(route, {
-        items: [
-          {
-            id: sampleRequest.id,
-            number: sampleRequest.number,
-            title: sampleRequest.title,
-            status: "submitted",
-            total: 2400,
-            currency: "MYR",
-            businessDate: "2026-10-09",
-            requesterId: sampleRequest.requesterId,
-          },
-        ],
-        pageNumber: 1,
-        pageSize: 20,
-        totalCount: 1,
-        totalPages: 1,
-        hasNext: false,
-      }),
-    [`GET /api/purchase-request/v1/requests/${sampleRequest.id}`]: (route) => json(route, sampleRequest),
-    "GET /api/purchase-request/v1/custom-fields": (route) => json(route, [], 200),
     ...scenario.routes,
   };
 

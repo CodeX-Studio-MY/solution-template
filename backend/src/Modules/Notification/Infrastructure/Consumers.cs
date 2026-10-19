@@ -1,63 +1,27 @@
-using System.Globalization;
-using Acme.Contracts;
-using Acme.Core.Messaging;
-using Acme.Core.Platform;
-using Acme.Notification.Application;
+using Saaskit.Contracts;
+using Saaskit.Core.Messaging;
+using Saaskit.Core.Platform;
+using Saaskit.Notification.Application;
 
-namespace Acme.Notification.Infrastructure;
+namespace Saaskit.Notification.Infrastructure;
 
-/// <summary>Tells the requester their request was approved (in the app and by email).</summary>
-internal sealed class PurchaseRequestApprovedConsumer(NotificationService notifications, IContactDirectory contacts) : IEventConsumer<PurchaseRequestApproved.V1>
+/// <summary>Delivers a notification another module asked for, to one person or to the members of a module.</summary>
+internal sealed class NotificationRequestedConsumer(NotificationService notifications, IContactDirectory contacts) : IEventConsumer<NotificationRequested.V1>
 {
-    public async Task HandleAsync(PurchaseRequestApproved.V1 integrationEvent, CancellationToken cancellationToken)
+    public async Task HandleAsync(NotificationRequested.V1 integrationEvent, CancellationToken cancellationToken)
     {
-        var requester = await contacts.FindAsync(integrationEvent.RequesterId, cancellationToken);
-        if (requester is null)
-            return;   // the person no longer exists or can't sign in
-        await notifications.NotifyAsync(
-            requester,
-            "purchase-request.approved",
-            "notifications.approved",
-            $"/{Modules.PurchaseRequest}/{integrationEvent.RequestId}",
-            integrationEvent.Number,
-            integrationEvent.Currency,
-            integrationEvent.Total.ToString("N2", CultureInfo.InvariantCulture));
-    }
-}
+        IReadOnlyList<Contact> recipients;
+        if (integrationEvent.RecipientId is { } id)
+            recipients = await contacts.FindAsync(id, cancellationToken) is { } contact ? [contact] : [];   // gone, or can't sign in
+        else if (integrationEvent.RecipientModule is { } module)
+            recipients = await contacts.MembersOfAsync(module, integrationEvent.RecipientMinimumRole ?? Roles.User, cancellationToken);
+        else
+            recipients = [];
 
-/// <summary>Tells the requester their request was rejected, and why.</summary>
-internal sealed class PurchaseRequestRejectedConsumer(NotificationService notifications, IContactDirectory contacts) : IEventConsumer<PurchaseRequestRejected.V1>
-{
-    public async Task HandleAsync(PurchaseRequestRejected.V1 integrationEvent, CancellationToken cancellationToken)
-    {
-        var requester = await contacts.FindAsync(integrationEvent.RequesterId, cancellationToken);
-        if (requester is null)
-            return;
-        await notifications.NotifyAsync(
-            requester,
-            "purchase-request.rejected",
-            "notifications.rejected",
-            $"/{Modules.PurchaseRequest}/{integrationEvent.RequestId}",
-            integrationEvent.Number,
-            integrationEvent.Reason);
-    }
-}
-
-/// <summary>The daily reminder: tells everyone who can approve that requests have been waiting more than two days.</summary>
-internal sealed class ApprovalsWaitingConsumer(NotificationService notifications, IContactDirectory contacts) : IEventConsumer<ApprovalsWaiting.V1>
-{
-    public async Task HandleAsync(ApprovalsWaiting.V1 integrationEvent, CancellationToken cancellationToken)
-    {
-        foreach (var approver in await contacts.ApproversOfAsync(Modules.PurchaseRequest, cancellationToken))
+        foreach (var recipient in recipients)
         {
-            await notifications.NotifyAsync(
-                approver,
-                "purchase-request.approvals-waiting",
-                "notifications.approvalsWaiting",
-                $"/{Modules.PurchaseRequest}",
-                integrationEvent.Count.ToString(CultureInfo.InvariantCulture),
-                integrationEvent.OldestSubmittedOn.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
-                string.Join(", ", integrationEvent.Numbers));
+            await notifications.DeliverAsync(recipient, integrationEvent.Kind, integrationEvent.Title, integrationEvent.Body,
+                integrationEvent.EmailSubject ?? integrationEvent.Title, integrationEvent.Link);
         }
     }
 }

@@ -2,15 +2,15 @@
 #nullable enable
 using Microsoft.EntityFrameworkCore.Design;
 
-namespace Acme.Tenancy.Migrations.SqlServer;
+namespace Saaskit.Tenancy.Migrations.SqlServer;
 
 /// <summary>Lets <c>dotnet ef</c> build TenancyCatalogDbContext for SqlServer.</summary>
-internal sealed class TenancyCatalogDbContextDesignTimeFactory : IDesignTimeDbContextFactory<global::Acme.Tenancy.Infrastructure.TenancyCatalogDbContext>
+internal sealed class TenancyCatalogDbContextDesignTimeFactory : IDesignTimeDbContextFactory<global::Saaskit.Tenancy.Infrastructure.TenancyCatalogDbContext>
 {
-    public global::Acme.Tenancy.Infrastructure.TenancyCatalogDbContext CreateDbContext(string[] args) =>
-        global::Acme.Core.Data.DbContextRegistration.Create<global::Acme.Tenancy.Infrastructure.TenancyCatalogDbContext>(
+    public global::Saaskit.Tenancy.Infrastructure.TenancyCatalogDbContext CreateDbContext(string[] args) =>
+        global::Saaskit.Core.Data.DbContextRegistration.Create<global::Saaskit.Tenancy.Infrastructure.TenancyCatalogDbContext>(
             null,
-            new global::Acme.Core.Data.SqlServer.SqlServerDatabaseProvider(),
+            new global::Saaskit.Core.Data.SqlServer.SqlServerDatabaseProvider(),
             "Server=design-time;Database=design-time",
-            global::Acme.Core.Platform.PlatformServices.Tenancy.Schema);
+            global::Saaskit.Core.Platform.PlatformServices.Tenancy.Schema);
 }

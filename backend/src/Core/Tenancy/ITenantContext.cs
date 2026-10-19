@@ -1,4 +1,4 @@
-namespace Acme.Core.Tenancy;
+namespace Saaskit.Core.Tenancy;
 
 /// <summary>The tenant the current request, message or job runs for. Scoped.</summary>
 public interface ITenantContext

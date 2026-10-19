@@ -5,8 +5,5 @@ Versioned events that cross module boundaries (`src/Contracts`). A breaking chan
 
 | Routing key | Payload | Fields |
 |---|---|---|
-| `purchase-request.approvals-waiting.v1` | `ApprovalsWaiting.V1` | `count`: Int32, `oldestSubmittedOn`: DateOnly, `numbers`: IReadOnlyList<String> |
-| `purchase-request.approved.v1` | `PurchaseRequestApproved.V1` | `requestId`: Guid, `number`: String, `requesterId`: Guid, `approvedBy`: Guid, `total`: Decimal, `currency`: String, `businessDate`: DateOnly, `autoApproved`: Boolean, `costCenter`: String |
-| `purchase-request.rejected.v1` | `PurchaseRequestRejected.V1` | `requestId`: Guid, `number`: String, `requesterId`: Guid, `rejectedBy`: Guid, `reason`: String |
-| `purchase-request.submitted.v1` | `PurchaseRequestSubmitted.V1` | `requestId`: Guid, `number`: String, `requesterId`: Guid, `total`: Decimal, `currency`: String, `businessDate`: DateOnly, `costCenter`: String |
-| `scheduler.approval-reminder-due.v1` | `ApprovalReminderDue.V1` | `businessDate`: DateOnly |
+| `platform.notification-requested.v1` | `NotificationRequested.V1` | `kind`: String, `title`: String, `body`: String, `link`: String, `recipientId`: Guid?, `recipientModule`: String, `recipientMinimumRole`: String, `emailSubject`: String |
+| `scheduler.tenant-day-started.v1` | `TenantDayStarted.V1` | `businessDate`: DateOnly |

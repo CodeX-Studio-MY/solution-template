@@ -1,6 +1,6 @@
-using Acme.Core.Data;
+using Saaskit.Core.Data;
 
-namespace Acme.Identity.Domain;
+namespace Saaskit.Identity.Domain;
 
 /// <summary>An emailed, single-use invitation to create a user. Only a hash of the token is stored.</summary>
 public sealed class Invitation : BaseEntity

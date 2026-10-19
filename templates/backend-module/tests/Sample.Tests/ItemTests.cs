@@ -1,6 +1,6 @@
-using Acme.Sample.Domain;
+using Saaskit.Sample.Domain;
 
-namespace Acme.Sample.Tests;
+namespace Saaskit.Sample.Tests;
 
 [Trait("service", "sample-key")]
 public sealed class ItemTests

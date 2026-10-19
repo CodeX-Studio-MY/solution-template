@@ -64,7 +64,7 @@
     "/account/style.css": {
       "get": {
         "tags": [
-          "Acme.ApiExporter"
+          "Saaskit.ApiExporter"
         ],
         "responses": {
           "200": {
@@ -76,7 +76,7 @@
     "/account/passkey.js": {
       "get": {
         "tags": [
-          "Acme.ApiExporter"
+          "Saaskit.ApiExporter"
         ],
         "responses": {
           "200": {
@@ -400,7 +400,7 @@
     "/api/identity/v1/users/invitations": {
       "post": {
         "tags": [
-          "Acme.ApiExporter"
+          "Saaskit.ApiExporter"
         ],
         "requestBody": {
           "content": {
@@ -422,7 +422,7 @@
     "/api/identity/v1/services": {
       "post": {
         "tags": [
-          "Acme.ApiExporter"
+          "Saaskit.ApiExporter"
         ],
         "requestBody": {
           "content": {
@@ -1649,7 +1649,7 @@
       "name": "ConnectEndpoints"
     },
     {
-      "name": "Acme.ApiExporter"
+      "name": "Saaskit.ApiExporter"
     },
     {
       "name": "principals"

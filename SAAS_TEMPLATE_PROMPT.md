@@ -12,7 +12,7 @@ Fill these in first. Use the defaults when a value isn't given. **They are writt
 
 | Parameter | Default | Purpose |
 |---|---|---|
-| `{{PRODUCT_NAME}}` | `acme` | Prefix for solution, namespaces, packages, containers (`Acme.Core`, `@acme/ui-kit`) |
+| `{{PRODUCT_NAME}}` | `saaskit` | Prefix for solution, namespaces, packages, containers (`Saaskit.Core`, `@saaskit/ui-kit`) |
 | `{{ORG}}` | `CodeX Studio` | Copyright, package authors |
 | `{{DEFAULT_TIMEZONE}}` | `Asia/Kuala_Lumpur` | Default tenant timezone (IANA ID) |
 | `{{DEFAULT_CURRENCY}}` | `MYR` | Default tenant currency (ISO 4217) |
@@ -96,7 +96,7 @@ Fill these in first. Use the defaults when a value isn't given. **They are writt
 **Example: adding a module the right way**
 ```yaml
 # platform.yaml (excerpt)
-product: acme
+product: saaskit
 org: CodeX Studio
 defaults: { timezone: Asia/Kuala_Lumpur, currency: MYR, locales: [en, ms, zh] }
 cloud: azure
@@ -252,7 +252,7 @@ A **principal** is anything that can sign in. There are exactly three kinds, all
   - check `iss`, `exp` and `nbf` with at most 30 seconds of clock skew, and `aud` against **this host's own audiences** (below)
   - require the `typ` header `at+jwt` (RFC 9068)
   - the request's subdomain must name the same tenant as the token's `tenant_id`, or the request gets 403 (4.1)
-- **One audience per service:** every service has its own audience, `{product}:{service-key}` (for example `acme:purchase-request`), generated from `platform.yaml`. A host accepts only the audiences of the services it runs (`AllInOne.Host` accepts all of its own). A token stolen from one service is therefore useless against another, which blocks lateral movement. Clients ask for the audience they need with resource indicators (RFC 8707): the BFF obtains and caches an access token per downstream service for each session, and a module calling another module exchanges for a token with that module's audience (RFC 8693).
+- **One audience per service:** every service has its own audience, `{product}:{service-key}` (for example `saaskit:purchase-request`), generated from `platform.yaml`. A host accepts only the audiences of the services it runs (`AllInOne.Host` accepts all of its own). A token stolen from one service is therefore useless against another, which blocks lateral movement. Clients ask for the audience they need with resource indicators (RFC 8707): the BFF obtains and caches an access token per downstream service for each session, and a module calling another module exchanges for a token with that module's audience (RFC 8693).
 - A token is trusted because of its signature, not because its contents are hard to read. Anyone can decode a JWT, so never put secrets or personal data in one.
 - Never log tokens, cookies or `Authorization` headers. Redact them in logs and traces.
 
@@ -766,7 +766,7 @@ These come from real problems in a previous system:
 | Hardcoded CORS origins or `localhost` API URLs | Same-origin BFF; relative `/api/…` paths |
 | Infrastructure ports (database, broker, admin UIs) exposed publicly | Private network; only the Gateway is public |
 | Frontend modules importing each other | Module manifest contract, URLs, slots and the event bus, enforced by lint |
-| `if (tenant == "acme")` in code, or a branch or fork per customer | The customization ladder (7.2): settings, flags, strategies, custom fields, events, slots, tenant-only modules |
+| `if (tenant == "saaskit")` in code, or a branch or fork per customer | The customization ladder (7.2): settings, flags, strategies, custom fields, events, slots, tenant-only modules |
 | Frontend re-implementing business rules to decide which buttons to show | Server-driven `allowedActions` |
 | The same fact typed in several places (module list in routes, AppHost, compose, CI and constants; API types written by hand in the frontend; per-environment config files; per-environment frontend builds) | Single source of truth (2.1): `platform.yaml`, the config schema, OpenAPI, and `scripts/generate` with a CI drift check |
 | Commercial-license libraries added without anyone deciding to | License policy and a CI license check |

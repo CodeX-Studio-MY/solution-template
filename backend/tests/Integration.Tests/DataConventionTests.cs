@@ -1,9 +1,9 @@
-using Acme.Core.Data;
-using Acme.Core.Errors;
-using Acme.Core.Tenancy;
+using Saaskit.Core.Data;
+using Saaskit.Core.Errors;
+using Saaskit.Core.Tenancy;
 using Microsoft.EntityFrameworkCore;
 
-namespace Acme.Integration.Tests;
+namespace Saaskit.Integration.Tests;
 
 public sealed class DataConventionTests(Databases databases)
 {
@@ -23,7 +23,7 @@ public sealed class DataConventionTests(Databases databases)
             await using (db)
             {
                 await using var transaction = await db.Database.BeginTransactionAsync(Ct);
-                var next = await host.Get<ISequenceService>().NextAsync(db, "purchase-request-number", Ct);
+                var next = await host.Get<ISequenceService>().NextAsync(db, "fixture-number", Ct);
                 await transaction.CommitAsync(Ct);
                 return next;
             }

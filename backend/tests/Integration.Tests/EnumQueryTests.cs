@@ -1,10 +1,10 @@
 using System.Globalization;
-using Acme.Core.Hosting;
+using Saaskit.Core.Hosting;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.TestHost;
 
-namespace Acme.Integration.Tests;
+namespace Saaskit.Integration.Tests;
 
 /// <summary>
 /// The API documents enums in camelCase (<c>status=draft</c>) and the generated clients send that. ASP.NET alone binds enum

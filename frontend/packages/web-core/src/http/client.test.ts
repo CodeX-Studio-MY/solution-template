@@ -45,6 +45,6 @@ describe("platformFetch", () => {
   });
 
   it("only allows local return paths to be encoded into the sign-in URL", () => {
-    expect(signInUrl("/purchase-request/1?x=1")).toBe("/bff/login?returnUrl=%2Fpurchase-request%2F1%3Fx%3D1");
+    expect(signInUrl("/goods-receipt/1?x=1")).toBe("/bff/login?returnUrl=%2Fgoods-receipt%2F1%3Fx%3D1");
   });
 });

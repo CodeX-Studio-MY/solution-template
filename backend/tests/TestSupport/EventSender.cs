@@ -1,10 +1,10 @@
 using System.Text;
-using Acme.Core.Hosting.Messaging;
-using Acme.Core.Messaging;
-using Acme.Core.Platform;
+using Saaskit.Core.Hosting.Messaging;
+using Saaskit.Core.Messaging;
+using Saaskit.Core.Platform;
 using RabbitMQ.Client;
 
-namespace Acme.TestSupport;
+namespace Saaskit.TestSupport;
 
 /// <summary>Sends an event to the exchange the way a producer in another service would.</summary>
 public static class EventSender

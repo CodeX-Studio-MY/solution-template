@@ -1,10 +1,10 @@
-using Acme.Core.Errors;
-using Acme.Core.Security;
-using Acme.Core.Tenancy;
+using Saaskit.Core.Errors;
+using Saaskit.Core.Security;
+using Saaskit.Core.Tenancy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
-namespace Acme.Core.Data;
+namespace Saaskit.Core.Data;
 
 /// <summary>
 /// Fills audit fields from the current principal, turns deletes of soft-deletable entities into updates,

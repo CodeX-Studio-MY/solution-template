@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Acme.Contracts;
+namespace Saaskit.Contracts;
 
 /// <summary>A tenant's look: the colour of the app and its logo. The frontend builds its theme from this; nothing else changes per tenant.</summary>
 [TenantSettings(ModuleKeys.TenantSettings, ExposedToUi = true)]

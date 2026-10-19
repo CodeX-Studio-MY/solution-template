@@ -1,6 +1,6 @@
-using Acme.Core.Platform;
+using Saaskit.Core.Platform;
 
-namespace Acme.Identity.Application;
+namespace Saaskit.Identity.Application;
 
 /// <summary>A link emailed to a person: where it goes, who it is for, and why.</summary>
 public sealed record AccountLink(string Kind, string Email, string DisplayName, Uri Url, DateTime ExpiresOn);

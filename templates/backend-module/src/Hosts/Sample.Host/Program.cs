@@ -1,6 +1,6 @@
-using Acme.Core.Hosting;
-using Acme.Core.Platform;
-using Acme.Sample;
+using Saaskit.Core.Hosting;
+using Saaskit.Core.Platform;
+using Saaskit.Sample;
 
 var builder = WebApplication.CreateBuilder(args);
 

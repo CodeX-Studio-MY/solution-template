@@ -1,9 +1,9 @@
-using Acme.Core.Configuration;
-using Acme.Core.Files;
+using Saaskit.Core.Configuration;
+using Saaskit.Core.Files;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Options;
 
-namespace Acme.Core.Hosting.Files;
+namespace Saaskit.Core.Hosting.Files;
 
 /// <summary>
 /// A folder on disk. **Development only**: containers have no persistent disk. Download links are protected, time-limited tokens

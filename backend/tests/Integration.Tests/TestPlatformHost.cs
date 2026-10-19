@@ -1,13 +1,13 @@
 using System.Net.Http.Headers;
-using Acme.Core.Authorization;
-using Acme.Core.Catalog;
-using Acme.Core.Catalog.Entities;
-using Acme.Core.Composition;
-using Acme.Core.Hosting;
-using Acme.Core.Platform;
-using Acme.Core.Security;
-using Acme.Core.Tenancy;
-using Acme.Migrator;
+using Saaskit.Core.Authorization;
+using Saaskit.Core.Catalog;
+using Saaskit.Core.Catalog.Entities;
+using Saaskit.Core.Composition;
+using Saaskit.Core.Hosting;
+using Saaskit.Core.Platform;
+using Saaskit.Core.Security;
+using Saaskit.Core.Tenancy;
+using Saaskit.Migrator;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -18,14 +18,14 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
-namespace Acme.Integration.Tests;
+namespace Saaskit.Integration.Tests;
 
-/// <summary>Endpoints guarded by each authorization rule, hosted as if they were the purchase-request service.</summary>
+/// <summary>Endpoints guarded by each authorization rule, on the fixture's modules and service.</summary>
 internal sealed class ProbeModule : IPlatformModule
 {
-    public static readonly ModulePermission Approve = new(Modules.PurchaseRequest, "approve", Role.Manager);
+    public static readonly ModulePermission Approve = new(Fixture.Entitled, "approve", Role.Manager);
 
-    public static PlatformService Service => PlatformServices.PurchaseRequest;
+    public static PlatformService Service => Fixture.Service;
 
     public static void Register(IHostApplicationBuilder builder)
     {
@@ -33,17 +33,20 @@ internal sealed class ProbeModule : IPlatformModule
 
     public static void MapEndpoints(IEndpointRouteBuilder api)
     {
-        api.MapGet("/probe/user", () => "ok").RequireModuleRole(Modules.PurchaseRequest, Role.User);
-        api.MapPost("/probe/user", () => "ok").RequireModuleRole(Modules.PurchaseRequest, Role.User);
-        api.MapGet("/probe/manager", () => "ok").RequireModuleRole(Modules.PurchaseRequest, Role.Manager);
+        api.MapGet("/probe/user", () => "ok").RequireModuleRole(Fixture.Entitled, Role.User);
+        api.MapPost("/probe/user", () => "ok").RequireModuleRole(Fixture.Entitled, Role.User);
+        api.MapGet("/probe/manager", () => "ok").RequireModuleRole(Fixture.Entitled, Role.Manager);
         api.MapGet("/probe/approve", () => "ok").RequirePermission(Approve);
-        api.MapGet("/probe/machine", () => "ok").RequireModuleRole(Modules.PurchaseRequest, Role.User).AllowPrincipalTypes(PrincipalType.Machine);
-        api.MapGet("/probe/budget", () => "ok").RequireModuleRole(Modules.CostCenterBudget, Role.User);
+        api.MapGet("/probe/machine", () => "ok").RequireModuleRole(Fixture.Entitled, Role.User).AllowPrincipalTypes(PrincipalType.Machine);
+        api.MapGet("/probe/optional", () => "ok").RequireModuleRole(Fixture.Optional, Role.User);
         api.MapGet("/probe/whoami", (HttpContext http, ITenantContext tenant) => tenant.HasTenant ? tenant.Tenant.Slug : "none");
     }
 }
 
-/// <summary>A purchase-request host with a migrated catalog, demo tenants, Valkey and a test token signer.</summary>
+/// <summary>
+/// The fixture's host with a migrated catalog, Valkey, a test token signer and three tenants: <c>demo</c> on the first plan without
+/// <see cref="Fixture.Optional"/>, <c>demo-plus</c> on the last plan with every module, and <c>paused</c>, suspended.
+/// </summary>
 internal sealed class TestPlatformHost : IAsyncDisposable
 {
     private readonly WebApplication _app;
@@ -75,7 +78,7 @@ internal sealed class TestPlatformHost : IAsyncDisposable
         builder.Configuration["Tenancy:BaseDomain"] = "localhost";
         builder.Configuration["Redis:ConnectionString"] = databases.RedisConnectionString;
         TestSecrets.Apply(builder, databases);
-        builder.AddPlatform(PlatformServices.PurchaseRequest).AddModule<ProbeModule>();
+        builder.AddPlatform(Fixture.Service).AddModule<ProbeModule>();
         builder.Services.PostConfigure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
         {
             var configuration = new OpenIdConnectConfiguration { Issuer = TestTokens.Issuer };
@@ -93,9 +96,9 @@ internal sealed class TestPlatformHost : IAsyncDisposable
         await using (var scope = app.Services.CreateAsyncScope())
         {
             var catalogDb = scope.ServiceProvider.GetRequiredService<CatalogDbContext>();
-            await AddTenantAsync(catalogDb, "demo", Plans.Standard, TenantStatus.Active);
-            await AddTenantAsync(catalogDb, "demo-plus", Plans.Plus, TenantStatus.Active);
-            await AddTenantAsync(catalogDb, "paused", Plans.Standard, TenantStatus.Suspended);
+            await AddTenantAsync(catalogDb, "demo", Fixture.BasePlan, TenantStatus.Active, without: Fixture.Optional);
+            await AddTenantAsync(catalogDb, "demo-plus", Fixture.TopPlan, TenantStatus.Active);
+            await AddTenantAsync(catalogDb, "paused", Fixture.BasePlan, TenantStatus.Suspended);
             if (limit is not null)
             {
                 catalogDb.PlanLimits.Add(limit);
@@ -120,7 +123,7 @@ internal sealed class TestPlatformHost : IAsyncDisposable
         return client;
     }
 
-    public static string Path(string relative) => $"{PlatformServices.PurchaseRequest.RoutePrefix}{relative}";
+    public static string Path(string relative) => $"{Fixture.Service.RoutePrefix}{relative}";
 
     public async ValueTask DisposeAsync()
     {
@@ -128,14 +131,15 @@ internal sealed class TestPlatformHost : IAsyncDisposable
         Tokens.Dispose();
     }
 
-    internal static async Task AddTenantAsync(CatalogDbContext db, string slug, string plan, TenantStatus status, string? databaseName = null)
+    /// <summary>Adds a tenant with the modules of its plan, except <paramref name="without"/> (to see entitlement at work).</summary>
+    internal static async Task AddTenantAsync(CatalogDbContext db, string slug, string plan, TenantStatus status, string? databaseName = null, string? without = null)
     {
         var tenant = new CatalogTenant(slug, slug, plan, PlatformInfo.DefaultTimeZone, PlatformInfo.DefaultCurrency, "en",
             new TenantPlacementData { Provider = Databases.DefaultProvider, ServerPool = "default", DatabaseName = databaseName ?? slug });
         tenant.ChangeStatus(status);
         db.Tenants.Add(tenant);
         await db.SaveChangesAsync();
-        foreach (var module in Modules.All.Where(m => m.Plans.Contains(plan)))
+        foreach (var module in Modules.All.Where(m => m.Plans.Contains(plan) && m.Key != without))
             db.TenantModules.Add(new TenantModule { TenantId = tenant.Id, ModuleId = module.Id });
         await db.SaveChangesAsync();
     }

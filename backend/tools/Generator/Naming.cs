@@ -2,23 +2,23 @@ using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Acme.Generator;
+namespace Saaskit.Generator;
 
 public static class Naming
 {
-    /// <summary><c>purchase-request</c> → <c>PurchaseRequest</c>.</summary>
+    /// <summary><c>goods-receipt</c> → <c>GoodsReceipt</c>.</summary>
     public static string Pascal(string key) =>
         string.Concat(key.Split('-', StringSplitOptions.RemoveEmptyEntries)
             .Select(part => char.ToUpperInvariant(part[0]) + part[1..]));
 
-    /// <summary><c>purchase-request</c> → <c>purchaseRequest</c>.</summary>
+    /// <summary><c>goods-receipt</c> → <c>goodsReceipt</c>.</summary>
     public static string Camel(string key)
     {
         var pascal = Pascal(key);
         return char.ToLowerInvariant(pascal[0]) + pascal[1..];
     }
 
-    /// <summary><c>purchase-request</c> → <c>purchase_request</c> (database schema names).</summary>
+    /// <summary><c>goods-receipt</c> → <c>goods_receipt</c> (database schema names).</summary>
     public static string Schema(string key) => key.Replace('-', '_');
 
     /// <summary>A name-based (RFC 9562 version 5) UUID, so seed data keeps the same IDs on every run.</summary>

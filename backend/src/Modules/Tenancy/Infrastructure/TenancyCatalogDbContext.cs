@@ -1,9 +1,9 @@
-using Acme.Core.Data;
-using Acme.Core.Platform;
-using Acme.Tenancy.Domain;
+using Saaskit.Core.Data;
+using Saaskit.Core.Platform;
+using Saaskit.Tenancy.Domain;
 using Microsoft.EntityFrameworkCore;
 
-namespace Acme.Tenancy.Infrastructure;
+namespace Saaskit.Tenancy.Infrastructure;
 
 /// <summary>Tenancy's own data in the catalog database: onboarding runs, operators, support access and the platform audit log.</summary>
 public sealed class TenancyCatalogDbContext(DbContextOptions<TenancyCatalogDbContext> options) : PlatformDbContext(options)

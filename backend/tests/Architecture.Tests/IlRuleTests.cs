@@ -1,7 +1,7 @@
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
-namespace Acme.Architecture.Tests;
+namespace Saaskit.Architecture.Tests;
 
 /// <summary>Rules about what compiled code calls, read from IL.</summary>
 public sealed class IlRuleTests

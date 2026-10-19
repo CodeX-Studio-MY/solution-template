@@ -1,6 +1,6 @@
 using System.Globalization;
 
-namespace Acme.Core.Data;
+namespace Saaskit.Core.Data;
 
 /// <summary>An amount with its ISO 4217 currency. Stored as decimal(19,4) / numeric(19,4); never float or double.</summary>
 public readonly record struct Money(decimal Amount, string Currency)

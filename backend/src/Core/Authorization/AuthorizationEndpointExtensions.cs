@@ -1,8 +1,8 @@
-using Acme.Core.Platform;
-using Acme.Core.Security;
+using Saaskit.Core.Platform;
+using Saaskit.Core.Security;
 using Microsoft.AspNetCore.Builder;
 
-namespace Acme.Core.Authorization;
+namespace Saaskit.Core.Authorization;
 
 public static class AuthorizationEndpointExtensions
 {

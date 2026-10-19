@@ -1,15 +1,15 @@
-namespace Acme.Generator.Tests;
+namespace Saaskit.Generator.Tests;
 
 public sealed class NamingTests
 {
     [Theory]
-    [InlineData("purchase-request", "PurchaseRequest")]
+    [InlineData("goods-receipt", "GoodsReceipt")]
     [InlineData("identity", "Identity")]
-    [InlineData("cost-center-budget", "CostCenterBudget")]
+    [InlineData("cost-center", "CostCenter")]
     public void Pascal_case(string key, string expected) => Naming.Pascal(key).ShouldBe(expected);
 
     [Fact]
-    public void Schema_names_replace_hyphens() => Naming.Schema("purchase-request").ShouldBe("purchase_request");
+    public void Schema_names_replace_hyphens() => Naming.Schema("goods-receipt").ShouldBe("goods_receipt");
 
     [Fact]
     public void Stable_guids_are_stable_and_distinct()

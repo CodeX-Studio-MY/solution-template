@@ -1,7 +1,7 @@
-using Acme.DevSeed;
+using Saaskit.DevSeed;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-// Development only. Onboards the demo tenants and gives them their sample data, then exits. Run by scripts/dev-up through the AppHost.
+// Development only. Onboards the demo tenant, then exits. Run by scripts/dev-up through the AppHost.
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration["urls"] = "http://127.0.0.1:0";   // it serves nothing
 builder.AddEveryModule();

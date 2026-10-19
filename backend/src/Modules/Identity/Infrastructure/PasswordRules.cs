@@ -1,11 +1,11 @@
 using System.Security.Cryptography;
 using System.Text;
-using Acme.Core.Configuration;
+using Saaskit.Core.Configuration;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Acme.Identity.Infrastructure;
+namespace Saaskit.Identity.Infrastructure;
 
 /// <summary>
 /// Password rules following NIST SP 800-63B-4: at least 15 characters when the password is the only factor (8 with MFA),

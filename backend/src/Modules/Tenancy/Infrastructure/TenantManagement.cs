@@ -1,17 +1,17 @@
 using System.Text.Json;
-using Acme.Core.Catalog;
-using Acme.Core.Catalog.Entities;
-using Acme.Core.Configuration;
-using Acme.Core.Data;
-using Acme.Core.Errors;
-using Acme.Core.Platform;
-using Acme.Core.Tenancy;
-using Acme.Tenancy.Application;
-using Acme.Tenancy.Domain;
+using Saaskit.Core.Catalog;
+using Saaskit.Core.Catalog.Entities;
+using Saaskit.Core.Configuration;
+using Saaskit.Core.Data;
+using Saaskit.Core.Errors;
+using Saaskit.Core.Platform;
+using Saaskit.Core.Tenancy;
+using Saaskit.Tenancy.Application;
+using Saaskit.Tenancy.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
-namespace Acme.Tenancy.Infrastructure;
+namespace Saaskit.Tenancy.Infrastructure;
 
 /// <summary>Plan, entitlements, support-access policy and the tenant lifecycle.</summary>
 internal sealed class TenantManagement(

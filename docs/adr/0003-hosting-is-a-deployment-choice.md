@@ -16,4 +16,4 @@ In-process method calls between modules when they share a process. Rejected: it 
 
 ## Consequences
 
-The Gateway routes `/api/{service-key}/*` to one address (`Bff:AllInOneAddress`) in the all-in-one layout. The scenario tests run in both layouts.
+The Gateway routes `/api/{service-key}/*` to one address (`Bff:AllInOneAddress`) in the all-in-one layout.

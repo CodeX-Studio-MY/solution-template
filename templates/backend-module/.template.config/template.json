@@ -2,9 +2,9 @@
   "$schema": "http://json.schemastore.org/template",
   "author": "CodeX Studio",
   "classifications": ["Web", "Module"],
-  "identity": "Acme.Module.Backend",
+  "identity": "Saaskit.Module.Backend",
   "name": "Platform backend module",
-  "shortName": "acme-module",
+  "shortName": "saaskit-module",
   "description": "A module of the platform: the module class library (Domain, Application, Infrastructure, Api), its thin host and its tests. Use scripts/new-module, which also adds it to platform.yaml, generates its migrations and creates the frontend module.",
   "tags": { "language": "C#", "type": "item" },
   "sourceName": "Sample",
@@ -27,8 +27,8 @@
     "product": {
       "type": "parameter",
       "datatype": "text",
-      "defaultValue": "Acme",
-      "replaces": "Acme",
+      "defaultValue": "Saaskit",
+      "replaces": "Saaskit",
       "description": "The product's PascalCase name from platform.yaml (the root namespace)."
     }
   },

@@ -1,8 +1,8 @@
-using Acme.Core.Platform;
-using Acme.Core.Security;
-using Acme.Core.Tenancy;
+using Saaskit.Core.Platform;
+using Saaskit.Core.Security;
+using Saaskit.Core.Tenancy;
 
-namespace Acme.Core.Authorization;
+namespace Saaskit.Core.Authorization;
 
 internal sealed class AccessEvaluator(ICurrentPrincipal principal, ITenantContext tenant) : IAccessEvaluator
 {

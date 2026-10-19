@@ -1,9 +1,9 @@
 using System.Runtime.CompilerServices;
-using Acme.Core.Tenancy;
+using Saaskit.Core.Tenancy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Acme.Identity.Infrastructure.OpenIddict;
+namespace Saaskit.Identity.Infrastructure.OpenIddict;
 
 /// <summary>
 /// Chooses where authorizations and tokens live: the current tenant's database, or the catalog for platform principals

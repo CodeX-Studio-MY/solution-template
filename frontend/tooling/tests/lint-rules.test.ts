@@ -1,8 +1,8 @@
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { ESLint } from "eslint";
-import { describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 /**
  * The frontend's "make the wrong thing impossible" rules must actually fail the build. Each case lints a snippet as if it lived
@@ -16,7 +16,22 @@ async function messages(code: string, file: string) {
   return result!.messages.map((m) => `${m.ruleId}: ${m.message}`);
 }
 
-const moduleFile = "modules/purchase-request/src/pages/Example.tsx";
+// Two throwaway modules, so the boundary rules have real files to resolve imports to (the template ships no module).
+const fixtures = ["lint-fixture-a", "lint-fixture-b"];
+const moduleFile = `modules/${fixtures[0]}/src/pages/Example.tsx`;
+
+beforeAll(() => {
+  for (const name of fixtures) {
+    const dir = join(root, "modules", name, "src");
+    if (existsSync(dir)) continue;
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(join(dir, "manifest.ts"), "export {};\n");
+  }
+});
+
+afterAll(() => {
+  for (const name of fixtures) rmSync(join(root, "modules", name), { recursive: true, force: true });
+});
 
 describe("frontend lint rules", () => {
   it("rejects colour literals everywhere except tokens.ts", async () => {
@@ -26,11 +41,11 @@ describe("frontend lint rules", () => {
   });
 
   it("rejects /api/ literals, except as the path of a typed client call", async () => {
-    expect(await messages('export const u = "/api/purchase-request/v1/requests";', moduleFile)).toEqual([
+    expect(await messages('export const u = "/api/goods-receipt/v1/requests";', moduleFile)).toEqual([
       expect.stringContaining("apiPath"),
     ]);
     expect(await messages("export const u = `/api/x/${1}`;", moduleFile)).toEqual([expect.stringContaining("apiPath")]);
-    expect(await messages('declare const c: { GET(p: string): void }; c.GET("/api/purchase-request/v1/requests");', moduleFile)).toEqual(
+    expect(await messages('declare const c: { GET(p: string): void }; c.GET("/api/goods-receipt/v1/requests");', moduleFile)).toEqual(
       [],
     );
   });
@@ -54,7 +69,7 @@ describe("frontend lint rules", () => {
   });
 
   it("keeps the layers apart: the shell never imports a module, a module never imports the shell, web-core never imports ui-kit", async () => {
-    expect(await messages('import "../../../modules/purchase-request/src/manifest";', "apps/shell/src/x.ts")).toEqual([
+    expect(await messages(`import "../../../modules/${fixtures[0]}/src/manifest";`, "apps/shell/src/x.ts")).toEqual([
       expect.stringContaining("boundaries/dependencies"),
     ]);
     expect(await messages('import "../../../../apps/shell/src/App";', moduleFile)).toEqual([
@@ -65,33 +80,35 @@ describe("frontend lint rules", () => {
     ]);
   });
 
-  it("keeps modules apart: purchase-request and cost-center-budget never import each other", async () => {
-    expect(await messages('import "../../../cost-center-budget/src/manifest";', moduleFile)).toEqual([
+  it("keeps modules apart: two modules never import each other", async () => {
+    expect(await messages(`import "../../../${fixtures[1]}/src/manifest";`, moduleFile)).toEqual([
       expect.stringContaining("Modules never import other modules"),
     ]);
-    expect(await messages('import "../../../purchase-request/src/manifest";', "modules/cost-center-budget/src/pages/Example.tsx")).toEqual([
+    expect(await messages(`import "../../../${fixtures[0]}/src/manifest";`, `modules/${fixtures[1]}/src/pages/Example.tsx`)).toEqual([
       expect.stringContaining("Modules never import other modules"),
     ]);
   });
 
   it("allows what is meant to be allowed", async () => {
-    expect(await messages('import { useFormatters } from "@acme/web-core";\nexport const a = useFormatters;', moduleFile)).toEqual([]);
-    expect(await messages('import { PageHeader } from "@acme/ui-kit";\nexport const a = PageHeader;', moduleFile)).toEqual([]);
+    expect(await messages('import { useFormatters } from "@saaskit/web-core";\nexport const a = useFormatters;', moduleFile)).toEqual([]);
+    expect(await messages('import { PageHeader } from "@saaskit/ui-kit";\nexport const a = PageHeader;', moduleFile)).toEqual([]);
   });
 });
 
 describe("frontend packages", () => {
   it("no module depends on another module or on the shell, in package.json either", () => {
-    const modules = readdirSync(join(root, "modules"), { withFileTypes: true }).filter((e) => e.isDirectory());
-    expect(modules.length).toBeGreaterThanOrEqual(2);
+    // Every real module (none in the template itself; the throwaway lint fixtures have no package.json).
+    const modules = readdirSync(join(root, "modules"), { withFileTypes: true }).filter(
+      (e) => e.isDirectory() && existsSync(join(root, "modules", e.name, "package.json")),
+    );
     for (const module of modules) {
       const manifest = JSON.parse(readFileSync(join(root, "modules", module.name, "package.json"), "utf8")) as {
         dependencies?: Record<string, string>;
         devDependencies?: Record<string, string>;
       };
-      const names = Object.keys({ ...manifest.dependencies, ...manifest.devDependencies }).filter((n) => n.startsWith("@acme/"));
+      const names = Object.keys({ ...manifest.dependencies, ...manifest.devDependencies }).filter((n) => n.startsWith("@saaskit/"));
       expect(
-        names.filter((n) => n.startsWith("@acme/mfe-") || n === "@acme/shell"),
+        names.filter((n) => n.startsWith("@saaskit/mfe-") || n === "@saaskit/shell"),
         module.name,
       ).toEqual([]);
     }

@@ -1,7 +1,7 @@
-using Acme.Core.Configuration;
-using Acme.Identity.Api;
+using Saaskit.Core.Configuration;
+using Saaskit.Identity.Api;
 
-namespace Acme.Identity.Tests;
+namespace Saaskit.Identity.Tests;
 
 /// <summary>
 /// Where a person goes once they have signed in on the central sign-in host. Accepting an invitation or resetting a password
@@ -38,6 +38,6 @@ public sealed class AfterSignInTests
     public void The_default_https_port_is_not_written()
     {
         var production = new TenancyOptions { BaseDomain = "example.com" };
-        AccountEndpoints.AfterSignIn(null, "acme-co", production).ShouldBe("https://acme-co.example.com/");
+        AccountEndpoints.AfterSignIn(null, "saaskit-co", production).ShouldBe("https://saaskit-co.example.com/");
     }
 }

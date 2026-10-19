@@ -1,8 +1,8 @@
 using System.Globalization;
 using System.Text;
-using Acme.Core.Platform;
+using Saaskit.Core.Platform;
 
-namespace Acme.Generator;
+namespace Saaskit.Generator;
 
 /// <summary>
 /// <c>scripts/new-module &lt;key&gt;</c>: adds a module to <c>platform.yaml</c>, creates its backend (module, host, tests) and frontend
@@ -14,49 +14,67 @@ internal static class NewModuleCommand
 {
     public static int Run(string repoRoot, string[] args)
     {
-        var key = args.FirstOrDefault(a => !a.StartsWith("--", StringComparison.Ordinal)) ?? throw new PlatformDefinitionException("Usage: scripts/new-module <module-key> [--name \"Display Name\"] [--no-frontend]");
+        var key = args.FirstOrDefault(a => !a.StartsWith("--", StringComparison.Ordinal)) ?? throw new PlatformDefinitionException("Usage: scripts/new-module <module-key> [--name \"Display Name\"] [--no-frontend] [--skip-compose] [--resume]");
         var displayName = Option(args, "--name") ?? DisplayName(key);
         var withFrontend = !args.Contains("--no-frontend");
+        var skipCompose = args.Contains("--skip-compose");
+        // --resume: the module is already in platform.yaml and on disk (an earlier run stopped part-way); finish the remaining steps.
+        var resume = args.Contains("--resume");
 
         var platform = PlatformDefinition.Load(Path.Combine(repoRoot, "platform.yaml"));
-        Check(platform, key);
         var pascal = Naming.Pascal(key);
-        var port = Math.Max(5100, platform.Services.Max(s => s.Port)) + 1;
-        var frontendPort = 3100 + platform.Modules.Count + 1;
+        if (resume)
+        {
+            if (platform.Modules.All(m => m.Key != key))
+                throw new PlatformDefinitionException($"'{key}' is not in platform.yaml, so there is nothing to resume.");
+            Console.WriteLine($"Resuming module '{key}' ({pascal}).");
+        }
+        else
+        {
+            Check(platform, key);
+            var port = Math.Max(5100, platform.Services.Max(s => s.Port)) + 1;
+            var frontendPort = 3100 + platform.Modules.Count + 1;
 
-        Console.WriteLine($"Adding module '{key}' ({pascal}), backend port {port}.");
-        AddToPlatformYaml(Path.Combine(repoRoot, "platform.yaml"), key, displayName, port, platform.Plans);
+            Console.WriteLine($"Adding module '{key}' ({pascal}), backend port {port}.");
+            AddToPlatformYaml(Path.Combine(repoRoot, "platform.yaml"), key, displayName, port, platform.Plans);
 
-        // 1. The backend, from the dotnet new template.
-        Run("dotnet", repoRoot, "new", "install", Path.Combine(repoRoot, "templates", "backend-module"), "--force");
-        Run("dotnet", repoRoot, "new", "acme-module", "--name", pascal, "--key", key, "--camel", Naming.Camel(key), "--product", platform.ProductPascal,
-            "--output", Path.Combine(repoRoot, "backend"), "--force");
+            // 1. The backend, from the dotnet new template.
+            Run("dotnet", repoRoot, "new", "install", Path.Combine(repoRoot, "templates", "backend-module"), "--force");
+            Run("dotnet", repoRoot, "new", $"{platform.Product}-module", "--name", pascal, "--key", key, "--camel", Naming.Camel(key), "--product", platform.ProductPascal,
+                "--output", Path.Combine(repoRoot, "backend"), "--force");
 
-        // 2. The frontend module, from its template.
-        if (withFrontend)
-            CopyFrontend(repoRoot, key, pascal, displayName, frontendPort);
+            // 2. The frontend module, from its template.
+            if (withFrontend)
+                CopyFrontend(repoRoot, key, pascal, displayName, frontendPort);
+        }
 
         // 3. Everything that follows from platform.yaml. First without the API files (they need the module to compile)...
         Console.WriteLine("Generating from platform.yaml...");
         GenerateCommand.Run(repoRoot, checkOnly: false, skipCompose: true, skipApi: true);
 
-        // 4. The module's first migration, for every database provider.
+        // 4. The module's first migration, for every database provider. Each is skipped if an earlier run already created it.
         foreach (var provider in DataContexts.Providers(platform))
         {
             // `dotnet ef` is a local tool: it is only on the path inside backend/ (see backend/.config/dotnet-tools.json).
             var backend = Path.Combine(repoRoot, "backend");
             var project = $"src/Modules/{pascal}.Migrations.{provider.Suffix}";
-            Run("dotnet", backend, "restore", project);
-            Run("dotnet", backend, "ef", "migrations", "add", "Initial", "-p", project, "-s", project, "-c", $"{pascal}DbContext", "-o", $"Migrations/{pascal}");
+            if (!HasMigration(Path.Combine(backend, project, "Migrations", pascal), "Initial"))
+            {
+                Run("dotnet", backend, "restore", project);
+                Run("dotnet", backend, "ef", "migrations", "add", "Initial", "-p", project, "-s", project, "-c", $"{pascal}DbContext", "-o", $"Migrations/{pascal}");
+            }
 
             // The catalog lists every module and which plans include it (seed data from platform.yaml), so it changes too.
             var catalog = $"src/Core.Catalog.Migrations.{provider.Suffix}";
-            Run("dotnet", backend, "restore", catalog);
-            Run("dotnet", backend, "ef", "migrations", "add", $"Module{pascal}", "-p", catalog, "-s", catalog, "-c", "CatalogDbContext", "-o", "Migrations/Catalog");
+            if (!HasMigration(Path.Combine(backend, catalog, "Migrations", "Catalog"), $"Module{pascal}"))
+            {
+                Run("dotnet", backend, "restore", catalog);
+                Run("dotnet", backend, "ef", "migrations", "add", $"Module{pascal}", "-p", catalog, "-s", catalog, "-c", "CatalogDbContext", "-o", "Migrations/Catalog");
+            }
         }
 
         // 5. ...then the API documents, typed clients and compose file, which build the module as it now is.
-        GenerateCommand.Run(repoRoot, checkOnly: false, skipCompose: false, skipApi: false);
+        GenerateCommand.Run(repoRoot, checkOnly: false, skipCompose: skipCompose, skipApi: false);
 
         if (withFrontend)
             Run(PnpmPath.Resolve(),Path.Combine(repoRoot, "frontend"), "install");
@@ -66,6 +84,10 @@ internal static class NewModuleCommand
         Console.WriteLine("Next: build and test (dotnet test --project backend/tests/" + pascal + ".Tests), then replace the example Item with your domain.");
         return 0;
     }
+
+    /// <summary>Whether <paramref name="directory"/> has a migration named <paramref name="name"/> (<c>{timestamp}_{name}.cs</c>).</summary>
+    internal static bool HasMigration(string directory, string name) =>
+        Directory.Exists(directory) && Directory.EnumerateFiles(directory, $"*_{name}.cs").Any();
 
     private static void Check(PlatformDefinition platform, string key)
     {

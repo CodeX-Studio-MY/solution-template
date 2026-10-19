@@ -1,13 +1,13 @@
-using Acme.Core.Authorization;
-using Acme.Core.Platform;
-using Acme.Core.Security;
-using Acme.Identity.Application;
+using Saaskit.Core.Authorization;
+using Saaskit.Core.Platform;
+using Saaskit.Core.Security;
+using Saaskit.Identity.Application;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 
-namespace Acme.Identity.Api;
+namespace Saaskit.Identity.Api;
 
 /// <summary>Users, machines, services, groups and module roles. Reads need <c>manager</c>, writes <c>admin</c> in access-management.</summary>
 internal static class AccessManagementEndpoints

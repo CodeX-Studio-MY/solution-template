@@ -1,5 +1,5 @@
 import { createInstance, getInstance } from "@module-federation/enhanced/runtime";
-import { addNamespace, apiJson, registerExtensions, type ModuleManifest } from "@acme/web-core";
+import { addNamespace, apiJson, registerExtensions, type ModuleManifest } from "@saaskit/web-core";
 
 /** One entry of `GET /api/tenancy/v1/me/modules`. */
 interface ManifestEntry {

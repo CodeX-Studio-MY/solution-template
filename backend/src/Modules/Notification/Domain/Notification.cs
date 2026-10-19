@@ -1,6 +1,6 @@
-using Acme.Core.Data;
+using Saaskit.Core.Data;
 
-namespace Acme.Notification.Domain;
+namespace Saaskit.Notification.Domain;
 
 /// <summary>A message for one person in one tenant, kept as history with its read status. The text is in the tenant's language at the time it was made.</summary>
 public sealed class UserNotification : BaseEntity
@@ -23,14 +23,14 @@ public sealed class UserNotification : BaseEntity
 
     public Guid RecipientId { get; private set; }
 
-    /// <summary>What happened, for example <c>purchase-request.approved</c>. The UI picks an icon from it.</summary>
+    /// <summary>What happened, for example <c>goods-receipt.approved</c>. The UI picks an icon from it.</summary>
     public string Kind { get; private set; } = "";
 
     public string Title { get; private set; } = "";
 
     public string Body { get; private set; } = "";
 
-    /// <summary>A path inside the app to open, for example <c>/purchase-request/{id}</c>.</summary>
+    /// <summary>A path inside the app to open, for example <c>/goods-receipt/{id}</c>.</summary>
     public string? Link { get; private set; }
 
     public DateTime? ReadOn { get; private set; }

@@ -1,15 +1,15 @@
-using Acme.Core;
-using Acme.Core.Catalog;
-using Acme.Core.Configuration;
-using Acme.Core.Data;
-using Acme.Core.Data.PostgreSql;
-using Acme.Core.Data.SqlServer;
-using Acme.Core.Hosting;
-using Acme.Core.Hosting.DataProtection;
-using Acme.Core.Hosting.Redis;
-using Acme.Core.Platform;
-using Acme.Core.Tenancy;
-using Acme.Migrator;
+using Saaskit.Core;
+using Saaskit.Core.Catalog;
+using Saaskit.Core.Configuration;
+using Saaskit.Core.Data;
+using Saaskit.Core.Data.PostgreSql;
+using Saaskit.Core.Data.SqlServer;
+using Saaskit.Core.Hosting;
+using Saaskit.Core.Hosting.DataProtection;
+using Saaskit.Core.Hosting.Redis;
+using Saaskit.Core.Platform;
+using Saaskit.Core.Tenancy;
+using Saaskit.Migrator;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -38,7 +38,7 @@ if (operatorIndex >= 0)
     // The operator's TOTP secret is protected with the shared Data Protection key ring, so the Tenancy service can read it later.
     builder.Services.AddPlatformRedis(builder.Configuration);
     builder.Services.AddPlatformDataProtection(builder.Configuration);
-    Acme.Tenancy.TenancyModule.Register(builder);
+    Saaskit.Tenancy.TenancyModule.Register(builder);
 }
 
 using var host = builder.Build();
@@ -60,7 +60,7 @@ if (operatorIndex >= 0)
         return 2;
     }
     await using var scope = host.Services.CreateAsyncScope();
-    var created = await scope.ServiceProvider.GetRequiredService<Acme.Tenancy.Application.IOperatorAccounts>()
+    var created = await scope.ServiceProvider.GetRequiredService<Saaskit.Tenancy.Application.IOperatorAccounts>()
         .CreateAsync(args[operatorIndex + 1], args[operatorIndex + 2], ct);
     // Shown once: neither value is stored in clear.
     Console.WriteLine($"Operator {created.Email} created.");

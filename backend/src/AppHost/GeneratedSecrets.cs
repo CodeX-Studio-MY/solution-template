@@ -1,7 +1,7 @@
 using System.Security.Cryptography;
 using Aspire.Hosting.Publishing;
 
-namespace Acme.AppHost;
+namespace Saaskit.AppHost;
 
 /// <summary>
 /// Local-development secrets, generated on first run and kept in the AppHost's user secrets (never in the repository).

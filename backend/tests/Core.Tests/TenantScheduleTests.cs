@@ -1,6 +1,6 @@
-using Acme.Core.Time;
+using Saaskit.Core.Time;
 
-namespace Acme.Core.Tests;
+namespace Saaskit.Core.Tests;
 
 public sealed class TenantScheduleTests
 {

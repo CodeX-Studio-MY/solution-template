@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Acme.Tenancy.Migrations.SqlServer.Migrations.TenancyCatalog
+namespace Saaskit.Tenancy.Migrations.SqlServer.Migrations.TenancyCatalog
 {
     /// <inheritdoc />
     public partial class Initial : Migration

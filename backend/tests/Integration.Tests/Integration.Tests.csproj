@@ -3,7 +3,6 @@
     <ProjectReference Include="..\TestSupport\TestSupport.csproj" />
     <ProjectReference Include="..\..\src\Migrator\Migrator.csproj" />
     <ProjectReference Include="..\..\src\Core.Hosting\Core.Hosting.csproj" />
-    <ProjectReference Include="..\..\src\Modules\PurchaseRequest\PurchaseRequest.csproj" />
     <ProjectReference Include="..\..\src\Modules\Notification\Notification.csproj" />
     <ProjectReference Include="..\..\src\Scheduler\Scheduler.csproj" />
     <ProjectReference Include="..\..\src\Gateway\Gateway.csproj" Aliases="GatewayApp" />
@@ -21,6 +20,6 @@
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" />
   </ItemGroup>
   <ItemGroup>
-    <Using Include="Acme.TestSupport" />
+    <Using Include="Saaskit.TestSupport" />
   </ItemGroup>
 </Project>

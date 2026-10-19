@@ -20,7 +20,7 @@ services:
     volumes:
       - type: "volume"
         target: "/var/opt/mssql"
-        source: "acme-sql-data"
+        source: "saaskit-sql-data"
         read_only: false
     networks:
       - "aspire"
@@ -38,7 +38,7 @@ services:
     volumes:
       - type: "volume"
         target: "/data"
-        source: "acme-valkey-data"
+        source: "saaskit-valkey-data"
         read_only: false
     networks:
       - "aspire"
@@ -67,7 +67,7 @@ services:
     volumes:
       - type: "volume"
         target: "/data"
-        source: "acme-azurite-data"
+        source: "saaskit-azurite-data"
         read_only: false
     networks:
       - "aspire"
@@ -122,20 +122,14 @@ services:
       TokenServer__RequireTransportSecurity: "false"
       TokenServer__SigningKeys__0: "${TOKEN_SIGNING_KEY}"
       TokenServer__EncryptionKeys__0: "${TOKEN_ENCRYPTION_KEY}"
-      TokenServer__PlatformClientSecrets__acme-bff: "${BFF_CLIENT_SECRET}"
-      TokenServer__PlatformClientSecrets__acme-identity: "${CLIENT_SECRET_IDENTITY}"
-      TokenServer__PlatformClientSecrets__acme-tenancy: "${CLIENT_SECRET_TENANCY}"
-      TokenServer__PlatformClientSecrets__acme-notification: "${CLIENT_SECRET_NOTIFICATION}"
-      TokenServer__PlatformClientSecrets__acme-purchase-request: "${CLIENT_SECRET_PURCHASE_REQUEST}"
-      TokenServer__PlatformClientSecrets__acme-cost-center-budget: "${CLIENT_SECRET_COST_CENTER_BUDGET}"
+      TokenServer__PlatformClientSecrets__saaskit-bff: "${BFF_CLIENT_SECRET}"
+      TokenServer__PlatformClientSecrets__saaskit-identity: "${CLIENT_SECRET_IDENTITY}"
+      TokenServer__PlatformClientSecrets__saaskit-tenancy: "${CLIENT_SECRET_TENANCY}"
+      TokenServer__PlatformClientSecrets__saaskit-notification: "${CLIENT_SECRET_NOTIFICATION}"
       TENANCY_HTTP: "http://tenancy:${TENANCY_PORT}"
       services__tenancy__http__0: "http://tenancy:${TENANCY_PORT}"
       NOTIFICATION_HTTP: "http://notification:${NOTIFICATION_PORT}"
       services__notification__http__0: "http://notification:${NOTIFICATION_PORT}"
-      PURCHASE_REQUEST_HTTP: "http://purchase-request:${PURCHASE_REQUEST_PORT}"
-      services__purchase-request__http__0: "http://purchase-request:${PURCHASE_REQUEST_PORT}"
-      COST_CENTER_BUDGET_HTTP: "http://cost-center-budget:${COST_CENTER_BUDGET_PORT}"
-      services__cost-center-budget__http__0: "http://cost-center-budget:${COST_CENTER_BUDGET_PORT}"
       Auth__MetadataAddress: "http://identity:${IDENTITY_PORT}/.well-known/openid-configuration"
       Auth__TokenEndpoint: "http://identity:${IDENTITY_PORT}/connect/token"
       Auth__RequireHttpsMetadata: "false"
@@ -178,15 +172,11 @@ services:
       Smtp__Port: "1025"
       Smtp__FromAddress: "no-reply@localhost"
       Onboarding__MigratorCommand: "dotnet"
-      Onboarding__MigratorArguments: "run --project /Users/codex/Documents/Template/solution-template/backend/src/Migrator/Migrator.csproj --no-launch-profile -- --tenant {tenant}"
+      Onboarding__MigratorArguments: "run --project \"C:\\Users\\tmhui\\source\\repos\\solution-template\\backend\\src\\Migrator\\Migrator.csproj\" --no-launch-profile -- --tenant {tenant}"
       IDENTITY_HTTP: "http://identity:${IDENTITY_PORT}"
       services__identity__http__0: "http://identity:${IDENTITY_PORT}"
       NOTIFICATION_HTTP: "http://notification:${NOTIFICATION_PORT}"
       services__notification__http__0: "http://notification:${NOTIFICATION_PORT}"
-      PURCHASE_REQUEST_HTTP: "http://purchase-request:${PURCHASE_REQUEST_PORT}"
-      services__purchase-request__http__0: "http://purchase-request:${PURCHASE_REQUEST_PORT}"
-      COST_CENTER_BUDGET_HTTP: "http://cost-center-budget:${COST_CENTER_BUDGET_PORT}"
-      services__cost-center-budget__http__0: "http://cost-center-budget:${COST_CENTER_BUDGET_PORT}"
       Auth__MetadataAddress: "http://identity:${IDENTITY_PORT}/.well-known/openid-configuration"
       Auth__TokenEndpoint: "http://identity:${IDENTITY_PORT}/connect/token"
       Auth__RequireHttpsMetadata: "false"
@@ -232,10 +222,6 @@ services:
       services__identity__http__0: "http://identity:${IDENTITY_PORT}"
       TENANCY_HTTP: "http://tenancy:${TENANCY_PORT}"
       services__tenancy__http__0: "http://tenancy:${TENANCY_PORT}"
-      PURCHASE_REQUEST_HTTP: "http://purchase-request:${PURCHASE_REQUEST_PORT}"
-      services__purchase-request__http__0: "http://purchase-request:${PURCHASE_REQUEST_PORT}"
-      COST_CENTER_BUDGET_HTTP: "http://cost-center-budget:${COST_CENTER_BUDGET_PORT}"
-      services__cost-center-budget__http__0: "http://cost-center-budget:${COST_CENTER_BUDGET_PORT}"
       Auth__MetadataAddress: "http://identity:${IDENTITY_PORT}/.well-known/openid-configuration"
       Auth__TokenEndpoint: "http://identity:${IDENTITY_PORT}/connect/token"
       Auth__RequireHttpsMetadata: "false"
@@ -244,104 +230,6 @@ services:
       OTEL_SERVICE_NAME: "notification"
     expose:
       - "${NOTIFICATION_PORT}"
-    depends_on:
-      valkey:
-        condition: "service_started"
-      rabbitmq:
-        condition: "service_started"
-      migrator:
-        condition: "service_completed_successfully"
-      azurite:
-        condition: "service_started"
-      mailpit:
-        condition: "service_started"
-    networks:
-      - "aspire"
-  purchase-request:
-    image: "${PURCHASE_REQUEST_IMAGE}"
-    environment:
-      OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY: "in_memory"
-      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
-      HTTP_PORTS: "${PURCHASE_REQUEST_PORT}"
-      Database__Provider: "sqlserver"
-      Database__CatalogConnectionString: "Server=sql,1433;User ID=sa;Password=${SQL_PASSWORD};TrustServerCertificate=true;Initial Catalog=catalog"
-      Database__Servers__default: "Server=sql,1433;User ID=sa;Password=${SQL_PASSWORD};TrustServerCertificate=true"
-      Tenancy__BaseDomain: "localhost"
-      Tenancy__PublicPort: "7443"
-      Redis__ConnectionString: "valkey:6379,password=${VALKEY_PASSWORD}"
-      DataProtection__KeyEncryptionKey: "${DATA_PROTECTION_KEY}"
-      ServiceClient__ClientSecret: "${CLIENT_SECRET_PURCHASE_REQUEST}"
-      RabbitMq__ConnectionString: "amqp://guest:${RABBITMQ_PASSWORD}@rabbitmq:5672"
-      Storage__Provider: "azure"
-      Storage__ConnectionString: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;"
-      Smtp__Host: "mailpit"
-      Smtp__Port: "1025"
-      Smtp__FromAddress: "no-reply@localhost"
-      IDENTITY_HTTP: "http://identity:${IDENTITY_PORT}"
-      services__identity__http__0: "http://identity:${IDENTITY_PORT}"
-      TENANCY_HTTP: "http://tenancy:${TENANCY_PORT}"
-      services__tenancy__http__0: "http://tenancy:${TENANCY_PORT}"
-      NOTIFICATION_HTTP: "http://notification:${NOTIFICATION_PORT}"
-      services__notification__http__0: "http://notification:${NOTIFICATION_PORT}"
-      COST_CENTER_BUDGET_HTTP: "http://cost-center-budget:${COST_CENTER_BUDGET_PORT}"
-      services__cost-center-budget__http__0: "http://cost-center-budget:${COST_CENTER_BUDGET_PORT}"
-      Auth__MetadataAddress: "http://identity:${IDENTITY_PORT}/.well-known/openid-configuration"
-      Auth__TokenEndpoint: "http://identity:${IDENTITY_PORT}/connect/token"
-      Auth__RequireHttpsMetadata: "false"
-      OTEL_EXPORTER_OTLP_ENDPOINT: "http://compose-dashboard:18889"
-      OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
-      OTEL_SERVICE_NAME: "purchase-request"
-    expose:
-      - "${PURCHASE_REQUEST_PORT}"
-    depends_on:
-      valkey:
-        condition: "service_started"
-      rabbitmq:
-        condition: "service_started"
-      migrator:
-        condition: "service_completed_successfully"
-      azurite:
-        condition: "service_started"
-      mailpit:
-        condition: "service_started"
-    networks:
-      - "aspire"
-  cost-center-budget:
-    image: "${COST_CENTER_BUDGET_IMAGE}"
-    environment:
-      OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY: "in_memory"
-      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
-      HTTP_PORTS: "${COST_CENTER_BUDGET_PORT}"
-      Database__Provider: "sqlserver"
-      Database__CatalogConnectionString: "Server=sql,1433;User ID=sa;Password=${SQL_PASSWORD};TrustServerCertificate=true;Initial Catalog=catalog"
-      Database__Servers__default: "Server=sql,1433;User ID=sa;Password=${SQL_PASSWORD};TrustServerCertificate=true"
-      Tenancy__BaseDomain: "localhost"
-      Tenancy__PublicPort: "7443"
-      Redis__ConnectionString: "valkey:6379,password=${VALKEY_PASSWORD}"
-      DataProtection__KeyEncryptionKey: "${DATA_PROTECTION_KEY}"
-      ServiceClient__ClientSecret: "${CLIENT_SECRET_COST_CENTER_BUDGET}"
-      RabbitMq__ConnectionString: "amqp://guest:${RABBITMQ_PASSWORD}@rabbitmq:5672"
-      Storage__Provider: "azure"
-      Storage__ConnectionString: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;"
-      Smtp__Host: "mailpit"
-      Smtp__Port: "1025"
-      Smtp__FromAddress: "no-reply@localhost"
-      IDENTITY_HTTP: "http://identity:${IDENTITY_PORT}"
-      services__identity__http__0: "http://identity:${IDENTITY_PORT}"
-      TENANCY_HTTP: "http://tenancy:${TENANCY_PORT}"
-      services__tenancy__http__0: "http://tenancy:${TENANCY_PORT}"
-      NOTIFICATION_HTTP: "http://notification:${NOTIFICATION_PORT}"
-      services__notification__http__0: "http://notification:${NOTIFICATION_PORT}"
-      PURCHASE_REQUEST_HTTP: "http://purchase-request:${PURCHASE_REQUEST_PORT}"
-      services__purchase-request__http__0: "http://purchase-request:${PURCHASE_REQUEST_PORT}"
-      Auth__MetadataAddress: "http://identity:${IDENTITY_PORT}/.well-known/openid-configuration"
-      Auth__TokenEndpoint: "http://identity:${IDENTITY_PORT}/connect/token"
-      Auth__RequireHttpsMetadata: "false"
-      OTEL_EXPORTER_OTLP_ENDPOINT: "http://compose-dashboard:18889"
-      OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
-      OTEL_SERVICE_NAME: "cost-center-budget"
-    expose:
-      - "${COST_CENTER_BUDGET_PORT}"
     depends_on:
       valkey:
         condition: "service_started"
@@ -411,10 +299,6 @@ services:
       services__tenancy__http__0: "http://tenancy:${TENANCY_PORT}"
       NOTIFICATION_HTTP: "http://notification:${NOTIFICATION_PORT}"
       services__notification__http__0: "http://notification:${NOTIFICATION_PORT}"
-      PURCHASE_REQUEST_HTTP: "http://purchase-request:${PURCHASE_REQUEST_PORT}"
-      services__purchase-request__http__0: "http://purchase-request:${PURCHASE_REQUEST_PORT}"
-      COST_CENTER_BUDGET_HTTP: "http://cost-center-budget:${COST_CENTER_BUDGET_PORT}"
-      services__cost-center-budget__http__0: "http://cost-center-budget:${COST_CENTER_BUDGET_PORT}"
       Auth__MetadataAddress: "http://identity:${IDENTITY_PORT}/.well-known/openid-configuration"
       Auth__TokenEndpoint: "http://identity:${IDENTITY_PORT}/connect/token"
       Auth__RequireHttpsMetadata: "false"
@@ -434,19 +318,15 @@ services:
         condition: "service_started"
       notification:
         condition: "service_started"
-      purchase-request:
-        condition: "service_started"
-      cost-center-budget:
-        condition: "service_started"
     networks:
       - "aspire"
 networks:
   aspire:
     driver: "bridge"
 volumes:
-  acme-sql-data:
+  saaskit-sql-data:
     driver: "local"
-  acme-valkey-data:
+  saaskit-valkey-data:
     driver: "local"
-  acme-azurite-data:
+  saaskit-azurite-data:
     driver: "local"

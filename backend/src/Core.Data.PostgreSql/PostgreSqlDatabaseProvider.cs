@@ -1,14 +1,14 @@
 using System.Globalization;
 using System.Text;
-using Acme.Core.Errors;
-using Acme.Core.Hosting;
+using Saaskit.Core.Errors;
+using Saaskit.Core.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 
-namespace Acme.Core.Data.PostgreSql;
+namespace Saaskit.Core.Data.PostgreSql;
 
 public sealed class PostgreSqlDatabaseProvider : IDatabaseProvider
 {

@@ -16,4 +16,4 @@ Feature checks inside each module's code. Rejected: forgettable, and the fronten
 
 ## Consequences
 
-An add-on module (`cost-center-budget`) is simply entitled in some plans only.
+An add-on module is simply entitled in some plans only (`plans: [plus]` in `platform.yaml`).

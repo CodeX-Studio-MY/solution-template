@@ -1,10 +1,10 @@
-using Acme.Core.Customization;
-using Acme.Core.Data;
-using Acme.Core.Tenancy;
+using Saaskit.Core.Customization;
+using Saaskit.Core.Data;
+using Saaskit.Core.Tenancy;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace Acme.Core.Catalog;
+namespace Saaskit.Core.Catalog;
 
 public static class CatalogServiceCollectionExtensions
 {

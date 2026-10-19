@@ -1,18 +1,18 @@
 using System.Security.Cryptography;
 using System.Text;
-using Acme.Core.Configuration;
-using Acme.Core.Errors;
-using Acme.Core.Platform;
-using Acme.Core.Security;
-using Acme.Core.Tenancy;
-using Acme.Identity.Application;
-using Acme.Identity.Domain;
+using Saaskit.Core.Configuration;
+using Saaskit.Core.Errors;
+using Saaskit.Core.Platform;
+using Saaskit.Core.Security;
+using Saaskit.Core.Tenancy;
+using Saaskit.Identity.Application;
+using Saaskit.Identity.Domain;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
-namespace Acme.Identity.Infrastructure;
+namespace Saaskit.Identity.Infrastructure;
 
 internal sealed class AccountService(
     IdentityDbContext db,

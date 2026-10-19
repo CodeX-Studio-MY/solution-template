@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace Acme.Generator.Emitters;
+namespace Saaskit.Generator.Emitters;
 
 /// <summary>backend/src/Core/Generated/Platform.g.cs: module keys, roles, plans, services and product parameters.</summary>
 internal static class CSharpPlatformEmitter

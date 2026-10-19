@@ -1,4 +1,4 @@
-namespace Acme.Contracts;
+namespace Saaskit.Contracts;
 
 /// <summary>
 /// Names an integration event and its version. The routing key is <c>{Name}.v{Version}</c>. Events only ever change by adding

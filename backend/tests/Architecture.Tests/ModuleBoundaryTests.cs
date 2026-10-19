@@ -1,8 +1,8 @@
 using System.Reflection;
-using Acme.Core.Platform;
+using Saaskit.Core.Platform;
 using NetArchTest.Rules;
 
-namespace Acme.Architecture.Tests;
+namespace Saaskit.Architecture.Tests;
 
 public sealed class ModuleBoundaryTests
 {

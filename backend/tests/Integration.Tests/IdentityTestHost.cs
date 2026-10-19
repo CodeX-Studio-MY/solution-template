@@ -1,15 +1,15 @@
 using System.Net.Http.Headers;
 using System.Security.Cryptography;
-using Acme.Core.Catalog;
-using Acme.Core.Data;
-using Acme.Core.Hosting;
-using Acme.Core.Platform;
-using Acme.Core.Security;
-using Acme.Core.Tenancy;
-using Acme.Identity;
-using Acme.Identity.Application;
-using Acme.Identity.Domain;
-using Acme.Identity.Infrastructure;
+using Saaskit.Core.Catalog;
+using Saaskit.Core.Data;
+using Saaskit.Core.Hosting;
+using Saaskit.Core.Platform;
+using Saaskit.Core.Security;
+using Saaskit.Core.Tenancy;
+using Saaskit.Identity;
+using Saaskit.Identity.Application;
+using Saaskit.Identity.Domain;
+using Saaskit.Identity.Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
@@ -17,7 +17,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Acme.Integration.Tests;
+namespace Saaskit.Integration.Tests;
 
 /// <summary>The Identity module hosted for real: PostgreSQL catalog and tenant databases, Valkey, ES256 keys, OpenIddict.</summary>
 internal sealed class IdentityTestHost : IAsyncDisposable
@@ -74,7 +74,7 @@ internal sealed class IdentityTestHost : IAsyncDisposable
         var catalog = databases.NewDatabase(Databases.DefaultProvider, "catalog");
         var provider = Databases.Provider(Databases.DefaultProvider);
         // Exactly the catalog contexts the Migrator applies (generated from platform.yaml).
-        foreach (var target in Acme.Migrator.MigrationTargets.Catalog)
+        foreach (var target in Saaskit.Migrator.MigrationTargets.Catalog)
         {
             await using var db = target.Create(provider, catalog);
             await db.Database.MigrateAsync();
@@ -117,8 +117,10 @@ internal sealed class IdentityTestHost : IAsyncDisposable
         foreach (var slug in tenantSlugs)
         {
             await using var scope = app.Services.CreateAsyncScope();
+            // Like TestPlatformHost: "demo-plus" has every module, the others lack the fixture's optional one.
+            var plus = slug.Contains("plus", StringComparison.Ordinal);
             await TestPlatformHost.AddTenantAsync(scope.ServiceProvider.GetRequiredService<CatalogDbContext>(), slug,
-                slug.Contains("plus", StringComparison.Ordinal) ? Plans.Plus : Plans.Standard, TenantStatus.Active, databaseName: Databases.UniqueName("tenant"));
+                plus ? Fixture.TopPlan : Fixture.BasePlan, TenantStatus.Active, databaseName: Databases.UniqueName("tenant"), without: plus ? null : Fixture.Optional);
             var tenant = (await scope.ServiceProvider.GetRequiredService<ITenantDirectory>().FindBySlugAsync(slug))!;
             var connection = scope.ServiceProvider.GetRequiredService<ITenantConnectionResolver>().ResolveForMaintenance(tenant);
             await using var tenantDb = DbContextRegistration.Create<IdentityDbContext>(null, provider, connection, PlatformServices.Identity.Schema);

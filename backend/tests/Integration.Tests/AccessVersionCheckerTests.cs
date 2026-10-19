@@ -1,13 +1,13 @@
-using Acme.Core.Configuration;
-using Acme.Core.Hosting.Auth;
-using Acme.Core.Security;
+using Saaskit.Core.Configuration;
+using Saaskit.Core.Hosting.Auth;
+using Saaskit.Core.Security;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Time.Testing;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 
-namespace Acme.Integration.Tests;
+namespace Saaskit.Integration.Tests;
 
 [Trait("service", "identity")]
 public sealed class AccessVersionCheckerTests

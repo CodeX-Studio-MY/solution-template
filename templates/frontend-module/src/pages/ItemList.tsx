@@ -9,8 +9,8 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import TextField from "@mui/material/TextField";
 import { useTranslation } from "react-i18next";
-import { ApiError, unwrap, useResource } from "@acme/web-core";
-import { EmptyState, PageHeader, ProblemAlert } from "@acme/ui-kit";
+import { ApiError, unwrap, useResource } from "@saaskit/web-core";
+import { EmptyState, PageHeader, ProblemAlert } from "@saaskit/ui-kit";
 import { client } from "../client";
 
 /** The module's first page: a list and a form. Replace it with the module's real screens. */

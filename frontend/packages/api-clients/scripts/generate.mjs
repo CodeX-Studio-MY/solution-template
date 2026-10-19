@@ -36,7 +36,7 @@ const clients =
   "export interface ServicePaths {\n" +
   names.map((n) => `  "${n}": ${pascal(n)}Paths;`).join("\n") +
   "\n}\n";
-// The schema types of every service, as one export per service (`PurchaseRequestSchemas`, ...), for modules to alias.
+// The schema types of every service, as one export per service (`GoodsReceiptSchemas`, ...), for modules to alias.
 const schemas = header + names.map((n) => `export type { components as ${pascal(n)}Schemas } from "./generated/${n}";`).join("\n") + "\n";
 const schemasTarget = join(root, "src", "schemas.ts");
 const currentSchemas = await readFile(schemasTarget, "utf8").catch(() => null);

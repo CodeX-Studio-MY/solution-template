@@ -1,12 +1,12 @@
-using Acme.Core.Configuration;
-using Acme.Core.Tenancy;
+using Saaskit.Core.Configuration;
+using Saaskit.Core.Tenancy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace Acme.Core.Data;
+namespace Saaskit.Core.Data;
 
 public static class DbContextRegistration
 {

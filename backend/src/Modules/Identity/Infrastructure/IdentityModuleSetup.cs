@@ -1,11 +1,11 @@
-using Acme.Core.Configuration;
+using Saaskit.Core.Configuration;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using OpenIddict.Abstractions;
 using OpenIddict.Server;
 
-namespace Acme.Identity.Infrastructure;
+namespace Saaskit.Identity.Infrastructure;
 
 internal static class IdentityModuleSetup
 {

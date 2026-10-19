@@ -1,7 +1,7 @@
-using Acme.Core.Security;
+using Saaskit.Core.Security;
 using StackExchange.Redis;
 
-namespace Acme.Core.Hosting.Redis;
+namespace Saaskit.Core.Hosting.Redis;
 
 /// <summary>Access versions in Redis: one hash per tenant, field per principal.</summary>
 internal sealed class RedisAccessVersionStore(IConnectionMultiplexer redis) : IAccessVersionStore

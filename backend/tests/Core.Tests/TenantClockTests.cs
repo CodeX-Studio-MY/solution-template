@@ -1,8 +1,8 @@
-using Acme.Core.Tenancy;
-using Acme.Core.Time;
+using Saaskit.Core.Tenancy;
+using Saaskit.Core.Time;
 using Microsoft.Extensions.Time.Testing;
 
-namespace Acme.Core.Tests;
+namespace Saaskit.Core.Tests;
 
 public sealed class TenantClockTests
 {

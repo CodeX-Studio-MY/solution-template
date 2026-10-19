@@ -2,26 +2,26 @@
 #nullable enable
 using Microsoft.EntityFrameworkCore.Design;
 
-namespace Acme.Identity.Migrations.SqlServer;
+namespace Saaskit.Identity.Migrations.SqlServer;
 
 /// <summary>Lets <c>dotnet ef</c> build IdentityCatalogDbContext for SqlServer.</summary>
-internal sealed class IdentityCatalogDbContextDesignTimeFactory : IDesignTimeDbContextFactory<global::Acme.Identity.Infrastructure.IdentityCatalogDbContext>
+internal sealed class IdentityCatalogDbContextDesignTimeFactory : IDesignTimeDbContextFactory<global::Saaskit.Identity.Infrastructure.IdentityCatalogDbContext>
 {
-    public global::Acme.Identity.Infrastructure.IdentityCatalogDbContext CreateDbContext(string[] args) =>
-        global::Acme.Core.Data.DbContextRegistration.Create<global::Acme.Identity.Infrastructure.IdentityCatalogDbContext>(
+    public global::Saaskit.Identity.Infrastructure.IdentityCatalogDbContext CreateDbContext(string[] args) =>
+        global::Saaskit.Core.Data.DbContextRegistration.Create<global::Saaskit.Identity.Infrastructure.IdentityCatalogDbContext>(
             null,
-            new global::Acme.Core.Data.SqlServer.SqlServerDatabaseProvider(),
+            new global::Saaskit.Core.Data.SqlServer.SqlServerDatabaseProvider(),
             "Server=design-time;Database=design-time",
-            global::Acme.Core.Platform.PlatformServices.Identity.Schema);
+            global::Saaskit.Core.Platform.PlatformServices.Identity.Schema);
 }
 
 /// <summary>Lets <c>dotnet ef</c> build IdentityDbContext for SqlServer.</summary>
-internal sealed class IdentityDbContextDesignTimeFactory : IDesignTimeDbContextFactory<global::Acme.Identity.Infrastructure.IdentityDbContext>
+internal sealed class IdentityDbContextDesignTimeFactory : IDesignTimeDbContextFactory<global::Saaskit.Identity.Infrastructure.IdentityDbContext>
 {
-    public global::Acme.Identity.Infrastructure.IdentityDbContext CreateDbContext(string[] args) =>
-        global::Acme.Core.Data.DbContextRegistration.Create<global::Acme.Identity.Infrastructure.IdentityDbContext>(
+    public global::Saaskit.Identity.Infrastructure.IdentityDbContext CreateDbContext(string[] args) =>
+        global::Saaskit.Core.Data.DbContextRegistration.Create<global::Saaskit.Identity.Infrastructure.IdentityDbContext>(
             null,
-            new global::Acme.Core.Data.SqlServer.SqlServerDatabaseProvider(),
+            new global::Saaskit.Core.Data.SqlServer.SqlServerDatabaseProvider(),
             "Server=design-time;Database=design-time",
-            global::Acme.Core.Platform.PlatformServices.Identity.Schema);
+            global::Saaskit.Core.Platform.PlatformServices.Identity.Schema);
 }

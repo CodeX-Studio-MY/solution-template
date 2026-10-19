@@ -1,9 +1,9 @@
 using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Acme.Core.Data;
+using Saaskit.Core.Data;
 
-namespace Acme.Core.Messaging;
+namespace Saaskit.Core.Messaging;
 
 /// <summary>The JSON used for event payloads: camelCase, enums as strings. The same everywhere, so any version of any consumer can read it.</summary>
 public static class EventJson

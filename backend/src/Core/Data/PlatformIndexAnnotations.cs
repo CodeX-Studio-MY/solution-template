@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Acme.Core.Data;
+namespace Saaskit.Core.Data;
 
 /// <summary>
 /// Provider-neutral index options. Modules mark an index; the provider package writes the filter SQL

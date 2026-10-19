@@ -1,11 +1,11 @@
-using Acme.Core.Configuration;
-using Acme.Core.Messaging;
+using Saaskit.Core.Configuration;
+using Saaskit.Core.Messaging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
-namespace Acme.Core.Hosting.Messaging;
+namespace Saaskit.Core.Hosting.Messaging;
 
 public static class PlatformMessaging
 {

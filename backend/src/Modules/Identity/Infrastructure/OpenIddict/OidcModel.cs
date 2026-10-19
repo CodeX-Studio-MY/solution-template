@@ -1,7 +1,7 @@
-using Acme.Core.Data;
+using Saaskit.Core.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace Acme.Identity.Infrastructure.OpenIddict;
+namespace Saaskit.Identity.Infrastructure.OpenIddict;
 
 /// <summary>The one mapping of the OpenIddict tables, used by both Identity contexts.</summary>
 internal static class OidcModel

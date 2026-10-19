@@ -6,7 +6,7 @@ describe("ApiError", () => {
     const response = new Response(
       JSON.stringify({
         status: 422,
-        code: "purchase-request.no-lines",
+        code: "access-management.group-not-found",
         message: "Add at least one line.",
         traceId: "abc",
         errors: [{ field: "lines", message: "Required" }],
@@ -17,8 +17,8 @@ describe("ApiError", () => {
     expect(error).toBeInstanceOf(ApiError);
     expect(error.message).toBe("Add at least one line.");
     expect(error.status).toBe(422);
-    expect(error.is("purchase-request.no-lines")).toBe(true);
-    expect(error.messageKey).toBe("errors.purchaseRequest.noLines");
+    expect(error.is("access-management.group-not-found")).toBe(true);
+    expect(error.messageKey).toBe("errors.identity.groupNotFound");
     expect(error.forField("LINES")?.message).toBe("Required");
   });
 

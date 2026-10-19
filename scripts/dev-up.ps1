@@ -1,4 +1,4 @@
-# Starts the whole stack locally with the Aspire AppHost, onboards the two demo tenants and prints how to sign in.
+# Starts the whole stack locally with the Aspire AppHost, onboards the demo tenant and prints how to sign in.
 #   scripts/dev-up.ps1 [-Provider sqlserver|postgresql] [-AllInOne] [-NoBuild]
 param(
   [ValidateSet('sqlserver', 'postgresql')][string]$Provider = 'sqlserver',
@@ -76,6 +76,6 @@ while ((Get-Date) -lt $deadline) {
 }
 while (-not (Test-Path .dev/invitations.json.done) -and (Get-Date) -lt $deadline) { Start-Sleep 5 }
 Write-Host "demo       https://demo.localhost:7443/"
-Write-Host "demo-plus  https://demo-plus.localhost:7443/"
+Write-Host "More tenants: scripts/onboard-tenant.ps1 <slug> [--plan <plan>]"
 if (Test-Path .dev/invitations.json) { Get-Content .dev/invitations.json }
 Write-Host "Aspire dashboard http://localhost:15100 - Mailpit http://localhost:8025 - stop with scripts/dev-down.ps1"

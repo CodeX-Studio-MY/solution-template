@@ -1,7 +1,7 @@
-using Acme.Core.Data;
-using Acme.Core.Data.PostgreSql;
-using Acme.Core.Data.SqlServer;
-using Acme.Core.Platform;
+using Saaskit.Core.Data;
+using Saaskit.Core.Data.PostgreSql;
+using Saaskit.Core.Data.SqlServer;
+using Saaskit.Core.Platform;
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
 using Testcontainers.MsSql;
@@ -10,7 +10,7 @@ using Testcontainers.PostgreSql;
 using Testcontainers.RabbitMq;
 using Testcontainers.Redis;
 
-namespace Acme.TestSupport;
+namespace Saaskit.TestSupport;
 
 /// <summary>
 /// One container per database provider listed in platform.yaml (SQL Server 2025, PostgreSQL 18) for the whole test run. Every test that

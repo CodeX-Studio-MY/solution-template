@@ -1,9 +1,9 @@
-using Acme.Core.Security;
-using Acme.Notification.Application;
+using Saaskit.Core.Security;
+using Saaskit.Notification.Application;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 
-namespace Acme.Notification.Api;
+namespace Saaskit.Notification.Api;
 
 /// <summary>
 /// Real-time notifications. Connections are authenticated (the Gateway attaches the access token to the WebSocket upgrade, so the

@@ -1,7 +1,7 @@
-using Acme.Core.Messaging;
+using Saaskit.Core.Messaging;
 using Microsoft.EntityFrameworkCore;
 
-namespace Acme.Core.Data;
+namespace Saaskit.Core.Data;
 
 /// <summary>
 /// The base of a module's DbContext in the tenant database. A module owns one schema and one context;

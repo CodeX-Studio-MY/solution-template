@@ -1,12 +1,11 @@
 #!/usr/bin/env sh
-# Starts the whole stack locally with the Aspire AppHost, onboards the two demo tenants and prints how to sign in.
+# Starts the whole stack locally with the Aspire AppHost, onboards the demo tenant and prints how to sign in.
 #
 #   scripts/dev-up [--provider sqlserver|postgresql] [--all-in-one] [--no-build]
 #
 # It: makes a locally trusted HTTPS certificate for localhost and *.localhost (mkcert), builds the frontend, starts the AppHost
 # (database, Valkey, RabbitMQ, Azurite, Mailpit, every service, the Gateway, the Scheduler), runs the migrations, onboards `demo`
-# (Standard plan) and `demo-plus` (Plus plan, customised), seeds a few purchase requests, cost centers and budgets, and prints each
-# tenant's admin invitation link. Run scripts/dev-down to stop. Everything it writes is in .dev/ (git-ignored).
+# (the first plan in platform.yaml, no data), and prints its admin invitation link. Run scripts/dev-down to stop. Everything it writes is in .dev/ (git-ignored).
 set -eu
 cd "$(dirname "$0")/.."
 
@@ -78,7 +77,7 @@ until curl -sk -m 5 -f -o /dev/null https://localhost:7443/health/ready; do
   n=$((n + 1)); [ $n -gt 240 ] && { echo "The Gateway did not become ready. See .dev/apphost.log" >&2; exit 1; }
   sleep 5
 done
-echo "Waiting for the demo tenants..."
+echo "Waiting for the demo tenant..."
 n=0
 until [ -f .dev/invitations.json.done ]; do
   n=$((n + 1)); [ $n -gt 120 ] && { echo "Seeding did not finish. See the dev-seed logs in the Aspire dashboard (http://localhost:15100)." >&2; exit 1; }
@@ -89,15 +88,15 @@ cat <<'DONE'
 
 The stack is up.
 
-  demo       Standard plan, defaults              https://demo.localhost:7443/
-  demo-plus  Plus plan, customised                https://demo-plus.localhost:7443/
+  demo       https://demo.localhost:7443/
+  More tenants: scripts/onboard-tenant <slug> [--plan <plan>]
 
 DONE
 if [ -f .dev/invitations.json ]; then
-  echo "Each tenant's first admin accepts an invitation (open the link, choose a password):"
+  echo "The tenant's first admin accepts an invitation (open the link, choose a password):"
   sed -n 's/^ *"\([^"]*\)": *"\([^"]*\)".*/  \1: \2/p' .dev/invitations.json
 else
-  echo "The tenants already existed; their invitation links were printed the first time (.dev/invitations.json)."
+  echo "The tenant already existed; its invitation link was printed the first time (.dev/invitations.json)."
 fi
 cat <<'DONE'
 

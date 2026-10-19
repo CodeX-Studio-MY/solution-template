@@ -1,7 +1,7 @@
 # SINGLE SOURCE OF TRUTH for the application's structure (see docs/adr and SAAS_TEMPLATE_PROMPT.md section 2.1).
 # Edit this file, then run scripts/generate. Never repeat these facts anywhere else.
 
-product: acme
+product: saaskit
 org: CodeX Studio
 defaults:
   timezone: Asia/Kuala_Lumpur
@@ -14,17 +14,19 @@ database:
 roles: [user, manager, admin]          # lowest to highest
 plans: [standard, plus]
 
-services:                              # what runs, and how it's routed: /api/{service-key}/*
-                                       # databases: where the service keeps data (tenant is the default)
+# services and modules answer two different questions:
+#   services: what RUNS. A process with a port, a gateway route (/api/{key}/*), a container, its own schema and token audience.
+#   modules:  what is SOLD and PERMISSIONED. Plans include it, users hold a role in it, it has a menu entry and a micro-frontend.
+# A service hosts ("owns") zero or more modules. Business features are almost always one service owning one module with the same
+# key, which is what scripts/new-module adds. The platform services below are the exceptions: tenancy hosts two modules, and
+# notification hosts none (it is infrastructure nobody buys or holds a role in).
+
+services:                              # databases: where the service keeps data (tenant is the default)
   - { key: identity,           port: 5001, owns: [access-management], databases: [tenant, catalog] }
   - { key: tenancy,            port: 5002, owns: [tenant-settings, billing], databases: [catalog] }
   - { key: notification,       port: 5003, owns: [] }
-  - { key: purchase-request,   port: 5101, owns: [purchase-request] }
-  - { key: cost-center-budget, port: 5102, owns: [cost-center-budget] }
 
-modules:                               # what is authorized and entitled: roles claim, plans
+modules:                               # plans: which plans include the module
   - { key: access-management,  name: Access Management,  plans: [standard, plus] }
   - { key: tenant-settings,    name: Tenant Settings,    plans: [standard, plus] }
   - { key: billing,            name: Billing,            plans: [standard, plus] }
-  - { key: purchase-request,   name: Purchase Requests,  plans: [standard, plus] }
-  - { key: cost-center-budget, name: Cost Center Budget, plans: [plus] }

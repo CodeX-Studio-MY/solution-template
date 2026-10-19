@@ -1,18 +1,18 @@
 using System.Security.Cryptography;
 using System.Text.Json;
-using Acme.Core.Catalog;
-using Acme.Core.Configuration;
-using Acme.Core.Errors;
-using Acme.Core.Platform;
-using Acme.Core.Tenancy;
-using Acme.Tenancy.Application;
-using Acme.Tenancy.Domain;
+using Saaskit.Core.Catalog;
+using Saaskit.Core.Configuration;
+using Saaskit.Core.Errors;
+using Saaskit.Core.Platform;
+using Saaskit.Core.Tenancy;
+using Saaskit.Tenancy.Application;
+using Saaskit.Tenancy.Domain;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
-namespace Acme.Tenancy.Infrastructure;
+namespace Saaskit.Tenancy.Infrastructure;
 
 internal sealed class OperatorAccounts(
     TenancyCatalogDbContext db,

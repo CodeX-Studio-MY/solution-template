@@ -1,6 +1,6 @@
 using System.Security.Claims;
 
-namespace Acme.Core.Security;
+namespace Saaskit.Core.Security;
 
 /// <summary>Who is making the current request, message or job.</summary>
 public interface ICurrentPrincipal

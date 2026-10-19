@@ -1,4 +1,4 @@
-namespace Acme.Core.Messaging;
+namespace Saaskit.Core.Messaging;
 
 /// <summary>An event waiting to be published, saved in the same transaction as the business data.</summary>
 public sealed class OutboxMessage

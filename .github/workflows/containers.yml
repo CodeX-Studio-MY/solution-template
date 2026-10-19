@@ -17,7 +17,7 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  PREFIX: ghcr.io/${{ github.repository_owner }}/acme
+  PREFIX: ghcr.io/${{ github.repository_owner }}/saaskit
 
 jobs:
   image:
@@ -32,13 +32,11 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { key: identity, file: deploy/docker/service.Dockerfile, project: backend/src/Hosts/Identity.Host/Identity.Host.csproj, assembly: Acme.Identity.Host.dll }
-          - { key: tenancy, file: deploy/docker/service.Dockerfile, project: backend/src/Hosts/Tenancy.Host/Tenancy.Host.csproj, assembly: Acme.Tenancy.Host.dll }
-          - { key: notification, file: deploy/docker/service.Dockerfile, project: backend/src/Hosts/Notification.Host/Notification.Host.csproj, assembly: Acme.Notification.Host.dll }
-          - { key: purchase-request, file: deploy/docker/service.Dockerfile, project: backend/src/Hosts/PurchaseRequest.Host/PurchaseRequest.Host.csproj, assembly: Acme.PurchaseRequest.Host.dll }
-          - { key: cost-center-budget, file: deploy/docker/service.Dockerfile, project: backend/src/Hosts/CostCenterBudget.Host/CostCenterBudget.Host.csproj, assembly: Acme.CostCenterBudget.Host.dll }
-          - { key: scheduler, file: deploy/docker/service.Dockerfile, project: backend/src/Scheduler/Scheduler.csproj, assembly: Acme.Scheduler.dll }
-          - { key: migrator, file: deploy/docker/service.Dockerfile, project: backend/src/Migrator/Migrator.csproj, assembly: Acme.Migrator.dll }
+          - { key: identity, file: deploy/docker/service.Dockerfile, project: backend/src/Hosts/Identity.Host/Identity.Host.csproj, assembly: Saaskit.Identity.Host.dll }
+          - { key: tenancy, file: deploy/docker/service.Dockerfile, project: backend/src/Hosts/Tenancy.Host/Tenancy.Host.csproj, assembly: Saaskit.Tenancy.Host.dll }
+          - { key: notification, file: deploy/docker/service.Dockerfile, project: backend/src/Hosts/Notification.Host/Notification.Host.csproj, assembly: Saaskit.Notification.Host.dll }
+          - { key: scheduler, file: deploy/docker/service.Dockerfile, project: backend/src/Scheduler/Scheduler.csproj, assembly: Saaskit.Scheduler.dll }
+          - { key: migrator, file: deploy/docker/service.Dockerfile, project: backend/src/Migrator/Migrator.csproj, assembly: Saaskit.Migrator.dll }
           - { key: gateway, file: deploy/docker/gateway.Dockerfile, project: backend/src/Gateway/Gateway.csproj, assembly: '' }
 
     steps:

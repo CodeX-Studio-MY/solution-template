@@ -1,18 +1,18 @@
 using System.Security.Claims;
 using System.Text.Json.Nodes;
-using Acme.Core.Authorization;
-using Acme.Core.Platform;
-using Acme.Core.Security;
-using Acme.Core.Tenancy;
-using Acme.Tenancy.Application;
-using Acme.Tenancy.Domain;
-using Acme.Tenancy.Infrastructure;
+using Saaskit.Core.Authorization;
+using Saaskit.Core.Platform;
+using Saaskit.Core.Security;
+using Saaskit.Core.Tenancy;
+using Saaskit.Tenancy.Application;
+using Saaskit.Tenancy.Domain;
+using Saaskit.Tenancy.Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 
-namespace Acme.Tenancy.Api;
+namespace Saaskit.Tenancy.Api;
 
 internal static class TenancyEndpoints
 {

@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace Acme.Generator;
+namespace Saaskit.Generator;
 
 /// <summary>Runs the tools the generator commands depend on (dotnet, pnpm, git), with their output on this console.</summary>
 internal static class Processes

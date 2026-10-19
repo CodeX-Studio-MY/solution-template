@@ -3,7 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace Acme.Core.Configuration;
+namespace Saaskit.Core.Configuration;
 
 public static class OptionsRegistration
 {

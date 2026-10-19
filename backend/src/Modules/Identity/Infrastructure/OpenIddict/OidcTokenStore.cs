@@ -4,7 +4,7 @@ using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using OpenIddict.Abstractions;
 
-namespace Acme.Identity.Infrastructure.OpenIddict;
+namespace Saaskit.Identity.Infrastructure.OpenIddict;
 
 /// <summary>
 /// Token entries (refresh tokens are stored hashed by OpenIddict), in the current tenant's database

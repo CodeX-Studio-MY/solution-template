@@ -1,14 +1,14 @@
 using System.Security.Cryptography;
 using System.Text;
-using Acme.Core.Data;
-using Acme.Core.Errors;
-using Acme.Core.Security;
+using Saaskit.Core.Data;
+using Saaskit.Core.Errors;
+using Saaskit.Core.Security;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Acme.Core.Http;
+namespace Saaskit.Core.Http;
 
 public static class IdempotencyExtensions
 {

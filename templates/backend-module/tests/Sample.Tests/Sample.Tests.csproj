@@ -6,6 +6,6 @@
     <ProjectReference Include="..\..\src\Modules\Sample\Sample.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Using Include="Acme.TestSupport" />
+    <Using Include="Saaskit.TestSupport" />
   </ItemGroup>
 </Project>

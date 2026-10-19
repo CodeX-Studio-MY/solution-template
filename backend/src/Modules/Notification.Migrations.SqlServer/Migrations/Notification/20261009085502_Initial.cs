@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Acme.Notification.Migrations.SqlServer.Migrations.Notification
+namespace Saaskit.Notification.Migrations.SqlServer.Migrations.Notification
 {
     /// <inheritdoc />
     public partial class Initial : Migration

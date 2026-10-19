@@ -40,10 +40,10 @@ jobs:
       # the templates can never rot. No file is edited by hand.
       - run: dotnet tool install --global Aspire.Cli --version 13.6.1
       - run: scripts/new-module.sh ci-sample --name "CI Sample"
-      - run: dotnet build backend/acme.slnx --configuration Release
+      - run: dotnet build backend/saaskit.slnx --configuration Release
       - run: dotnet test --project backend/tests/CiSample.Tests --no-build --configuration Release
       - run: dotnet test --project backend/tests/Architecture.Tests --no-build --configuration Release
-      - run: pnpm exec turbo run typecheck lint test build --filter=@acme/mfe-ci-sample...
+      - run: pnpm exec turbo run typecheck lint test build --filter=@saaskit/mfe-ci-sample...
         working-directory: frontend
       - run: pnpm exec prettier --check modules/ci-sample
         working-directory: frontend

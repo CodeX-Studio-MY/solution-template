@@ -1,12 +1,12 @@
-using Acme.Core.Errors;
-using Acme.Core.Hosting;
+using Saaskit.Core.Errors;
+using Saaskit.Core.Hosting;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Acme.Core.Data.SqlServer;
+namespace Saaskit.Core.Data.SqlServer;
 
 public sealed class SqlServerDatabaseProvider : IDatabaseProvider
 {

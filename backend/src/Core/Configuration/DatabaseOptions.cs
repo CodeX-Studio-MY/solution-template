@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Acme.Core.Configuration;
+namespace Saaskit.Core.Configuration;
 
 [OptionsSection("Database", "The catalog database, tenant database servers and the database provider.")]
 public sealed record DatabaseOptions

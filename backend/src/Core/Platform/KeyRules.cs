@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace Acme.Core.Platform;
+namespace Saaskit.Core.Platform;
 
 /// <summary>
 /// The format of every key: modules, services and tenant slugs. The generator validates <c>platform.yaml</c> with these

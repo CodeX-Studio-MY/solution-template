@@ -1,4 +1,4 @@
-using Acme.Core.Localization;
+using Saaskit.Core.Localization;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace Acme.Core.Errors;
+namespace Saaskit.Core.Errors;
 
 /// <summary>Turns exceptions into RFC 9457 <c>ProblemDetails</c>. Never returns stack traces outside Development.</summary>
 internal sealed partial class PlatformExceptionHandler(

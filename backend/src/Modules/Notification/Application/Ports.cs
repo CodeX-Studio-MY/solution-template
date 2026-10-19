@@ -1,7 +1,7 @@
-using Acme.Core.Http;
-using Acme.Notification.Domain;
+using Saaskit.Core.Http;
+using Saaskit.Notification.Domain;
 
-namespace Acme.Notification.Application;
+namespace Saaskit.Notification.Application;
 
 public sealed record NotificationDto(Guid Id, string Kind, string Title, string Body, string? Link, DateTime CreatedOn, bool IsRead);
 
@@ -12,8 +12,8 @@ public interface IContactDirectory
 {
     Task<Contact?> FindAsync(Guid principalId, CancellationToken cancellationToken = default);
 
-    /// <summary>Everyone who can approve in a module (at least manager there).</summary>
-    Task<IReadOnlyList<Contact>> ApproversOfAsync(string moduleKey, CancellationToken cancellationToken = default);
+    /// <summary>Everyone holding at least <paramref name="minimumRole"/> in a module.</summary>
+    Task<IReadOnlyList<Contact>> MembersOfAsync(string moduleKey, string minimumRole, CancellationToken cancellationToken = default);
 }
 
 /// <summary>Sends email. The default adapter speaks SMTP (Mailpit locally). Templates are localized per tenant by the caller.</summary>

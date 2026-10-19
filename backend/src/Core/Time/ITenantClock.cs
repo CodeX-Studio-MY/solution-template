@@ -1,6 +1,6 @@
-using Acme.Core.Tenancy;
+using Saaskit.Core.Tenancy;
 
-namespace Acme.Core.Time;
+namespace Saaskit.Core.Time;
 
 /// <summary>
 /// The current date and time in the tenant's time zone (IANA ID). Business dates (order date, harvest date)

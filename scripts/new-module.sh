@@ -3,7 +3,7 @@
 # frontend module from the clean templates, then generates everything that follows (constants, gateway route, AppHost, compose, CI
 # workflow, API client). No other file needs a manual edit.
 #
-#   scripts/new-module <module-key> [--name "Display Name"] [--no-frontend]
+#   scripts/new-module <module-key> [--name "Display Name"] [--no-frontend] [--skip-compose]
 set -eu
 cd "$(dirname "$0")/.."
 PATH="$HOME/.local/bin:$PATH"

@@ -1,4 +1,4 @@
-namespace Acme.Core.Tenancy;
+namespace Saaskit.Core.Tenancy;
 
 /// <summary>Tenant lifecycle: Provisioning → Active → Suspended (read-only) → PendingDeletion → Deleted.</summary>
 public enum TenantStatus

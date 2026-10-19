@@ -1,14 +1,14 @@
-using Acme.Core.Hosting;
-using Acme.Core.Platform;
-using Acme.Core.ServiceCalls;
-using Acme.Migrator;
-using Acme.Tenancy;
-using Acme.Tenancy.Application;
+using Saaskit.Core.Hosting;
+using Saaskit.Core.Platform;
+using Saaskit.Core.ServiceCalls;
+using Saaskit.Migrator;
+using Saaskit.Tenancy;
+using Saaskit.Tenancy.Application;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Acme.Integration.Tests;
+namespace Saaskit.Integration.Tests;
 
 /// <summary>
 /// The Tenancy and Identity services running together against one catalog, as in production: Tenancy calls Identity over HTTP
@@ -52,7 +52,7 @@ internal sealed class TenancyTestHost : IAsyncDisposable
         builder.AddPlatform(PlatformServices.Tenancy).AddModule<TenancyModule>();
 
         // Tenancy's calls to Identity (and its token requests) go to Identity's in-memory server.
-        builder.Services.AddHttpClient<IIdentityClient, Acme.Tenancy.Infrastructure.IdentityClient>().ConfigurePrimaryHttpMessageHandler(() => identity.Server.CreateHandler());
+        builder.Services.AddHttpClient<IIdentityClient, Saaskit.Tenancy.Infrastructure.IdentityClient>().ConfigurePrimaryHttpMessageHandler(() => identity.Server.CreateHandler());
         builder.Services.AddHttpClient(PlatformTokenProvider.HttpClientName).ConfigurePrimaryHttpMessageHandler(() => identity.Server.CreateHandler());
         // The pipeline's Migrator, run in-process for the tenant.
         builder.Services.AddScoped<ITenantMigrator, InProcessTenantMigrator>();
@@ -86,7 +86,7 @@ internal sealed class TenancyTestHost : IAsyncDisposable
         await Identity.DisposeAsync();
     }
 
-    private sealed class InProcessTenantMigrator(IServiceProvider services, Acme.Core.Tenancy.ITenantDirectory directory) : ITenantMigrator
+    private sealed class InProcessTenantMigrator(IServiceProvider services, Saaskit.Core.Tenancy.ITenantDirectory directory) : ITenantMigrator
     {
         public async Task MigrateAsync(Guid tenantId, CancellationToken cancellationToken = default)
         {

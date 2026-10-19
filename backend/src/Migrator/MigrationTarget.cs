@@ -1,6 +1,6 @@
-using Acme.Core.Data;
+using Saaskit.Core.Data;
 
-namespace Acme.Migrator;
+namespace Saaskit.Migrator;
 
 /// <summary>A DbContext the Migrator applies. The list is generated from platform.yaml (Generated/MigrationTargets.g.cs).</summary>
 /// <param name="Name">The service key, or <c>catalog</c> for the tenant directory.</param>

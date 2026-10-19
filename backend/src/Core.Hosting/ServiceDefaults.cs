@@ -1,5 +1,5 @@
-using Acme.Core.Platform;
-using Acme.Core.Tenancy;
+using Saaskit.Core.Platform;
+using Saaskit.Core.Tenancy;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -8,7 +8,7 @@ using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
-namespace Acme.Core.Hosting;
+namespace Saaskit.Core.Hosting;
 
 /// <summary>
 /// The Aspire service defaults, kept in Core so there is one shared setup: OpenTelemetry (traces, metrics, logs over OTLP),
@@ -48,7 +48,7 @@ public static class ServiceDefaults
                 })
                 .AddHttpClientInstrumentation()
                 .AddSource("Npgsql")
-                .AddSource("Acme.Core.Messaging")
+                .AddSource("Saaskit.Core.Messaging")
                 .AddSource(PlatformTelemetry.ActivitySourceName));
 
         if (!string.IsNullOrWhiteSpace(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]))

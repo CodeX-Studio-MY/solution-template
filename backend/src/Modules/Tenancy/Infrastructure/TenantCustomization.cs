@@ -1,15 +1,15 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using Acme.Contracts;
-using Acme.Core.Catalog;
-using Acme.Core.Catalog.Entities;
-using Acme.Core.Customization;
-using Acme.Core.Errors;
-using Acme.Tenancy.Application;
-using Acme.Tenancy.Domain;
+using Saaskit.Contracts;
+using Saaskit.Core.Catalog;
+using Saaskit.Core.Catalog.Entities;
+using Saaskit.Core.Customization;
+using Saaskit.Core.Errors;
+using Saaskit.Tenancy.Application;
+using Saaskit.Tenancy.Domain;
 using Microsoft.EntityFrameworkCore;
 
-namespace Acme.Tenancy.Infrastructure;
+namespace Saaskit.Tenancy.Infrastructure;
 
 internal sealed class TenantCustomization(
     CatalogDbContext catalog,

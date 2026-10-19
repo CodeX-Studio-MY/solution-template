@@ -1,5 +1,5 @@
 {
-  "name": "@acme/mfe-__KEY__",
+  "name": "@saaskit/mfe-__KEY__",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -12,9 +12,9 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@acme/api-clients": "workspace:*",
-    "@acme/ui-kit": "workspace:*",
-    "@acme/web-core": "workspace:*",
+    "@saaskit/api-clients": "workspace:*",
+    "@saaskit/ui-kit": "workspace:*",
+    "@saaskit/web-core": "workspace:*",
     "@emotion/react": "catalog:",
     "@emotion/styled": "catalog:",
     "@mui/icons-material": "catalog:",
@@ -27,7 +27,7 @@
     "zustand": "catalog:"
   },
   "devDependencies": {
-    "@acme/build-config": "workspace:*",
+    "@saaskit/build-config": "workspace:*",
     "@module-federation/rsbuild-plugin": "catalog:",
     "@rsbuild/core": "catalog:",
     "@rsbuild/plugin-react": "catalog:",

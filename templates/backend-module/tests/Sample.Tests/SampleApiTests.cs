@@ -1,11 +1,11 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
-using Acme.Core.Platform;
-using Acme.Core.Security;
-using Role = Acme.Core.Platform.Role;
+using Saaskit.Core.Platform;
+using Saaskit.Core.Security;
+using Role = Saaskit.Core.Platform.Role;
 
-namespace Acme.Sample.Tests;
+namespace Saaskit.Sample.Tests;
 
 /// <summary>The module hosted exactly as in production, on every database provider in platform.yaml, with real migrations and tenants.</summary>
 [Trait("service", "sample-key")]

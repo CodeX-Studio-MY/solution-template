@@ -1,7 +1,7 @@
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Builder;
 
-namespace Acme.TestSupport;
+namespace Saaskit.TestSupport;
 
 /// <summary>Settings and secrets every platform host needs. Secrets are generated per test run; never stored.</summary>
 public static class TestSecrets
@@ -9,7 +9,7 @@ public static class TestSecrets
     public static readonly string KeyEncryptionKey = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
 
     /// <summary>A folder for the local file provider, removed with the run's temp files.</summary>
-    public static readonly string LocalFiles = Path.Combine(Path.GetTempPath(), $"acme-test-files-{Guid.NewGuid():N}");
+    public static readonly string LocalFiles = Path.Combine(Path.GetTempPath(), $"saaskit-test-files-{Guid.NewGuid():N}");
 
     public static void Apply(WebApplicationBuilder builder, Databases databases)
     {

@@ -1,6 +1,6 @@
-using Acme.Generator.Emitters;
+using Saaskit.Generator.Emitters;
 
-namespace Acme.Generator.Tests;
+namespace Saaskit.Generator.Tests;
 
 /// <summary>deploy/.env.example is generated from the options records; this proves the committed file and the schema agree both ways.</summary>
 public sealed class EnvExampleTests

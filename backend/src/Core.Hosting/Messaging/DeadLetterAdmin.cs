@@ -1,8 +1,8 @@
 using System.Text;
-using Acme.Core.Messaging;
+using Saaskit.Core.Messaging;
 using RabbitMQ.Client;
 
-namespace Acme.Core.Hosting.Messaging;
+namespace Saaskit.Core.Hosting.Messaging;
 
 /// <summary>Dead-letter viewer and replay. Lists what failed (or found no queue) and moves it back to the exchange once the cause is fixed.</summary>
 internal sealed class DeadLetterAdmin(RabbitMqConnection connection, IEnumerable<EventConsumerRegistration> registrations) : IDeadLetterAdmin

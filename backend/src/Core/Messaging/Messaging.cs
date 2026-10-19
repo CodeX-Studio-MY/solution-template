@@ -1,7 +1,7 @@
-using Acme.Core.Data;
-using Acme.Core.Tenancy;
+using Saaskit.Core.Data;
+using Saaskit.Core.Tenancy;
 
-namespace Acme.Core.Messaging;
+namespace Saaskit.Core.Messaging;
 
 /// <summary>
 /// What travels between modules. Every message carries the tenant, the event ID, the event time, the producer and the W3C

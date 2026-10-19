@@ -1,11 +1,11 @@
-using Acme.Contracts;
-using Acme.Core.Configuration;
-using Acme.Core.Data.PostgreSql;
-using Acme.Core.Messaging;
-using Acme.Core.Tenancy;
-using Acme.Core.Time;
-using Acme.Migrator;
-using Acme.Scheduler;
+using Saaskit.Contracts;
+using Saaskit.Core.Configuration;
+using Saaskit.Core.Data.PostgreSql;
+using Saaskit.Core.Messaging;
+using Saaskit.Core.Tenancy;
+using Saaskit.Core.Time;
+using Saaskit.Migrator;
+using Saaskit.Scheduler;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -13,9 +13,9 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Time.Testing;
 using Quartz;
 
-namespace Acme.Integration.Tests;
+namespace Saaskit.Integration.Tests;
 
-/// <summary>The Scheduler: tenant-local timing of the reminder, and the clustered Quartz store created by the Migrator on both providers.</summary>
+/// <summary>The Scheduler: tenant-local timing of the day-started event, and the clustered Quartz store created by the Migrator on both providers.</summary>
 [Trait("service", "scheduler")]
 public sealed class SchedulerTests(Databases databases)
 {
@@ -49,22 +49,22 @@ public sealed class SchedulerTests(Databases databases)
         new(Guid.NewGuid(), slug, slug, status, "standard", zone, "MYR", "en", new HashSet<string>(StringComparer.Ordinal), new TenantPlacement("fake", "default", $"t_{slug}", null));
 
     [Fact]
-    public async Task Only_active_tenants_where_it_is_nine_get_the_reminder_with_a_stable_ID()
+    public async Task Only_active_tenants_where_it_is_nine_get_the_day_started_event_with_a_stable_ID()
     {
         var kl = Tenant("kl", "Asia/Kuala_Lumpur");
         var ny = Tenant("ny", "America/New_York");
         var suspended = Tenant("suspended", "Asia/Kuala_Lumpur", TenantStatus.Suspended);
         var broker = new RecordingBroker();
         var time = new FakeTimeProvider(new DateTimeOffset(2026, 10, 9, 1, 0, 0, TimeSpan.Zero));   // 09:00 in KL, 21:00 the day before in New York
-        var job = new TenantReminderJob(new FakeDirectory(kl, ny, suspended), broker, time, NullLogger<TenantReminderJob>.Instance);
+        var job = new TenantDayJob(new FakeDirectory(kl, ny, suspended), broker, time, NullLogger<TenantDayJob>.Instance);
 
         await job.RunAsync(Ct);
 
         var sent = broker.Sent.ShouldHaveSingleItem();
         sent.TenantId.ShouldBe(kl.Id);
-        sent.RoutingKey.ShouldBe(EventRegistry.For<ApprovalReminderDue.V1>().RoutingKey);
-        sent.EventId.ShouldBe(TenantSchedule.EventId(TenantReminderJob.Name, kl.Id, new DateOnly(2026, 10, 9)));
-        System.Text.Json.JsonSerializer.Deserialize<ApprovalReminderDue.V1>(sent.Payload, EventJson.Options)!.BusinessDate.ShouldBe(new DateOnly(2026, 10, 9));
+        sent.RoutingKey.ShouldBe(EventRegistry.For<TenantDayStarted.V1>().RoutingKey);
+        sent.EventId.ShouldBe(TenantSchedule.EventId(TenantDayJob.Name, kl.Id, new DateOnly(2026, 10, 9)));
+        System.Text.Json.JsonSerializer.Deserialize<TenantDayStarted.V1>(sent.Payload, EventJson.Options)!.BusinessDate.ShouldBe(new DateOnly(2026, 10, 9));
 
         // The same tick again (a misfire, a second instance) sends the same message ID, which the consumers' inbox handles once.
         await job.RunAsync(Ct);
@@ -84,7 +84,7 @@ public sealed class SchedulerTests(Databases databases)
         var second = Tenant("second", "Asia/Kuala_Lumpur");
         var broker = new FailingOnceBroker(first.Id);
         var time = new FakeTimeProvider(new DateTimeOffset(2026, 10, 9, 1, 5, 0, TimeSpan.Zero));
-        var job = new TenantReminderJob(new FakeDirectory(first, second), broker, time, NullLogger<TenantReminderJob>.Instance);
+        var job = new TenantDayJob(new FakeDirectory(first, second), broker, time, NullLogger<TenantDayJob>.Instance);
 
         await job.RunAsync(Ct);
 
@@ -126,7 +126,7 @@ public sealed class SchedulerTests(Databases databases)
 
             firstScheduler.SchedulerInstanceId.ShouldNotBe(secondScheduler.SchedulerInstanceId);
             (await firstScheduler.GetJobKeys(GroupMatcher<JobKey>.AnyGroup(), Ct)).Count.ShouldBe(1);
-            var trigger = await secondScheduler.GetTrigger(new TriggerKey($"{TenantReminderJob.Name}-tick"), Ct);
+            var trigger = await secondScheduler.GetTrigger(new TriggerKey($"{TenantDayJob.Name}-tick"), Ct);
             trigger.ShouldNotBeNull();
             (await secondScheduler.GetTriggerState(trigger.Key, Ct)).ShouldBe(TriggerState.Normal);
             ((ICronTrigger)trigger).CronExpressionString.ShouldBe("0 0/15 * * * ?");

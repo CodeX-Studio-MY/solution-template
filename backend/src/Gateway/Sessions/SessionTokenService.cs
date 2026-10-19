@@ -1,11 +1,11 @@
 using System.Text.Json;
-using Acme.Core.Configuration;
-using Acme.Core.Platform;
+using Saaskit.Core.Configuration;
+using Saaskit.Core.Platform;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
 using StackExchange.Redis;
 
-namespace Acme.Gateway.Sessions;
+namespace Saaskit.Gateway.Sessions;
 
 /// <summary>
 /// Gets the access token a downstream service accepts, for the signed-in session. Each service has its own audience, so the

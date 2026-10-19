@@ -1,15 +1,15 @@
 using System.Security.Cryptography;
-using Acme.Core.Data;
-using Acme.Core.Errors;
-using Acme.Core.Platform;
-using Acme.Core.Security;
-using Acme.Core.Tenancy;
-using Acme.Identity.Application;
-using Acme.Identity.Domain;
+using Saaskit.Core.Data;
+using Saaskit.Core.Errors;
+using Saaskit.Core.Platform;
+using Saaskit.Core.Security;
+using Saaskit.Core.Tenancy;
+using Saaskit.Identity.Application;
+using Saaskit.Identity.Domain;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 
-namespace Acme.Identity.Infrastructure;
+namespace Saaskit.Identity.Infrastructure;
 
 internal sealed class AccessManagement(
     IdentityDbContext db,

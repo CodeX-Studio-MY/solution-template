@@ -1,7 +1,7 @@
 using System.Security.Claims;
-using Acme.Core.Platform;
+using Saaskit.Core.Platform;
 
-namespace Acme.Core.Authorization;
+namespace Saaskit.Core.Authorization;
 
 /// <summary>
 /// Answers "what may the current principal do" from its effective roles, the tenant's live entitlements and status.

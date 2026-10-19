@@ -1,6 +1,6 @@
-using Acme.Core.Tenancy;
+using Saaskit.Core.Tenancy;
 
-namespace Acme.Core.Customization;
+namespace Saaskit.Core.Customization;
 
 /// <summary>
 /// The tenant's stored setting overrides, as the catalog holds them. Implemented by <c>Core.Catalog</c>; modules never see it, they

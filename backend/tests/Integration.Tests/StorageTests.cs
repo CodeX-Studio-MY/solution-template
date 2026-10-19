@@ -1,13 +1,13 @@
 using System.Text;
-using Acme.Core.Configuration;
-using Acme.Core.Files;
-using Acme.Core.Hosting.Files;
+using Saaskit.Core.Configuration;
+using Saaskit.Core.Files;
+using Saaskit.Core.Hosting.Files;
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Options;
 
-namespace Acme.Integration.Tests;
+namespace Saaskit.Integration.Tests;
 
 /// <summary>Every object-storage adapter behaves the same: put, read, signed download, delete, delete by prefix.</summary>
 public sealed class StorageTests(Databases databases) : IAsyncLifetime
@@ -52,7 +52,7 @@ public sealed class StorageTests(Databases databases) : IAsyncLifetime
         TimeProvider.System);
 
     private static LocalDiskStorage Local() => new LocalDiskStorage(
-        Options.Create(new StorageOptions { Provider = "local", Container = "files", LocalPath = Path.Combine(Path.GetTempPath(), $"acme-storage-{Guid.NewGuid():N}") }),
+        Options.Create(new StorageOptions { Provider = "local", Container = "files", LocalPath = Path.Combine(Path.GetTempPath(), $"saaskit-storage-{Guid.NewGuid():N}") }),
         new EphemeralDataProtectionProvider(),
         TimeProvider.System);
 
@@ -68,8 +68,8 @@ public sealed class StorageTests(Databases databases) : IAsyncLifetime
     private static async Task ExerciseAsync(IFileStorage storage, bool download)
     {
         var tenant = Guid.NewGuid();
-        var key = $"{tenant}/purchase-request/purchase-request/{Guid.NewGuid()}/{Guid.NewGuid()}";
-        var other = $"{Guid.NewGuid()}/purchase-request/purchase-request/{Guid.NewGuid()}/{Guid.NewGuid()}";
+        var key = $"{tenant}/fixture/fixture/{Guid.NewGuid()}/{Guid.NewGuid()}";
+        var other = $"{Guid.NewGuid()}/fixture/fixture/{Guid.NewGuid()}/{Guid.NewGuid()}";
         var bytes = Encoding.UTF8.GetBytes("%PDF-1.7 hello");
 
         await storage.PutAsync(key, new MemoryStream(bytes), "application/pdf", Ct);

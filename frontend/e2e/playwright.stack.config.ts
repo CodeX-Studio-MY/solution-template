@@ -1,8 +1,8 @@
 import { defineConfig, devices } from "@playwright/test";
 
 /**
- * The scenario against the REAL stack that scripts/dev-up starts (Gateway with the mkcert certificate, every service, both demo
- * tenants). Run `scripts/dev-up`, then `pnpm e2e:stack`. The mocked tests in ./tests need no stack.
+ * Tests against the REAL stack that scripts/dev-up starts (Gateway with the mkcert certificate, every service, the demo
+ * tenant). Run `scripts/dev-up`, then `pnpm e2e:stack`. The mocked tests in ./tests need no stack.
  */
 export default defineConfig({
   testDir: "./stack",

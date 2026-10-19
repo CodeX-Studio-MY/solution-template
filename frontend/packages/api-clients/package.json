@@ -1,5 +1,5 @@
 {
-  "name": "@acme/api-clients",
+  "name": "@saaskit/api-clients",
   "version": "0.0.0",
   "private": true,
   "type": "module",

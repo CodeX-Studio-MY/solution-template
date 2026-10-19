@@ -1,9 +1,9 @@
-using Acme.Core.Data;
-using Acme.Core.Platform;
+using Saaskit.Core.Data;
+using Saaskit.Core.Platform;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace Acme.Core.Messaging;
+namespace Saaskit.Core.Messaging;
 
 public static class MessagingRegistration
 {

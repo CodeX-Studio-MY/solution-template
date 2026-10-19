@@ -1,8 +1,8 @@
-using Acme.Core.Data;
-using Acme.Identity.Infrastructure.OpenIddict;
+using Saaskit.Core.Data;
+using Saaskit.Identity.Infrastructure.OpenIddict;
 using Microsoft.EntityFrameworkCore;
 
-namespace Acme.Identity.Infrastructure;
+namespace Saaskit.Identity.Infrastructure;
 
 /// <summary>
 /// Identity's data in the catalog database: OpenIddict client registrations (with their tenant), and the authorizations

@@ -3,9 +3,9 @@ using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using Acme.Contracts;
+using Saaskit.Contracts;
 
-namespace Acme.Core.Customization;
+namespace Saaskit.Core.Customization;
 
 /// <summary>One property of a module's settings record, as the admin screens and the validator see it.</summary>
 public sealed record SettingProperty(string Name, Type Type, bool TenantEditable, object? Default, IReadOnlyList<string>? AllowedValues);
@@ -88,8 +88,16 @@ public static class CustomizationRegistry
         return problems;
     }
 
+    /// <summary>Contracts, and any loaded assembly that opts in with <see cref="DeclaresCustomizationAttribute"/> (tests).</summary>
+    private static IEnumerable<Type> DeclaringTypes() =>
+        AppDomain.CurrentDomain.GetAssemblies()
+            .Where(a => a.IsDefined(typeof(DeclaresCustomizationAttribute)))
+            .Prepend(typeof(TenantSettingsAttribute).Assembly)
+            .Distinct()
+            .SelectMany(a => a.GetTypes());
+
     private static FrozenDictionary<string, SettingsDescriptor> DiscoverSettings() =>
-        typeof(TenantSettingsAttribute).Assembly.GetTypes()
+        DeclaringTypes()
             .Select(t => (Type: t, Attribute: t.GetCustomAttribute<TenantSettingsAttribute>()))
             .Where(x => x.Attribute is not null)
             .ToFrozenDictionary(
@@ -112,7 +120,7 @@ public static class CustomizationRegistry
     }
 
     private static FrozenDictionary<string, FeatureDescriptor> DiscoverFeatures() =>
-        typeof(FeatureFlagAttribute).Assembly.GetTypes()
+        DeclaringTypes()
             .SelectMany(t => t.GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy))
             .Select(f => (Field: f, Attribute: f.GetCustomAttribute<FeatureFlagAttribute>()))
             .Where(x => x.Attribute is not null && x.Field.IsLiteral)

@@ -1,7 +1,7 @@
-using Acme.Core.Data;
-using Acme.Core.Platform;
+using Saaskit.Core.Data;
+using Saaskit.Core.Platform;
 
-namespace Acme.Core.Tests;
+namespace Saaskit.Core.Tests;
 
 public sealed class RoleTests
 {
@@ -16,16 +16,16 @@ public sealed class RoleTests
     [Fact]
     public void Module_role_claims_round_trip()
     {
-        var claim = RoleExtensions.ToModuleRole(Modules.PurchaseRequest, Role.Manager);
-        claim.ShouldBe("purchase-request:manager");
+        var claim = RoleExtensions.ToModuleRole(Modules.TenantSettings, Role.Manager);
+        claim.ShouldBe("tenant-settings:manager");
         RoleExtensions.TryParseModuleRole(claim, out var module, out var role).ShouldBeTrue();
-        module.ShouldBe(Modules.PurchaseRequest);
+        module.ShouldBe(Modules.TenantSettings);
         role.ShouldBe(Role.Manager);
     }
 
     [Theory]
-    [InlineData("purchase-request")]
-    [InlineData("purchase-request:owner")]
+    [InlineData("tenant-settings")]
+    [InlineData("tenant-settings:owner")]
     [InlineData(":manager")]
     public void Invalid_module_role_claims_are_rejected(string value) =>
         RoleExtensions.TryParseModuleRole(value, out _, out _).ShouldBeFalse();

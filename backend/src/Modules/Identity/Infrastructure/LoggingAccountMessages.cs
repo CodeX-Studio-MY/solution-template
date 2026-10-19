@@ -1,7 +1,7 @@
-using Acme.Identity.Application;
+using Saaskit.Identity.Application;
 using Microsoft.Extensions.Logging;
 
-namespace Acme.Identity.Infrastructure;
+namespace Saaskit.Identity.Infrastructure;
 
 /// <summary>
 /// The default <see cref="IAccountMessages"/> until the messaging layer exists: logs the link at Information level so

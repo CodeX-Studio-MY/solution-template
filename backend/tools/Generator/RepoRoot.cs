@@ -1,4 +1,4 @@
-namespace Acme.Generator;
+namespace Saaskit.Generator;
 
 internal static class RepoRoot
 {

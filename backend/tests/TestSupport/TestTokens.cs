@@ -1,12 +1,12 @@
 using System.Security.Cryptography;
 using System.Text;
-using Acme.Core.Hosting.Auth;
-using Acme.Core.Platform;
-using Acme.Core.Security;
+using Saaskit.Core.Hosting.Auth;
+using Saaskit.Core.Platform;
+using Saaskit.Core.Security;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Acme.TestSupport;
+namespace Saaskit.TestSupport;
 
 /// <summary>Mints access tokens the way the token server does (ES256, typ at+jwt), so services can be tested alone.</summary>
 public sealed class TestTokens : IDisposable
@@ -48,7 +48,7 @@ public sealed class TestTokens : IDisposable
         return new JsonWebTokenHandler().CreateToken(new SecurityTokenDescriptor
         {
             Issuer = Issuer,
-            Audience = audience ?? PlatformServices.PurchaseRequest.Audience,
+            Audience = audience ?? PlatformServices.Notification.Audience,
             Claims = claims,
             IssuedAt = now.AddMinutes(-1),
             NotBefore = now.AddMinutes(-1),

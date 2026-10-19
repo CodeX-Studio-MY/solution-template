@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace Acme.Generator.Emitters;
+namespace Saaskit.Generator.Emitters;
 
 /// <summary>The services and modules tables in README.md, between generated-region markers.</summary>
 internal static class ReadmeEmitter

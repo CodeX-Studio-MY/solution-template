@@ -1,8 +1,8 @@
-using Acme.Core.Platform;
-using Acme.Core.Security;
+using Saaskit.Core.Platform;
+using Saaskit.Core.Security;
 using Microsoft.AspNetCore.Authorization;
 
-namespace Acme.Core.Authorization;
+namespace Saaskit.Core.Authorization;
 
 /// <summary>
 /// "At least <paramref name="role"/> in <paramref name="module"/>". Also requires the tenant to be entitled to the module

@@ -1,18 +1,18 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
-using Acme.Core.Catalog;
-using Acme.Core.Platform;
-using Acme.Core.Tenancy;
-using Acme.Identity.Infrastructure;
-using Acme.Tenancy.Application;
-using Acme.Tenancy.Infrastructure;
-using Acme.Migrator;
+using Saaskit.Core.Catalog;
+using Saaskit.Core.Platform;
+using Saaskit.Core.Tenancy;
+using Saaskit.Identity.Infrastructure;
+using Saaskit.Tenancy.Application;
+using Saaskit.Tenancy.Infrastructure;
+using Saaskit.Migrator;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.JsonWebTokens;
 
-namespace Acme.Integration.Tests;
+namespace Saaskit.Integration.Tests;
 
 [Trait("service", "tenancy")]
 public sealed class TenancyTests(Databases databases)
@@ -44,8 +44,8 @@ public sealed class TenancyTests(Databases databases)
         return client;
     }
 
-    private static Task<HttpResponseMessage> OnboardAsync(HttpClient op, string slug, string plan = Plans.Standard) =>
-        op.PostAsJsonAsync($"{Api}/operator/tenants", new { slug, displayName = slug.ToUpperInvariant(), plan, adminEmail = $"admin@{slug}.example.com", adminName = "Admin" }, Ct);
+    private static Task<HttpResponseMessage> OnboardAsync(HttpClient op, string slug, string? plan = null) =>
+        op.PostAsJsonAsync($"{Api}/operator/tenants", new { slug, displayName = slug.ToUpperInvariant(), plan = plan ?? Fixture.BasePlan, adminEmail = $"admin@{slug}.example.com", adminName = "Admin" }, Ct);
 
     [Fact]
     public async Task Operators_need_the_password_and_a_valid_TOTP_code_and_failures_look_alike()
@@ -78,19 +78,19 @@ public sealed class TenancyTests(Databases databases)
         await using var host = await TenancyTestHost.StartAsync(databases);
         var op = await OperatorAsync(host);
 
-        var response = await OnboardAsync(op, "acme-co");
+        var response = await OnboardAsync(op, "saaskit-co");
         var result = await Read<JsonElement>(response);
         var tenantId = result.GetProperty("tenantId").GetGuid();
         var invitation = result.GetProperty("adminInvitationUrl").GetString()!;
-        invitation.ShouldStartWith("https://login.localhost/account/invitation?tenant=acme-co&token=");
+        invitation.ShouldStartWith("https://login.localhost/account/invitation?tenant=saaskit-co&token=");
 
         await using var scope = host.Services.CreateAsyncScope();
         var catalog = scope.ServiceProvider.GetRequiredService<CatalogDbContext>();
         var tenant = await catalog.Tenants.AsNoTracking().SingleAsync(t => t.Id == tenantId, Ct);
         tenant.Status.ShouldBe(TenantStatus.Active);
-        tenant.Placement.DatabaseName.ShouldBe("acme_acme_co");
+        tenant.Placement.DatabaseName.ShouldBe("saaskit_saaskit_co");
         tenant.Placement.Provider.ShouldBe(Databases.DefaultProvider);
-        (await catalog.TenantModules.Where(t => t.TenantId == tenantId).CountAsync(Ct)).ShouldBe(Modules.All.Count(m => m.Plans.Contains(Plans.Standard)));
+        (await catalog.TenantModules.Where(t => t.TenantId == tenantId).CountAsync(Ct)).ShouldBe(Modules.All.Count(m => m.Plans.Contains(Fixture.BasePlan)));
 
         // The tenant's database exists and is migrated: its first admin can accept the invitation.
         using var browser = host.Identity.Browser();
@@ -115,7 +115,7 @@ public sealed class TenancyTests(Databases databases)
         await using (var scope = host.Services.CreateAsyncScope())
         {
             var run = await scope.ServiceProvider.GetRequiredService<TenancyCatalogDbContext>().OnboardingRuns.AsNoTracking().SingleAsync(r => r.Slug == "resumable", Ct);
-            run.NextStep.ShouldBe(Acme.Tenancy.Domain.OnboardingStep.Migrations);
+            run.NextStep.ShouldBe(Saaskit.Tenancy.Domain.OnboardingStep.Migrations);
             run.Error.ShouldNotBeNull();
             (await scope.ServiceProvider.GetRequiredService<CatalogDbContext>().Tenants.CountAsync(t => t.Slug == "resumable", Ct)).ShouldBe(1);
         }
@@ -190,21 +190,28 @@ public sealed class TenancyTests(Databases databases)
             return [.. manifest.GetProperty("modules").EnumerateArray().Select(m => m.GetProperty("id").GetString()!)];
         }
 
-        (await ModulesSeenByTenantAsync()).ShouldBe([Modules.PurchaseRequest]);
+        // What platform.yaml says each plan includes. The manifest lists only the modules with a frontend: those a service of the
+        // same key owns (the platform's own modules have their screens in the shell).
+        static string[] ModulesOf(string plan) => [.. Modules.All.Where(m => m.Plans.Contains(plan)).Select(m => m.Key).Order(StringComparer.Ordinal)];
+        static string[] ManifestOf(string plan) =>
+            [.. ModulesOf(plan).Where(key => PlatformServices.All.Any(s => s.Key == key && s.OwnedModules.Contains(key)))];
 
-        var upgraded = await Read<JsonElement>(await op.PutAsJsonAsync($"{Api}/operator/tenants/{tenantId}/plan", new { plan = "plus" }, Ct));
-        upgraded.GetProperty("modules").EnumerateArray().Select(m => m.GetString()).ShouldContain(Modules.CostCenterBudget);
-        (await ModulesSeenByTenantAsync()).ShouldBe([Modules.CostCenterBudget, Modules.PurchaseRequest]);
+        (await ModulesSeenByTenantAsync()).Order(StringComparer.Ordinal).ShouldBe(ManifestOf(Fixture.BasePlan));
 
-        await op.PutAsJsonAsync($"{Api}/operator/tenants/{tenantId}/plan", new { plan = "standard" }, Ct);
-        (await ModulesSeenByTenantAsync()).ShouldBe([Modules.PurchaseRequest]);
-        (await op.PutAsJsonAsync($"{Api}/operator/tenants/{tenantId}/plan", new { plan = "gold" }, Ct)).StatusCode.ShouldBe(HttpStatusCode.UnprocessableEntity);
+        var upgraded = await Read<JsonElement>(await op.PutAsJsonAsync($"{Api}/operator/tenants/{tenantId}/plan", new { plan = Fixture.TopPlan }, Ct));
+        upgraded.GetProperty("modules").EnumerateArray().Select(m => m.GetString()!).Order(StringComparer.Ordinal).ShouldBe(ModulesOf(Fixture.TopPlan));
+        (await ModulesSeenByTenantAsync()).Order(StringComparer.Ordinal).ShouldBe(ManifestOf(Fixture.TopPlan));
 
-        // The manifest carries the module key and a URL built from configuration and the catalog's version.
+        await op.PutAsJsonAsync($"{Api}/operator/tenants/{tenantId}/plan", new { plan = Fixture.BasePlan }, Ct);
+        (await ModulesSeenByTenantAsync()).Order(StringComparer.Ordinal).ShouldBe(ManifestOf(Fixture.BasePlan));
+        (await op.PutAsJsonAsync($"{Api}/operator/tenants/{tenantId}/plan", new { plan = "not-a-plan" }, Ct)).StatusCode.ShouldBe(HttpStatusCode.UnprocessableEntity);
+
+        // The manifest carries the module key and a URL built from configuration and the catalog's version. A product with business
+        // modules checks this; the template has none yet.
         var caller = host.Client("grower.localhost");
         caller.DefaultRequestHeaders.Authorization = IdentityTestHost.Bearer(host.Identity.Callers.Create(tenantId, roles: [], audience: PlatformServices.Tenancy.Audience));
-        var entry = (await Read<JsonElement>(await caller.GetAsync($"{Api}/me/modules", Ct))).GetProperty("modules")[0];
-        entry.GetProperty("entry").GetString().ShouldBe("/mfe/purchase-request/0.0.0-dev/mf-manifest.json");
+        foreach (var entry in (await Read<JsonElement>(await caller.GetAsync($"{Api}/me/modules", Ct))).GetProperty("modules").EnumerateArray())
+            entry.GetProperty("entry").GetString().ShouldBe($"/mfe/{entry.GetProperty("id").GetString()}/0.0.0-dev/mf-manifest.json");
     }
 
     [Fact]
@@ -217,12 +224,12 @@ public sealed class TenancyTests(Databases databases)
         admin.DefaultRequestHeaders.Authorization = IdentityTestHost.Bearer(host.Identity.Callers.Create(tenantId, roles: ["tenant-settings:admin"], audience: PlatformServices.Tenancy.Audience));
 
         // Operators never get more than manager, and need a real reason.
-        (await op.PostAsJsonAsync($"{Api}/operator/support-access", new { tenantSlug = "helped", reason = "Investigating ticket 42 for the customer", role = "admin", module = Modules.PurchaseRequest, minutes = 30 }, Ct))
+        (await op.PostAsJsonAsync($"{Api}/operator/support-access", new { tenantSlug = "helped", reason = "Investigating ticket 42 for the customer", role = "admin", module = Modules.TenantSettings, minutes = 30 }, Ct))
             .StatusCode.ShouldBe(HttpStatusCode.UnprocessableEntity);
-        (await op.PostAsJsonAsync($"{Api}/operator/support-access", new { tenantSlug = "helped", reason = "short", role = "user", module = Modules.PurchaseRequest, minutes = 30 }, Ct))
+        (await op.PostAsJsonAsync($"{Api}/operator/support-access", new { tenantSlug = "helped", reason = "short", role = "user", module = Modules.TenantSettings, minutes = 30 }, Ct))
             .StatusCode.ShouldBe(HttpStatusCode.UnprocessableEntity);
 
-        var requested = await Read<JsonElement>(await op.PostAsJsonAsync($"{Api}/operator/support-access", new { tenantSlug = "helped", reason = "Investigating ticket 42 for the customer", role = "manager", module = Modules.PurchaseRequest, minutes = 30 }, Ct));
+        var requested = await Read<JsonElement>(await op.PostAsJsonAsync($"{Api}/operator/support-access", new { tenantSlug = "helped", reason = "Investigating ticket 42 for the customer", role = "manager", module = Modules.TenantSettings, minutes = 30 }, Ct));
         var grantId = requested.GetProperty("id").GetGuid();
         requested.GetProperty("status").GetString().ShouldBe("pending");
 
@@ -237,8 +244,8 @@ public sealed class TenancyTests(Databases databases)
         var issued = await Read<JsonElement>(await op.PostAsync($"{Api}/operator/support-access/{grantId}/token", null, Ct));
         var token = new JsonWebTokenHandler().ReadJsonWebToken(issued.GetProperty("accessToken").GetString());
         token.GetClaim("tenant_id").Value.ShouldBe(tenantId.ToString());
-        token.GetClaim("roles").Value.ShouldBe("purchase-request:manager");
-        token.Audiences.ShouldBe([PlatformServices.PurchaseRequest.Audience]);   // only the service that owns the module
+        token.GetClaim("roles").Value.ShouldBe("tenant-settings:manager");
+        token.Audiences.ShouldBe([PlatformServices.Tenancy.Audience]);   // only the service that owns the module
         using var act = JsonDocument.Parse(token.GetClaim("act").Value);
         act.RootElement.GetProperty("sub").GetString().ShouldBe(requested.GetProperty("operatorId").GetGuid().ToString());
         (token.ValidTo - token.IssuedAt).TotalMinutes.ShouldBeLessThanOrEqualTo(10);
@@ -265,10 +272,10 @@ public sealed class TenancyTests(Databases databases)
         await OnboardAsync(op, "tenant-two");
         await op.PutAsJsonAsync($"{Api}/operator/tenants/{one}/support-approval", new { required = false }, Ct);
 
-        var auto = await Read<JsonElement>(await op.PostAsJsonAsync($"{Api}/operator/support-access", new { tenantSlug = "tenant-one", reason = "Routine health check requested", role = "user", module = Modules.PurchaseRequest, minutes = 15 }, Ct));
+        var auto = await Read<JsonElement>(await op.PostAsJsonAsync($"{Api}/operator/support-access", new { tenantSlug = "tenant-one", reason = "Routine health check requested", role = "user", module = Modules.TenantSettings, minutes = 15 }, Ct));
         auto.GetProperty("status").GetString().ShouldBe("approved");
 
-        var pending = await Read<JsonElement>(await op.PostAsJsonAsync($"{Api}/operator/support-access", new { tenantSlug = "tenant-two", reason = "Routine health check requested", role = "user", module = Modules.PurchaseRequest, minutes = 15 }, Ct));
+        var pending = await Read<JsonElement>(await op.PostAsJsonAsync($"{Api}/operator/support-access", new { tenantSlug = "tenant-two", reason = "Routine health check requested", role = "user", module = Modules.TenantSettings, minutes = 15 }, Ct));
         pending.GetProperty("status").GetString().ShouldBe("pending");
 
         // An admin of tenant-one can't approve tenant-two's grant.
@@ -288,7 +295,7 @@ public sealed class TenancyTests(Databases databases)
     }
 
     /// <summary>A migrator that fails on its first call and then delegates to the real in-process one.</summary>
-    private sealed class FlakyMigrator(IServiceProvider services, Acme.Core.Tenancy.ITenantDirectory directory) : ITenantMigrator
+    private sealed class FlakyMigrator(IServiceProvider services, Saaskit.Core.Tenancy.ITenantDirectory directory) : ITenantMigrator
     {
         public int Calls { get; private set; }
 
@@ -297,7 +304,7 @@ public sealed class TenancyTests(Databases databases)
             Calls++;
             if (Calls == 1)
                 throw new InvalidOperationException("the migrator job could not start");
-            var runner = ActivatorUtilities.CreateInstance<Acme.Migrator.MigrationRunner>(services);
+            var runner = ActivatorUtilities.CreateInstance<Saaskit.Migrator.MigrationRunner>(services);
             var tenant = await directory.FindByIdAsync(tenantId, cancellationToken) ?? throw new InvalidOperationException("Unknown tenant.");
             if (!await runner.MigrateTenantAsync(tenant, cancellationToken))
                 throw new InvalidOperationException("The migrator failed.");

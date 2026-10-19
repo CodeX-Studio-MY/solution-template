@@ -1,5 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
-  <!-- Development only, never deployed: onboards the two demo tenants and gives them their sample data (scripts/dev-up runs it
+  <!-- Development only, never deployed: onboards the demo tenant (scripts/dev-up runs it
        through the AppHost). It hosts every module so it can use their services, but serves nothing. -->
   <PropertyGroup>
     <IsPackable>false</IsPackable>

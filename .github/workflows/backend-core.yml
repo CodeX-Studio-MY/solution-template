@@ -44,7 +44,7 @@ jobs:
           global-json-file: global.json
       - run: dotnet tool restore
         working-directory: backend
-      - run: dotnet restore backend/acme.slnx
-      - run: dotnet build backend/acme.slnx --no-restore --configuration Release
+      - run: dotnet restore backend/saaskit.slnx
+      - run: dotnet build backend/saaskit.slnx --no-restore --configuration Release
       # Everything, on every database provider in platform.yaml.
-      - run: dotnet test --solution backend/acme.slnx --no-build --configuration Release
+      - run: dotnet test --solution backend/saaskit.slnx --no-build --configuration Release

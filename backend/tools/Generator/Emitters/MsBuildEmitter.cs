@@ -1,4 +1,4 @@
-namespace Acme.Generator.Emitters;
+namespace Saaskit.Generator.Emitters;
 
 /// <summary>backend/Platform.g.props: product name and org for assembly names, namespaces and package metadata.</summary>
 internal static class MsBuildEmitter

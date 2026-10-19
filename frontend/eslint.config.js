@@ -13,7 +13,7 @@ const apiLiteral = {
   selector:
     "Literal[value=/\\/api\\//]:not(CallExpression[callee.property.name=/^(GET|POST|PUT|DELETE|PATCH)$/] > Literal:first-child), TemplateElement[value.raw=/\\/api\\//]",
   message:
-    'Don\'t spell /api/ paths. Call the typed client (api("service").GET("/api/...")), or use apiPath(service, path) from @acme/web-core.',
+    'Don\'t spell /api/ paths. Call the typed client (api("service").GET("/api/...")), or use apiPath(service, path) from @saaskit/web-core.',
 };
 const localhostLiteral = {
   selector: "Literal[value=/localhost|127\\.0\\.0\\.1/]",
@@ -22,7 +22,7 @@ const localhostLiteral = {
 const handWrittenApiType = {
   selector:
     "TSInterfaceDeclaration[id.name=/(Dto|Input)$/], TSTypeAliasDeclaration[id.name=/(Dto|Input)$/][typeAnnotation.type!='TSIndexedAccessType']",
-  message: "API types are generated from the OpenAPI documents (@acme/api-clients). Alias the generated type instead of writing one.",
+  message: "API types are generated from the OpenAPI documents (@saaskit/api-clients). Alias the generated type instead of writing one.",
 };
 const tenantIdentity = {
   selector: "BinaryExpression[operator=/^[!=]==?$/] > MemberExpression[property.name=/^(slug|tenantId|tenantSlug)$/]",

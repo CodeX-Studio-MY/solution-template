@@ -1,6 +1,6 @@
-using Acme.Notification;
-using Acme.Core.Hosting;
-using Acme.Core.Platform;
+using Saaskit.Notification;
+using Saaskit.Core.Hosting;
+using Saaskit.Core.Platform;
 
 var builder = WebApplication.CreateBuilder(args);
 

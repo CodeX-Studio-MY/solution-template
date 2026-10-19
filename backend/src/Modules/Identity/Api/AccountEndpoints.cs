@@ -1,10 +1,10 @@
 using System.Security.Claims;
-using Acme.Core.Configuration;
-using Acme.Core.Security;
-using Acme.Core.Tenancy;
-using Acme.Identity.Application;
-using Acme.Identity.Domain;
-using Acme.Identity.Infrastructure;
+using Saaskit.Core.Configuration;
+using Saaskit.Core.Security;
+using Saaskit.Core.Tenancy;
+using Saaskit.Identity.Application;
+using Saaskit.Identity.Domain;
+using Saaskit.Identity.Infrastructure;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -14,7 +14,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace Acme.Identity.Api;
+namespace Saaskit.Identity.Api;
 
 /// <summary>
 /// The sign-in pages on <c>login.{BaseDomain}</c>: password sign-in with lockout that grows, TOTP, passkeys, invitation

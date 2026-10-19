@@ -1,13 +1,13 @@
 using System.Net.Http.Headers;
-using Acme.Core.Catalog;
-using Acme.Core.Catalog.Entities;
-using Acme.Core.Composition;
-using Acme.Core.Hosting;
-using Acme.Core.Hosting.Messaging;
-using Acme.Core.Platform;
-using Acme.Core.Security;
-using Acme.Core.Tenancy;
-using Acme.Migrator;
+using Saaskit.Core.Catalog;
+using Saaskit.Core.Catalog.Entities;
+using Saaskit.Core.Composition;
+using Saaskit.Core.Hosting;
+using Saaskit.Core.Hosting.Messaging;
+using Saaskit.Core.Platform;
+using Saaskit.Core.Security;
+using Saaskit.Core.Tenancy;
+using Saaskit.Migrator;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.TestHost;
@@ -17,7 +17,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
-namespace Acme.TestSupport;
+namespace Saaskit.TestSupport;
 
 /// <summary>
 /// One business module hosted exactly as in production (AddPlatform), on the chosen database provider, with real migrations,
@@ -52,7 +52,7 @@ public sealed class ModuleTestHost : IAsyncDisposable
     /// <summary>The in-memory server's handler, for clients that aren't HttpClient-based (SignalR).</summary>
     public HttpMessageHandler Handler => _app.GetTestServer().CreateHandler();
 
-    /// <summary>Starts <typeparamref name="TModule"/>; tenants named like "demo-plus" get the Plus plan, the rest Standard.</summary>
+    /// <summary>Starts <typeparamref name="TModule"/>; tenants named like "demo-plus" get the last plan in platform.yaml, the rest the first.</summary>
     public static Task<ModuleTestHost> StartAsync<TModule>(Databases databases, string provider, Action<WebApplicationBuilder>? configure = null, params string[] tenantSlugs)
         where TModule : IPlatformModule =>
         StartCoreAsync(databases, provider, [TModule.Service], builder => builder.AddModule<TModule>(), configure, tenantSlugs);
@@ -113,7 +113,7 @@ public sealed class ModuleTestHost : IAsyncDisposable
             await using (var scope = app.Services.CreateAsyncScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<CatalogDbContext>();
-                var plan = slug.Contains("plus", StringComparison.Ordinal) ? Plans.Plus : Plans.Standard;
+                var plan = slug.Contains("plus", StringComparison.Ordinal) ? Plans.All[^1] : Plans.All[0];
                 var tenant = new CatalogTenant(slug, slug, plan, PlatformInfo.DefaultTimeZone, PlatformInfo.DefaultCurrency, "en",
                     new TenantPlacementData { Provider = provider, ServerPool = "default", DatabaseName = Databases.UniqueName("tenant") });
                 tenant.ChangeStatus(TenantStatus.Active);

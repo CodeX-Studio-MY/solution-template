@@ -1,10 +1,10 @@
-using Acme.Core.Data;
-using Acme.Core.Data.PostgreSql;
-using Acme.Core.Data.SqlServer;
-using Acme.Core.Platform;
-using Acme.Migrator;
+using Saaskit.Core.Data;
+using Saaskit.Core.Data.PostgreSql;
+using Saaskit.Core.Data.SqlServer;
+using Saaskit.Core.Platform;
+using Saaskit.Migrator;
 
-namespace Acme.Architecture.Tests;
+namespace Saaskit.Architecture.Tests;
 
 public sealed class DataOwnershipTests
 {

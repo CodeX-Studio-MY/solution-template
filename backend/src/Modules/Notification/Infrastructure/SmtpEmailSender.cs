@@ -1,11 +1,11 @@
-using Acme.Core.Configuration;
-using Acme.Notification.Application;
+using Saaskit.Core.Configuration;
+using Saaskit.Notification.Application;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.Extensions.Options;
 using MimeKit;
 
-namespace Acme.Notification.Infrastructure;
+namespace Saaskit.Notification.Infrastructure;
 
 /// <summary>SMTP through MailKit. Locally this is Mailpit, which catches every email in a web inbox.</summary>
 internal sealed class SmtpEmailSender(IOptions<SmtpOptions> options) : IEmailSender

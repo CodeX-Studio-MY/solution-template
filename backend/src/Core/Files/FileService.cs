@@ -1,17 +1,17 @@
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
-using Acme.Core.Configuration;
-using Acme.Core.Data;
-using Acme.Core.Errors;
-using Acme.Core.Tenancy;
+using Saaskit.Core.Configuration;
+using Saaskit.Core.Data;
+using Saaskit.Core.Errors;
+using Saaskit.Core.Tenancy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
-namespace Acme.Core.Files;
+namespace Saaskit.Core.Files;
 
 /// <summary>What the caller wants stored. The key and the stored name come from the server, never from this.</summary>
 /// <param name="ModuleKey">The module that owns the file.</param>
-/// <param name="Entity">The kind of record it belongs to, for the key (for example <c>purchase-request</c>).</param>
+/// <param name="Entity">The kind of record it belongs to, for the key (for example <c>goods-receipt</c>).</param>
 /// <param name="EntityId">The record it belongs to.</param>
 /// <param name="Content">The uploaded bytes.</param>
 /// <param name="ClaimedName">The name the client gave. Used for display after sanitising; never for storage.</param>

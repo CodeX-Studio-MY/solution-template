@@ -1,4 +1,4 @@
-namespace Acme.Contracts;
+namespace Saaskit.Contracts;
 
 /// <summary>
 /// Marks a record as a module's per-tenant settings (rung 1 of the customization ladder). Values are data in the catalog: a tenant
@@ -34,3 +34,11 @@ public sealed class FeatureFlagAttribute(string moduleKey) : Attribute
 
     public string Description { get; init; } = "";
 }
+
+/// <summary>
+/// Adds an assembly's <see cref="TenantSettingsAttribute"/> and <see cref="FeatureFlagAttribute"/> declarations to the ones in
+/// <c>Contracts</c>. For test assemblies, which exercise the customization machinery without shipping settings to a product;
+/// products declare theirs here, in <c>Contracts</c>.
+/// </summary>
+[AttributeUsage(AttributeTargets.Assembly)]
+public sealed class DeclaresCustomizationAttribute : Attribute;

@@ -1,8 +1,8 @@
 using System.Security.Cryptography;
 using System.Xml.Linq;
-using Acme.Core.Hosting.DataProtection;
+using Saaskit.Core.Hosting.DataProtection;
 
-namespace Acme.Integration.Tests;
+namespace Saaskit.Integration.Tests;
 
 /// <summary>The key-encryption key of the shared Data Protection ring can be rotated without signing everyone out.</summary>
 public sealed class DataProtectionKeyRotationTests

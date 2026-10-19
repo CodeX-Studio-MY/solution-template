@@ -1,4 +1,4 @@
-namespace Acme.Generator;
+namespace Saaskit.Generator;
 
 /// <summary>A DbContext the Migrator applies, derived from platform.yaml's services and their databases.</summary>
 /// <param name="Target">The migration target name: <c>catalog</c> for the tenant directory, otherwise the service key.</param>

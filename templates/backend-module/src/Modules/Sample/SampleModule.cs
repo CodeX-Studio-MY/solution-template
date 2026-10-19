@@ -1,15 +1,15 @@
-using Acme.Core.Composition;
-using Acme.Core.Data;
-using Acme.Core.Localization;
-using Acme.Core.Platform;
-using Acme.Sample.Api;
-using Acme.Sample.Application;
-using Acme.Sample.Infrastructure;
+using Saaskit.Core.Composition;
+using Saaskit.Core.Data;
+using Saaskit.Core.Localization;
+using Saaskit.Core.Platform;
+using Saaskit.Sample.Api;
+using Saaskit.Sample.Application;
+using Saaskit.Sample.Infrastructure;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace Acme.Sample;
+namespace Saaskit.Sample;
 
 /// <summary>The module's entry point. A host (or AllInOne.Host) registers it with <c>AddModule&lt;SampleModule&gt;()</c>.</summary>
 public sealed class SampleModule : IPlatformModule

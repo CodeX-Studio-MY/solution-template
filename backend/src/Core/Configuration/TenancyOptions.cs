@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 
-namespace Acme.Core.Configuration;
+namespace Saaskit.Core.Configuration;
 
 [OptionsSection("Tenancy", "How requests are mapped to tenants, and the public origins derived from the base domain.")]
 public sealed record TenancyOptions

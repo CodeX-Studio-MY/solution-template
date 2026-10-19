@@ -1,11 +1,2 @@
 {
-  "notifications.approved.title": "Request {0} approved",
-  "notifications.approved.body": "Your purchase request {0} ({1} {2}) was approved.",
-  "notifications.approved.emailSubject": "Purchase request {0} approved",
-  "notifications.rejected.title": "Request {0} rejected",
-  "notifications.rejected.body": "Your purchase request {0} was rejected. Reason: {1}",
-  "notifications.rejected.emailSubject": "Purchase request {0} rejected",
-  "notifications.approvalsWaiting.title": "{0} request(s) waiting for approval",
-  "notifications.approvalsWaiting.body": "{0} purchase request(s) have waited more than two days, the oldest since {1}: {2}.",
-  "notifications.approvalsWaiting.emailSubject": "{0} purchase request(s) are waiting for your approval"
 }

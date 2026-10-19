@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations.Schema;
-using Acme.Core.Data;
-using Acme.Core.Tenancy;
+using Saaskit.Core.Data;
+using Saaskit.Core.Tenancy;
 
-namespace Acme.Core.Catalog.Entities;
+namespace Saaskit.Core.Catalog.Entities;
 
 /// <summary>A tenant in the catalog. The slug is stored lowercase, so lookups never depend on database collation.</summary>
 public sealed class CatalogTenant : BaseEntity, IAggregateRoot

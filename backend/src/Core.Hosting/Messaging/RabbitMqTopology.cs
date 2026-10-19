@@ -1,6 +1,6 @@
-using Acme.Core.Platform;
+using Saaskit.Core.Platform;
 
-namespace Acme.Core.Hosting.Messaging;
+namespace Saaskit.Core.Hosting.Messaging;
 
 /// <summary>
 /// Names on the broker. One topic exchange carries every event by routing key (<c>{event-name}.v{version}</c>). Each consumer has a

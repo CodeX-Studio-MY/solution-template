@@ -2,7 +2,7 @@ using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace Acme.Generator.Emitters;
+namespace Saaskit.Generator.Emitters;
 
 /// <summary>
 /// deploy/docker-compose.yml is produced from the AppHost with <c>aspire publish</c> (Aspire's Docker Compose publisher),

@@ -1,17 +1,17 @@
-using Acme.Core.Composition;
-using Acme.Core.Configuration;
-using Acme.Core.Data;
-using Acme.Core.ServiceCalls;
-using Acme.Core.Platform;
-using Acme.Tenancy.Api;
-using Acme.Tenancy.Application;
-using Acme.Tenancy.Infrastructure;
+using Saaskit.Core.Composition;
+using Saaskit.Core.Configuration;
+using Saaskit.Core.Data;
+using Saaskit.Core.ServiceCalls;
+using Saaskit.Core.Platform;
+using Saaskit.Tenancy.Api;
+using Saaskit.Tenancy.Application;
+using Saaskit.Tenancy.Infrastructure;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace Acme.Tenancy;
+namespace Saaskit.Tenancy;
 
 /// <summary>Catalog, tenant lifecycle, onboarding, entitlements, settings, and the platform operator realm.</summary>
 public sealed class TenancyModule : IPlatformModule

@@ -2,7 +2,7 @@ using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 
-namespace Acme.Core.Security;
+namespace Saaskit.Core.Security;
 
 internal sealed class HttpCurrentPrincipal(IHttpContextAccessor accessor) : ICurrentPrincipal
 {

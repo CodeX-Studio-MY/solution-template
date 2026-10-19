@@ -1,8 +1,8 @@
 using System.Collections.Frozen;
 using System.Reflection;
-using Acme.Contracts;
+using Saaskit.Contracts;
 
-namespace Acme.Core.Messaging;
+namespace Saaskit.Core.Messaging;
 
 /// <summary>One integration event type: its name, version and routing key.</summary>
 public sealed record EventDescriptor(Type Type, string Name, int Version)

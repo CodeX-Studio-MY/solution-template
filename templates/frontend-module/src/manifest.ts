@@ -1,4 +1,4 @@
-import type { ModuleManifest } from "@acme/web-core";
+import type { ModuleManifest } from "@saaskit/web-core";
 import { basePath, moduleKey } from "./basePath";
 import en from "./locales/en.json";
 import ms from "./locales/ms.json";

@@ -1,6 +1,6 @@
-using Acme.Core.Data;
+using Saaskit.Core.Data;
 
-namespace Acme.Identity.Domain;
+namespace Saaskit.Identity.Domain;
 
 /// <summary>Kinds of security event recorded in the tenant's audit log.</summary>
 public static class AuditKinds

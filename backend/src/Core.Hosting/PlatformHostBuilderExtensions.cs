@@ -1,22 +1,22 @@
-using Acme.Core.Catalog;
-using Acme.Core.Configuration;
-using Acme.Core.Data;
-using Acme.Core.Data.PostgreSql;
-using Acme.Core.Data.SqlServer;
-using Acme.Core.Hosting.Auth;
-using Acme.Core.Hosting.DataProtection;
-using Acme.Core.Hosting.Files;
-using Acme.Core.Hosting.Messaging;
-using Acme.Core.Hosting.Redis;
-using Acme.Core.ServiceCalls;
-using Acme.Core.Composition;
-using Acme.Core.Platform;
+using Saaskit.Core.Catalog;
+using Saaskit.Core.Configuration;
+using Saaskit.Core.Data;
+using Saaskit.Core.Data.PostgreSql;
+using Saaskit.Core.Data.SqlServer;
+using Saaskit.Core.Hosting.Auth;
+using Saaskit.Core.Hosting.DataProtection;
+using Saaskit.Core.Hosting.Files;
+using Saaskit.Core.Hosting.Messaging;
+using Saaskit.Core.Hosting.Redis;
+using Saaskit.Core.ServiceCalls;
+using Saaskit.Core.Composition;
+using Saaskit.Core.Platform;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Acme.Core.Hosting;
+namespace Saaskit.Core.Hosting;
 
 public static class PlatformHostBuilderExtensions
 {

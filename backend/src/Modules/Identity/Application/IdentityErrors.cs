@@ -1,7 +1,7 @@
-using Acme.Core.Errors;
-using Acme.Core.Platform;
+using Saaskit.Core.Errors;
+using Saaskit.Core.Platform;
 
-namespace Acme.Identity.Application;
+namespace Saaskit.Identity.Application;
 
 /// <summary>The Identity module's error catalog.</summary>
 [ErrorCatalog(Modules.AccessManagement)]

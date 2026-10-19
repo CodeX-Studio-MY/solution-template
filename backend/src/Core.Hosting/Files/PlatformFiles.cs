@@ -1,5 +1,5 @@
-using Acme.Core.Configuration;
-using Acme.Core.Files;
+using Saaskit.Core.Configuration;
+using Saaskit.Core.Files;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -7,7 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace Acme.Core.Hosting.Files;
+namespace Saaskit.Core.Hosting.Files;
 
 public static class PlatformFiles
 {

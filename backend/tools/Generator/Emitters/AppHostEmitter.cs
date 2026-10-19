@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace Acme.Generator.Emitters;
+namespace Saaskit.Generator.Emitters;
 
 /// <summary>backend/src/AppHost/Generated/PlatformResources.g.cs: one Aspire project resource per service.</summary>
 internal static class AppHostEmitter

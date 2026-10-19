@@ -1,4 +1,4 @@
-namespace Acme.Core.Security;
+namespace Saaskit.Core.Security;
 
 /// <summary>Claim and header names shared by every service.</summary>
 public static class PlatformClaims

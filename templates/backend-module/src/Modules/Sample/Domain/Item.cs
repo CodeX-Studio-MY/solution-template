@@ -1,6 +1,6 @@
-using Acme.Core.Data;
+using Saaskit.Core.Data;
 
-namespace Acme.Sample.Domain;
+namespace Saaskit.Sample.Domain;
 
 /// <summary>
 /// The module's example aggregate. All state changes go through its methods, so the rules live in one place. Replace it with your own:

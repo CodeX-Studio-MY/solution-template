@@ -1,12 +1,12 @@
 using System.Text.Json;
-using Acme.Identity.Application;
-using Acme.Identity.Infrastructure.OpenIddict;
+using Saaskit.Identity.Application;
+using Saaskit.Identity.Infrastructure.OpenIddict;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using OpenIddict.Abstractions;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 
-namespace Acme.Identity.Infrastructure;
+namespace Saaskit.Identity.Infrastructure;
 
 internal sealed class ClientRegistry(IdentityCatalogDbContext db, IOpenIddictApplicationManager manager) : IClientRegistry
 {

@@ -1,15 +1,15 @@
 using System.Collections.Concurrent;
-using Acme.Core.Catalog;
-using Acme.Core.Catalog.Entities;
-using Acme.Core.Configuration;
-using Acme.Core.Data;
-using Acme.Core.Tenancy;
+using Saaskit.Core.Catalog;
+using Saaskit.Core.Catalog.Entities;
+using Saaskit.Core.Configuration;
+using Saaskit.Core.Data;
+using Saaskit.Core.Tenancy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Acme.Migrator;
+namespace Saaskit.Migrator;
 
 /// <summary>
 /// Applies catalog and tenant migrations. Every migration must be expand-only (backward compatible with the

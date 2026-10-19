@@ -1,4 +1,4 @@
-namespace Acme.Core.Data;
+namespace Saaskit.Core.Data;
 
 /// <summary>
 /// Atomic per-tenant document numbering, in the same transaction as the business data.

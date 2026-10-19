@@ -1,7 +1,7 @@
-using Acme.Core.Data;
-using Acme.Core.Platform;
+using Saaskit.Core.Data;
+using Saaskit.Core.Platform;
 
-namespace Acme.Identity.Domain;
+namespace Saaskit.Identity.Domain;
 
 /// <summary>
 /// (principal OR group) → module → role. One role per module per assignee: a principal or group can't hold two

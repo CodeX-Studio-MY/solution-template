@@ -1,13 +1,13 @@
 using System.Text;
-using Acme.Core.Configuration;
-using Acme.Core.Messaging;
+using Saaskit.Core.Configuration;
+using Saaskit.Core.Messaging;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
-namespace Acme.Core.Hosting.Messaging;
+namespace Saaskit.Core.Hosting.Messaging;
 
 /// <summary>
 /// Runs every registered consumer. For each one it declares the quorum queue, three retry queues (growing delays that

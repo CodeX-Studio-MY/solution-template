@@ -1,9 +1,9 @@
-using Acme.Core.Http;
-using Acme.Notification.Application;
-using Acme.Notification.Domain;
+using Saaskit.Core.Http;
+using Saaskit.Notification.Application;
+using Saaskit.Notification.Domain;
 using Microsoft.EntityFrameworkCore;
 
-namespace Acme.Notification.Infrastructure;
+namespace Saaskit.Notification.Infrastructure;
 
 internal sealed class NotificationStore(NotificationDbContext db) : INotificationStore
 {

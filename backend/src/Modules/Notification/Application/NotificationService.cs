@@ -1,31 +1,24 @@
-using Acme.Core.Http;
-using Acme.Core.Localization;
-using Acme.Core.Security;
-using Acme.Core.Tenancy;
-using Acme.Notification.Domain;
+using Saaskit.Core.Http;
+using Saaskit.Core.Security;
+using Saaskit.Core.Tenancy;
+using Saaskit.Notification.Domain;
 using Microsoft.Extensions.Logging;
 
-namespace Acme.Notification.Application;
+namespace Saaskit.Notification.Application;
 
 /// <summary>Creates notifications (history, real-time push, email) and answers the signed-in person's reads.</summary>
 public sealed partial class NotificationService(
     INotificationStore store,
     INotificationPusher pusher,
     IEmailSender email,
-    IMessageLocalizer localizer,
     ITenantContext tenant,
     ICurrentPrincipal principal,
     TimeProvider time,
     ILogger<NotificationService> logger)
 {
-    /// <summary>
-    /// Tells one person about something. The text comes from the message catalog in the tenant's language
-    /// (<c>{messageKey}.title</c>, <c>{messageKey}.body</c>, <c>{messageKey}.emailSubject</c>), with <paramref name="arguments"/> filled in.
-    /// </summary>
-    public async Task NotifyAsync(Contact recipient, string kind, string messageKey, string? link, params object?[] arguments)
+    /// <summary>Tells one person about something, with text the caller already localized: saved, pushed in real time and emailed.</summary>
+    public async Task DeliverAsync(Contact recipient, string kind, string title, string body, string emailSubject, string? link)
     {
-        var title = localizer.Text($"{messageKey}.title", arguments);
-        var body = localizer.Text($"{messageKey}.body", arguments);
         var notification = store.Add(new UserNotification(recipient.Id, kind, title, body, link));
         await store.SaveAsync();
 
@@ -35,7 +28,7 @@ public sealed partial class NotificationService(
         {
             try
             {
-                await email.SendAsync(recipient.Email, recipient.DisplayName, localizer.Text($"{messageKey}.emailSubject", arguments), body);
+                await email.SendAsync(recipient.Email, recipient.DisplayName, emailSubject, body);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {

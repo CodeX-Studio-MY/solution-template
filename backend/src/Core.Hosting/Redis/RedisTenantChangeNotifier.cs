@@ -1,9 +1,9 @@
-using Acme.Core.Tenancy;
+using Saaskit.Core.Tenancy;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using StackExchange.Redis;
 
-namespace Acme.Core.Hosting.Redis;
+namespace Saaskit.Core.Hosting.Redis;
 
 internal sealed class RedisTenantChangeNotifier(IConnectionMultiplexer redis, IServiceProvider services) : ITenantChangeNotifier
 {

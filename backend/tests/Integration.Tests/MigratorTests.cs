@@ -1,18 +1,18 @@
-using Acme.Core;
-using Acme.Core.Catalog;
-using Acme.Core.Catalog.Entities;
-using Acme.Core.Data;
-using Acme.Core.Data.PostgreSql;
-using Acme.Core.Data.SqlServer;
-using Acme.Core.Platform;
-using Acme.Migrator;
+using Saaskit.Core;
+using Saaskit.Core.Catalog;
+using Saaskit.Core.Catalog.Entities;
+using Saaskit.Core.Data;
+using Saaskit.Core.Data.PostgreSql;
+using Saaskit.Core.Data.SqlServer;
+using Saaskit.Core.Platform;
+using Saaskit.Migrator;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace Acme.Integration.Tests;
+namespace Saaskit.Integration.Tests;
 
 [Trait("service", "migrator")]
 public sealed class MigratorTests(Databases databases)

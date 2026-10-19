@@ -1,14 +1,14 @@
 using System.Security.Claims;
-using Acme.Core.Configuration;
-using Acme.Core.Errors;
-using Acme.Core.Security;
-using Acme.Core.Tenancy;
+using Saaskit.Core.Configuration;
+using Saaskit.Core.Errors;
+using Saaskit.Core.Security;
+using Saaskit.Core.Tenancy;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using NSubstitute;
 
-namespace Acme.Core.Tests;
+namespace Saaskit.Core.Tests;
 
 public sealed class TenantResolutionTests
 {

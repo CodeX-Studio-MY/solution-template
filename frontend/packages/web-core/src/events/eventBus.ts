@@ -1,10 +1,9 @@
 /**
  * Everything modules can tell each other. Modules never import each other; they share only this list, which lives here,
- * and they react to what they care about. Add an event by adding a line.
+ * and they react to what they care about. Add an event by adding a line, named `{module-key}.{what-happened}`, for example
+ * `"goods-receipt.changed": { receiptId: string };`.
  */
 export interface AppEvents {
-  /** A request was created, changed or decided. Other modules (for example a budget panel) can refresh. */
-  "purchase-request.changed": { requestId: string };
   /** Ask the shell to go somewhere (modules link to each other by URL, never by import). */
   navigate: { to: string };
   /** Show a short message (a snackbar) in the shell. */

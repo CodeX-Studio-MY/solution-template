@@ -1,9 +1,9 @@
-using Acme.Core.Data;
-using Acme.Core.Tenancy;
+using Saaskit.Core.Data;
+using Saaskit.Core.Tenancy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Acme.Core.Messaging;
+namespace Saaskit.Core.Messaging;
 
 /// <summary>Publishes one module's pending outbox rows for one tenant, in order, at most one relay at a time per tenant and module.</summary>
 internal sealed class OutboxSource<TContext>(

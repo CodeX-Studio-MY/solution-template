@@ -2,7 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using OpenFeature;
 
-namespace Acme.Core.Customization;
+namespace Saaskit.Core.Customization;
 
 public static class CustomizationRegistration
 {

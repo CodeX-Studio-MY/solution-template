@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace Acme.Core.Platform;
+namespace Saaskit.Core.Platform;
 
 public static class RoleExtensions
 {

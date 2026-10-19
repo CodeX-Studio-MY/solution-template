@@ -1,4 +1,4 @@
-namespace Acme.Core.Platform;
+namespace Saaskit.Core.Platform;
 
 /// <summary>An access module declared in <c>platform.yaml</c>: something roles and plans apply to.</summary>
 /// <param name="Key">The module key used in tokens, routes and code.</param>

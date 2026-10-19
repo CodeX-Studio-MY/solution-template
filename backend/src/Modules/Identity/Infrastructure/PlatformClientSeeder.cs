@@ -1,11 +1,11 @@
-using Acme.Core.Configuration;
-using Acme.Core.Platform;
-using Acme.Identity.Application;
+using Saaskit.Core.Configuration;
+using Saaskit.Core.Platform;
+using Saaskit.Identity.Application;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
-namespace Acme.Identity.Infrastructure;
+namespace Saaskit.Identity.Infrastructure;
 
 /// <summary>
 /// At start-up, registers the platform's own OAuth clients from configuration (secrets come from the secret store):

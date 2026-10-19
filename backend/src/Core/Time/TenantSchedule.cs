@@ -1,8 +1,8 @@
 using System.Security.Cryptography;
 using System.Text;
-using Acme.Core.Tenancy;
+using Saaskit.Core.Tenancy;
 
-namespace Acme.Core.Time;
+namespace Saaskit.Core.Time;
 
 /// <summary>
 /// "Run at 09:00 tenant local time" without looping over thousands of tenants serially inside one trigger. A frequent trigger asks

@@ -15,7 +15,7 @@ export interface ModuleRoute {
 export interface MenuItem {
   label: string;
   path: string;
-  /** The name of an icon in `@acme/ui-kit`'s icon set. */
+  /** The name of an icon in `@saaskit/ui-kit`'s icon set. */
   icon: string;
   requiredRole: Role;
 }
@@ -32,7 +32,7 @@ export interface SettingsPage {
 /** A component this module contributes to a slot on another module's page. Neither module imports the other. */
 export interface SlotExtension<S extends SlotName> {
   slot: S;
-  /** Receives exactly the props the slot declares in `@acme/web-core`. */
+  /** Receives exactly the props the slot declares in `@saaskit/web-core`. */
   component: () => Promise<{ default: ComponentType<SlotProps[S]> }>;
   /** The lowest role in THIS module that sees the extension. */
   requiredRole: Role;

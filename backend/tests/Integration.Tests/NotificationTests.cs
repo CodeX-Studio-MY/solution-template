@@ -1,16 +1,16 @@
 using System.Net.Http.Json;
 using System.Text.Json;
-using Acme.Contracts;
-using Acme.Core.Platform;
-using Acme.Notification;
-using Acme.Notification.Application;
+using Saaskit.Contracts;
+using Saaskit.Core.Platform;
+using Saaskit.Notification;
+using Saaskit.Notification.Application;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace Acme.Integration.Tests;
+namespace Saaskit.Integration.Tests;
 
-/// <summary>Notification: events become history, a real-time push and an email, per person and per tenant.</summary>
+/// <summary>Notification: requests from modules become history, a real-time push and an email, per person and per tenant.</summary>
 [Trait("service", "notification")]
 [Collection(BrokerGroup.Name)]
 public sealed class NotificationTests(Databases databases)
@@ -25,8 +25,13 @@ public sealed class NotificationTests(Databases databases)
 
         public Task<Contact?> FindAsync(Guid principalId, CancellationToken cancellationToken = default) => Task.FromResult(People.GetValueOrDefault(principalId));
 
-        public Task<IReadOnlyList<Contact>> ApproversOfAsync(string moduleKey, CancellationToken cancellationToken = default) =>
-            Task.FromResult<IReadOnlyList<Contact>>(People.Values.Where(p => p.DisplayName.StartsWith("Approver", StringComparison.Ordinal)).ToList());
+        public (string Module, string MinimumRole)? AskedFor { get; private set; }
+
+        public Task<IReadOnlyList<Contact>> MembersOfAsync(string moduleKey, string minimumRole, CancellationToken cancellationToken = default)
+        {
+            AskedFor = (moduleKey, minimumRole);
+            return Task.FromResult<IReadOnlyList<Contact>>(People.Values.Where(p => p.DisplayName.StartsWith("Member", StringComparison.Ordinal)).ToList());
+        }
     }
 
     private async Task<ModuleTestHost> StartAsync(string provider, FakeContacts contacts, params string[] tenants) =>
@@ -34,13 +39,15 @@ public sealed class NotificationTests(Databases databases)
         {
             builder.Configuration["Smtp:Host"] = databases.Smtp.Host;
             builder.Configuration["Smtp:Port"] = databases.Smtp.Port.ToString(System.Globalization.CultureInfo.InvariantCulture);
-            builder.Configuration["Smtp:FromAddress"] = "no-reply@acme.test";
+            builder.Configuration["Smtp:FromAddress"] = "no-reply@saaskit.test";
             builder.Services.RemoveAll<IContactDirectory>();
             builder.Services.AddSingleton<IContactDirectory>(contacts);
         }, tenants);
 
-    private static PurchaseRequestApproved.V1 Approved(Guid requester, string number) =>
-        new(Guid.NewGuid(), number, requester, Guid.NewGuid(), 1234.5m, "MYR", new DateOnly(2026, 10, 9), AutoApproved: false);
+    /// <summary>What a module sends to tell one person that something of theirs, <paramref name="number"/>, was approved.</summary>
+    private static NotificationRequested.V1 Approved(Guid recipient, string number) =>
+        new("fixture.approved", $"{number} approved", $"Your item {number} was approved.", $"/fixture/{number}", RecipientId: recipient,
+            EmailSubject: $"Item {number} approved");
 
     private static async Task<JsonElement> WaitForListAsync(HttpClient client, int expected)
     {
@@ -71,10 +78,10 @@ public sealed class NotificationTests(Databases databases)
 
     [Theory]
     [MemberData(nameof(Databases.Providers), MemberType = typeof(Databases))]
-    public async Task An_approval_becomes_history_for_the_requester_and_an_email(string provider)
+    public async Task A_request_becomes_history_for_the_recipient_and_an_email(string provider)
     {
         var requester = Guid.NewGuid();
-        var address = $"req-{Guid.NewGuid():N}@acme.test";
+        var address = $"req-{Guid.NewGuid():N}@saaskit.test";
         var contacts = new FakeContacts();
         contacts.People[requester] = new Contact(requester, "Rita Requester", address);
         await using var host = await StartAsync(provider, contacts, "demo");
@@ -84,10 +91,10 @@ public sealed class NotificationTests(Databases databases)
         using var client = host.Client("demo", host.Token("demo", requester));
         var page = await WaitForListAsync(client, 1);
         var item = page.GetProperty("items")[0];
-        item.GetProperty("kind").GetString().ShouldBe("purchase-request.approved");
+        item.GetProperty("kind").GetString().ShouldBe("fixture.approved");
         item.GetProperty("title").GetString()!.ShouldContain("PR-2026-0001");
         item.GetProperty("isRead").GetBoolean().ShouldBeFalse();
-        item.GetProperty("link").GetString()!.ShouldStartWith($"/{Modules.PurchaseRequest}/");
+        item.GetProperty("link").GetString().ShouldBe("/fixture/PR-2026-0001");
 
         var mail = await WaitForMailAsync(address);
         mail.GetProperty("Subject").GetString()!.ShouldContain("PR-2026-0001");
@@ -149,8 +156,8 @@ public sealed class NotificationTests(Databases databases)
         await using var samHub = Connect(host, host.Token("demo", sam));
         var ritaGot = new TaskCompletionSource<NotificationDto>(TaskCreationOptions.RunContinuationsAsynchronously);
         var samGot = new TaskCompletionSource<NotificationDto>(TaskCreationOptions.RunContinuationsAsynchronously);
-        ritaHub.On<NotificationDto>(Acme.Notification.Api.NotificationHub.PushMethod, ritaGot.SetResult);
-        samHub.On<NotificationDto>(Acme.Notification.Api.NotificationHub.PushMethod, samGot.SetResult);
+        ritaHub.On<NotificationDto>(Saaskit.Notification.Api.NotificationHub.PushMethod, ritaGot.SetResult);
+        samHub.On<NotificationDto>(Saaskit.Notification.Api.NotificationHub.PushMethod, samGot.SetResult);
         await ritaHub.StartAsync(Ct);
         await samHub.StartAsync(Ct);
 
@@ -163,22 +170,24 @@ public sealed class NotificationTests(Databases databases)
 
     [Theory]
     [MemberData(nameof(Databases.Providers), MemberType = typeof(Databases))]
-    public async Task The_reminder_goes_to_everyone_who_can_approve_in_the_tenants_language(string provider)
+    public async Task A_request_for_a_module_goes_to_its_members_with_the_minimum_role(string provider)
     {
-        var approver = Guid.NewGuid();
+        var member = Guid.NewGuid();
         var bystander = Guid.NewGuid();
         var contacts = new FakeContacts();
-        contacts.People[approver] = new Contact(approver, "Approver Amy", null);
+        contacts.People[member] = new Contact(member, "Member Amy", null);
         contacts.People[bystander] = new Contact(bystander, "Bystander Bob", null);
         await using var host = await StartAsync(provider, contacts, "demo");
 
         await EventSender.SendAsync(databases, host.Tenants["demo"].Id,
-            new ApprovalsWaiting.V1(2, new DateOnly(2026, 10, 1), ["PR-A", "PR-B"]), cancellationToken: Ct);
+            new NotificationRequested.V1("fixture.waiting", "2 items waiting", "PR-A, PR-B have waited two days.", $"/{Modules.AccessManagement}",
+                RecipientModule: Modules.AccessManagement, RecipientMinimumRole: Roles.Manager), cancellationToken: Ct);
 
-        using var approverClient = host.Client("demo", host.Token("demo", approver));
-        var page = await WaitForListAsync(approverClient, 1);
-        page.GetProperty("items")[0].GetProperty("kind").GetString().ShouldBe("purchase-request.approvals-waiting");
+        using var memberClient = host.Client("demo", host.Token("demo", member));
+        var page = await WaitForListAsync(memberClient, 1);
+        page.GetProperty("items")[0].GetProperty("kind").GetString().ShouldBe("fixture.waiting");
         page.GetProperty("items")[0].GetProperty("body").GetString()!.ShouldContain("PR-A, PR-B");
+        contacts.AskedFor.ShouldBe((Modules.AccessManagement, Roles.Manager));
 
         using var bystanderClient = host.Client("demo", host.Token("demo", bystander));
         var none = await bystanderClient.GetFromJsonAsync<JsonElement>(new Uri("/api/notification/v1/notifications", UriKind.Relative), Json, Ct);

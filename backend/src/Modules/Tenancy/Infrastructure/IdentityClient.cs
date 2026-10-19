@@ -1,9 +1,9 @@
 using System.Net.Http.Json;
-using Acme.Core.Platform;
-using Acme.Core.Security;
-using Acme.Tenancy.Application;
+using Saaskit.Core.Platform;
+using Saaskit.Core.Security;
+using Saaskit.Tenancy.Application;
 
-namespace Acme.Tenancy.Infrastructure;
+namespace Saaskit.Tenancy.Infrastructure;
 
 /// <summary>Typed client for the Identity module's platform endpoints. The service-token handler adds the bearer token.</summary>
 internal sealed class IdentityClient(HttpClient http) : IIdentityClient

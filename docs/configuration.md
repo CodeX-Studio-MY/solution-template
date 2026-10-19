@@ -73,7 +73,7 @@ How the Tenancy module provisions, migrates and deletes tenants.
 |---|---|---|---|---|
 | `Onboarding__DefaultServerPool` | string | yes | `default` | The tenant server pool new tenants are placed on (a key of Database:Servers). Example: `default`. |
 | `Onboarding__MigratorCommand` | string | no | `dotnet` | Command that applies one tenant's migrations. Tenancy never applies migrations itself; the pipeline's Migrator does. {tenant} is replaced by the tenant ID. Example: `dotnet`. |
-| `Onboarding__MigratorArguments` | string | no |  | Arguments for the migrator command. {tenant} is replaced by the tenant ID. Example: `Acme.Migrator.dll --tenant {tenant}`. |
+| `Onboarding__MigratorArguments` | string | no |  | Arguments for the migrator command. {tenant} is replaced by the tenant ID. Example: `Saaskit.Migrator.dll --tenant {tenant}`. |
 | `Onboarding__DeletionGraceDays` | integer | no | `30` | Days a tenant stays in PendingDeletion (after its data export) before its database and files are deleted. Allowed: 0–3650. |
 
 ## Operators
@@ -153,7 +153,7 @@ Object storage for uploaded files. Services are stateless: files never live on a
 | `Storage__Region` | string | no |  | S3 region. Example: `ap-southeast-1`. |
 | `Storage__AccessKey` | string | no |  | S3 access key, for an emulator. In AWS, the task or instance role is used. **Secret.** |
 | `Storage__SecretKey` | string | no |  | S3 secret key, for an emulator. **Secret.** |
-| `Storage__LocalPath` | string | no |  | Folder for the local provider. Development only. Example: `/tmp/acme-files`. |
+| `Storage__LocalPath` | string | no |  | Folder for the local provider. Development only. Example: `/tmp/saaskit-files`. |
 | `Storage__MaxUploadMegabytes` | integer | no | `10` | The largest upload accepted, in megabytes. Allowed: 1–1024. |
 | `Storage__SignedUrlMinutes` | integer | no | `10` | How long a download link works, in minutes. Links are signed and short-lived. Allowed: 1–1440. |
 
@@ -174,7 +174,7 @@ The token server in the Identity module: keys, lifetimes, platform clients and p
 |---|---|---|---|---|
 | `TokenServer__SigningKeys__0` | list of string (one variable per index) | no |  | ES256 signing keys, PEM (EC P-256 private key). The first signs; the others stay published until their tokens expire. One entry per key. **Secret.** Example: `0`. |
 | `TokenServer__EncryptionKeys__0` | list of string (one variable per index) | no |  | Encryption keys for authorization codes and refresh tokens, base64 (256 bits). The first encrypts; the others still decrypt. One entry per key. **Secret.** Example: `0`. |
-| `TokenServer__PlatformClientSecrets__acme-bff` | map of string | no |  | Client secrets of platform clients, by client ID (the BFF and each service). Each service holds its own in ServiceClient:ClientSecret. **Secret.** Example: `acme-bff`. |
+| `TokenServer__PlatformClientSecrets__saaskit-bff` | map of string | no |  | Client secrets of platform clients, by client ID (the BFF and each service). Each service holds its own in ServiceClient:ClientSecret. **Secret.** Example: `saaskit-bff`. |
 | `TokenServer__AccessTokenMinutes` | integer | no | `15` | Access token lifetime for users and machines, in minutes. Allowed: 1–60. |
 | `TokenServer__ServiceAccessTokenMinutes` | integer | no | `10` | Access token lifetime for service principals, in minutes (5 to 15). Allowed: 1–15. |
 | `TokenServer__RefreshTokenDays` | integer | no | `7` | Refresh token lifetime, in days (sliding: renewed and rotated on each use). Allowed: 1–30. |

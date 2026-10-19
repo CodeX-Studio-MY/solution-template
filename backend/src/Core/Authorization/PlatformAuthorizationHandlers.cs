@@ -1,10 +1,10 @@
-using Acme.Core.Errors;
-using Acme.Core.Security;
-using Acme.Core.Tenancy;
+using Saaskit.Core.Errors;
+using Saaskit.Core.Security;
+using Saaskit.Core.Tenancy;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 
-namespace Acme.Core.Authorization;
+namespace Saaskit.Core.Authorization;
 
 /// <summary>Handles <see cref="ModuleRoleRequirement"/>, <see cref="ModulePermission"/> and <see cref="PrincipalTypeRequirement"/>.</summary>
 internal sealed class PlatformAuthorizationHandler(

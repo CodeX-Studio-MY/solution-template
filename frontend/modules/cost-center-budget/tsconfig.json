@@ -1,5 +1,0 @@
-{
-  "extends": "../../tsconfig.base.json",
-  "compilerOptions": { "types": ["vitest/globals", "@testing-library/jest-dom", "node"] },
-  "include": ["src", "rsbuild.config.ts", "vitest.config.ts"]
-}

@@ -2,16 +2,16 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Security.Cryptography;
 using System.Text.Json;
-using Acme.Core.Platform;
-using Acme.Core.Security;
-using Acme.Identity.Domain;
-using Acme.Identity.Infrastructure;
+using Saaskit.Core.Platform;
+using Saaskit.Core.Security;
+using Saaskit.Identity.Domain;
+using Saaskit.Identity.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Acme.Integration.Tests;
+namespace Saaskit.Integration.Tests;
 
 [Trait("service", "identity")]
 public sealed class AccessManagementTests(Databases databases)
@@ -33,7 +33,7 @@ public sealed class AccessManagementTests(Databases databases)
         return (await response.Content.ReadFromJsonAsync<JsonElement>(Ct)).GetProperty("principalId").GetGuid();
     }
 
-    /// <summary>The Ali example (section 4.5), on a Plus tenant where every module is entitled: the highest role always wins.</summary>
+    /// <summary>The Ali example (section 4.5), on a tenant where every module is entitled: the highest role always wins.</summary>
     [Fact]
     public async Task Direct_and_group_roles_combine_and_the_highest_wins()
     {
@@ -41,19 +41,19 @@ public sealed class AccessManagementTests(Databases databases)
         var admin = host.ApiClient("demo-plus", Admin);
         var ali = await NewUserAsync(host, "ali", "demo-plus");
 
-        (await admin.PutAsJsonAsync($"{Api}/principals/{ali}/assignments/{Modules.PurchaseRequest}", new { role = "admin" }, Ct)).EnsureSuccessStatusCode();
-        (await admin.PutAsJsonAsync($"{Api}/principals/{ali}/assignments/{Modules.CostCenterBudget}", new { role = "user" }, Ct)).EnsureSuccessStatusCode();
+        (await admin.PutAsJsonAsync($"{Api}/principals/{ali}/assignments/{Modules.TenantSettings}", new { role = "admin" }, Ct)).EnsureSuccessStatusCode();
+        (await admin.PutAsJsonAsync($"{Api}/principals/{ali}/assignments/{Fixture.Optional}", new { role = "user" }, Ct)).EnsureSuccessStatusCode();
 
         var finance = await Read<JsonElement>(await admin.PostAsJsonAsync($"{Api}/groups", new { displayName = "Finance" }, Ct));
         var group = finance.GetProperty("id").GetGuid();
-        (await admin.PutAsJsonAsync($"{Api}/groups/{group}/assignments/{Modules.PurchaseRequest}", new { role = "user" }, Ct)).EnsureSuccessStatusCode();
-        (await admin.PutAsJsonAsync($"{Api}/groups/{group}/assignments/{Modules.CostCenterBudget}", new { role = "manager" }, Ct)).EnsureSuccessStatusCode();
+        (await admin.PutAsJsonAsync($"{Api}/groups/{group}/assignments/{Modules.TenantSettings}", new { role = "user" }, Ct)).EnsureSuccessStatusCode();
+        (await admin.PutAsJsonAsync($"{Api}/groups/{group}/assignments/{Fixture.Optional}", new { role = "manager" }, Ct)).EnsureSuccessStatusCode();
         (await admin.PutAsJsonAsync($"{Api}/groups/{group}/assignments/{Modules.AccessManagement}", new { role = "user" }, Ct)).EnsureSuccessStatusCode();
         (await admin.PutAsync($"{Api}/groups/{group}/members/{ali}", null, Ct)).StatusCode.ShouldBe(HttpStatusCode.NoContent);
 
         var access = await Read<JsonElement>(await admin.GetAsync($"{Api}/principals/{ali}/access", Ct));
         access.GetProperty("roleClaims").EnumerateArray().Select(e => e.GetString()).ShouldBe(
-            ["access-management:user", "cost-center-budget:manager", "purchase-request:admin"]);
+            ["access-management:user", "billing:manager", "tenant-settings:admin"]);
     }
 
     [Fact]
@@ -62,29 +62,29 @@ public sealed class AccessManagementTests(Databases databases)
         await using var host = await IdentityTestHost.StartAsync(databases, "demo", "demo-plus");
         var ali = await host.InTenantAsync("demo", async sp =>
         {
-            var access = sp.GetRequiredService<Acme.Identity.Application.IAccessManagement>();
+            var access = sp.GetRequiredService<Saaskit.Identity.Application.IAccessManagement>();
             var db = sp.GetRequiredService<IdentityDbContext>();
             var principal = Principal.NewUser("ali");
             db.Principals.Add(principal);
             await db.SaveChangesAsync(Ct);
-            await access.SetPrincipalRoleAsync(principal.Id, Modules.PurchaseRequest, Role.Admin, Ct);
-            await access.SetPrincipalRoleAsync(principal.Id, Modules.CostCenterBudget, Role.Manager, Ct);
+            await access.SetPrincipalRoleAsync(principal.Id, Modules.TenantSettings, Role.Admin, Ct);
+            await access.SetPrincipalRoleAsync(principal.Id, Fixture.Optional, Role.Manager, Ct);
             return await access.GetEffectiveAccessAsync(principal.Id, Ct);
         });
-        // Standard plan: cost-center-budget is not entitled, so only purchase-request remains.
-        ali.RoleClaims.ShouldBe(["purchase-request:admin"]);
+        // "demo" is not entitled to the optional module, so only tenant-settings remains.
+        ali.RoleClaims.ShouldBe(["tenant-settings:admin"]);
 
         var plus = await host.InTenantAsync("demo-plus", async sp =>
         {
-            var access = sp.GetRequiredService<Acme.Identity.Application.IAccessManagement>();
+            var access = sp.GetRequiredService<Saaskit.Identity.Application.IAccessManagement>();
             var db = sp.GetRequiredService<IdentityDbContext>();
             var principal = Principal.NewUser("ali");
             db.Principals.Add(principal);
             await db.SaveChangesAsync(Ct);
-            await access.SetPrincipalRoleAsync(principal.Id, Modules.CostCenterBudget, Role.Manager, Ct);
+            await access.SetPrincipalRoleAsync(principal.Id, Fixture.Optional, Role.Manager, Ct);
             return await access.GetEffectiveAccessAsync(principal.Id, Ct);
         });
-        plus.RoleClaims.ShouldBe(["cost-center-budget:manager"]);
+        plus.RoleClaims.ShouldBe(["billing:manager"]);
     }
 
     [Fact]
@@ -99,7 +99,7 @@ public sealed class AccessManagementTests(Databases databases)
             db.Principals.Add(principal);
             db.Groups.Add(group);
             await db.SaveChangesAsync(Ct);
-            var module = Modules.All.Single(m => m.Key == Modules.PurchaseRequest).Id;
+            var module = Modules.All.Single(m => m.Key == Modules.TenantSettings).Id;
 
             db.AccessAssignments.Add(AccessAssignment.ForPrincipal(principal.Id, module, Role.User));
             await db.SaveChangesAsync(Ct);
@@ -114,7 +114,7 @@ public sealed class AccessManagementTests(Databases databases)
             db.ChangeTracker.Clear();
 
             // The same principal and group each may hold their own role in one module (the filter ignores NULLs).
-            db.AccessAssignments.Add(AccessAssignment.ForPrincipal((await db.Principals.FirstAsync(Ct)).Id, Modules.All.Single(m => m.Key == Modules.CostCenterBudget).Id, Role.User));
+            db.AccessAssignments.Add(AccessAssignment.ForPrincipal((await db.Principals.FirstAsync(Ct)).Id, Modules.All.Single(m => m.Key == Fixture.Optional).Id, Role.User));
             await db.SaveChangesAsync(Ct);
         });
     }
@@ -131,7 +131,7 @@ public sealed class AccessManagementTests(Databases databases)
             (await admin.PutAsync($"{Api}/groups/{group}/members/{member}", null, Ct)).EnsureSuccessStatusCode();
 
         var before = await VersionsAsync(host, [.. members, outsider]);
-        (await admin.PutAsJsonAsync($"{Api}/groups/{group}/assignments/{Modules.PurchaseRequest}", new { role = "manager" }, Ct)).EnsureSuccessStatusCode();
+        (await admin.PutAsJsonAsync($"{Api}/groups/{group}/assignments/{Modules.TenantSettings}", new { role = "manager" }, Ct)).EnsureSuccessStatusCode();
         var after = await VersionsAsync(host, [.. members, outsider]);
 
         foreach (var member in members)
@@ -175,7 +175,7 @@ public sealed class AccessManagementTests(Databases databases)
         var created = await Read<JsonElement>(await admin.PostAsJsonAsync($"{Api}/machines", new { displayName = "Packing tablet" }, Ct));
         var machineId = created.GetProperty("principalId").GetGuid();
         var code = created.GetProperty("code").GetString()!;
-        (await admin.PutAsJsonAsync($"{Api}/principals/{machineId}/assignments/{Modules.PurchaseRequest}", new { role = "user" }, Ct)).EnsureSuccessStatusCode();
+        (await admin.PutAsJsonAsync($"{Api}/principals/{machineId}/assignments/{Modules.TenantSettings}", new { role = "user" }, Ct)).EnsureSuccessStatusCode();
 
         // The device makes its own key pair and sends only the public part with the code.
         using var deviceKey = ECDsa.Create(ECCurve.NamedCurves.nistP256);
@@ -191,14 +191,14 @@ public sealed class AccessManagementTests(Databases databases)
 
         var token = await host.Client().PostAsync("/connect/token", new FormUrlEncodedContent(new Dictionary<string, string>
         {
-            ["grant_type"] = "client_credentials", ["client_id"] = clientId, ["resource"] = PlatformServices.PurchaseRequest.Audience,
+            ["grant_type"] = "client_credentials", ["client_id"] = clientId, ["resource"] = PlatformServices.Tenancy.Audience,
             ["client_assertion_type"] = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
             ["client_assertion"] = IdentityTestHost.ClientAssertion(clientId, deviceKey, "device-key-1"),
         }), Ct);
         token.StatusCode.ShouldBe(HttpStatusCode.OK, await token.Content.ReadAsStringAsync(Ct));
         var access = new JsonWebTokenHandler().ReadJsonWebToken((await token.Content.ReadFromJsonAsync<JsonElement>(Ct)).GetProperty("access_token").GetString());
         access.GetClaim("principal_type").Value.ShouldBe("machine");
-        access.GetClaim("roles").Value.ShouldBe("purchase-request:user");
+        access.GetClaim("roles").Value.ShouldBe("tenant-settings:user");
 
         // Disabling the machine stops it signing in immediately.
         var fresh = await Read<JsonElement>(await admin.GetAsync($"{Api}/principals/{machineId}", Ct));
@@ -207,7 +207,7 @@ public sealed class AccessManagementTests(Databases databases)
         (await admin.SendAsync(disable, Ct)).StatusCode.ShouldBe(HttpStatusCode.OK);
         var denied = await host.Client().PostAsync("/connect/token", new FormUrlEncodedContent(new Dictionary<string, string>
         {
-            ["grant_type"] = "client_credentials", ["client_id"] = clientId, ["resource"] = PlatformServices.PurchaseRequest.Audience,
+            ["grant_type"] = "client_credentials", ["client_id"] = clientId, ["resource"] = PlatformServices.Tenancy.Audience,
             ["client_assertion_type"] = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
             ["client_assertion"] = IdentityTestHost.ClientAssertion(clientId, deviceKey, "device-key-1"),
         }), Ct);
@@ -218,7 +218,7 @@ public sealed class AccessManagementTests(Databases databases)
     public async Task Rotation_keeps_two_keys_valid_at_once()
     {
         await using var host = await IdentityTestHost.StartAsync(databases, "demo");
-        var oldKey = await host.RegisterMachineAsync("demo", "rotating", roles: [(Modules.PurchaseRequest, Role.User)]);
+        var oldKey = await host.RegisterMachineAsync("demo", "rotating", roles: [(Modules.TenantSettings, Role.User)]);
         var machineId = await host.InTenantAsync("demo", async sp => (await sp.GetRequiredService<IdentityDbContext>().Principals.SingleAsync(p => p.ClientId == "rotating", Ct)).Id);
         var oldKid = await OnlyKidAsync(host, "rotating");
 
@@ -230,7 +230,7 @@ public sealed class AccessManagementTests(Databases databases)
         async Task<HttpStatusCode> SignInAsync(ECDsa key, string kid) =>
             (await host.Client().PostAsync("/connect/token", new FormUrlEncodedContent(new Dictionary<string, string>
             {
-                ["grant_type"] = "client_credentials", ["client_id"] = "rotating", ["resource"] = PlatformServices.PurchaseRequest.Audience,
+                ["grant_type"] = "client_credentials", ["client_id"] = "rotating", ["resource"] = PlatformServices.Tenancy.Audience,
                 ["client_assertion_type"] = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
                 ["client_assertion"] = IdentityTestHost.ClientAssertion("rotating", key, kid),
             }), Ct)).StatusCode;
@@ -249,7 +249,7 @@ public sealed class AccessManagementTests(Databases databases)
         await using var host = await IdentityTestHost.StartAsync(databases, "demo");
         var admin = host.ApiClient("demo", Admin);
         var user = await NewUserAsync(host, "audited");
-        (await admin.PutAsJsonAsync($"{Api}/principals/{user}/assignments/{Modules.PurchaseRequest}", new { role = "user" }, Ct)).EnsureSuccessStatusCode();
+        (await admin.PutAsJsonAsync($"{Api}/principals/{user}/assignments/{Modules.TenantSettings}", new { role = "user" }, Ct)).EnsureSuccessStatusCode();
         var group = (await Read<JsonElement>(await admin.PostAsJsonAsync($"{Api}/groups", new { displayName = "Auditors" }, Ct))).GetProperty("id").GetGuid();
         (await admin.PutAsync($"{Api}/groups/{group}/members/{user}", null, Ct)).EnsureSuccessStatusCode();
 
@@ -307,7 +307,7 @@ public sealed class AccessManagementTests(Databases databases)
 
         var response = await host.Client().PostAsync("/connect/token", new FormUrlEncodedContent(new Dictionary<string, string>
         {
-            ["grant_type"] = "client_credentials", ["client_id"] = "everything", ["resource"] = PlatformServices.PurchaseRequest.Audience,
+            ["grant_type"] = "client_credentials", ["client_id"] = "everything", ["resource"] = PlatformServices.Tenancy.Audience,
             ["client_assertion_type"] = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
             ["client_assertion"] = IdentityTestHost.ClientAssertion("everything", key, kid),
         }), Ct);

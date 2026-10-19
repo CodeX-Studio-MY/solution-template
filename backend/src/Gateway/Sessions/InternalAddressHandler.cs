@@ -1,4 +1,4 @@
-namespace Acme.Gateway.Sessions;
+namespace Saaskit.Gateway.Sessions;
 
 /// <summary>
 /// Inside the network the Gateway reaches the token server at its internal address. Discovery documents name the public

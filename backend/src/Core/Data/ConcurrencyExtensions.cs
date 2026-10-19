@@ -1,7 +1,7 @@
-using Acme.Core.Errors;
+using Saaskit.Core.Errors;
 using Microsoft.EntityFrameworkCore;
 
-namespace Acme.Core.Data;
+namespace Saaskit.Core.Data;
 
 /// <summary>ETag and If-Match support for aggregates. A conflict returns 412; a missing If-Match returns 428.</summary>
 public static class ConcurrencyExtensions

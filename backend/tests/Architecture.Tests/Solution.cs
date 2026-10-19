@@ -1,7 +1,7 @@
 using System.Reflection;
-using Acme.Core.Platform;
+using Saaskit.Core.Platform;
 
-namespace Acme.Architecture.Tests;
+namespace Saaskit.Architecture.Tests;
 
 /// <summary>The assemblies and source files the rules inspect.</summary>
 internal static class Solution

@@ -1,14 +1,13 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
-using Acme.Core.Hosting;
-using Acme.Core.Platform;
-using Acme.Core.Security;
-using Acme.Migrator;
+using Saaskit.Core.Hosting;
+using Saaskit.Core.Security;
+using Saaskit.Migrator;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.TestHost;
 
-namespace Acme.Integration.Tests;
+namespace Saaskit.Integration.Tests;
 
 /// <summary>The pipeline every host gets from AddPlatform / UsePlatform.</summary>
 public sealed class PlatformHostTests(Databases databases)
@@ -37,7 +36,7 @@ public sealed class PlatformHostTests(Databases databases)
     public async Task Every_endpoint_requires_authentication_by_default()
     {
         await using var app = await StartAsync(await CreateCatalogAsync());
-        var response = await app.GetTestClient().GetAsync($"{PlatformServices.PurchaseRequest.RoutePrefix}/v1/anything", Ct);
+        var response = await app.GetTestClient().GetAsync($"{Fixture.Service.RoutePrefix}/v1/anything", Ct);
         response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
     }
 
@@ -75,7 +74,7 @@ public sealed class PlatformHostTests(Databases databases)
         builder.WebHost.UseTestServer();
         builder.Configuration["Database:Provider"] = "oracle";
         builder.Configuration["Database:CatalogConnectionString"] = "x";
-        Should.Throw<Exception>(() => builder.AddPlatform(PlatformServices.PurchaseRequest));
+        Should.Throw<Exception>(() => builder.AddPlatform(Fixture.Service));
     }
 
     private async Task<string> CreateCatalogAsync()
@@ -98,7 +97,7 @@ public sealed class PlatformHostTests(Databases databases)
         builder.Configuration["Tenancy:BaseDomain"] = "localhost";
         builder.Configuration["Redis:ConnectionString"] = redis;
         TestSecrets.Apply(builder, databases);
-        builder.AddPlatform(PlatformServices.PurchaseRequest);
+        builder.AddPlatform(Fixture.Service);
         var app = builder.Build();
         app.UsePlatform();
         await app.StartAsync();

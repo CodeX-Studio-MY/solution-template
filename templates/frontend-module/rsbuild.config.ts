@@ -1,7 +1,7 @@
 import { defineConfig } from "@rsbuild/core";
 import { pluginReact } from "@rsbuild/plugin-react";
 import { pluginModuleFederation } from "@module-federation/rsbuild-plugin";
-import { sharedSingletons } from "@acme/build-config/federation";
+import { sharedSingletons } from "@saaskit/build-config/federation";
 
 const gateway = process.env.GATEWAY_URL ?? "https://localhost:7443";
 

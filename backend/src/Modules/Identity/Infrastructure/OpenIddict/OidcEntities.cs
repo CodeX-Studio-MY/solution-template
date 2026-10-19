@@ -1,4 +1,4 @@
-namespace Acme.Identity.Infrastructure.OpenIddict;
+namespace Saaskit.Identity.Infrastructure.OpenIddict;
 
 /// <summary>
 /// A client registration (catalog database). <see cref="TenantId"/> is null for platform clients (the BFF and

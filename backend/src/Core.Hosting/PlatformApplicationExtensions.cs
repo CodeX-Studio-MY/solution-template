@@ -1,13 +1,13 @@
-using Acme.Core.Hosting.Auth;
+using Saaskit.Core.Hosting.Auth;
 using Microsoft.AspNetCore.Http;
-using Acme.Core.Hosting.Files;
-using Acme.Core.Tenancy;
+using Saaskit.Core.Hosting.Files;
+using Saaskit.Core.Tenancy;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Acme.Core.Hosting;
+namespace Saaskit.Core.Hosting;
 
 public static class PlatformApplicationExtensions
 {
@@ -25,7 +25,7 @@ public static class PlatformApplicationExtensions
         // and minimal-API binding reads it before any endpoint filter runs.
         app.Use((context, next) =>
         {
-            if (context.Request.Headers.ContainsKey(Acme.Core.Security.PlatformHeaders.IdempotencyKey))
+            if (context.Request.Headers.ContainsKey(Saaskit.Core.Security.PlatformHeaders.IdempotencyKey))
                 context.Request.EnableBuffering();
             return next(context);
         });

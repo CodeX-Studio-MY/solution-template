@@ -1,14 +1,14 @@
 using System.Text.Json;
-using Acme.Core.Configuration;
-using Acme.Core.Platform;
-using Acme.Core.Security;
-using Acme.Core.Tenancy;
-using Acme.Gateway.Sessions;
+using Saaskit.Core.Configuration;
+using Saaskit.Core.Platform;
+using Saaskit.Core.Security;
+using Saaskit.Core.Tenancy;
+using Saaskit.Gateway.Sessions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
 
-namespace Acme.Gateway.Http;
+namespace Saaskit.Gateway.Http;
 
 /// <summary>The browser-facing BFF endpoints: login, logout, the signed-in user, and the frontend's runtime configuration.</summary>
 internal static class BffEndpoints

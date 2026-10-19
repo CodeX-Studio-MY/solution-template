@@ -1,10 +1,10 @@
 using System.Net.Http.Headers;
-using Acme.Core.Platform;
-using Acme.Core.Security;
-using Acme.Core.Tenancy;
+using Saaskit.Core.Platform;
+using Saaskit.Core.Security;
+using Saaskit.Core.Tenancy;
 using Microsoft.AspNetCore.Http;
 
-namespace Acme.Core.ServiceCalls;
+namespace Saaskit.Core.ServiceCalls;
 
 /// <summary>
 /// Attaches the right token to a call to another service (4.10). Acting for a user: the user's token is exchanged

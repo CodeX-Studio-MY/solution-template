@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Acme.Core.Configuration;
+namespace Saaskit.Core.Configuration;
 
 [OptionsSection("RateLimit", "Distributed rate limits (Redis). A tenant's plan can override the per-tenant and per-principal limits.")]
 public sealed record RateLimitOptions

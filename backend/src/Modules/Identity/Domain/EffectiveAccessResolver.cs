@@ -1,6 +1,6 @@
-using Acme.Core.Platform;
+using Saaskit.Core.Platform;
 
-namespace Acme.Identity.Domain;
+namespace Saaskit.Identity.Domain;
 
 /// <summary>A role granted in a module, directly or through a group.</summary>
 public sealed record ModuleGrant(Guid ModuleId, Role Role);

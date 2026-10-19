@@ -1,11 +1,11 @@
-using Acme.Core.Composition;
-using Acme.Core.Configuration;
-using Acme.Core.Platform;
+using Saaskit.Core.Composition;
+using Saaskit.Core.Configuration;
+using Saaskit.Core.Platform;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace Acme.Core.ServiceCalls;
+namespace Saaskit.Core.ServiceCalls;
 
 public static class ServiceClientRegistration
 {

@@ -1,0 +1,136 @@
+using System.Text;
+
+namespace Saaskit.Generator.Tests;
+
+/// <summary>
+/// Scaffolding a product from the template: the codemod and the answers. Inputs are built from <see cref="InitCommand.TemplateProduct"/>,
+/// never typed, because the codemod renames this file too.
+/// </summary>
+public sealed class InitTests : IDisposable
+{
+    private const string Target = "orchard";
+    private static readonly string Lower = InitCommand.TemplateProduct;
+    private static readonly string Pascal = Naming.Pascal(InitCommand.TemplateProduct);
+    private static readonly string Upper = InitCommand.TemplateProduct.ToUpperInvariant();
+
+    private readonly string _root = Directory.CreateTempSubdirectory("init-tests-").FullName;
+
+    public void Dispose() => Directory.Delete(_root, recursive: true);
+
+    private string Write(string relative, string content, bool bom = false)
+    {
+        var path = Path.Combine(_root, relative);
+        Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+        File.WriteAllText(path, content, new UTF8Encoding(bom));
+        return path;
+    }
+
+    [Fact]
+    public void Every_casing_is_renamed_in_file_contents()
+    {
+        var file = Write("src/Program.cs", $"namespace {Pascal}.Core; // @{Lower}/ui-kit {Upper}_HOME");
+
+        var result = ProductRenamer.Run(_root, Lower, Target);
+
+        File.ReadAllText(file).ShouldBe("namespace Orchard.Core; // @orchard/ui-kit ORCHARD_HOME");
+        result.ChangedFiles.ShouldBe([Path.Combine("src", "Program.cs")]);
+    }
+
+    [Fact]
+    public void Paths_are_renamed_deepest_first()
+    {
+        Write($"backend/{Lower}.slnx", "<Solution />");
+        Write($"{Pascal}.Dir/{Pascal}.Inner/file.txt", "x");
+
+        ProductRenamer.Run(_root, Lower, Target);
+
+        File.Exists(Path.Combine(_root, "backend", "orchard.slnx")).ShouldBeTrue();
+        File.Exists(Path.Combine(_root, "Orchard.Dir", "Orchard.Inner", "file.txt")).ShouldBeTrue();
+        Directory.Exists(Path.Combine(_root, $"{Pascal}.Dir")).ShouldBeFalse();
+    }
+
+    [Fact]
+    public void Build_output_dependencies_and_binary_files_are_left_alone()
+    {
+        var dependency = Write($"frontend/node_modules/@{Lower}/x/index.js", Lower);
+        var output = Write($"backend/bin/{Pascal}.dll.txt", Lower);
+        var binary = Path.Combine(_root, "logo.png");
+        File.WriteAllBytes(binary, [.. Encoding.UTF8.GetBytes(Lower), 0, 1, 2]);
+
+        ProductRenamer.Run(_root, Lower, Target);
+
+        File.ReadAllText(dependency).ShouldBe(Lower);
+        File.ReadAllText(output).ShouldBe(Lower);
+        File.ReadAllBytes(binary)[..Lower.Length].ShouldBe(Encoding.UTF8.GetBytes(Lower));
+    }
+
+    [Fact]
+    public void A_byte_order_mark_is_kept()
+    {
+        var file = Write("a.cs", Pascal, bom: true);
+
+        ProductRenamer.Run(_root, Lower, Target);
+
+        File.ReadAllBytes(file).ShouldBe([.. Encoding.UTF8.Preamble, .. Encoding.UTF8.GetBytes("Orchard")]);
+    }
+
+    private static InitAnswers Answers(string product = Target, string[]? modules = null, string[]? plans = null) =>
+        new(product, "Orchard Co", "Asia/Kuala_Lumpur", "MYR", ["en", "ms"], plans ?? ["basic", "pro"], "azure", modules ?? ["crop-planning"]);
+
+    private static PlatformDefinition Template() => PlatformDefinition.Load(Path.Combine(RepoRoot.Find(), "platform.yaml"));
+
+    [Fact]
+    public void Valid_answers_pass() => Should.NotThrow(() => Answers().Validate(Template()));
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("Orchard")]
+    [InlineData("farm-360")]
+    [InlineData("360farm")]
+    [InlineData("system")]
+    public void Product_keys_are_lowercase_letters_and_digits_and_not_reserved(string product) =>
+        Should.Throw<PlatformDefinitionException>(() => Answers(product).Validate(Template()));
+
+    [Fact]
+    public void The_template_placeholder_is_not_a_product() =>
+        Should.Throw<PlatformDefinitionException>(() => Answers(InitCommand.TemplateProduct).Validate(Template()));
+
+    [Theory]
+    [InlineData("Crops")]
+    [InlineData("api")]
+    [InlineData("identity")]
+    [InlineData("tenant-settings")]
+    public void Module_keys_follow_the_key_rules_and_are_new(string module) =>
+        Should.Throw<PlatformDefinitionException>(() => Answers(modules: [module]).Validate(Template()));
+
+    [Fact]
+    public void Invalid_defaults_are_refused_before_anything_changes() =>
+        Should.Throw<PlatformDefinitionException>(() => (Answers() with { Currency = "ringgit" }).Validate(Template()));
+
+    [Fact]
+    public void Template_only_sections_are_removed_from_the_readme()
+    {
+        var readme = $"# Title\n{InitCommand.TemplateSectionStart}\nStart a product.\n{InitCommand.TemplateSectionEnd}\n## Kept\n";
+
+        InitCommand.WithoutTemplateSections(readme).ShouldBe("# Title\n## Kept\n");
+    }
+
+    [Fact]
+    public void The_answers_replace_the_values_in_platform_yaml_and_keep_its_comments()
+    {
+        var path = Path.Combine(_root, "platform.yaml");
+        File.Copy(Path.Combine(RepoRoot.Find(), "platform.yaml"), path);
+
+        InitCommand.WritePlatformYaml(path, Answers());
+
+        var text = File.ReadAllText(path);
+        text.ShouldContain("product: orchard\n");
+        text.ShouldContain("org: Orchard Co\n");
+        text.ShouldContain("  locales: [en, ms]\n");
+        text.ShouldContain("# services and modules answer two different questions:");
+        var written = PlatformDefinition.Load(path);
+        written.Plans.ShouldBe(["basic", "pro"]);
+        written.Modules.ShouldAllBe(m => m.Plans.Count == 2 && m.Plans[0] == "basic" && m.Plans[1] == "pro");
+        written.Services.Select(s => s.Key).ShouldBe(Template().Services.Select(s => s.Key));
+    }
+}

@@ -1,7 +1,7 @@
-using Acme.Core.Errors;
-using Acme.Core.Platform;
+using Saaskit.Core.Errors;
+using Saaskit.Core.Platform;
 
-namespace Acme.Tenancy.Application;
+namespace Saaskit.Tenancy.Application;
 
 /// <summary>The Tenancy module's error catalog.</summary>
 [ErrorCatalog(Modules.TenantSettings)]

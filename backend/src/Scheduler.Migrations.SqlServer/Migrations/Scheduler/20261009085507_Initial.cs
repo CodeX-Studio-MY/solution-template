@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore.Migrations;
-using Acme.Scheduler;
+using Saaskit.Scheduler;
 
 #nullable disable
 
-namespace Acme.Scheduler.Migrations.SqlServer.Migrations.Scheduler
+namespace Saaskit.Scheduler.Migrations.SqlServer.Migrations.Scheduler
 {
     /// <inheritdoc />
     public partial class Initial : Migration

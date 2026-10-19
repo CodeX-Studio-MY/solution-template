@@ -1,12 +1,12 @@
 using System.Collections.Concurrent;
 using System.Globalization;
-using Acme.Core.Configuration;
-using Acme.Core.Errors;
-using Acme.Core.Security;
+using Saaskit.Core.Configuration;
+using Saaskit.Core.Errors;
+using Saaskit.Core.Security;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Acme.Core.Hosting.Auth;
+namespace Saaskit.Core.Hosting.Auth;
 
 /// <summary>
 /// Compares a token's <c>access_version</c> with the current one. Values are cached in memory for a few seconds.

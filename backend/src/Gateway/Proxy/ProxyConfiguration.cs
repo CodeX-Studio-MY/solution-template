@@ -1,8 +1,8 @@
-using Acme.Core.Configuration;
-using Acme.Core.Platform;
+using Saaskit.Core.Configuration;
+using Saaskit.Core.Platform;
 using Yarp.ReverseProxy.Configuration;
 
-namespace Acme.Gateway.Proxy;
+namespace Saaskit.Gateway.Proxy;
 
 /// <summary>
 /// The reverse-proxy routes and clusters, built from the services in platform.yaml (through the generated

@@ -2,15 +2,15 @@
 #nullable enable
 using Microsoft.EntityFrameworkCore.Design;
 
-namespace Acme.Core.Catalog.Migrations.SqlServer;
+namespace Saaskit.Core.Catalog.Migrations.SqlServer;
 
 /// <summary>Lets <c>dotnet ef</c> build CatalogDbContext for SqlServer.</summary>
-internal sealed class CatalogDbContextDesignTimeFactory : IDesignTimeDbContextFactory<global::Acme.Core.Catalog.CatalogDbContext>
+internal sealed class CatalogDbContextDesignTimeFactory : IDesignTimeDbContextFactory<global::Saaskit.Core.Catalog.CatalogDbContext>
 {
-    public global::Acme.Core.Catalog.CatalogDbContext CreateDbContext(string[] args) =>
-        global::Acme.Core.Data.DbContextRegistration.Create<global::Acme.Core.Catalog.CatalogDbContext>(
+    public global::Saaskit.Core.Catalog.CatalogDbContext CreateDbContext(string[] args) =>
+        global::Saaskit.Core.Data.DbContextRegistration.Create<global::Saaskit.Core.Catalog.CatalogDbContext>(
             null,
-            new global::Acme.Core.Data.SqlServer.SqlServerDatabaseProvider(),
+            new global::Saaskit.Core.Data.SqlServer.SqlServerDatabaseProvider(),
             "Server=design-time;Database=design-time",
-            global::Acme.Core.Catalog.CatalogDbContext.SchemaName);
+            global::Saaskit.Core.Catalog.CatalogDbContext.SchemaName);
 }

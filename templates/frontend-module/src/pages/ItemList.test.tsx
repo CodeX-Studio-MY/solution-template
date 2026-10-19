@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import { setTenantForTest, setupI18nForTest } from "@acme/web-core/testing";
+import { setTenantForTest, setupI18nForTest } from "@saaskit/web-core/testing";
 import { moduleKey } from "../basePath";
 import en from "../locales/en.json";
 import { Component as ItemList } from "./ItemList";

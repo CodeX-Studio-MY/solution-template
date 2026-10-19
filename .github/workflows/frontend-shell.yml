@@ -45,7 +45,7 @@ jobs:
           cache-dependency-path: frontend/pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
         working-directory: frontend
-      - run: pnpm exec turbo run typecheck lint test --filter=@acme/shell...
+      - run: pnpm exec turbo run typecheck lint test --filter=@saaskit/shell...
         working-directory: frontend
       - run: pnpm build
         working-directory: frontend

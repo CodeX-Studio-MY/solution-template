@@ -2,12 +2,12 @@ using System.Collections.Concurrent;
 using System.Globalization;
 using System.Reflection;
 using System.Text.Json;
-using Acme.Core.Platform;
-using Acme.Core.Tenancy;
+using Saaskit.Core.Platform;
+using Saaskit.Core.Tenancy;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Acme.Core.Localization;
+namespace Saaskit.Core.Localization;
 
 /// <summary>Turns a message key into text in the request's language. Unknown keys come back unchanged, so a missing translation is visible, not fatal.</summary>
 public interface IMessageLocalizer

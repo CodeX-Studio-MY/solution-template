@@ -1,12 +1,12 @@
-using Acme.Core.Configuration;
-using Acme.Core.Files;
+using Saaskit.Core.Configuration;
+using Saaskit.Core.Files;
 using Azure.Identity;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Sas;
 using Microsoft.Extensions.Options;
 
-namespace Acme.Core.Hosting.Files;
+namespace Saaskit.Core.Hosting.Files;
 
 /// <summary>
 /// Azure Blob Storage. In Azure it uses managed identity (an account URL, no secret) and user-delegation SAS links; locally it

@@ -1,4 +1,4 @@
-namespace Acme.Core.Files;
+namespace Saaskit.Core.Files;
 
 /// <summary>
 /// Object storage. Adapters exist for Azure Blob, S3 and a local folder (development only). Services never read files from local

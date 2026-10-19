@@ -1,7 +1,7 @@
-using Acme.Core.Platform;
-using Acme.Core.Tenancy;
+using Saaskit.Core.Platform;
+using Saaskit.Core.Tenancy;
 
-namespace Acme.Tenancy.Application;
+namespace Saaskit.Tenancy.Application;
 
 public sealed record TenantSummary(
     Guid Id,

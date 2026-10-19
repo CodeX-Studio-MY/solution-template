@@ -1,7 +1,7 @@
-using Acme.Core.Data;
+using Saaskit.Core.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace Acme.Scheduler;
+namespace Saaskit.Scheduler;
 
 /// <summary>
 /// Owns the <c>scheduler</c> schema in the catalog database, where Quartz keeps its jobs, triggers and cluster state. It maps no

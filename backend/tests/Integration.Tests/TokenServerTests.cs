@@ -1,13 +1,13 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
-using Acme.Core.Platform;
-using Acme.Core.Security;
+using Saaskit.Core.Platform;
+using Saaskit.Core.Security;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Acme.Integration.Tests;
+namespace Saaskit.Integration.Tests;
 
 [Trait("service", "identity")]
 public sealed class TokenServerTests(Databases databases)
@@ -27,11 +27,11 @@ public sealed class TokenServerTests(Databases databases)
     public async Task A_machine_signs_in_with_private_key_jwt_and_gets_a_signed_ES256_access_token()
     {
         await using var host = await IdentityTestHost.StartAsync(databases, "demo");
-        var key = await host.RegisterMachineAsync("demo", "demo-scale-1", roles: [(Modules.PurchaseRequest, Role.User)]);
+        var key = await host.RegisterMachineAsync("demo", "demo-scale-1", roles: [(Modules.TenantSettings, Role.User)]);
         var kid = (await ReadKidAsync(host, "demo-scale-1"));
 
         var response = await host.Client().PostAsync("/connect/token", new FormUrlEncodedContent(
-            ClientCredentialsRequest("demo-scale-1", IdentityTestHost.ClientAssertion("demo-scale-1", key, kid), PlatformServices.PurchaseRequest.Audience)), Ct);
+            ClientCredentialsRequest("demo-scale-1", IdentityTestHost.ClientAssertion("demo-scale-1", key, kid), PlatformServices.Tenancy.Audience)), Ct);
         var body = await response.Content.ReadFromJsonAsync<JsonElement>(Ct);
         response.StatusCode.ShouldBe(HttpStatusCode.OK, body.ToString());
         body.TryGetProperty("refresh_token", out _).ShouldBeFalse("machines get no refresh token");
@@ -40,10 +40,10 @@ public sealed class TokenServerTests(Databases databases)
         token.Alg.ShouldBe("ES256");
         token.Typ.ShouldBe("at+jwt");
         token.Issuer.ShouldBe(IdentityTestHost.Issuer);
-        token.Audiences.ShouldBe([PlatformServices.PurchaseRequest.Audience]);
+        token.Audiences.ShouldBe([PlatformServices.Tenancy.Audience]);
         token.GetClaim(PlatformClaims.PrincipalType).Value.ShouldBe("machine");
         token.GetClaim(PlatformClaims.TenantId).Value.ShouldBe(host.Tenants["demo"].Id.ToString());
-        token.GetClaim(PlatformClaims.Roles).Value.ShouldBe("purchase-request:user");
+        token.GetClaim(PlatformClaims.Roles).Value.ShouldBe("tenant-settings:user");
         (token.ValidTo - token.IssuedAt).TotalMinutes.ShouldBeInRange(1, 15);
 
         // The token validates against the published JWKS: signed by the token server's key.
@@ -51,7 +51,7 @@ public sealed class TokenServerTests(Databases databases)
         var validation = await new JsonWebTokenHandler().ValidateTokenAsync(body.GetProperty("access_token").GetString(), new TokenValidationParameters
         {
             ValidIssuer = IdentityTestHost.Issuer,
-            ValidAudience = PlatformServices.PurchaseRequest.Audience,
+            ValidAudience = PlatformServices.Tenancy.Audience,
             IssuerSigningKeys = jwks.GetSigningKeys(),
             ValidAlgorithms = [SecurityAlgorithms.EcdsaSha256],
             ValidTypes = ["at+jwt"],
@@ -68,14 +68,14 @@ public sealed class TokenServerTests(Databases databases)
         using var other = System.Security.Cryptography.ECDsa.Create(System.Security.Cryptography.ECCurve.NamedCurves.nistP256);
 
         var forged = await host.Client().PostAsync("/connect/token", new FormUrlEncodedContent(
-            ClientCredentialsRequest("demo-scale-2", IdentityTestHost.ClientAssertion("demo-scale-2", other, kid), PlatformServices.PurchaseRequest.Audience)), Ct);
+            ClientCredentialsRequest("demo-scale-2", IdentityTestHost.ClientAssertion("demo-scale-2", other, kid), PlatformServices.Tenancy.Audience)), Ct);
         forged.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);   // invalid_client
     }
 
     private static async Task<string> ReadKidAsync(IdentityTestHost host, string clientId) =>
         await host.InTenantAsync("demo", async sp =>
         {
-            var catalog = sp.GetRequiredService<Acme.Identity.Infrastructure.IdentityCatalogDbContext>();
+            var catalog = sp.GetRequiredService<Saaskit.Identity.Infrastructure.IdentityCatalogDbContext>();
             var app = await Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.SingleAsync(catalog.OidcApplications, a => a.ClientId == clientId);
             return new JsonWebKeySet(app.JsonWebKeySet).Keys.Single().Kid;
         });

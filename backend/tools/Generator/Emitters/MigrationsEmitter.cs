@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace Acme.Generator.Emitters;
+namespace Saaskit.Generator.Emitters;
 
 /// <summary>
 /// One migrations project per context project and provider, with design-time factories, plus the Migrator's

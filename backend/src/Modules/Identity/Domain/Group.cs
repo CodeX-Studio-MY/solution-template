@@ -1,6 +1,6 @@
-using Acme.Core.Data;
+using Saaskit.Core.Data;
 
-namespace Acme.Identity.Domain;
+namespace Saaskit.Identity.Domain;
 
 /// <summary>A named set of users and machines in a tenant. Everyone in a group inherits the group's module roles.</summary>
 public sealed class Group : BaseEntity, IAggregateRoot, ISoftDeletable

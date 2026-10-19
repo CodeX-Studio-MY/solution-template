@@ -1,9 +1,9 @@
-using Acme.Core.Errors;
-using Acme.Core.Http;
-using Acme.Core.Platform;
-using Acme.Sample.Domain;
+using Saaskit.Core.Errors;
+using Saaskit.Core.Http;
+using Saaskit.Core.Platform;
+using Saaskit.Sample.Domain;
 
-namespace Acme.Sample.Application;
+namespace Saaskit.Sample.Application;
 
 public sealed record ItemDto(Guid Id, string Name, DateTime CreatedOn, string ETag);
 

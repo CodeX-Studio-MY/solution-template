@@ -1,6 +1,6 @@
-using Acme.Core.Data;
+using Saaskit.Core.Data;
 
-namespace Acme.Tenancy.Domain;
+namespace Saaskit.Tenancy.Domain;
 
 /// <summary>The steps of onboarding a tenant, in order. A run resumes at the first step that hasn't completed.</summary>
 public enum OnboardingStep

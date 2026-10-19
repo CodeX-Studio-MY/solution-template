@@ -1,6 +1,6 @@
-using Acme.Core.Platform;
+using Saaskit.Core.Platform;
 
-namespace Acme.Identity.Application;
+namespace Saaskit.Identity.Application;
 
 /// <summary>What an approved support-access grant allows: one restricted role in one module, for a short time.</summary>
 public sealed record SupportTokenRequest(Guid GrantId, string OperatorId, string OperatorName, string Module, Role Role, string Audience, string Reason);

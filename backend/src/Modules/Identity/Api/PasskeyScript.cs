@@ -1,4 +1,4 @@
-namespace Acme.Identity.Api;
+namespace Saaskit.Identity.Api;
 
 /// <summary>The WebAuthn glue for the sign-in and security pages, served as a file so the CSP can stay <c>script-src 'self'</c>.</summary>
 internal static class PasskeyScript

@@ -1,13 +1,13 @@
 using System.Security.Claims;
-using Acme.Core.Configuration;
-using Acme.Core.Platform;
-using Acme.Core.Tenancy;
+using Saaskit.Core.Configuration;
+using Saaskit.Core.Platform;
+using Saaskit.Core.Tenancy;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
-namespace Acme.Gateway.Sessions;
+namespace Saaskit.Gateway.Sessions;
 
 /// <summary>
 /// The Gateway is a confidential OAuth client (authorization code with PKCE). After sign-in the tokens stay server-side; the

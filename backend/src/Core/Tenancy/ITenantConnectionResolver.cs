@@ -1,9 +1,9 @@
-using Acme.Core.Configuration;
-using Acme.Core.Data;
-using Acme.Core.Errors;
+using Saaskit.Core.Configuration;
+using Saaskit.Core.Data;
+using Saaskit.Core.Errors;
 using Microsoft.Extensions.Options;
 
-namespace Acme.Core.Tenancy;
+namespace Saaskit.Core.Tenancy;
 
 public enum TenantDataAccess
 {

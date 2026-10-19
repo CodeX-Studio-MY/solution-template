@@ -1,10 +1,10 @@
-using Acme.Core.Data;
-using Acme.Core.Http;
-using Acme.Sample.Application;
-using Acme.Sample.Domain;
+using Saaskit.Core.Data;
+using Saaskit.Core.Http;
+using Saaskit.Sample.Application;
+using Saaskit.Sample.Domain;
 using Microsoft.EntityFrameworkCore;
 
-namespace Acme.Sample.Infrastructure;
+namespace Saaskit.Sample.Infrastructure;
 
 internal sealed class ItemRepository(SampleDbContext db) : IItemRepository
 {

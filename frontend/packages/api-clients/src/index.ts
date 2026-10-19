@@ -6,8 +6,8 @@ export * from "./schemas";
 
 /**
  * A typed client for one service: paths, parameters, bodies and responses all come from that service's OpenAPI document.
- * `@acme/web-core` wraps this with the platform's `fetch` (CSRF, Idempotency-Key, ProblemDetails, sign-in redirect);
- * modules call `api("purchase-request")` from there, not this function.
+ * `@saaskit/web-core` wraps this with the platform's `fetch` (CSRF, Idempotency-Key, ProblemDetails, sign-in redirect);
+ * modules call `api("goods-receipt")` from there, not this function.
  */
 export function createServiceClient<K extends keyof ServicePaths>(_service: K, options: ClientOptions): Client<ServicePaths[K]> {
   return createClient<ServicePaths[K]>(options);

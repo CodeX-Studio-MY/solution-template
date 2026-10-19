@@ -32,14 +32,14 @@ import {
   useTenantSettings,
   type ModuleManifest,
   type Role,
-} from "@acme/web-core";
-import { Icon, tokens } from "@acme/ui-kit";
+} from "@saaskit/web-core";
+import { Icon, tokens } from "@saaskit/ui-kit";
 
 interface Props {
   manifests: readonly ModuleManifest[];
 }
 
-const collapsedKey = "acme.sidebar.collapsed";
+const collapsedKey = "saaskit.sidebar.collapsed";
 
 /** The sidebar's width choice is a per-person convenience: remembered when the browser allows it, never required. */
 function readCollapsed(): boolean {

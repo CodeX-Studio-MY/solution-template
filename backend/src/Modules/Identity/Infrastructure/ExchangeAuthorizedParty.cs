@@ -2,7 +2,7 @@ using OpenIddict.Abstractions;
 using OpenIddict.Server;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 
-namespace Acme.Identity.Infrastructure;
+namespace Saaskit.Identity.Infrastructure;
 
 /// <summary>
 /// Replaces OpenIddict's <c>ValidateAuthorizedParty</c>. The built-in rule says a token can only be presented by the client

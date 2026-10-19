@@ -1,7 +1,7 @@
-using Acme.Core.Data;
-using Acme.Core.Security;
+using Saaskit.Core.Data;
+using Saaskit.Core.Security;
 
-namespace Acme.Identity.Domain;
+namespace Saaskit.Identity.Domain;
 
 /// <summary>
 /// Anything that can sign in: a user, a machine or a service. Everything is authorized the same way, by its

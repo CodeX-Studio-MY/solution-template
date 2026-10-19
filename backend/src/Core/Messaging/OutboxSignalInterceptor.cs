@@ -1,12 +1,12 @@
 using System.Data.Common;
 using System.Runtime.CompilerServices;
-using Acme.Core.Data;
-using Acme.Core.Tenancy;
+using Saaskit.Core.Data;
+using Saaskit.Core.Tenancy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 
-namespace Acme.Core.Messaging;
+namespace Saaskit.Core.Messaging;
 
 /// <summary>
 /// After a commit that wrote outbox rows, tells the relay "tenant X has pending rows in this schema". With an explicit

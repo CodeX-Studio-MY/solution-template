@@ -3,8 +3,8 @@ import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router";
 import CssBaseline from "@mui/material/CssBaseline";
 import { ThemeProvider } from "@mui/material/styles";
-import { addNamespace, initI18n, useSessionStore, useTenantStore } from "@acme/web-core";
-import { createTenantTheme } from "@acme/ui-kit";
+import { addNamespace, initI18n, useSessionStore, useTenantStore } from "@saaskit/web-core";
+import { createTenantTheme } from "@saaskit/ui-kit";
 import manifest from "../manifest";
 
 /**

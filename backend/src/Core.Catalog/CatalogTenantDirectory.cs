@@ -1,12 +1,12 @@
-using Acme.Core.Catalog.Entities;
-using Acme.Core.Configuration;
-using Acme.Core.Tenancy;
+using Saaskit.Core.Catalog.Entities;
+using Saaskit.Core.Configuration;
+using Saaskit.Core.Tenancy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace Acme.Core.Catalog;
+namespace Saaskit.Core.Catalog;
 
 /// <summary><see cref="ITenantDirectory"/> over the catalog, with a short-lived in-memory cache.</summary>
 internal sealed class CatalogTenantDirectory(

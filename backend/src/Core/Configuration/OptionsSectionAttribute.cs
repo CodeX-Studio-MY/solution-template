@@ -1,4 +1,4 @@
-namespace Acme.Core.Configuration;
+namespace Saaskit.Core.Configuration;
 
 /// <summary>
 /// Marks a record as one area of the runtime configuration schema, bound from <paramref name="name"/>.

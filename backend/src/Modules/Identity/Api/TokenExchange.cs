@@ -1,11 +1,11 @@
 using System.Security.Claims;
-using Acme.Core.Configuration;
-using Acme.Core.Platform;
-using Acme.Core.Security;
-using Acme.Core.Tenancy;
-using Acme.Identity.Application;
-using Acme.Identity.Domain;
-using Acme.Identity.Infrastructure;
+using Saaskit.Core.Configuration;
+using Saaskit.Core.Platform;
+using Saaskit.Core.Security;
+using Saaskit.Core.Tenancy;
+using Saaskit.Identity.Application;
+using Saaskit.Identity.Domain;
+using Saaskit.Identity.Infrastructure;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -16,7 +16,7 @@ using Microsoft.IdentityModel.Tokens;
 using OpenIddict.Abstractions;
 using OpenIddict.Server.AspNetCore;
 
-namespace Acme.Identity.Api;
+namespace Saaskit.Identity.Api;
 
 /// <summary>
 /// RFC 8693 token exchange, using OpenIddict's built-in flow. Two uses:

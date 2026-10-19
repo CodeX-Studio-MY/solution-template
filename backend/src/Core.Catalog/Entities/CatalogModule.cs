@@ -1,4 +1,4 @@
-namespace Acme.Core.Catalog.Entities;
+namespace Saaskit.Core.Catalog.Entities;
 
 /// <summary>A module: GUID primary key for references, module key for tokens and code. Seeded from platform.yaml.</summary>
 public sealed class CatalogModule

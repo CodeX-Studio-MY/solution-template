@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Text.Json;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Acme.Identity.Infrastructure.OpenIddict;
+namespace Saaskit.Identity.Infrastructure.OpenIddict;
 
 /// <summary>JSON column helpers for the OpenIddict stores.</summary>
 internal static class OidcJson

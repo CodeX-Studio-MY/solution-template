@@ -1,20 +1,20 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
-using Acme.Core.Platform;
-using Acme.Identity.Application;
-using Acme.Identity.Infrastructure;
+using Saaskit.Core.Platform;
+using Saaskit.Identity.Application;
+using Saaskit.Identity.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.JsonWebTokens;
 
-namespace Acme.Integration.Tests;
+namespace Saaskit.Integration.Tests;
 
 /// <summary>Invitation → password → sign-in → authorization code with PKCE → tokens → refresh rotation.</summary>
 [Trait("service", "identity")]
 public sealed class UserFlowTests(Databases databases)
 {
-    private const string BffClient = "acme-bff";
+    private const string BffClient = PlatformClients.Bff;
     private const string BffSecret = "bff-test-secret";
     internal const string Callback = "https://demo.localhost/bff/signin-oidc";
     private const string Password = "correct horse battery staple";
@@ -37,7 +37,7 @@ public sealed class UserFlowTests(Databases databases)
     internal static async Task<string> CreateUserAsync(IdentityTestHost host, string email, Role role)
     {
         var invitation = await host.InTenantAsync("demo", sp => sp.GetRequiredService<IAccountService>()
-            .InviteAsync(email, email, [(Modules.PurchaseRequest, role)], Ct));
+            .InviteAsync(email, email, [(Modules.TenantSettings, role)], Ct));
         using var browser = host.Browser();
         var token = LoginBrowser.Query(invitation.Url.PathAndQuery, "token");
 
@@ -100,15 +100,15 @@ public sealed class UserFlowTests(Databases databases)
         var exchange = await TokenAsync(host, new()
         {
             ["grant_type"] = "authorization_code", ["code"] = code, ["redirect_uri"] = Callback, ["code_verifier"] = verifier,
-            ["resource"] = PlatformServices.PurchaseRequest.Audience,
+            ["resource"] = PlatformServices.Tenancy.Audience,
         });
         var body = await exchange.Content.ReadFromJsonAsync<JsonElement>(Ct);
         exchange.StatusCode.ShouldBe(HttpStatusCode.OK, body.ToString());
 
         var access = new JsonWebTokenHandler().ReadJsonWebToken(body.GetProperty("access_token").GetString());
         access.GetClaim("principal_type").Value.ShouldBe("user");
-        access.GetClaim("roles").Value.ShouldBe("purchase-request:manager");
-        access.Audiences.ShouldBe([PlatformServices.PurchaseRequest.Audience]);
+        access.GetClaim("roles").Value.ShouldBe("tenant-settings:manager");
+        access.Audiences.ShouldBe([PlatformServices.Tenancy.Audience]);
         body.TryGetProperty("refresh_token", out _).ShouldBeTrue();
 
         // A password sign-in that fails reveals nothing about whether the account exists.
@@ -136,10 +136,10 @@ public sealed class UserFlowTests(Databases databases)
         var refresh1 = first.GetProperty("refresh_token").GetString()!;
 
         // Refreshing returns a new access token with the audience asked for, and a rotated refresh token.
-        var second = await TokenAsync(host, new() { ["grant_type"] = "refresh_token", ["refresh_token"] = refresh1, ["resource"] = PlatformServices.CostCenterBudget.Audience });
+        var second = await TokenAsync(host, new() { ["grant_type"] = "refresh_token", ["refresh_token"] = refresh1, ["resource"] = PlatformServices.Notification.Audience });
         var secondBody = await second.Content.ReadFromJsonAsync<JsonElement>(Ct);
         second.StatusCode.ShouldBe(HttpStatusCode.OK, secondBody.ToString());
-        new JsonWebTokenHandler().ReadJsonWebToken(secondBody.GetProperty("access_token").GetString()).Audiences.ShouldBe([PlatformServices.CostCenterBudget.Audience]);
+        new JsonWebTokenHandler().ReadJsonWebToken(secondBody.GetProperty("access_token").GetString()).Audiences.ShouldBe([PlatformServices.Notification.Audience]);
         var refresh2 = secondBody.GetProperty("refresh_token").GetString()!;
         refresh2.ShouldNotBe(refresh1);
 
@@ -173,13 +173,13 @@ public sealed class UserFlowTests(Databases databases)
 
         var refreshed = await (await TokenAsync(host, new()
         {
-            ["grant_type"] = "refresh_token", ["refresh_token"] = first.GetProperty("refresh_token").GetString()!, ["resource"] = PlatformServices.PurchaseRequest.Audience,
+            ["grant_type"] = "refresh_token", ["refresh_token"] = first.GetProperty("refresh_token").GetString()!, ["resource"] = PlatformServices.Tenancy.Audience,
         })).Content.ReadFromJsonAsync<JsonElement>(Ct);
-        new JsonWebTokenHandler().ReadJsonWebToken(refreshed.GetProperty("access_token").GetString()).GetClaim("roles").Value.ShouldBe("purchase-request:admin");
+        new JsonWebTokenHandler().ReadJsonWebToken(refreshed.GetProperty("access_token").GetString()).GetClaim("roles").Value.ShouldBe("tenant-settings:admin");
 
         var bad = await TokenAsync(host, new()
         {
-            ["grant_type"] = "refresh_token", ["refresh_token"] = refreshed.GetProperty("refresh_token").GetString()!, ["resource"] = "acme:not-a-service",
+            ["grant_type"] = "refresh_token", ["refresh_token"] = refreshed.GetProperty("refresh_token").GetString()!, ["resource"] = $"{PlatformInfo.Product}:not-a-service",
         });
         bad.StatusCode.ShouldBe(HttpStatusCode.BadRequest);   // invalid_target
     }

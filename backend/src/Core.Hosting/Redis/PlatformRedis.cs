@@ -1,13 +1,13 @@
-using Acme.Core.Configuration;
-using Acme.Core.Security;
-using Acme.Core.Tenancy;
+using Saaskit.Core.Configuration;
+using Saaskit.Core.Security;
+using Saaskit.Core.Tenancy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 using StackExchange.Redis;
 
-namespace Acme.Core.Hosting.Redis;
+namespace Saaskit.Core.Hosting.Redis;
 
 /// <summary>The Redis-protocol store (Valkey locally): access versions, tenant change notifications, rate limits.</summary>
 public static class PlatformRedis

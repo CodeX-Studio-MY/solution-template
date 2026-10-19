@@ -1,8 +1,8 @@
 using System.Net.Http.Json;
-using Acme.Core.Platform;
-using Acme.Notification.Application;
+using Saaskit.Core.Platform;
+using Saaskit.Notification.Application;
 
-namespace Acme.Notification.Infrastructure;
+namespace Saaskit.Notification.Infrastructure;
 
 /// <summary>Asks the Identity module (over HTTP, with this service's token and the tenant) who to contact.</summary>
 internal sealed class IdentityDirectoryClient(HttpClient http) : IContactDirectory
@@ -18,9 +18,9 @@ internal sealed class IdentityDirectoryClient(HttpClient http) : IContactDirecto
         return await response.Content.ReadFromJsonAsync<Contact>(cancellationToken);
     }
 
-    public async Task<IReadOnlyList<Contact>> ApproversOfAsync(string moduleKey, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<Contact>> MembersOfAsync(string moduleKey, string minimumRole, CancellationToken cancellationToken = default)
     {
-        using var response = await http.GetAsync($"{Platform}/module-members?module={Uri.EscapeDataString(moduleKey)}&minRole={Roles.Manager}", cancellationToken);
+        using var response = await http.GetAsync($"{Platform}/module-members?module={Uri.EscapeDataString(moduleKey)}&minRole={Uri.EscapeDataString(minimumRole)}", cancellationToken);
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadFromJsonAsync<List<Contact>>(cancellationToken) ?? [];
     }

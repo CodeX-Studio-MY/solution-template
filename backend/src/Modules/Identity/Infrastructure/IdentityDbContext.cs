@@ -1,11 +1,11 @@
-using Acme.Core.Data;
-using Acme.Core.Platform;
-using Acme.Identity.Domain;
-using Acme.Identity.Infrastructure.OpenIddict;
+using Saaskit.Core.Data;
+using Saaskit.Core.Platform;
+using Saaskit.Identity.Domain;
+using Saaskit.Identity.Infrastructure.OpenIddict;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-namespace Acme.Identity.Infrastructure;
+namespace Saaskit.Identity.Infrastructure;
 
 /// <summary>
 /// Identity's data in each tenant's database: principals and their sign-in details, groups, assignments, data scopes,

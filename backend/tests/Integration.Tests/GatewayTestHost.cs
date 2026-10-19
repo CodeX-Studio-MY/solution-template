@@ -1,7 +1,7 @@
 extern alias GatewayApp;
 
-using Acme.Core.Platform;
-using Acme.Identity.Application;
+using Saaskit.Core.Platform;
+using Saaskit.Identity.Application;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -10,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Yarp.ReverseProxy.Forwarder;
 
-namespace Acme.Integration.Tests;
+namespace Saaskit.Integration.Tests;
 
 /// <summary>
 /// The real Gateway (YARP and the BFF) in memory, in front of a real Identity host. Browser-side requests go to the Gateway;

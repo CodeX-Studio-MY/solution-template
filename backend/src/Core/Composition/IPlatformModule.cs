@@ -1,8 +1,8 @@
-using Acme.Core.Platform;
+using Saaskit.Core.Platform;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Hosting;
 
-namespace Acme.Core.Composition;
+namespace Saaskit.Core.Composition;
 
 /// <summary>
 /// A module's entry point. A host (or <c>AllInOne.Host</c>) adds modules with <c>AddModule&lt;T&gt;()</c>;

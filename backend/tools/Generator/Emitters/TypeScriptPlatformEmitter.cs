@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace Acme.Generator.Emitters;
+namespace Saaskit.Generator.Emitters;
 
 /// <summary>
 /// frontend/packages/web-core/src/generated/platform.ts: the same module keys, roles, plans and defaults the backend has, so the

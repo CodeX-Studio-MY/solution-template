@@ -1,20 +1,20 @@
-using Acme.Contracts;
-using Acme.Core.Composition;
-using Acme.Core.Configuration;
-using Acme.Core.Data;
-using Acme.Core.Localization;
-using Acme.Core.Messaging;
-using Acme.Core.Platform;
-using Acme.Core.ServiceCalls;
-using Acme.Notification.Api;
-using Acme.Notification.Application;
-using Acme.Notification.Infrastructure;
+using Saaskit.Contracts;
+using Saaskit.Core.Composition;
+using Saaskit.Core.Configuration;
+using Saaskit.Core.Data;
+using Saaskit.Core.Localization;
+using Saaskit.Core.Messaging;
+using Saaskit.Core.Platform;
+using Saaskit.Core.ServiceCalls;
+using Saaskit.Notification.Api;
+using Saaskit.Notification.Application;
+using Saaskit.Notification.Infrastructure;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using StackExchange.Redis;
 
-namespace Acme.Notification;
+namespace Saaskit.Notification;
 
 /// <summary>Real-time notifications (SignalR with a Redis backplane) and email. Available to every signed-in principal and every tenant.</summary>
 public sealed class NotificationModule : IPlatformModule
@@ -40,9 +40,7 @@ public sealed class NotificationModule : IPlatformModule
             options => options.Configuration.ChannelPrefix = RedisChannel.Literal($"{PlatformInfo.Product}:signalr"));
 
         // Platform consumers have no module: they serve every tenant.
-        services.AddEventConsumer<PurchaseRequestApproved.V1, PurchaseRequestApprovedConsumer, NotificationDbContext>(Service, ownerModule: null);
-        services.AddEventConsumer<PurchaseRequestRejected.V1, PurchaseRequestRejectedConsumer, NotificationDbContext>(Service, ownerModule: null);
-        services.AddEventConsumer<ApprovalsWaiting.V1, ApprovalsWaitingConsumer, NotificationDbContext>(Service, ownerModule: null);
+        services.AddEventConsumer<NotificationRequested.V1, NotificationRequestedConsumer, NotificationDbContext>(Service, ownerModule: null);
     }
 
     public static void MapEndpoints(IEndpointRouteBuilder api) => NotificationEndpoints.Map(api);

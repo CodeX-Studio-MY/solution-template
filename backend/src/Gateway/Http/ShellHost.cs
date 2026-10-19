@@ -1,9 +1,9 @@
 using System.Net.Mime;
-using Acme.Core.Configuration;
+using Saaskit.Core.Configuration;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 
-namespace Acme.Gateway.Http;
+namespace Saaskit.Gateway.Http;
 
 /// <summary>
 /// Serves the built shell app and the frontend modules on every tenant host, so the app, the BFF and /api share one origin.

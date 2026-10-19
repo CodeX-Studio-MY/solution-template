@@ -1,8 +1,8 @@
-using Acme.Core.Configuration;
+using Saaskit.Core.Configuration;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 
-namespace Acme.Core.Hosting.Messaging;
+namespace Saaskit.Core.Hosting.Messaging;
 
 /// <summary>One shared, auto-recovering connection. It is opened on first use, so a host starts even if the broker is briefly down.</summary>
 internal sealed class RabbitMqConnection(IOptions<RabbitMqOptions> options) : IAsyncDisposable

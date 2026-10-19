@@ -1,11 +1,11 @@
 using System.Security.Claims;
-using Acme.Core.Security;
-using Acme.Core.Tenancy;
-using Acme.Identity.Domain;
+using Saaskit.Core.Security;
+using Saaskit.Core.Tenancy;
+using Saaskit.Identity.Domain;
 using Microsoft.EntityFrameworkCore;
 using OpenIddict.Abstractions;
 
-namespace Acme.Identity.Infrastructure;
+namespace Saaskit.Identity.Infrastructure;
 
 /// <summary>Builds the claims of an access token for a principal: effective roles only, never raw assignments.</summary>
 internal sealed class AccessPrincipalFactory(IdentityDbContext db, ITenantContext tenant)

@@ -3,13 +3,13 @@ using System.Net.Http.Json;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
-using Acme.Core.Composition;
-using Acme.Core.Configuration;
-using Acme.Core.Errors;
-using Acme.Core.Platform;
+using Saaskit.Core.Composition;
+using Saaskit.Core.Configuration;
+using Saaskit.Core.Errors;
+using Saaskit.Core.Platform;
 using Microsoft.Extensions.Options;
 
-namespace Acme.Core.ServiceCalls;
+namespace Saaskit.Core.ServiceCalls;
 
 /// <summary>
 /// Gets access tokens for calls to other services. System work uses this service's own client-credentials token;

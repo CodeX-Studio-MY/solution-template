@@ -2,9 +2,9 @@ using System.Collections;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 using System.Text;
-using Acme.Core.Configuration;
+using Saaskit.Core.Configuration;
 
-namespace Acme.Generator.Emitters;
+namespace Saaskit.Generator.Emitters;
 
 /// <summary>
 /// From the typed options records in Core (the single source of truth for runtime configuration):

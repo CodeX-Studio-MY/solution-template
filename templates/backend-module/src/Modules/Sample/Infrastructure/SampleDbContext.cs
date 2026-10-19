@@ -1,8 +1,8 @@
-using Acme.Core.Data;
-using Acme.Sample.Domain;
+using Saaskit.Core.Data;
+using Saaskit.Sample.Domain;
 using Microsoft.EntityFrameworkCore;
 
-namespace Acme.Sample.Infrastructure;
+namespace Saaskit.Sample.Infrastructure;
 
 /// <summary>The module's data in each tenant's database, in its own schema. No other module reads these tables.</summary>
 public sealed class SampleDbContext(DbContextOptions<SampleDbContext> options) : ModuleDbContext(options)
