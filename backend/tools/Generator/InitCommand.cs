@@ -40,9 +40,6 @@ internal static partial class InitCommand
         var answers = resuming ? InitAnswers.From(current, options, RememberedModules(repoRoot)) : InitAnswers.Ask(current, options);
 
         Preflight(options);
-        var strays = ModuleFolders.Strays(repoRoot, PlatformDefinition.Load(platformPath), answers.Modules);
-        if (strays.Count > 0)
-            throw new PlatformDefinitionException(ModuleFolders.Explain(strays));
         // A module key the platform's code already uses as a string would fail the architecture tests at the end: refuse it now.
         if (!resuming)
         {
@@ -72,6 +69,10 @@ internal static partial class InitCommand
         // still adds them.
         RememberModules(repoRoot, answers.Modules);
 
+        // Module folders that belong to no module (an earlier run's leftovers, or an editor writing back an open tab) would be renamed
+        // and built with the product: they go first. Ones holding committed files stop the run instead.
+        ModuleFolders.Delete(repoRoot, ModuleFolders.Strays(repoRoot, PlatformDefinition.Load(platformPath), answers.Modules));
+
         // 1. The product's facts (once), then the rename. The rename runs on every run while the marker is here: it changes nothing
         //    when an earlier run finished it, and finishes it when an earlier run was stopped part-way.
         if (!resuming)
@@ -85,8 +86,7 @@ internal static partial class InitCommand
         else if (renamed.ChangedFiles.Count + renamed.RenamedPaths.Count > 0)
             Console.WriteLine($"Finished an interrupted rename: {renamed.ChangedFiles.Count} files and {renamed.RenamedPaths.Count} paths still said '{TemplateProduct}'.");
 
-        if (!resuming)
-            OfferToDeleteOldDevData(answers.Product, options);
+        OfferToDeleteOldDevData(answers.Product, options);
 
         // 2. From here on the code on disk has the product's namespaces, and this process was built against the template's: every
         //    step that compiles runs as a new process (dotnet run builds the generator again).
@@ -101,7 +101,11 @@ internal static partial class InitCommand
         var existing = PlatformDefinition.Load(platformPath).Modules.Select(m => m.Key).ToHashSet(StringComparer.Ordinal);
         string[] compose = skipCompose ? ["--skip-compose"] : [];
         string[] moduleOptions = [.. compose, "--no-catalog-migration"];   // the catalog is recreated once, below
-        foreach (var module in answers.Modules)
+        // The modules asked for, and any business module declared in platform.yaml by hand (a service owning a module of its key).
+        var declared = PlatformDefinition.Load(platformPath).Services
+            .Where(s => s.Owns.Contains(s.Key) && existing.Contains(s.Key))
+            .Select(s => s.Key);
+        foreach (var module in answers.Modules.Concat(declared).Distinct(StringComparer.Ordinal))
         {
             if (!existing.Contains(module))
                 Generator(repoRoot, ["new-module", module, .. moduleOptions]);
@@ -112,10 +116,9 @@ internal static partial class InitCommand
         Generator(repoRoot, ["generate", .. compose]);
 
         // 3. A first check that what was generated builds and follows the rules. The integration tests need Docker and take longer.
-        //    Folders can appear while this runs (an editor saving a tab of a deleted file), so they are checked again first.
-        var late = ModuleFolders.Strays(repoRoot, PlatformDefinition.Load(platformPath), []);
-        if (late.Count > 0)
-            throw new PlatformDefinitionException(ModuleFolders.Explain(late));
+        //    Folders can appear while this runs (an editor saving a tab of a deleted file), so they are cleared again first. The
+        //    solution never lists them (SolutionEmitter leaves them out), so they can't break the build in between.
+        ModuleFolders.Delete(repoRoot, ModuleFolders.Strays(repoRoot, PlatformDefinition.Load(platformPath), []));
         if (!options.SkipChecks)
         {
             Step("dotnet", repoRoot, "build", $"backend/{answers.Product}.slnx");

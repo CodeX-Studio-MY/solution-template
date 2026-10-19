@@ -38,9 +38,52 @@ internal static class ModuleFolders
         return strays;
     }
 
-    /// <summary>What to tell the person about stray folders.</summary>
-    public static string Explain(IReadOnlyList<string> strays) =>
-        "These folders belong to no module in platform.yaml:\n  " + string.Join("\n  ", strays) +
-        "\nThey are left over from an earlier run, or an editor wrote them back from a tab that was still open. Close those tabs, " +
-        "delete the folders (they are not tracked by git), then run scripts/generate again.";
+    /// <summary>
+    /// Deletes stray folders and says so. A folder holding a file git tracks is someone's committed work, so it is kept and the run
+    /// stops; the rest (untracked, or no git repository) are build leftovers and go.
+    /// </summary>
+    public static void Delete(string repoRoot, IReadOnlyList<string> strays)
+    {
+        var tracked = strays.Where(stray => IsTracked(repoRoot, stray)).ToList();
+        if (tracked.Count > 0)
+            throw new PlatformDefinitionException(
+                "These folders belong to no module in platform.yaml but hold files committed to git, so they were not deleted:\n  " +
+                string.Join("\n  ", tracked) + "\nAdd their module to platform.yaml, or delete them yourself, then run scripts/generate again.");
+
+        foreach (var stray in strays)
+        {
+            var path = Path.Combine(repoRoot, stray);
+            for (var attempt = 1; Directory.Exists(path); attempt++)
+            {
+                try
+                {
+                    Directory.Delete(path, recursive: true);
+                }
+                catch (Exception ex) when ((ex is IOException or UnauthorizedAccessException) && attempt < 5)
+                {
+                    Thread.Sleep(400);   // an editor or build server may still hold a file in it
+                }
+                catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+                {
+                    throw new PlatformDefinitionException($"{stray} belongs to no module in platform.yaml and couldn't be deleted ({ex.Message.TrimEnd('.')}). " +
+                        "Close the editor tabs or programs using it, then run scripts/generate again.");
+                }
+            }
+            Console.WriteLine($"Deleted {stray}: it belongs to no module in platform.yaml (left over from an earlier run, or written back by an editor).");
+        }
+    }
+
+    private static bool IsTracked(string repoRoot, string stray)
+    {
+        if (!Directory.Exists(Path.Combine(repoRoot, ".git")))
+            return false;
+        try
+        {
+            return Processes.Capture("git", repoRoot, "", "ls-files", "--", stray).Trim().Length > 0;
+        }
+        catch (PlatformDefinitionException)
+        {
+            return true;   // can't tell: keep it
+        }
+    }
 }

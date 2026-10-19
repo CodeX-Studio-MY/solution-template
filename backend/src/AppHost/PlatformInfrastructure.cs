@@ -193,9 +193,10 @@ internal sealed class PlatformInfrastructure
                 service = service.WithEnvironment(ConfigKeys.TokenServer.PlatformClientSecrets(platformService.ClientId), _secrets.ServiceSecrets[platformService.Key]);
         }
 
-        if (hosted.Contains(PlatformServices.Tenancy))
+        // Local development applies a new tenant's migrations by running the Migrator project for that tenant. Only when running: the
+        // path is this machine's, so it has no place in the published compose file (which must be the same on every machine).
+        if (hosted.Contains(PlatformServices.Tenancy) && service.ApplicationBuilder.ExecutionContext.IsRunMode)
         {
-            // Local development applies a new tenant's migrations by running the Migrator project for that tenant.
             var migratorProject = Path.GetFullPath("../Migrator/Migrator.csproj", AppHostDirectory);
             service = service
                 .WithEnvironment(ConfigKeys.Onboarding.MigratorCommand, "dotnet")

@@ -18,7 +18,8 @@ internal static class NewModuleCommand
         var displayName = Option(args, "--name") ?? DisplayName(key);
         var withFrontend = !args.Contains("--no-frontend");
         var skipCompose = args.Contains("--skip-compose");
-        // --resume: the module is already in platform.yaml and on disk (an earlier run stopped part-way); finish the remaining steps.
+        // --resume: the module is already in platform.yaml (an earlier run stopped part-way, or someone declared it there by hand);
+        // create whatever of it is missing and finish the remaining steps.
         var resume = args.Contains("--resume");
         // --no-catalog-migration: the caller makes the catalog's migration itself (scripts/generate on the template recreates it once).
         var catalogMigration = !args.Contains("--no-catalog-migration");
@@ -27,9 +28,19 @@ internal static class NewModuleCommand
         var pascal = Naming.Pascal(key);
         if (resume)
         {
-            if (platform.Modules.All(m => m.Key != key))
-                throw new PlatformDefinitionException($"'{key}' is not in platform.yaml, so there is nothing to resume.");
-            Console.WriteLine($"Resuming module '{key}' ({pascal}).");
+            var declared = platform.Modules.FirstOrDefault(m => m.Key == key)
+                ?? throw new PlatformDefinitionException($"'{key}' is not in platform.yaml, so there is nothing to resume.");
+            var hasBackend = Directory.Exists(BackendFolder(repoRoot, pascal));
+            Console.WriteLine(hasBackend ? $"Resuming module '{key}' ({pascal})." : $"Scaffolding module '{key}' ({pascal}), declared in platform.yaml.");
+
+            // 1 and 2, for whatever of the module isn't on disk yet. Its name and ports are the ones platform.yaml declares.
+            if (!hasBackend)
+            {
+                KeyCollisions.Check(repoRoot, key);
+                CreateBackend(repoRoot, platform, key, pascal);
+            }
+            if (withFrontend && !Directory.Exists(Path.Combine(repoRoot, "frontend", "modules", key)))
+                CopyFrontend(repoRoot, key, pascal, declared.Name, 3100 + platform.Modules.IndexOf(declared) + 1);
         }
         else
         {
@@ -42,9 +53,7 @@ internal static class NewModuleCommand
             AddToPlatformYaml(Path.Combine(repoRoot, "platform.yaml"), key, displayName, port, platform.Plans);
 
             // 1. The backend, from the dotnet new template.
-            Run("dotnet", repoRoot, "new", "install", Path.Combine(repoRoot, "templates", "backend-module"), "--force");
-            Run("dotnet", repoRoot, "new", $"{platform.Product}-module", "--name", pascal, "--key", key, "--camel", Naming.Camel(key), "--product", platform.ProductPascal,
-                "--output", Path.Combine(repoRoot, "backend"), "--force");
+            CreateBackend(repoRoot, platform, key, pascal);
 
             // 2. The frontend module, from its template.
             if (withFrontend)
@@ -87,6 +96,27 @@ internal static class NewModuleCommand
         Console.WriteLine("Next: build and test (dotnet test --project backend/tests/" + pascal + ".Tests), then replace the example Item with your domain.");
         return 0;
     }
+
+    /// <summary>The module's backend class library folder: <c>backend/src/Modules/{Pascal}</c>.</summary>
+    internal static string BackendFolder(string repoRoot, string pascal) => Path.Combine(repoRoot, "backend", "src", "Modules", pascal);
+
+    /// <summary>The backend (module, host, tests), from the dotnet new template.</summary>
+    private static void CreateBackend(string repoRoot, PlatformDefinition platform, string key, string pascal)
+    {
+        Run("dotnet", repoRoot, "new", "install", Path.Combine(repoRoot, "templates", "backend-module"), "--force");
+        Run("dotnet", repoRoot, "new", $"{platform.Product}-module", "--name", pascal, "--key", key, "--camel", Naming.Camel(key), "--product", platform.ProductPascal,
+            "--output", Path.Combine(repoRoot, "backend"), "--force");
+    }
+
+    /// <summary>
+    /// Business modules declared in platform.yaml (a service that owns a module of its own key) whose code isn't on disk yet: someone
+    /// added them to platform.yaml by hand. scripts/generate scaffolds them.
+    /// </summary>
+    internal static IReadOnlyList<string> Unscaffolded(string repoRoot, PlatformDefinition platform) =>
+        [.. platform.Services
+            .Where(s => s.Owns.Contains(s.Key) && platform.Modules.Any(m => m.Key == s.Key))
+            .Select(s => s.Key)
+            .Where(key => !Directory.Exists(BackendFolder(repoRoot, Naming.Pascal(key))))];
 
     /// <summary>Whether <paramref name="directory"/> has a migration named <paramref name="name"/> (<c>{timestamp}_{name}.cs</c>).</summary>
     internal static bool HasMigration(string directory, string name) =>

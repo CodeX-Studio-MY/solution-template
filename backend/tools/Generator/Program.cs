@@ -13,7 +13,18 @@ try
     switch (command)
     {
         case "generate":
+        {
+            // A business module declared in platform.yaml by hand has no code yet: scaffold it first, as scripts/new-module would.
+            var unscaffolded = NewModuleCommand.Unscaffolded(repoRoot, PlatformDefinition.Load(Path.Combine(repoRoot, "platform.yaml")));
+            if (args.Contains("--check") && unscaffolded.Count > 0)
+            {
+                Console.Error.WriteLine($"platform.yaml declares modules with no code yet: {string.Join(", ", unscaffolded)}. Run scripts/generate to scaffold them.");
+                return 1;
+            }
+            foreach (var key in unscaffolded)
+                NewModuleCommand.Run(repoRoot, [key, "--resume", .. args.Contains("--skip-compose") ? ["--skip-compose"] : Array.Empty<string>()]);
             return GenerateCommand.Run(repoRoot, args.Contains("--check"), args.Contains("--skip-compose"), args.Contains("--skip-api"));
+        }
         case "new-module":
             return NewModuleCommand.Run(repoRoot, args[1..]);
         case "add-postgresql":

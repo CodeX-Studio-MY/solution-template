@@ -28,7 +28,43 @@ public sealed class PlatformDefinition
         var definition = deserializer.Deserialize<PlatformDefinition>(File.ReadAllText(path))
             ?? throw new PlatformDefinitionException($"{path} is empty.");
         definition.Validate();
+        definition.RequirePlatformParts();
         return definition;
+    }
+
+    /// <summary>The platform's own services and the modules they own: the platform's code and tests are built on them.</summary>
+    internal static readonly (string Service, string[] Owns)[] PlatformParts =
+    [
+        ("identity", ["access-management"]),
+        ("tenancy", ["tenant-settings", "billing"]),
+        ("notification", []),
+    ];
+
+    /// <summary>
+    /// Fails if a platform service or module was removed or moved. They can be renamed in the menu (<c>name</c>) and limited to some
+    /// plans (<c>plans</c>), but not taken out: the platform's code depends on them.
+    /// </summary>
+    public void RequirePlatformParts()
+    {
+        var errors = new List<string>();
+        foreach (var (service, owns) in PlatformParts)
+        {
+            var declared = Services.FirstOrDefault(s => s.Key == service);
+            if (declared is null)
+            {
+                errors.Add($"service '{service}' is part of the platform and can't be removed.");
+                continue;
+            }
+            foreach (var module in owns)
+            {
+                if (Modules.All(m => m.Key != module))
+                    errors.Add($"module '{module}' is part of the platform and can't be removed. To keep it from customers, list only the plans that should have it (plans: [...]).");
+                else if (!declared.Owns.Contains(module))
+                    errors.Add($"module '{module}' must stay owned by service '{service}'.");
+            }
+        }
+        if (errors.Count > 0)
+            throw new PlatformDefinitionException("platform.yaml is invalid:\n  - " + string.Join("\n  - ", errors));
     }
 
     /// <summary>Fails on anything that would make the generated code ambiguous or unsafe.</summary>

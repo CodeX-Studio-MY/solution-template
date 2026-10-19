@@ -15,7 +15,13 @@ public sealed class InitTests : IDisposable
 
     private readonly string _root = Directory.CreateTempSubdirectory("init-tests-").FullName;
 
-    public void Dispose() => Directory.Delete(_root, recursive: true);
+    public void Dispose()
+    {
+        // git keeps its objects read-only, and Directory.Delete won't remove read-only files.
+        foreach (var file in Directory.EnumerateFiles(_root, "*", SearchOption.AllDirectories))
+            File.SetAttributes(file, FileAttributes.Normal);
+        Directory.Delete(_root, recursive: true);
+    }
 
     private string Write(string relative, string content, bool bom = false)
     {
@@ -108,6 +114,53 @@ public sealed class InitTests : IDisposable
 
         ModuleFolders.Strays(_root, Template(), ["crop-planning"]).ShouldBe(
             ["backend/src/Modules/Master.Migrations.SqlServer", "backend/tests/Master.Tests", "frontend/modules/master"], ignoreOrder: true);
+    }
+
+    [Fact]
+    public void A_platform_module_cant_be_removed()
+    {
+        var platform = Template();
+        platform.Modules.RemoveAll(m => m.Key == "billing");
+        platform.Services.Single(s => s.Key == "tenancy").Owns.Remove("billing");
+
+        Should.Throw<PlatformDefinitionException>(platform.RequirePlatformParts).Message.ShouldContain("'billing' is part of the platform");
+    }
+
+    [Fact]
+    public void A_module_declared_in_platform_yaml_by_hand_is_found_until_it_is_scaffolded()
+    {
+        var platform = Template();
+        platform.Services.Add(new ServiceDefinition { Key = "purchase", Port = 5004, Owns = ["purchase"] });
+        platform.Modules.Add(new ModuleDefinition { Key = "purchase", Name = "Purchase", Plans = [.. platform.Plans] });
+
+        NewModuleCommand.Unscaffolded(_root, platform).ShouldBe(["purchase"]);
+
+        Directory.CreateDirectory(Path.Combine(_root, "backend", "src", "Modules", "Purchase"));
+        NewModuleCommand.Unscaffolded(_root, platform).ShouldBeEmpty();
+    }
+
+    [Fact]
+    public void Stray_module_folders_are_deleted()
+    {
+        Write("backend/src/Hosts/Master.Host/Master.Host.csproj", "<Project />");
+        Write("backend/src/Hosts/Master.Host/obj/x.json", "{}");
+
+        ModuleFolders.Delete(_root, ModuleFolders.Strays(_root, Template(), []));
+
+        Directory.Exists(Path.Combine(_root, "backend", "src", "Hosts", "Master.Host")).ShouldBeFalse();
+    }
+
+    [Fact]
+    public void A_stray_folder_with_committed_files_is_kept_and_stops_the_run()
+    {
+        Write("backend/tests/Master.Tests/Master.Tests.csproj", "<Project />");
+        foreach (var args in new[] { new[] { "init", "--quiet" }, ["add", "--all"], ["-c", "user.name=t", "-c", "user.email=t@t", "commit", "--quiet", "-m", "x"] })
+            Processes.Capture("git", _root, "", args);
+
+        var error = Should.Throw<PlatformDefinitionException>(() => ModuleFolders.Delete(_root, ModuleFolders.Strays(_root, Template(), [])));
+
+        error.Message.ShouldContain("backend/tests/Master.Tests");
+        File.Exists(Path.Combine(_root, "backend", "tests", "Master.Tests", "Master.Tests.csproj")).ShouldBeTrue();
     }
 
     [Fact]

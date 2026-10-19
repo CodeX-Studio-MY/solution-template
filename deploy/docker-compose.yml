@@ -171,8 +171,6 @@ services:
       Smtp__Host: "mailpit"
       Smtp__Port: "1025"
       Smtp__FromAddress: "no-reply@localhost"
-      Onboarding__MigratorCommand: "dotnet"
-      Onboarding__MigratorArguments: "run --project \"C:\\Users\\tmhui\\source\\repos\\solution-template\\backend\\src\\Migrator\\Migrator.csproj\" --no-launch-profile -- --tenant {tenant}"
       IDENTITY_HTTP: "http://identity:${IDENTITY_PORT}"
       services__identity__http__0: "http://identity:${IDENTITY_PORT}"
       NOTIFICATION_HTTP: "http://notification:${NOTIFICATION_PORT}"
