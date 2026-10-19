@@ -7,7 +7,8 @@
 # the rest of the message, so it stays 'Continue'; the exit code is passed on.
 $ErrorActionPreference = 'Continue'
 Set-Location (Join-Path $PSScriptRoot '..') -ErrorAction Stop
-$rest = @($args | Where-Object { $_ -ne '--template' })
+# PowerShell turns an unquoted list such as basic,pro into an array; pass it on as the comma-separated value it was typed as.
+$rest = @(foreach ($arg in $args) { if ($arg -is [array]) { $arg -join ',' } elseif ($arg -ne '--template') { $arg } })
 $command = if ((Test-Path .template) -and ($args -notcontains '--template') -and ($args -notcontains '--check')) { 'init' } else { 'generate' }
 dotnet run --project backend/tools/Generator -- $command @rest
 exit $LASTEXITCODE

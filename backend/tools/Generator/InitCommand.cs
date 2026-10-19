@@ -1,7 +1,7 @@
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace Saaskit.Generator;
+namespace Farm360.Generator;
 
 /// <summary>
 /// <c>scripts/generate</c> on a fresh copy of the template (the <c>.template</c> marker is there): scaffolds the product. It asks for
@@ -40,6 +40,20 @@ internal static partial class InitCommand
         var answers = resuming ? InitAnswers.From(current, options) : InitAnswers.Ask(current, options);
 
         Preflight(options);
+
+        // It changes this folder in place, so say which one, in case this is the template's own clone. Only --yes skips the question:
+        // without an answer (no input, or input that isn't "y") nothing changes.
+        if (!resuming && !options.Yes)
+        {
+            Console.WriteLine();
+            Console.Write($"This turns {repoRoot} into '{answers.Product}' in place. Continue? [y/N]: ");
+            if (!string.Equals(Console.ReadLine()?.Trim(), "y", StringComparison.OrdinalIgnoreCase))
+            {
+                Console.WriteLine();
+                Console.WriteLine("Nothing was changed. Make a copy of the template (\"Use this template\", or git clone into a new folder) and run this there.");
+                return 1;
+            }
+        }
         Console.WriteLine();
         Console.WriteLine(resuming
             ? $"Continuing the scaffold of '{answers.Product}' ({Naming.Pascal(answers.Product)})."
@@ -352,8 +366,8 @@ internal sealed record InitAnswers(
     {
         foreach (var module in Modules)
         {
-            if (!Saaskit.Core.Platform.KeyRules.Pattern.IsMatch(module) || Saaskit.Core.Platform.KeyRules.Reserved.Contains(module))
-                throw new PlatformDefinitionException($"'{module}' is not a valid module key: it must match {Saaskit.Core.Platform.KeyRules.Pattern} and not be reserved.");
+            if (!Farm360.Core.Platform.KeyRules.Pattern.IsMatch(module) || Farm360.Core.Platform.KeyRules.Reserved.Contains(module))
+                throw new PlatformDefinitionException($"'{module}' is not a valid module key: it must match {Farm360.Core.Platform.KeyRules.Pattern} and not be reserved.");
             // A business module an earlier run added (a service of the same key that owns it) is resumed; any other existing key is
             // one of the platform's own services or modules.
             var service = platform.Services.FirstOrDefault(s => s.Key == module);
