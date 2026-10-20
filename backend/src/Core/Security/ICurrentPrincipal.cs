@@ -1,6 +1,6 @@
 using System.Security.Claims;
 
-namespace Saaskit.Core.Security;
+namespace Farm360.Core.Security;
 
 /// <summary>Who is making the current request, message or job.</summary>
 public interface ICurrentPrincipal

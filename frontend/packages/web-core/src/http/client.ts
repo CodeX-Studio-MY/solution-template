@@ -1,4 +1,4 @@
-import { createServiceClient, type ServicePaths } from "@saaskit/api-clients";
+import { createServiceClient, type ServicePaths } from "@farm360/api-clients";
 import type { ServiceKey } from "../generated/platform";
 import { readProblem, ApiError, type ProblemDetails } from "./problem";
 

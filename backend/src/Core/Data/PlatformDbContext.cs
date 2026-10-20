@@ -1,7 +1,7 @@
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 
-namespace Saaskit.Core.Data;
+namespace Farm360.Core.Data;
 
 /// <summary>
 /// The base of every DbContext on the platform. It applies the conventions that keep business code

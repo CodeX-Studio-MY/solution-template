@@ -1,9 +1,9 @@
-using Saaskit.Core.Tenancy;
+using Farm360.Core.Tenancy;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using StackExchange.Redis;
 
-namespace Saaskit.Core.Hosting.Redis;
+namespace Farm360.Core.Hosting.Redis;
 
 internal sealed class RedisTenantChangeNotifier(IConnectionMultiplexer redis, IServiceProvider services) : ITenantChangeNotifier
 {

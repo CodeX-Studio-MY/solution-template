@@ -1,12 +1,12 @@
-using Saaskit.Core.Composition;
-using Saaskit.Core.Data;
-using Saaskit.Core.Platform;
-using Saaskit.Identity.Api;
-using Saaskit.Identity.Infrastructure;
+using Farm360.Core.Composition;
+using Farm360.Core.Data;
+using Farm360.Core.Platform;
+using Farm360.Identity.Api;
+using Farm360.Identity.Infrastructure;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Hosting;
 
-namespace Saaskit.Identity;
+namespace Farm360.Identity;
 
 /// <summary>Token server, users, machines, service clients, groups and module roles.</summary>
 public sealed class IdentityModule : IPlatformModule

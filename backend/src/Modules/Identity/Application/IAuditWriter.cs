@@ -1,4 +1,4 @@
-namespace Saaskit.Identity.Application;
+namespace Farm360.Identity.Application;
 
 /// <summary>Writes the tenant's append-only audit log: who, what, when, from where, and the trace ID.</summary>
 public interface IAuditWriter

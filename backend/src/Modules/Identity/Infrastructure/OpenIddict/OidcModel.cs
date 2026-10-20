@@ -1,7 +1,7 @@
-using Saaskit.Core.Data;
+using Farm360.Core.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace Saaskit.Identity.Infrastructure.OpenIddict;
+namespace Farm360.Identity.Infrastructure.OpenIddict;
 
 /// <summary>The one mapping of the OpenIddict tables, used by both Identity contexts.</summary>
 internal static class OidcModel

@@ -1,4 +1,4 @@
-namespace Saaskit.Core.Security;
+namespace Farm360.Core.Security;
 
 /// <summary>
 /// Endpoint metadata for sign-in, token, enrollment and password-reset endpoints: they are rate limited per client address

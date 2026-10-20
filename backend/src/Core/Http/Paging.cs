@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace Saaskit.Core.Http;
+namespace Farm360.Core.Http;
 
 /// <summary>Page-number paging with a hard maximum page size. Bind it with <c>[AsParameters]</c>.</summary>
 public sealed record PageRequest(int Page = 1, int PageSize = PageRequest.DefaultPageSize)

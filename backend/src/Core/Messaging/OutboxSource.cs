@@ -1,9 +1,9 @@
-using Saaskit.Core.Data;
-using Saaskit.Core.Tenancy;
+using Farm360.Core.Data;
+using Farm360.Core.Tenancy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Saaskit.Core.Messaging;
+namespace Farm360.Core.Messaging;
 
 /// <summary>Publishes one module's pending outbox rows for one tenant, in order, at most one relay at a time per tenant and module.</summary>
 internal sealed class OutboxSource<TContext>(

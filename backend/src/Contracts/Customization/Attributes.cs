@@ -1,4 +1,4 @@
-namespace Saaskit.Contracts;
+namespace Farm360.Contracts;
 
 /// <summary>
 /// Marks a record as a module's per-tenant settings (rung 1 of the customization ladder). Values are data in the catalog: a tenant

@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Saaskit.Core.Data;
+namespace Farm360.Core.Data;
 
 /// <summary>Carries the provider and schema into a <see cref="PlatformDbContext"/>.</summary>
 internal sealed class PlatformOptionsExtension(IDatabaseProvider provider, string schema) : IDbContextOptionsExtension

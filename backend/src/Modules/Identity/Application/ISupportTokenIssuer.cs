@@ -1,6 +1,6 @@
-using Saaskit.Core.Platform;
+using Farm360.Core.Platform;
 
-namespace Saaskit.Identity.Application;
+namespace Farm360.Identity.Application;
 
 /// <summary>What an approved support-access grant allows: one restricted role in one module, for a short time.</summary>
 public sealed record SupportTokenRequest(Guid GrantId, string OperatorId, string OperatorName, string Module, Role Role, string Audience, string Reason);

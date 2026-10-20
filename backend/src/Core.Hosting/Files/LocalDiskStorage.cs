@@ -1,9 +1,9 @@
-using Saaskit.Core.Configuration;
-using Saaskit.Core.Files;
+using Farm360.Core.Configuration;
+using Farm360.Core.Files;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Options;
 
-namespace Saaskit.Core.Hosting.Files;
+namespace Farm360.Core.Hosting.Files;
 
 /// <summary>
 /// A folder on disk. **Development only**: containers have no persistent disk. Download links are protected, time-limited tokens

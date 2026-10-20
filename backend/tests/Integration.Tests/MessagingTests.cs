@@ -1,21 +1,21 @@
 using System.Diagnostics;
 using System.Text;
-using Saaskit.Contracts;
-using Saaskit.Core.Catalog;
-using Saaskit.Core.Hosting.Messaging;
-using Saaskit.Core.Messaging;
-using Saaskit.Core.Platform;
-using Saaskit.Core.Tenancy;
-using Saaskit.Notification;
-using Saaskit.Notification.Application;
-using Saaskit.Notification.Infrastructure;
+using Farm360.Contracts;
+using Farm360.Core.Catalog;
+using Farm360.Core.Hosting.Messaging;
+using Farm360.Core.Messaging;
+using Farm360.Core.Platform;
+using Farm360.Core.Tenancy;
+using Farm360.Notification;
+using Farm360.Notification.Application;
+using Farm360.Notification.Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using RabbitMQ.Client;
 
-namespace Saaskit.Integration.Tests;
+namespace Farm360.Integration.Tests;
 
 /// <summary>The messaging layer over RabbitMQ.Client: the outbox, the inbox, entitlement filtering, retries, dead-letter queues and tracing.</summary>
 [Trait("service", "notification")]
@@ -58,7 +58,7 @@ public sealed class MessagingTests(Databases databases)
         {
             // Required at startup; nothing is sent, as there is nobody to tell.
             builder.Configuration["Smtp:Host"] = "localhost";
-            builder.Configuration["Smtp:FromAddress"] = "no-reply@saaskit.test";
+            builder.Configuration["Smtp:FromAddress"] = "no-reply@farm360.test";
             builder.Services.RemoveAll<IContactDirectory>();
             builder.Services.AddSingleton<IContactDirectory, NoContacts>();
             // The echo publishes, so the service gets the outbox a publishing module registers.
@@ -158,7 +158,7 @@ public sealed class MessagingTests(Databases databases)
         TraceConsumer.Reset();
         using var listener = new ActivityListener
         {
-            ShouldListenTo = source => source.Name == "Saaskit.Core.Messaging",
+            ShouldListenTo = source => source.Name == "Farm360.Core.Messaging",
             Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData,
         };
         ActivitySource.AddActivityListener(listener);

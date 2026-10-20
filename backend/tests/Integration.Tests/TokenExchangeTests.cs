@@ -1,15 +1,15 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
-using Saaskit.Core.Platform;
-using Saaskit.Identity.Application;
-using Saaskit.Identity.Domain;
-using Saaskit.Identity.Infrastructure;
+using Farm360.Core.Platform;
+using Farm360.Identity.Application;
+using Farm360.Identity.Domain;
+using Farm360.Identity.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.JsonWebTokens;
 
-namespace Saaskit.Integration.Tests;
+namespace Farm360.Integration.Tests;
 
 /// <summary>RFC 8693 token exchange: audience exchange between modules, and a user delegated onto a machine.</summary>
 [Trait("service", "identity")]

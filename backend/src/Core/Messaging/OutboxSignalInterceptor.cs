@@ -1,12 +1,12 @@
 using System.Data.Common;
 using System.Runtime.CompilerServices;
-using Saaskit.Core.Data;
-using Saaskit.Core.Tenancy;
+using Farm360.Core.Data;
+using Farm360.Core.Tenancy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 
-namespace Saaskit.Core.Messaging;
+namespace Farm360.Core.Messaging;
 
 /// <summary>
 /// After a commit that wrote outbox rows, tells the relay "tenant X has pending rows in this schema". With an explicit

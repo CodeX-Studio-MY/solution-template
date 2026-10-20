@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace Saaskit.Generator.Tests;
+namespace Farm360.Generator.Tests;
 
 /// <summary>
 /// Scaffolding a product from the template: the codemod and the answers. Inputs are built from <see cref="InitCommand.TemplateProduct"/>,

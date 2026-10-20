@@ -1,4 +1,4 @@
-namespace Saaskit.TestSupport;
+namespace Farm360.TestSupport;
 
 /// <summary>
 /// Tests whose hosts publish or consume events share one RabbitMQ, and a consumer queue is shared by every host that declares it.

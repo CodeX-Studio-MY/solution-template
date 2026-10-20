@@ -1,6 +1,6 @@
-using Saaskit.Core.Data;
+using Farm360.Core.Data;
 
-namespace Saaskit.Identity.Domain;
+namespace Farm360.Identity.Domain;
 
 /// <summary>A named set of users and machines in a tenant. Everyone in a group inherits the group's module roles.</summary>
 public sealed class Group : BaseEntity, IAggregateRoot, ISoftDeletable

@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import { setupI18nForTest } from "@saaskit/web-core/testing";
+import { setupI18nForTest } from "@farm360/web-core/testing";
 import { CustomFieldsSection, type CustomFieldDefinition } from "./CustomFieldsSection";
 
 const definitions: CustomFieldDefinition[] = [

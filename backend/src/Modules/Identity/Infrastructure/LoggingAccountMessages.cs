@@ -1,7 +1,7 @@
-using Saaskit.Identity.Application;
+using Farm360.Identity.Application;
 using Microsoft.Extensions.Logging;
 
-namespace Saaskit.Identity.Infrastructure;
+namespace Farm360.Identity.Infrastructure;
 
 /// <summary>
 /// The default <see cref="IAccountMessages"/> until the messaging layer exists: logs the link at Information level so

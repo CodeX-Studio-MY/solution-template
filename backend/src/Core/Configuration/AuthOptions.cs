@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Saaskit.Core.Configuration;
+namespace Farm360.Core.Configuration;
 
 [OptionsSection("Auth", "How every service validates access tokens. The issuer is https://login.{Tenancy:BaseDomain}.")]
 public sealed record AuthOptions

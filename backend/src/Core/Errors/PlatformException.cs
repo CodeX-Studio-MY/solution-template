@@ -1,4 +1,4 @@
-namespace Saaskit.Core.Errors;
+namespace Farm360.Core.Errors;
 
 /// <summary>A business or platform error that maps to a <c>ProblemDetails</c> response.</summary>
 public abstract class PlatformException : Exception

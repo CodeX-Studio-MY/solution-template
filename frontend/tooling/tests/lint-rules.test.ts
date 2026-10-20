@@ -93,8 +93,8 @@ describe("frontend lint rules", () => {
   });
 
   it("allows what is meant to be allowed", async () => {
-    expect(await messages('import { useFormatters } from "@saaskit/web-core";\nexport const a = useFormatters;', moduleFile)).toEqual([]);
-    expect(await messages('import { PageHeader } from "@saaskit/ui-kit";\nexport const a = PageHeader;', moduleFile)).toEqual([]);
+    expect(await messages('import { useFormatters } from "@farm360/web-core";\nexport const a = useFormatters;', moduleFile)).toEqual([]);
+    expect(await messages('import { PageHeader } from "@farm360/ui-kit";\nexport const a = PageHeader;', moduleFile)).toEqual([]);
   });
 });
 
@@ -109,9 +109,9 @@ describe("frontend packages", () => {
         dependencies?: Record<string, string>;
         devDependencies?: Record<string, string>;
       };
-      const names = Object.keys({ ...manifest.dependencies, ...manifest.devDependencies }).filter((n) => n.startsWith("@saaskit/"));
+      const names = Object.keys({ ...manifest.dependencies, ...manifest.devDependencies }).filter((n) => n.startsWith("@farm360/"));
       expect(
-        names.filter((n) => n.startsWith("@saaskit/mfe-") || n === "@saaskit/shell"),
+        names.filter((n) => n.startsWith("@farm360/mfe-") || n === "@farm360/shell"),
         module.name,
       ).toEqual([]);
     }

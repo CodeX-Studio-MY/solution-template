@@ -1,11 +1,11 @@
-using Saaskit.Core.Composition;
-using Saaskit.Core.Configuration;
-using Saaskit.Core.Platform;
+using Farm360.Core.Composition;
+using Farm360.Core.Configuration;
+using Farm360.Core.Platform;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace Saaskit.Core.ServiceCalls;
+namespace Farm360.Core.ServiceCalls;
 
 public static class ServiceClientRegistration
 {

@@ -1,5 +1,5 @@
-using Saaskit.Core.Configuration;
-using Saaskit.Core.Files;
+using Farm360.Core.Configuration;
+using Farm360.Core.Files;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -7,7 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace Saaskit.Core.Hosting.Files;
+namespace Farm360.Core.Hosting.Files;
 
 public static class PlatformFiles
 {

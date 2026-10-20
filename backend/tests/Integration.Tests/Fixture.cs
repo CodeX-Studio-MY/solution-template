@@ -1,18 +1,18 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text;
-using Saaskit.Contracts;
-using Saaskit.Core.Hosting.Messaging;
-using Saaskit.Core.Messaging;
-using Saaskit.Core.Platform;
-using Saaskit.Core.Tenancy;
-using Saaskit.Notification.Application;
-using Saaskit.Notification.Infrastructure;
+using Farm360.Contracts;
+using Farm360.Core.Hosting.Messaging;
+using Farm360.Core.Messaging;
+using Farm360.Core.Platform;
+using Farm360.Core.Tenancy;
+using Farm360.Notification.Application;
+using Farm360.Notification.Infrastructure;
 using RabbitMQ.Client;
 
 // The fixture's settings and flag below join the ones declared in Contracts, for this test assembly only.
 [assembly: DeclaresCustomization]
 
-namespace Saaskit.Integration.Tests;
+namespace Farm360.Integration.Tests;
 
 /// <summary>
 /// The test-only fixture the platform tests use in place of a business module. The template ships no business module, so the

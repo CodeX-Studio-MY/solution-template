@@ -1,6 +1,0 @@
-This repository is the solution template, not a product.
-
-Run scripts/generate.ps1 (Windows) or scripts/generate.sh (macOS, Linux) to scaffold your product from it: it asks for the product's
-name and defaults, renames the placeholder "saaskit" everywhere, adds your first modules, and removes this file. See README.md.
-
-Maintaining the template itself: scripts/generate --template regenerates it without scaffolding.

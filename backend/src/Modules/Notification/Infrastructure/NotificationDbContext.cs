@@ -1,8 +1,8 @@
-using Saaskit.Core.Data;
-using Saaskit.Notification.Domain;
+using Farm360.Core.Data;
+using Farm360.Notification.Domain;
 using Microsoft.EntityFrameworkCore;
 
-namespace Saaskit.Notification.Infrastructure;
+namespace Farm360.Notification.Infrastructure;
 
 /// <summary>The notification history, in each tenant's database.</summary>
 public sealed class NotificationDbContext(DbContextOptions<NotificationDbContext> options) : ModuleDbContext(options)

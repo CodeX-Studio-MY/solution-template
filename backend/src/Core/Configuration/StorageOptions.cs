@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Saaskit.Core.Configuration;
+namespace Farm360.Core.Configuration;
 
 [OptionsSection("Storage", "Object storage for uploaded files. Services are stateless: files never live on a container's disk.")]
 public sealed record StorageOptions
@@ -36,7 +36,7 @@ public sealed record StorageOptions
     [Setting("S3 secret key, for an emulator.")]
     public string? SecretKey { get; init; }
 
-    [Setting("Folder for the local provider. Development only.", Example = "/tmp/saaskit-files")]
+    [Setting("Folder for the local provider. Development only.", Example = "/tmp/farm360-files")]
     public string? LocalPath { get; init; }
 
     [Range(1, 1024)]

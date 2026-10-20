@@ -1,4 +1,4 @@
-namespace Saaskit.Core.Tenancy;
+namespace Farm360.Core.Tenancy;
 
 /// <summary>Looks tenants up in the catalog. Implemented by <c>Core.Catalog</c> with a short-lived cache.</summary>
 public interface ITenantDirectory

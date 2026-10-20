@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
-import type { ModuleManifest } from "@saaskit/web-core";
-import { setupI18nForTest } from "@saaskit/web-core/testing";
+import type { ModuleManifest } from "@farm360/web-core";
+import { setupI18nForTest } from "@farm360/web-core/testing";
 import { loadModules } from "./loader";
 
 vi.mock("@module-federation/enhanced/runtime", () => ({

@@ -1,9 +1,9 @@
 using System.Net;
 using System.Text;
-using Saaskit.Core.Platform;
+using Farm360.Core.Platform;
 using Microsoft.AspNetCore.Http;
 
-namespace Saaskit.Identity.Api;
+namespace Farm360.Identity.Api;
 
 /// <summary>Tiny server-rendered pages for the sign-in flow. All values are HTML-encoded; no inline scripts or styles.</summary>
 internal static class Html

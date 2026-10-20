@@ -1,9 +1,9 @@
 using System.Runtime.CompilerServices;
-using Saaskit.Core.Tenancy;
+using Farm360.Core.Tenancy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Saaskit.Identity.Infrastructure.OpenIddict;
+namespace Farm360.Identity.Infrastructure.OpenIddict;
 
 /// <summary>
 /// Chooses where authorizations and tokens live: the current tenant's database, or the catalog for platform principals

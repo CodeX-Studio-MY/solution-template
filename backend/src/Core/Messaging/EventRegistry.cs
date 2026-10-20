@@ -1,8 +1,8 @@
 using System.Collections.Frozen;
 using System.Reflection;
-using Saaskit.Contracts;
+using Farm360.Contracts;
 
-namespace Saaskit.Core.Messaging;
+namespace Farm360.Core.Messaging;
 
 /// <summary>One integration event type: its name, version and routing key.</summary>
 public sealed record EventDescriptor(Type Type, string Name, int Version)

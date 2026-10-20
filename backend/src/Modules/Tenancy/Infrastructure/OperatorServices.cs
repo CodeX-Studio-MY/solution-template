@@ -1,18 +1,18 @@
 using System.Security.Cryptography;
 using System.Text.Json;
-using Saaskit.Core.Catalog;
-using Saaskit.Core.Configuration;
-using Saaskit.Core.Errors;
-using Saaskit.Core.Platform;
-using Saaskit.Core.Tenancy;
-using Saaskit.Tenancy.Application;
-using Saaskit.Tenancy.Domain;
+using Farm360.Core.Catalog;
+using Farm360.Core.Configuration;
+using Farm360.Core.Errors;
+using Farm360.Core.Platform;
+using Farm360.Core.Tenancy;
+using Farm360.Tenancy.Application;
+using Farm360.Tenancy.Domain;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
-namespace Saaskit.Tenancy.Infrastructure;
+namespace Farm360.Tenancy.Infrastructure;
 
 internal sealed class OperatorAccounts(
     TenancyCatalogDbContext db,

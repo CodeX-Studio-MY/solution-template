@@ -1,7 +1,7 @@
 # One image per service host (and the Gateway's siblings: Scheduler, Migrator). Build from the repository root:
 #   docker build -f deploy/docker/service.Dockerfile \
 #     --build-arg PROJECT=backend/src/Hosts/Notification.Host/Notification.Host.csproj \
-#     --build-arg ASSEMBLY=Saaskit.Notification.Host.dll -t saaskit-notification .
+#     --build-arg ASSEMBLY=Farm360.Notification.Host.dll -t farm360-notification .
 #
 # Base images are pinned by digest (update them with Dependabot, which reads this file), the final image runs as a non-root user,
 # carries no build tools, and has a health check. Containers run in UTC; nothing is stored on their disk.

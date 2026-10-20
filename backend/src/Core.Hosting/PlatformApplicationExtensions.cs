@@ -1,13 +1,13 @@
-using Saaskit.Core.Hosting.Auth;
+using Farm360.Core.Hosting.Auth;
 using Microsoft.AspNetCore.Http;
-using Saaskit.Core.Hosting.Files;
-using Saaskit.Core.Tenancy;
+using Farm360.Core.Hosting.Files;
+using Farm360.Core.Tenancy;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Saaskit.Core.Hosting;
+namespace Farm360.Core.Hosting;
 
 public static class PlatformApplicationExtensions
 {
@@ -25,7 +25,7 @@ public static class PlatformApplicationExtensions
         // and minimal-API binding reads it before any endpoint filter runs.
         app.Use((context, next) =>
         {
-            if (context.Request.Headers.ContainsKey(Saaskit.Core.Security.PlatformHeaders.IdempotencyKey))
+            if (context.Request.Headers.ContainsKey(Farm360.Core.Security.PlatformHeaders.IdempotencyKey))
                 context.Request.EnableBuffering();
             return next(context);
         });

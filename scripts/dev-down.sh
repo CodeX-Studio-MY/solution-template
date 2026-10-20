@@ -8,12 +8,12 @@ if [ -f .dev/apphost.pid ]; then
   kill "$pid" 2>/dev/null || true
   rm -f .dev/apphost.pid
 fi
-pkill -f "Saaskit.AppHost" 2>/dev/null || true
+pkill -f "Farm360.AppHost" 2>/dev/null || true
 
 # Without a graceful shutdown Aspire doesn't remove its containers either. The stack's containers are the ones made by the same
 # Aspire process as those using this product's data volumes (that also finds RabbitMQ and Mailpit, which have no volume).
 label=com.microsoft.developer.usvc-dev.creatorProcessId
-volumes=$(docker volume ls -q | grep '^saaskit-' || true)
+volumes=$(docker volume ls -q | grep '^farm360-' || true)
 creators=$(for volume in $volumes; do docker ps -a -q --filter "volume=$volume"; done | sort -u |
   while read -r id; do [ -n "$id" ] && docker inspect -f "{{index .Config.Labels \"$label\"}}" "$id"; done | sort -u)
 for creator in $creators; do
@@ -23,7 +23,7 @@ done
 if [ "${1:-}" = "--reset" ]; then
   for volume in $volumes; do docker volume rm "$volume" >/dev/null 2>&1 || true; done
   rm -f .dev/invitations.json .dev/invitations.json.done .dev/operator.json
-  left=$(docker volume ls -q | grep '^saaskit-' || true)
+  left=$(docker volume ls -q | grep '^farm360-' || true)
   if [ -n "$left" ]; then
     echo "Stopped, but these volumes are still in use and were kept: $left. Stop what uses them (docker ps) and run this again." >&2
     exit 1

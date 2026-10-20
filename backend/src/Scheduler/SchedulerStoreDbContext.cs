@@ -1,7 +1,7 @@
-using Saaskit.Core.Data;
+using Farm360.Core.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace Saaskit.Scheduler;
+namespace Farm360.Scheduler;
 
 /// <summary>
 /// Owns the <c>scheduler</c> schema in the catalog database, where Quartz keeps its jobs, triggers and cluster state. It maps no

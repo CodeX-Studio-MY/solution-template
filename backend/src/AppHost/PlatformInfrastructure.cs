@@ -1,6 +1,6 @@
-using Saaskit.Core.Platform;
+using Farm360.Core.Platform;
 
-namespace Saaskit.AppHost;
+namespace Farm360.AppHost;
 
 /// <summary>
 /// The shared infrastructure for local development: the selected database, Valkey, RabbitMQ, object storage

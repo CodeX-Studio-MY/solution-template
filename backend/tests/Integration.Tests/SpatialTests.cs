@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Geometries;
 
-namespace Saaskit.Integration.Tests;
+namespace Farm360.Integration.Tests;
 
 /// <summary>Spatial values (NetTopologySuite) are stored as geography with SRID 4326 on every provider (docs/adr/0024).</summary>
 public sealed class SpatialTests(Databases databases)

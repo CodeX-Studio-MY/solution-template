@@ -1,8 +1,8 @@
 using System.Text.Json;
-using Saaskit.Core.Platform;
-using Saaskit.Tenancy.Application;
+using Farm360.Core.Platform;
+using Farm360.Tenancy.Application;
 
-namespace Saaskit.DevSeed;
+namespace Farm360.DevSeed;
 
 /// <summary>
 /// The local development tenant: <c>demo</c>, on the first plan in platform.yaml, with no data, and its first admin's invitation link.
@@ -63,7 +63,7 @@ internal sealed partial class DemoData(IServiceProvider services)
             var created = await scope.ServiceProvider.GetRequiredService<IOperatorAccounts>().CreateAsync("dev-operator@example.com", "Dev Operator", cancellationToken);
             await File.WriteAllTextAsync(file, JsonSerializer.Serialize(new { email = created.Email, password = created.Password, totpSecret = created.TotpSecret }, Indented), cancellationToken);
         }
-        catch (Saaskit.Core.Errors.ConflictException)
+        catch (Farm360.Core.Errors.ConflictException)
         {
             // It exists from an earlier run whose credentials were lost: scripts/dev-down --reset starts clean.
         }

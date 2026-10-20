@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using OpenIddict.Abstractions;
 
-namespace Saaskit.Identity.Infrastructure.OpenIddict;
+namespace Farm360.Identity.Infrastructure.OpenIddict;
 
 /// <summary>Client registrations, in the catalog database.</summary>
 internal sealed class OidcApplicationStore(IdentityCatalogDbContext db) : IOpenIddictApplicationStore<OidcApplication>

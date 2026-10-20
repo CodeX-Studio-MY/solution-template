@@ -1,8 +1,8 @@
-using Saaskit.Core.Platform;
-using Saaskit.Core.Security;
-using Saaskit.Core.Tenancy;
+using Farm360.Core.Platform;
+using Farm360.Core.Security;
+using Farm360.Core.Tenancy;
 
-namespace Saaskit.Core.Authorization;
+namespace Farm360.Core.Authorization;
 
 internal sealed class AccessEvaluator(ICurrentPrincipal principal, ITenantContext tenant) : IAccessEvaluator
 {

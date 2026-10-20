@@ -1,20 +1,20 @@
-using Saaskit.Contracts;
-using Saaskit.Core.Composition;
-using Saaskit.Core.Configuration;
-using Saaskit.Core.Data;
-using Saaskit.Core.Localization;
-using Saaskit.Core.Messaging;
-using Saaskit.Core.Platform;
-using Saaskit.Core.ServiceCalls;
-using Saaskit.Notification.Api;
-using Saaskit.Notification.Application;
-using Saaskit.Notification.Infrastructure;
+using Farm360.Contracts;
+using Farm360.Core.Composition;
+using Farm360.Core.Configuration;
+using Farm360.Core.Data;
+using Farm360.Core.Localization;
+using Farm360.Core.Messaging;
+using Farm360.Core.Platform;
+using Farm360.Core.ServiceCalls;
+using Farm360.Notification.Api;
+using Farm360.Notification.Application;
+using Farm360.Notification.Infrastructure;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using StackExchange.Redis;
 
-namespace Saaskit.Notification;
+namespace Farm360.Notification;
 
 /// <summary>Real-time notifications (SignalR with a Redis backplane) and email. Available to every signed-in principal and every tenant.</summary>
 public sealed class NotificationModule : IPlatformModule

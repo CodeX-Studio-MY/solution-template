@@ -4,7 +4,7 @@ using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using OpenIddict.Abstractions;
 
-namespace Saaskit.Identity.Infrastructure.OpenIddict;
+namespace Farm360.Identity.Infrastructure.OpenIddict;
 
 /// <summary>Authorizations, in the current tenant's database (or the catalog for platform principals).</summary>
 internal sealed class OidcAuthorizationStore(OidcStoreContext stores) : IOpenIddictAuthorizationStore<OidcAuthorization>

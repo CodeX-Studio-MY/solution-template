@@ -1,4 +1,4 @@
-namespace Saaskit.Core.Platform;
+namespace Farm360.Core.Platform;
 
 /// <summary>
 /// A service declared in <c>platform.yaml</c>: something that runs and is routed at <c>/api/{Key}/*</c>.

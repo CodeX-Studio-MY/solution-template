@@ -1,8 +1,8 @@
 using System.Security.Cryptography;
 using System.Xml.Linq;
-using Saaskit.Core.Hosting.DataProtection;
+using Farm360.Core.Hosting.DataProtection;
 
-namespace Saaskit.Integration.Tests;
+namespace Farm360.Integration.Tests;
 
 /// <summary>The key-encryption key of the shared Data Protection ring can be rotated without signing everyone out.</summary>
 public sealed class DataProtectionKeyRotationTests

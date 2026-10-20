@@ -1,7 +1,7 @@
 using System.Security.Claims;
-using Saaskit.Core.Platform;
+using Farm360.Core.Platform;
 
-namespace Saaskit.Core.Authorization;
+namespace Farm360.Core.Authorization;
 
 /// <summary>
 /// Answers "what may the current principal do" from its effective roles, the tenant's live entitlements and status.

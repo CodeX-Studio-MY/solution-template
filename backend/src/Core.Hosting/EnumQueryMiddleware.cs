@@ -3,7 +3,7 @@ using System.Reflection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 
-namespace Saaskit.Core.Hosting;
+namespace Farm360.Core.Hosting;
 
 /// <summary>
 /// Matches enum values in the query string case-insensitively. ASP.NET binds an enum parameter case-sensitively (<c>Draft</c>

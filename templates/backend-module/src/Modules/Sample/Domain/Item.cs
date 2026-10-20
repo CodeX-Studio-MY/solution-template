@@ -1,6 +1,6 @@
-using Saaskit.Core.Data;
+using Farm360.Core.Data;
 
-namespace Saaskit.Sample.Domain;
+namespace Farm360.Sample.Domain;
 
 /// <summary>
 /// The module's example aggregate. All state changes go through its methods, so the rules live in one place. Replace it with your own:

@@ -1,22 +1,22 @@
-using Saaskit.Core.Catalog;
-using Saaskit.Core.Configuration;
-using Saaskit.Core.Data;
-using Saaskit.Core.Data.PostgreSql;
-using Saaskit.Core.Data.SqlServer;
-using Saaskit.Core.Hosting.Auth;
-using Saaskit.Core.Hosting.DataProtection;
-using Saaskit.Core.Hosting.Files;
-using Saaskit.Core.Hosting.Messaging;
-using Saaskit.Core.Hosting.Redis;
-using Saaskit.Core.ServiceCalls;
-using Saaskit.Core.Composition;
-using Saaskit.Core.Platform;
+using Farm360.Core.Catalog;
+using Farm360.Core.Configuration;
+using Farm360.Core.Data;
+using Farm360.Core.Data.PostgreSql;
+using Farm360.Core.Data.SqlServer;
+using Farm360.Core.Hosting.Auth;
+using Farm360.Core.Hosting.DataProtection;
+using Farm360.Core.Hosting.Files;
+using Farm360.Core.Hosting.Messaging;
+using Farm360.Core.Hosting.Redis;
+using Farm360.Core.ServiceCalls;
+using Farm360.Core.Composition;
+using Farm360.Core.Platform;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Saaskit.Core.Hosting;
+namespace Farm360.Core.Hosting;
 
 public static class PlatformHostBuilderExtensions
 {

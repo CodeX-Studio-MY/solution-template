@@ -1,8 +1,8 @@
-using Saaskit.Core.Platform;
+using Farm360.Core.Platform;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Hosting;
 
-namespace Saaskit.Core.Composition;
+namespace Farm360.Core.Composition;
 
 /// <summary>
 /// A module's entry point. A host (or <c>AllInOne.Host</c>) adds modules with <c>AddModule&lt;T&gt;()</c>;

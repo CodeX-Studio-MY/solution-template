@@ -16,8 +16,8 @@ export const sharedPackages = [
   "zustand",
   "i18next",
   "react-i18next",
-  "@saaskit/web-core",
-  "@saaskit/ui-kit",
+  "@farm360/web-core",
+  "@farm360/ui-kit",
 ] as const;
 
 function installedVersion(packageName: string, from: string): string {

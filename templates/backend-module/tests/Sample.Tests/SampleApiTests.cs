@@ -1,11 +1,11 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
-using Saaskit.Core.Platform;
-using Saaskit.Core.Security;
-using Role = Saaskit.Core.Platform.Role;
+using Farm360.Core.Platform;
+using Farm360.Core.Security;
+using Role = Farm360.Core.Platform.Role;
 
-namespace Saaskit.Sample.Tests;
+namespace Farm360.Sample.Tests;
 
 /// <summary>The module hosted exactly as in production, on every database provider in platform.yaml, with real migrations and tenants.</summary>
 [Trait("service", "sample-key")]

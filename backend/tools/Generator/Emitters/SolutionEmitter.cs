@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace Saaskit.Generator.Emitters;
+namespace Farm360.Generator.Emitters;
 
 /// <summary>
 /// backend/{product}.slnx: every project under backend/, so a new module never needs a manual solution edit, except those in folders

@@ -1,10 +1,10 @@
-using Saaskit.Core.Tenancy;
-using Saaskit.Gateway.Proxy;
-using Saaskit.Gateway.Sessions;
+using Farm360.Core.Tenancy;
+using Farm360.Gateway.Proxy;
+using Farm360.Gateway.Sessions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Saaskit.Gateway.Http;
+namespace Farm360.Gateway.Http;
 
 /// <summary>Context item keys shared between the gate and the proxy transforms.</summary>
 internal static class SessionItems

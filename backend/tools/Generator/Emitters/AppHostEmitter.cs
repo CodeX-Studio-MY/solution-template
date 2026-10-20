@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace Saaskit.Generator.Emitters;
+namespace Farm360.Generator.Emitters;
 
 /// <summary>backend/src/AppHost/Generated/PlatformResources.g.cs: one Aspire project resource per service.</summary>
 internal static class AppHostEmitter

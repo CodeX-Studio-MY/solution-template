@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace Saaskit.Generator.Emitters;
+namespace Farm360.Generator.Emitters;
 
 /// <summary>
 /// AllInOne.Host (and the development seeder, which needs the same modules) runs every service's module in one process. Which modules exist is platform.yaml's business, so the project

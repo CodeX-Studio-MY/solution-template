@@ -8,37 +8,6 @@ business capability (backend and frontend with the same key), per-tenant plans a
 and tests that enforce the architecture. It ships **no business module**: you add yours with `scripts/new-module`, from clean templates
 that show every pattern.
 
-<!-- BEGIN TEMPLATE ONLY -->
-## Start a product from this template
-
-1. Make a copy: **Use this template** on GitHub, or `git clone` it into a folder named after your product.
-2. Install the [prerequisites](#prerequisites) once.
-3. Run the generator. On a fresh copy it scaffolds the product; it asks for anything you don't pass:
-
-   ```powershell
-   scripts/generate.ps1 --product farm360 --org "CodeX Studio" --modules crop-planning,livestock
-   ```
-
-   (`scripts/generate.sh` on macOS and Linux.) It writes your answers into `platform.yaml`, renames the template's placeholder
-   (`saaskit`, `Saaskit`, `@saaskit/*`) to your product everywhere, adds the first business modules (backend, frontend, migrations, CI), generates
-   everything, installs, builds and checks, removes what only the template needs, and makes the first commit. If a step fails, fix it
-   and run the same command again: it continues where it stopped.
-
-   | Option | Default | Meaning |
-   |---|---|---|
-   | `--product` | asked | The product key: lowercase letters and digits (`farm360`). It becomes the C# root namespace (`Farm360.Core`), the npm scope (`@farm360/ui-kit`), token audiences and container names. |
-   | `--org` | `CodeX Studio` | The organization, for package metadata. |
-   | `--timezone`, `--currency`, `--locales` | `Asia/Kuala_Lumpur`, `MYR`, `en,ms,zh` | Defaults for new tenants. |
-   | `--plans` | `standard,plus` | The plans you sell, lowest first. |
-   | `--cloud` | `azure` | `azure` or `aws`. |
-   | `--modules` | none | The first business modules, as keys (`crop-planning,livestock`). Add more later with `scripts/new-module`. |
-   | `--yes` | | Ask nothing; use the defaults for what isn't passed (`--product` is still required). |
-   | `--skip-checks`, `--no-git` | | Skip the build and checks; don't commit. |
-
-4. `scripts/dev-up.ps1` starts it all; sign in at `https://demo.localhost:7443/` (see [First sign-in](#first-sign-in)).
-
-Maintaining the template itself: `scripts/generate.ps1 --template` regenerates it without scaffolding, and `--check` never scaffolds.
-<!-- END TEMPLATE ONLY -->
 
 > **Single source of truth.** Every fact is defined once. The application's structure lives in
 > [`platform.yaml`](platform.yaml); runtime configuration in the typed options records in `backend/src/Core/Configuration`.
@@ -88,12 +57,14 @@ flowchart LR
 | `identity` | `/api/identity/*` | 5001 | `access-management` | tenant, catalog |
 | `tenancy` | `/api/tenancy/*` | 5002 | `tenant-settings`, `billing` | catalog |
 | `notification` | `/api/notification/*` | 5003 | — | tenant |
+| `master-data` | `/api/master-data/*` | 5101 | `master-data` | tenant |
 
 | Module | Name | Plans |
 |---|---|---|
-| `access-management` | Access Management | standard, plus |
-| `tenant-settings` | Tenant Settings | standard, plus |
-| `billing` | Billing | standard, plus |
+| `access-management` | Access Management | lite, standard, plus |
+| `tenant-settings` | Tenant Settings | lite, standard, plus |
+| `billing` | Billing | lite, standard, plus |
+| `master-data` | Master Data | lite, standard, plus |
 <!-- END GENERATED: modules -->
 
 ## Quick start
@@ -222,14 +193,14 @@ Things to know:
 scripts/add-postgresql                   # once: restores the PostgreSQL migrations (platform.yaml then lists both providers)
 scripts/dev-up --provider postgresql     # the same stack on PostgreSQL 18 (one configuration value: Database:Provider)
 scripts/dev-up --all-in-one              # every module in one process
-scripts/onboard-tenant saaskit-co --plan plus   # another isolated tenant in the running stack
+scripts/onboard-tenant farm360-co --plan plus   # another isolated tenant in the running stack
 scripts/dev-down [--reset]               # stop (and, with --reset, delete the local data)
 ```
 
 Run the checks:
 
 ```sh
-dotnet test --solution backend/saaskit.slnx     # unit, architecture and integration tests on every database provider in platform.yaml (Docker required)
+dotnet test --solution backend/farm360.slnx     # unit, architecture and integration tests on every database provider in platform.yaml (Docker required)
 cd frontend && pnpm install && pnpm typecheck lint test build && pnpm e2e    # Playwright against the built app (mocked API)
 cd frontend && pnpm e2e:stack                # sign-in against the running stack (after scripts/dev-up)
 scripts/generate.sh --check                  # nothing generated has drifted from its source
@@ -269,7 +240,7 @@ Nothing in a module depends on its neighbours, so it can move without code chang
   `backend/tests/{Name}.Tests` to the new repository's `backend/` tree (with `Core`, `Contracts`, `Directory.*` and `TestSupport` as a
   package or submodule, since `Core` is packable), keep its entry in the product's `platform.yaml`, and build its image from
   `deploy/docker/service.Dockerfile`. Events and settings are in `Contracts`, which stays shared and versioned.
-- **Frontend module**: copy `frontend/modules/{key}`. It depends only on `@saaskit/ui-kit`, `@saaskit/web-core` and `@saaskit/api-clients`
+- **Frontend module**: copy `frontend/modules/{key}`. It depends only on `@farm360/ui-kit`, `@farm360/web-core` and `@farm360/api-clients`
   (publish them to a private registry), and a tenant's manifest points at its `mf-manifest.json` wherever it is hosted; the
   catalog stores the version, the base URL is configuration. No other module or the shell imports it.
 

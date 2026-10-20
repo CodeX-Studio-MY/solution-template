@@ -1,6 +1,6 @@
-using Saaskit.Core.Data;
+using Farm360.Core.Data;
 
-namespace Saaskit.Migrator;
+namespace Farm360.Migrator;
 
 /// <summary>A DbContext the Migrator applies. The list is generated from platform.yaml (Generated/MigrationTargets.g.cs).</summary>
 /// <param name="Name">The service key, or <c>catalog</c> for the tenant directory.</param>

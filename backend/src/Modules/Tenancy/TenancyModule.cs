@@ -1,17 +1,17 @@
-using Saaskit.Core.Composition;
-using Saaskit.Core.Configuration;
-using Saaskit.Core.Data;
-using Saaskit.Core.ServiceCalls;
-using Saaskit.Core.Platform;
-using Saaskit.Tenancy.Api;
-using Saaskit.Tenancy.Application;
-using Saaskit.Tenancy.Infrastructure;
+using Farm360.Core.Composition;
+using Farm360.Core.Configuration;
+using Farm360.Core.Data;
+using Farm360.Core.ServiceCalls;
+using Farm360.Core.Platform;
+using Farm360.Tenancy.Api;
+using Farm360.Tenancy.Application;
+using Farm360.Tenancy.Infrastructure;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace Saaskit.Tenancy;
+namespace Farm360.Tenancy;
 
 /// <summary>Catalog, tenant lifecycle, onboarding, entitlements, settings, and the platform operator realm.</summary>
 public sealed class TenancyModule : IPlatformModule

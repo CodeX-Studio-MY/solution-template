@@ -1,6 +1,6 @@
-using Saaskit.Generator.Emitters;
+using Farm360.Generator.Emitters;
 
-namespace Saaskit.Generator.Tests;
+namespace Farm360.Generator.Tests;
 
 /// <summary>deploy/.env.example is generated from the options records; this proves the committed file and the schema agree both ways.</summary>
 public sealed class EnvExampleTests

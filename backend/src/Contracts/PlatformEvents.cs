@@ -1,4 +1,4 @@
-namespace Saaskit.Contracts;
+namespace Farm360.Contracts;
 
 /// <summary>
 /// Events the platform itself produces or consumes, for every module to use. One type per version; change by adding optional

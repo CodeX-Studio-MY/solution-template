@@ -1,8 +1,8 @@
 using System.Net.Http.Json;
-using Saaskit.Core.Platform;
-using Saaskit.Notification.Application;
+using Farm360.Core.Platform;
+using Farm360.Notification.Application;
 
-namespace Saaskit.Notification.Infrastructure;
+namespace Farm360.Notification.Infrastructure;
 
 /// <summary>Asks the Identity module (over HTTP, with this service's token and the tenant) who to contact.</summary>
 internal sealed class IdentityDirectoryClient(HttpClient http) : IContactDirectory

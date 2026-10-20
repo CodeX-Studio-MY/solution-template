@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Text.Json;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Saaskit.Identity.Infrastructure.OpenIddict;
+namespace Farm360.Identity.Infrastructure.OpenIddict;
 
 /// <summary>JSON column helpers for the OpenIddict stores.</summary>
 internal static class OidcJson

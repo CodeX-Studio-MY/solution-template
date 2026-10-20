@@ -1,4 +1,4 @@
-namespace Saaskit.Core.Tenancy;
+namespace Farm360.Core.Tenancy;
 
 /// <summary>Tenant lifecycle: Provisioning → Active → Suspended (read-only) → PendingDeletion → Deleted.</summary>
 public enum TenantStatus

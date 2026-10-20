@@ -1,4 +1,4 @@
-namespace Saaskit.Generator.Emitters;
+namespace Farm360.Generator.Emitters;
 
 /// <summary>
 /// .github/workflows/ci.yml: one build-only workflow, so a fresh clone gets a green check with no secrets or org setup. The backend

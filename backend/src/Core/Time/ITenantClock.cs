@@ -1,6 +1,6 @@
-using Saaskit.Core.Tenancy;
+using Farm360.Core.Tenancy;
 
-namespace Saaskit.Core.Time;
+namespace Farm360.Core.Time;
 
 /// <summary>
 /// The current date and time in the tenant's time zone (IANA ID). Business dates (order date, harvest date)

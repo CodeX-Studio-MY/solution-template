@@ -1,11 +1,11 @@
-using Saaskit.Core.Configuration;
-using Saaskit.Core.Messaging;
+using Farm360.Core.Configuration;
+using Farm360.Core.Messaging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
-namespace Saaskit.Core.Hosting.Messaging;
+namespace Farm360.Core.Hosting.Messaging;
 
 public static class PlatformMessaging
 {

@@ -1,5 +1,5 @@
 {
-  "name": "@saaskit/web-core",
+  "name": "@farm360/web-core",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -14,7 +14,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@saaskit/api-clients": "workspace:*"
+    "@farm360/api-clients": "workspace:*"
   },
   "peerDependencies": {
     "react": "catalog:",

@@ -1,11 +1,11 @@
-using Saaskit.Core.Configuration;
-using Saaskit.Core.Customization;
+using Farm360.Core.Configuration;
+using Farm360.Core.Customization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace Saaskit.Core.Catalog;
+namespace Farm360.Core.Catalog;
 
 /// <summary>Drops cached settings and flags after a change, so the writer's own process sees it at once (others within the cache time).</summary>
 public interface ITenantCustomizationCache

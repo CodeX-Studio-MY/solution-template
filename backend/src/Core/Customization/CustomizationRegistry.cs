@@ -3,9 +3,9 @@ using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using Saaskit.Contracts;
+using Farm360.Contracts;
 
-namespace Saaskit.Core.Customization;
+namespace Farm360.Core.Customization;
 
 /// <summary>One property of a module's settings record, as the admin screens and the validator see it.</summary>
 public sealed record SettingProperty(string Name, Type Type, bool TenantEditable, object? Default, IReadOnlyList<string>? AllowedValues);

@@ -1,6 +1,6 @@
 using System.Text.Json.Nodes;
 
-namespace Saaskit.Tenancy.Application;
+namespace Farm360.Tenancy.Application;
 
 /// <summary>One setting of a module, for the screens that edit it.</summary>
 public sealed record SettingInfo(string Name, bool TenantEditable, object? Default, IReadOnlyList<string>? AllowedValues);

@@ -20,7 +20,7 @@ services:
     volumes:
       - type: "volume"
         target: "/var/opt/mssql"
-        source: "saaskit-sql-data"
+        source: "farm360-sql-data"
         read_only: false
     networks:
       - "aspire"
@@ -38,7 +38,7 @@ services:
     volumes:
       - type: "volume"
         target: "/data"
-        source: "saaskit-valkey-data"
+        source: "farm360-valkey-data"
         read_only: false
     networks:
       - "aspire"
@@ -67,7 +67,7 @@ services:
     volumes:
       - type: "volume"
         target: "/data"
-        source: "saaskit-azurite-data"
+        source: "farm360-azurite-data"
         read_only: false
     networks:
       - "aspire"
@@ -122,14 +122,17 @@ services:
       TokenServer__RequireTransportSecurity: "false"
       TokenServer__SigningKeys__0: "${TOKEN_SIGNING_KEY}"
       TokenServer__EncryptionKeys__0: "${TOKEN_ENCRYPTION_KEY}"
-      TokenServer__PlatformClientSecrets__saaskit-bff: "${BFF_CLIENT_SECRET}"
-      TokenServer__PlatformClientSecrets__saaskit-identity: "${CLIENT_SECRET_IDENTITY}"
-      TokenServer__PlatformClientSecrets__saaskit-tenancy: "${CLIENT_SECRET_TENANCY}"
-      TokenServer__PlatformClientSecrets__saaskit-notification: "${CLIENT_SECRET_NOTIFICATION}"
+      TokenServer__PlatformClientSecrets__farm360-bff: "${BFF_CLIENT_SECRET}"
+      TokenServer__PlatformClientSecrets__farm360-identity: "${CLIENT_SECRET_IDENTITY}"
+      TokenServer__PlatformClientSecrets__farm360-tenancy: "${CLIENT_SECRET_TENANCY}"
+      TokenServer__PlatformClientSecrets__farm360-notification: "${CLIENT_SECRET_NOTIFICATION}"
+      TokenServer__PlatformClientSecrets__farm360-master-data: "${CLIENT_SECRET_MASTER_DATA}"
       TENANCY_HTTP: "http://tenancy:${TENANCY_PORT}"
       services__tenancy__http__0: "http://tenancy:${TENANCY_PORT}"
       NOTIFICATION_HTTP: "http://notification:${NOTIFICATION_PORT}"
       services__notification__http__0: "http://notification:${NOTIFICATION_PORT}"
+      MASTER_DATA_HTTP: "http://master-data:${MASTER_DATA_PORT}"
+      services__master-data__http__0: "http://master-data:${MASTER_DATA_PORT}"
       Auth__MetadataAddress: "http://identity:${IDENTITY_PORT}/.well-known/openid-configuration"
       Auth__TokenEndpoint: "http://identity:${IDENTITY_PORT}/connect/token"
       Auth__RequireHttpsMetadata: "false"
@@ -175,6 +178,8 @@ services:
       services__identity__http__0: "http://identity:${IDENTITY_PORT}"
       NOTIFICATION_HTTP: "http://notification:${NOTIFICATION_PORT}"
       services__notification__http__0: "http://notification:${NOTIFICATION_PORT}"
+      MASTER_DATA_HTTP: "http://master-data:${MASTER_DATA_PORT}"
+      services__master-data__http__0: "http://master-data:${MASTER_DATA_PORT}"
       Auth__MetadataAddress: "http://identity:${IDENTITY_PORT}/.well-known/openid-configuration"
       Auth__TokenEndpoint: "http://identity:${IDENTITY_PORT}/connect/token"
       Auth__RequireHttpsMetadata: "false"
@@ -220,6 +225,8 @@ services:
       services__identity__http__0: "http://identity:${IDENTITY_PORT}"
       TENANCY_HTTP: "http://tenancy:${TENANCY_PORT}"
       services__tenancy__http__0: "http://tenancy:${TENANCY_PORT}"
+      MASTER_DATA_HTTP: "http://master-data:${MASTER_DATA_PORT}"
+      services__master-data__http__0: "http://master-data:${MASTER_DATA_PORT}"
       Auth__MetadataAddress: "http://identity:${IDENTITY_PORT}/.well-known/openid-configuration"
       Auth__TokenEndpoint: "http://identity:${IDENTITY_PORT}/connect/token"
       Auth__RequireHttpsMetadata: "false"
@@ -228,6 +235,53 @@ services:
       OTEL_SERVICE_NAME: "notification"
     expose:
       - "${NOTIFICATION_PORT}"
+    depends_on:
+      valkey:
+        condition: "service_started"
+      rabbitmq:
+        condition: "service_started"
+      migrator:
+        condition: "service_completed_successfully"
+      azurite:
+        condition: "service_started"
+      mailpit:
+        condition: "service_started"
+    networks:
+      - "aspire"
+  master-data:
+    image: "${MASTER_DATA_IMAGE}"
+    environment:
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY: "in_memory"
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+      HTTP_PORTS: "${MASTER_DATA_PORT}"
+      Database__Provider: "sqlserver"
+      Database__CatalogConnectionString: "Server=sql,1433;User ID=sa;Password=${SQL_PASSWORD};TrustServerCertificate=true;Initial Catalog=catalog"
+      Database__Servers__default: "Server=sql,1433;User ID=sa;Password=${SQL_PASSWORD};TrustServerCertificate=true"
+      Tenancy__BaseDomain: "localhost"
+      Tenancy__PublicPort: "7443"
+      Redis__ConnectionString: "valkey:6379,password=${VALKEY_PASSWORD}"
+      DataProtection__KeyEncryptionKey: "${DATA_PROTECTION_KEY}"
+      ServiceClient__ClientSecret: "${CLIENT_SECRET_MASTER_DATA}"
+      RabbitMq__ConnectionString: "amqp://guest:${RABBITMQ_PASSWORD}@rabbitmq:5672"
+      Storage__Provider: "azure"
+      Storage__ConnectionString: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;"
+      Smtp__Host: "mailpit"
+      Smtp__Port: "1025"
+      Smtp__FromAddress: "no-reply@localhost"
+      IDENTITY_HTTP: "http://identity:${IDENTITY_PORT}"
+      services__identity__http__0: "http://identity:${IDENTITY_PORT}"
+      TENANCY_HTTP: "http://tenancy:${TENANCY_PORT}"
+      services__tenancy__http__0: "http://tenancy:${TENANCY_PORT}"
+      NOTIFICATION_HTTP: "http://notification:${NOTIFICATION_PORT}"
+      services__notification__http__0: "http://notification:${NOTIFICATION_PORT}"
+      Auth__MetadataAddress: "http://identity:${IDENTITY_PORT}/.well-known/openid-configuration"
+      Auth__TokenEndpoint: "http://identity:${IDENTITY_PORT}/connect/token"
+      Auth__RequireHttpsMetadata: "false"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://compose-dashboard:18889"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
+      OTEL_SERVICE_NAME: "master-data"
+    expose:
+      - "${MASTER_DATA_PORT}"
     depends_on:
       valkey:
         condition: "service_started"
@@ -297,6 +351,8 @@ services:
       services__tenancy__http__0: "http://tenancy:${TENANCY_PORT}"
       NOTIFICATION_HTTP: "http://notification:${NOTIFICATION_PORT}"
       services__notification__http__0: "http://notification:${NOTIFICATION_PORT}"
+      MASTER_DATA_HTTP: "http://master-data:${MASTER_DATA_PORT}"
+      services__master-data__http__0: "http://master-data:${MASTER_DATA_PORT}"
       Auth__MetadataAddress: "http://identity:${IDENTITY_PORT}/.well-known/openid-configuration"
       Auth__TokenEndpoint: "http://identity:${IDENTITY_PORT}/connect/token"
       Auth__RequireHttpsMetadata: "false"
@@ -316,15 +372,17 @@ services:
         condition: "service_started"
       notification:
         condition: "service_started"
+      master-data:
+        condition: "service_started"
     networks:
       - "aspire"
 networks:
   aspire:
     driver: "bridge"
 volumes:
-  saaskit-sql-data:
+  farm360-sql-data:
     driver: "local"
-  saaskit-valkey-data:
+  farm360-valkey-data:
     driver: "local"
-  saaskit-azurite-data:
+  farm360-azurite-data:
     driver: "local"

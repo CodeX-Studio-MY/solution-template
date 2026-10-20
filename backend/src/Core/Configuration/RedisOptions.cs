@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Saaskit.Core.Configuration;
+namespace Farm360.Core.Configuration;
 
 [OptionsSection("Redis", "The Redis-protocol store (Valkey locally) for cache, locks, rate limits and the SignalR backplane.")]
 public sealed record RedisOptions

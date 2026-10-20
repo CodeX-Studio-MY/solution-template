@@ -1,8 +1,8 @@
 using System.Security.Cryptography;
 using System.Text;
-using Saaskit.Core.Tenancy;
+using Farm360.Core.Tenancy;
 
-namespace Saaskit.Core.Time;
+namespace Farm360.Core.Time;
 
 /// <summary>
 /// "Run at 09:00 tenant local time" without looping over thousands of tenants serially inside one trigger. A frequent trigger asks

@@ -5,7 +5,7 @@ using System.Web;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.AspNetCore.WebUtilities;
 
-namespace Saaskit.Integration.Tests;
+namespace Farm360.Integration.Tests;
 
 /// <summary>An HTTP client that keeps cookies and never follows redirects itself, so tests can walk the sign-in flow step by step.</summary>
 internal sealed partial class LoginBrowser : IDisposable

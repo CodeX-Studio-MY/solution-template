@@ -1,5 +1,5 @@
 import { createInstance, getInstance } from "@module-federation/enhanced/runtime";
-import { addNamespace, apiJson, registerExtensions, type ModuleManifest } from "@saaskit/web-core";
+import { addNamespace, apiJson, registerExtensions, type ModuleManifest } from "@farm360/web-core";
 
 /** One entry of `GET /api/tenancy/v1/me/modules`. */
 interface ManifestEntry {

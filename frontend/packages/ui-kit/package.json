@@ -1,5 +1,5 @@
 {
-  "name": "@saaskit/ui-kit",
+  "name": "@farm360/ui-kit",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -14,7 +14,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@saaskit/web-core": "workspace:*",
+    "@farm360/web-core": "workspace:*",
     "@emotion/cache": "catalog:"
   },
   "peerDependencies": {

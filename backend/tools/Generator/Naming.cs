@@ -2,7 +2,7 @@ using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Saaskit.Generator;
+namespace Farm360.Generator;
 
 public static class Naming
 {

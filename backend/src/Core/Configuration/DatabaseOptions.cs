@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Saaskit.Core.Configuration;
+namespace Farm360.Core.Configuration;
 
 [OptionsSection("Database", "The catalog database, tenant database servers and the database provider.")]
 public sealed record DatabaseOptions

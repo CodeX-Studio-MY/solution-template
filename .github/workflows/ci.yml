@@ -23,7 +23,7 @@ jobs:
         with:
           global-json-file: global.json
       # Warnings are errors (analyzers, nullable, banned APIs): a warning fails the build.
-      - run: dotnet build backend/saaskit.slnx --configuration Release
+      - run: dotnet build backend/farm360.slnx --configuration Release
 
   frontend:
     runs-on: ubuntu-latest

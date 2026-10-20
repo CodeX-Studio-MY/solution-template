@@ -1,4 +1,4 @@
-import type { ModuleManifest } from "@saaskit/web-core";
+import type { ModuleManifest } from "@farm360/web-core";
 import { basePath, moduleKey } from "./basePath";
 import en from "./locales/en.json";
 import ms from "./locales/ms.json";

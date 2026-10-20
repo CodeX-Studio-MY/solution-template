@@ -1,7 +1,7 @@
-using Saaskit.Core.Errors;
-using Saaskit.Core.Platform;
+using Farm360.Core.Errors;
+using Farm360.Core.Platform;
 
-namespace Saaskit.Tenancy.Application;
+namespace Farm360.Tenancy.Application;
 
 /// <summary>The Tenancy module's error catalog.</summary>
 [ErrorCatalog(Modules.TenantSettings)]

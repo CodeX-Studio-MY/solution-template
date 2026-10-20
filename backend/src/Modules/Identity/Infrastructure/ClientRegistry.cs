@@ -1,12 +1,12 @@
 using System.Text.Json;
-using Saaskit.Identity.Application;
-using Saaskit.Identity.Infrastructure.OpenIddict;
+using Farm360.Identity.Application;
+using Farm360.Identity.Infrastructure.OpenIddict;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using OpenIddict.Abstractions;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 
-namespace Saaskit.Identity.Infrastructure;
+namespace Farm360.Identity.Infrastructure;
 
 internal sealed class ClientRegistry(IdentityCatalogDbContext db, IOpenIddictApplicationManager manager) : IClientRegistry
 {

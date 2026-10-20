@@ -1,4 +1,4 @@
-namespace Saaskit.Core.Tenancy;
+namespace Farm360.Core.Tenancy;
 
 /// <summary>The tenant the current request, message or job runs for. Scoped.</summary>
 public interface ITenantContext

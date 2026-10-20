@@ -1,14 +1,14 @@
 using System.Net.Http.Json;
 using System.Text.Json;
-using Saaskit.Contracts;
-using Saaskit.Core.Platform;
-using Saaskit.Notification;
-using Saaskit.Notification.Application;
+using Farm360.Contracts;
+using Farm360.Core.Platform;
+using Farm360.Notification;
+using Farm360.Notification.Application;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace Saaskit.Integration.Tests;
+namespace Farm360.Integration.Tests;
 
 /// <summary>Notification: requests from modules become history, a real-time push and an email, per person and per tenant.</summary>
 [Trait("service", "notification")]
@@ -39,7 +39,7 @@ public sealed class NotificationTests(Databases databases)
         {
             builder.Configuration["Smtp:Host"] = databases.Smtp.Host;
             builder.Configuration["Smtp:Port"] = databases.Smtp.Port.ToString(System.Globalization.CultureInfo.InvariantCulture);
-            builder.Configuration["Smtp:FromAddress"] = "no-reply@saaskit.test";
+            builder.Configuration["Smtp:FromAddress"] = "no-reply@farm360.test";
             builder.Services.RemoveAll<IContactDirectory>();
             builder.Services.AddSingleton<IContactDirectory>(contacts);
         }, tenants);
@@ -81,7 +81,7 @@ public sealed class NotificationTests(Databases databases)
     public async Task A_request_becomes_history_for_the_recipient_and_an_email(string provider)
     {
         var requester = Guid.NewGuid();
-        var address = $"req-{Guid.NewGuid():N}@saaskit.test";
+        var address = $"req-{Guid.NewGuid():N}@farm360.test";
         var contacts = new FakeContacts();
         contacts.People[requester] = new Contact(requester, "Rita Requester", address);
         await using var host = await StartAsync(provider, contacts, "demo");
@@ -156,8 +156,8 @@ public sealed class NotificationTests(Databases databases)
         await using var samHub = Connect(host, host.Token("demo", sam));
         var ritaGot = new TaskCompletionSource<NotificationDto>(TaskCreationOptions.RunContinuationsAsynchronously);
         var samGot = new TaskCompletionSource<NotificationDto>(TaskCreationOptions.RunContinuationsAsynchronously);
-        ritaHub.On<NotificationDto>(Saaskit.Notification.Api.NotificationHub.PushMethod, ritaGot.SetResult);
-        samHub.On<NotificationDto>(Saaskit.Notification.Api.NotificationHub.PushMethod, samGot.SetResult);
+        ritaHub.On<NotificationDto>(Farm360.Notification.Api.NotificationHub.PushMethod, ritaGot.SetResult);
+        samHub.On<NotificationDto>(Farm360.Notification.Api.NotificationHub.PushMethod, samGot.SetResult);
         await ritaHub.StartAsync(Ct);
         await samHub.StartAsync(Ct);
 

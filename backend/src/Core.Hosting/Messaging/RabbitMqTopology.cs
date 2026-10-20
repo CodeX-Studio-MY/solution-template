@@ -1,6 +1,6 @@
-using Saaskit.Core.Platform;
+using Farm360.Core.Platform;
 
-namespace Saaskit.Core.Hosting.Messaging;
+namespace Farm360.Core.Hosting.Messaging;
 
 /// <summary>
 /// Names on the broker. One topic exchange carries every event by routing key (<c>{event-name}.v{version}</c>). Each consumer has a

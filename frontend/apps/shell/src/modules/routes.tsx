@@ -1,6 +1,6 @@
 import type { RouteObject } from "react-router";
 import { Navigate, Outlet } from "react-router";
-import { RequireModuleRole, type ModuleManifest, type ModuleRoute } from "@saaskit/web-core";
+import { RequireModuleRole, type ModuleManifest, type ModuleRoute } from "@farm360/web-core";
 import { ModuleBoundary } from "../layout/ModuleBoundary";
 
 function toRoute(route: ModuleRoute): RouteObject {

@@ -1,14 +1,14 @@
 using System.Text.Json;
-using Saaskit.Core.Configuration;
-using Saaskit.Core.Platform;
-using Saaskit.Core.Security;
-using Saaskit.Core.Tenancy;
-using Saaskit.Gateway.Sessions;
+using Farm360.Core.Configuration;
+using Farm360.Core.Platform;
+using Farm360.Core.Security;
+using Farm360.Core.Tenancy;
+using Farm360.Gateway.Sessions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
 
-namespace Saaskit.Gateway.Http;
+namespace Farm360.Gateway.Http;
 
 /// <summary>The browser-facing BFF endpoints: login, logout, the signed-in user, and the frontend's runtime configuration.</summary>
 internal static class BffEndpoints

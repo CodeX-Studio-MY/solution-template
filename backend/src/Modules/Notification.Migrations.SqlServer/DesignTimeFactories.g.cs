@@ -2,15 +2,15 @@
 #nullable enable
 using Microsoft.EntityFrameworkCore.Design;
 
-namespace Saaskit.Notification.Migrations.SqlServer;
+namespace Farm360.Notification.Migrations.SqlServer;
 
 /// <summary>Lets <c>dotnet ef</c> build NotificationDbContext for SqlServer.</summary>
-internal sealed class NotificationDbContextDesignTimeFactory : IDesignTimeDbContextFactory<global::Saaskit.Notification.Infrastructure.NotificationDbContext>
+internal sealed class NotificationDbContextDesignTimeFactory : IDesignTimeDbContextFactory<global::Farm360.Notification.Infrastructure.NotificationDbContext>
 {
-    public global::Saaskit.Notification.Infrastructure.NotificationDbContext CreateDbContext(string[] args) =>
-        global::Saaskit.Core.Data.DbContextRegistration.Create<global::Saaskit.Notification.Infrastructure.NotificationDbContext>(
+    public global::Farm360.Notification.Infrastructure.NotificationDbContext CreateDbContext(string[] args) =>
+        global::Farm360.Core.Data.DbContextRegistration.Create<global::Farm360.Notification.Infrastructure.NotificationDbContext>(
             null,
-            new global::Saaskit.Core.Data.SqlServer.SqlServerDatabaseProvider(),
+            new global::Farm360.Core.Data.SqlServer.SqlServerDatabaseProvider(),
             "Server=design-time;Database=design-time",
-            global::Saaskit.Core.Platform.PlatformServices.Notification.Schema);
+            global::Farm360.Core.Platform.PlatformServices.Notification.Schema);
 }

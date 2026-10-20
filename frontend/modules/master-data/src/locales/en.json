@@ -1,0 +1,6 @@
+{
+  "menu": "Master Data",
+  "fields": { "name": "Name" },
+  "list": { "title": "Master Data", "empty": "Nothing here yet", "emptyHint": "Add the first one below." },
+  "form": { "add": "Add" }
+}

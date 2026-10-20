@@ -1,6 +1,6 @@
-using Saaskit.Core.Platform;
+using Farm360.Core.Platform;
 
-namespace Saaskit.Identity.Application;
+namespace Farm360.Identity.Application;
 
 /// <summary>A link emailed to a person: where it goes, who it is for, and why.</summary>
 public sealed record AccountLink(string Kind, string Email, string DisplayName, Uri Url, DateTime ExpiresOn);

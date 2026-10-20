@@ -1,17 +1,17 @@
 using System.Text.Json;
-using Saaskit.Core.Catalog;
-using Saaskit.Core.Catalog.Entities;
-using Saaskit.Core.Configuration;
-using Saaskit.Core.Data;
-using Saaskit.Core.Errors;
-using Saaskit.Core.Platform;
-using Saaskit.Core.Tenancy;
-using Saaskit.Tenancy.Application;
-using Saaskit.Tenancy.Domain;
+using Farm360.Core.Catalog;
+using Farm360.Core.Catalog.Entities;
+using Farm360.Core.Configuration;
+using Farm360.Core.Data;
+using Farm360.Core.Errors;
+using Farm360.Core.Platform;
+using Farm360.Core.Tenancy;
+using Farm360.Tenancy.Application;
+using Farm360.Tenancy.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
-namespace Saaskit.Tenancy.Infrastructure;
+namespace Farm360.Tenancy.Infrastructure;
 
 /// <summary>Plan, entitlements, support-access policy and the tenant lifecycle.</summary>
 internal sealed class TenantManagement(

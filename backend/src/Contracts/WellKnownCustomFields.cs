@@ -1,4 +1,4 @@
-namespace Saaskit.Contracts;
+namespace Farm360.Contracts;
 
 /// <summary>
 /// Custom field keys that modules agree on, so one module's data can feed another through events (customization ladder, rungs 4

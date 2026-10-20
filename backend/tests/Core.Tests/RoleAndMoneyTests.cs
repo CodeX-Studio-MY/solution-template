@@ -1,7 +1,7 @@
-using Saaskit.Core.Data;
-using Saaskit.Core.Platform;
+using Farm360.Core.Data;
+using Farm360.Core.Platform;
 
-namespace Saaskit.Core.Tests;
+namespace Farm360.Core.Tests;
 
 public sealed class RoleTests
 {

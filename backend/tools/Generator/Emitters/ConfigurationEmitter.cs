@@ -2,9 +2,9 @@ using System.Collections;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 using System.Text;
-using Saaskit.Core.Configuration;
+using Farm360.Core.Configuration;
 
-namespace Saaskit.Generator.Emitters;
+namespace Farm360.Generator.Emitters;
 
 /// <summary>
 /// From the typed options records in Core (the single source of truth for runtime configuration):

@@ -2,12 +2,12 @@ using System.Collections.Concurrent;
 using System.Globalization;
 using System.Reflection;
 using System.Text.Json;
-using Saaskit.Core.Platform;
-using Saaskit.Core.Tenancy;
+using Farm360.Core.Platform;
+using Farm360.Core.Tenancy;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Saaskit.Core.Localization;
+namespace Farm360.Core.Localization;
 
 /// <summary>Turns a message key into text in the request's language. Unknown keys come back unchanged, so a missing translation is visible, not fatal.</summary>
 public interface IMessageLocalizer

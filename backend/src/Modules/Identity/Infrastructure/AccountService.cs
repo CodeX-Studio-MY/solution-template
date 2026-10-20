@@ -1,18 +1,18 @@
 using System.Security.Cryptography;
 using System.Text;
-using Saaskit.Core.Configuration;
-using Saaskit.Core.Errors;
-using Saaskit.Core.Platform;
-using Saaskit.Core.Security;
-using Saaskit.Core.Tenancy;
-using Saaskit.Identity.Application;
-using Saaskit.Identity.Domain;
+using Farm360.Core.Configuration;
+using Farm360.Core.Errors;
+using Farm360.Core.Platform;
+using Farm360.Core.Security;
+using Farm360.Core.Tenancy;
+using Farm360.Identity.Application;
+using Farm360.Identity.Domain;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
-namespace Saaskit.Identity.Infrastructure;
+namespace Farm360.Identity.Infrastructure;
 
 internal sealed class AccountService(
     IdentityDbContext db,

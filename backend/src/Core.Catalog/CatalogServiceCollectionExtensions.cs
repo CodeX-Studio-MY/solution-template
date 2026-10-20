@@ -1,10 +1,10 @@
-using Saaskit.Core.Customization;
-using Saaskit.Core.Data;
-using Saaskit.Core.Tenancy;
+using Farm360.Core.Customization;
+using Farm360.Core.Data;
+using Farm360.Core.Tenancy;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace Saaskit.Core.Catalog;
+namespace Farm360.Core.Catalog;
 
 public static class CatalogServiceCollectionExtensions
 {

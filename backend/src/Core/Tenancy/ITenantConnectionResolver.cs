@@ -1,9 +1,9 @@
-using Saaskit.Core.Configuration;
-using Saaskit.Core.Data;
-using Saaskit.Core.Errors;
+using Farm360.Core.Configuration;
+using Farm360.Core.Data;
+using Farm360.Core.Errors;
 using Microsoft.Extensions.Options;
 
-namespace Saaskit.Core.Tenancy;
+namespace Farm360.Core.Tenancy;
 
 public enum TenantDataAccess
 {

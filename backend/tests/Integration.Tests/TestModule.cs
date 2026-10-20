@@ -1,15 +1,15 @@
 using System.Security.Claims;
-using Saaskit.Core;
-using Saaskit.Core.Data;
-using Saaskit.Core.Security;
-using Saaskit.Core.Tenancy;
+using Farm360.Core;
+using Farm360.Core.Data;
+using Farm360.Core.Security;
+using Farm360.Core.Tenancy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Time.Testing;
 using NetTopologySuite.Geometries;
 
-namespace Saaskit.Integration.Tests;
+namespace Farm360.Integration.Tests;
 
 /// <summary>A module-shaped context used to test the platform's data conventions on both providers.</summary>
 public sealed class TestModuleDbContext(DbContextOptions<TestModuleDbContext> options) : ModuleDbContext(options)

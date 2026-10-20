@@ -1,4 +1,4 @@
-namespace Saaskit.Generator;
+namespace Farm360.Generator;
 
 /// <summary>
 /// The folders a module lives in (backend module, migrations, host, tests, frontend module), and the ones that belong to no service

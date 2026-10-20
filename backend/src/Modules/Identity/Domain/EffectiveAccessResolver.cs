@@ -1,6 +1,6 @@
-using Saaskit.Core.Platform;
+using Farm360.Core.Platform;
 
-namespace Saaskit.Identity.Domain;
+namespace Farm360.Identity.Domain;
 
 /// <summary>A role granted in a module, directly or through a group.</summary>
 public sealed record ModuleGrant(Guid ModuleId, Role Role);

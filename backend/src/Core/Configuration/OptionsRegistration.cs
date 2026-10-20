@@ -3,7 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace Saaskit.Core.Configuration;
+namespace Farm360.Core.Configuration;
 
 public static class OptionsRegistration
 {

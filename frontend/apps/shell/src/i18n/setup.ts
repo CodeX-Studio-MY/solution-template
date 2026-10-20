@@ -1,4 +1,4 @@
-import { addNamespace, initI18n } from "@saaskit/web-core";
+import { addNamespace, initI18n } from "@farm360/web-core";
 import en from "./common.en.json";
 import ms from "./common.ms.json";
 import zh from "./common.zh.json";

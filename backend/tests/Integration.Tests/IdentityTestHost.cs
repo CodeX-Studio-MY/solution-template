@@ -1,15 +1,15 @@
 using System.Net.Http.Headers;
 using System.Security.Cryptography;
-using Saaskit.Core.Catalog;
-using Saaskit.Core.Data;
-using Saaskit.Core.Hosting;
-using Saaskit.Core.Platform;
-using Saaskit.Core.Security;
-using Saaskit.Core.Tenancy;
-using Saaskit.Identity;
-using Saaskit.Identity.Application;
-using Saaskit.Identity.Domain;
-using Saaskit.Identity.Infrastructure;
+using Farm360.Core.Catalog;
+using Farm360.Core.Data;
+using Farm360.Core.Hosting;
+using Farm360.Core.Platform;
+using Farm360.Core.Security;
+using Farm360.Core.Tenancy;
+using Farm360.Identity;
+using Farm360.Identity.Application;
+using Farm360.Identity.Domain;
+using Farm360.Identity.Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
@@ -17,7 +17,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Saaskit.Integration.Tests;
+namespace Farm360.Integration.Tests;
 
 /// <summary>The Identity module hosted for real: PostgreSQL catalog and tenant databases, Valkey, ES256 keys, OpenIddict.</summary>
 internal sealed class IdentityTestHost : IAsyncDisposable
@@ -74,7 +74,7 @@ internal sealed class IdentityTestHost : IAsyncDisposable
         var catalog = databases.NewDatabase(Databases.DefaultProvider, "catalog");
         var provider = Databases.Provider(Databases.DefaultProvider);
         // Exactly the catalog contexts the Migrator applies (generated from platform.yaml).
-        foreach (var target in Saaskit.Migrator.MigrationTargets.Catalog)
+        foreach (var target in Farm360.Migrator.MigrationTargets.Catalog)
         {
             await using var db = target.Create(provider, catalog);
             await db.Database.MigrateAsync();

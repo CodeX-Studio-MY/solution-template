@@ -1,9 +1,9 @@
 using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Saaskit.Core.Data;
+using Farm360.Core.Data;
 
-namespace Saaskit.Core.Messaging;
+namespace Farm360.Core.Messaging;
 
 /// <summary>The JSON used for event payloads: camelCase, enums as strings. The same everywhere, so any version of any consumer can read it.</summary>
 public static class EventJson

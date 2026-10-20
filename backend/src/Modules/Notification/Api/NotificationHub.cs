@@ -1,9 +1,9 @@
-using Saaskit.Core.Security;
-using Saaskit.Notification.Application;
+using Farm360.Core.Security;
+using Farm360.Notification.Application;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 
-namespace Saaskit.Notification.Api;
+namespace Farm360.Notification.Api;
 
 /// <summary>
 /// Real-time notifications. Connections are authenticated (the Gateway attaches the access token to the WebSocket upgrade, so the

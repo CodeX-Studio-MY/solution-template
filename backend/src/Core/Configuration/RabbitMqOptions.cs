@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Saaskit.Core.Configuration;
+namespace Farm360.Core.Configuration;
 
 [OptionsSection("RabbitMq", "The message broker (RabbitMQ 4.x, quorum queues) and the outbox relay.")]
 public sealed record RabbitMqOptions

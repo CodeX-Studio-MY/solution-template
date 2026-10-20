@@ -1,13 +1,13 @@
-using Saaskit.Core.Configuration;
-using Saaskit.Core.Messaging;
-using Saaskit.Core.Platform;
-using Saaskit.Core.Tenancy;
+using Farm360.Core.Configuration;
+using Farm360.Core.Messaging;
+using Farm360.Core.Platform;
+using Farm360.Core.Tenancy;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using StackExchange.Redis;
 
-namespace Saaskit.Core.Hosting.Messaging;
+namespace Farm360.Core.Hosting.Messaging;
 
 /// <summary>Signals "tenant X has pending outbox rows in schema S" on a Redis stream.</summary>
 internal sealed class RedisOutboxSignal(IConnectionMultiplexer redis) : IOutboxSignal

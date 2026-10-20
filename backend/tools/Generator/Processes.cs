@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace Saaskit.Generator;
+namespace Farm360.Generator;
 
 /// <summary>Runs the tools the generator commands depend on (dotnet, pnpm, git), with their output on this console.</summary>
 internal static class Processes

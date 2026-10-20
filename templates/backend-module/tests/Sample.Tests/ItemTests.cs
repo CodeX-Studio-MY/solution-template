@@ -1,6 +1,6 @@
-using Saaskit.Sample.Domain;
+using Farm360.Sample.Domain;
 
-namespace Saaskit.Sample.Tests;
+namespace Farm360.Sample.Tests;
 
 [Trait("service", "sample-key")]
 public sealed class ItemTests

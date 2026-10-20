@@ -1,4 +1,4 @@
-namespace Saaskit.Identity.Infrastructure.OpenIddict;
+namespace Farm360.Identity.Infrastructure.OpenIddict;
 
 /// <summary>
 /// A client registration (catalog database). <see cref="TenantId"/> is null for platform clients (the BFF and

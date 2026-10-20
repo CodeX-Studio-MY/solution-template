@@ -1,8 +1,8 @@
 using System.Globalization;
 using System.Text;
-using Saaskit.Core.Platform;
+using Farm360.Core.Platform;
 
-namespace Saaskit.Generator;
+namespace Farm360.Generator;
 
 /// <summary>
 /// <c>scripts/new-module &lt;key&gt;</c>: adds a module to <c>platform.yaml</c>, creates its backend (module, host, tests) and frontend

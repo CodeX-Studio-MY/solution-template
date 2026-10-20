@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Saaskit.Identity.Migrations.SqlServer.Migrations.IdentityCatalog
+namespace Farm360.Identity.Migrations.SqlServer.Migrations.IdentityCatalog
 {
     /// <inheritdoc />
     public partial class Initial : Migration

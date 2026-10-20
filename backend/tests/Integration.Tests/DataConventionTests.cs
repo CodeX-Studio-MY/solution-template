@@ -1,9 +1,9 @@
-using Saaskit.Core.Data;
-using Saaskit.Core.Errors;
-using Saaskit.Core.Tenancy;
+using Farm360.Core.Data;
+using Farm360.Core.Errors;
+using Farm360.Core.Tenancy;
 using Microsoft.EntityFrameworkCore;
 
-namespace Saaskit.Integration.Tests;
+namespace Farm360.Integration.Tests;
 
 public sealed class DataConventionTests(Databases databases)
 {

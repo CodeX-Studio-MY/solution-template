@@ -1,6 +1,6 @@
-using Saaskit.Core.Composition;
-using Saaskit.Core.Configuration;
-using Saaskit.Core.Security;
+using Farm360.Core.Composition;
+using Farm360.Core.Configuration;
+using Farm360.Core.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -8,7 +8,7 @@ using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Saaskit.Core.Hosting.Auth;
+namespace Farm360.Core.Hosting.Auth;
 
 /// <summary>
 /// Access token validation, identical in every service: ES256 only, keys only from the configured issuer,

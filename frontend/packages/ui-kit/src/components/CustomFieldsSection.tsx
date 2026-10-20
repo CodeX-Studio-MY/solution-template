@@ -3,7 +3,7 @@ import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { useTranslation } from "react-i18next";
-import { apiJson, useResource, type FieldError, type ServiceKey } from "@saaskit/web-core";
+import { apiJson, useResource, type FieldError, type ServiceKey } from "@farm360/web-core";
 
 /** One extra field a tenant defined for an entity. The server validates the values; this only renders and collects them. */
 export interface CustomFieldDefinition {

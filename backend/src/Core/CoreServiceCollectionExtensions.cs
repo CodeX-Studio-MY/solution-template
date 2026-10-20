@@ -1,17 +1,17 @@
-using Saaskit.Core.Customization;
-using Saaskit.Core.Configuration;
-using Saaskit.Core.Data;
-using Saaskit.Core.Errors;
-using Saaskit.Core.Localization;
-using Saaskit.Core.Security;
-using Saaskit.Core.Tenancy;
-using Saaskit.Core.Time;
+using Farm360.Core.Customization;
+using Farm360.Core.Configuration;
+using Farm360.Core.Data;
+using Farm360.Core.Errors;
+using Farm360.Core.Localization;
+using Farm360.Core.Security;
+using Farm360.Core.Tenancy;
+using Farm360.Core.Time;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace Saaskit.Core;
+namespace Farm360.Core;
 
 public static class CoreServiceCollectionExtensions
 {

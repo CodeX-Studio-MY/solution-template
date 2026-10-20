@@ -1,11 +1,11 @@
-using Saaskit.Contracts;
-using Saaskit.Core.Configuration;
-using Saaskit.Core.Data.PostgreSql;
-using Saaskit.Core.Messaging;
-using Saaskit.Core.Tenancy;
-using Saaskit.Core.Time;
-using Saaskit.Migrator;
-using Saaskit.Scheduler;
+using Farm360.Contracts;
+using Farm360.Core.Configuration;
+using Farm360.Core.Data.PostgreSql;
+using Farm360.Core.Messaging;
+using Farm360.Core.Tenancy;
+using Farm360.Core.Time;
+using Farm360.Migrator;
+using Farm360.Scheduler;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -13,7 +13,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Time.Testing;
 using Quartz;
 
-namespace Saaskit.Integration.Tests;
+namespace Farm360.Integration.Tests;
 
 /// <summary>The Scheduler: tenant-local timing of the day-started event, and the clustered Quartz store created by the Migrator on both providers.</summary>
 [Trait("service", "scheduler")]

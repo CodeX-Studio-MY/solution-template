@@ -1,9 +1,9 @@
-using Saaskit.Core.Data;
-using Saaskit.Core.Platform;
+using Farm360.Core.Data;
+using Farm360.Core.Platform;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace Saaskit.Core.Messaging;
+namespace Farm360.Core.Messaging;
 
 public static class MessagingRegistration
 {

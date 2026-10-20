@@ -1,12 +1,12 @@
-using Saaskit.Core.Configuration;
-using Saaskit.Core.Platform;
+using Farm360.Core.Configuration;
+using Farm360.Core.Platform;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Options;
 using StackExchange.Redis;
 
-namespace Saaskit.Gateway.Sessions;
+namespace Farm360.Gateway.Sessions;
 
 /// <summary>
 /// Browser sessions kept server-side in Redis. The cookie holds only an opaque session ID; the ticket (claims and the

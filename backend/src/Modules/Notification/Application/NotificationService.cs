@@ -1,10 +1,10 @@
-using Saaskit.Core.Http;
-using Saaskit.Core.Security;
-using Saaskit.Core.Tenancy;
-using Saaskit.Notification.Domain;
+using Farm360.Core.Http;
+using Farm360.Core.Security;
+using Farm360.Core.Tenancy;
+using Farm360.Notification.Domain;
 using Microsoft.Extensions.Logging;
 
-namespace Saaskit.Notification.Application;
+namespace Farm360.Notification.Application;
 
 /// <summary>Creates notifications (history, real-time push, email) and answers the signed-in person's reads.</summary>
 public sealed partial class NotificationService(

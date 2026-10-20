@@ -1,7 +1,7 @@
-using Saaskit.Core.Data;
-using Saaskit.Core.Tenancy;
+using Farm360.Core.Data;
+using Farm360.Core.Tenancy;
 
-namespace Saaskit.Core.Messaging;
+namespace Farm360.Core.Messaging;
 
 /// <summary>
 /// What travels between modules. Every message carries the tenant, the event ID, the event time, the producer and the W3C

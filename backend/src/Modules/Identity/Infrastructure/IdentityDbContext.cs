@@ -1,11 +1,11 @@
-using Saaskit.Core.Data;
-using Saaskit.Core.Platform;
-using Saaskit.Identity.Domain;
-using Saaskit.Identity.Infrastructure.OpenIddict;
+using Farm360.Core.Data;
+using Farm360.Core.Platform;
+using Farm360.Identity.Domain;
+using Farm360.Identity.Infrastructure.OpenIddict;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-namespace Saaskit.Identity.Infrastructure;
+namespace Farm360.Identity.Infrastructure;
 
 /// <summary>
 /// Identity's data in each tenant's database: principals and their sign-in details, groups, assignments, data scopes,

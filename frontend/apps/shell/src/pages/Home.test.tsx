@@ -1,8 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { registerExtensions, unregisterExtensions, type ModuleManifest } from "@saaskit/web-core";
-import { setTenantForTest, setupI18nForTest, signInForTest } from "@saaskit/web-core/testing";
+import { registerExtensions, unregisterExtensions, type ModuleManifest } from "@farm360/web-core";
+import { setTenantForTest, setupI18nForTest, signInForTest } from "@farm360/web-core/testing";
 import common from "../i18n/common.en.json";
 import { Home } from "./Home";
 

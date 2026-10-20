@@ -1,7 +1,7 @@
-using Saaskit.Core.Messaging;
+using Farm360.Core.Messaging;
 using Microsoft.EntityFrameworkCore;
 
-namespace Saaskit.Core.Data;
+namespace Farm360.Core.Data;
 
 /// <summary>
 /// The base of a module's DbContext in the tenant database. A module owns one schema and one context;

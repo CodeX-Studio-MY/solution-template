@@ -1,9 +1,9 @@
-using Saaskit.Contracts;
-using Saaskit.Core.Messaging;
-using Saaskit.Core.Platform;
-using Saaskit.Notification.Application;
+using Farm360.Contracts;
+using Farm360.Core.Messaging;
+using Farm360.Core.Platform;
+using Farm360.Notification.Application;
 
-namespace Saaskit.Notification.Infrastructure;
+namespace Farm360.Notification.Infrastructure;
 
 /// <summary>Delivers a notification another module asked for, to one person or to the members of a module.</summary>
 internal sealed class NotificationRequestedConsumer(NotificationService notifications, IContactDirectory contacts) : IEventConsumer<NotificationRequested.V1>

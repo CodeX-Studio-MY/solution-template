@@ -18,12 +18,15 @@
   <Folder Name="/src/Hosts/">
     <Project Path="src/Hosts/AllInOne.Host/AllInOne.Host.csproj" />
     <Project Path="src/Hosts/Identity.Host/Identity.Host.csproj" />
+    <Project Path="src/Hosts/MasterData.Host/MasterData.Host.csproj" />
     <Project Path="src/Hosts/Notification.Host/Notification.Host.csproj" />
     <Project Path="src/Hosts/Tenancy.Host/Tenancy.Host.csproj" />
   </Folder>
   <Folder Name="/src/Modules/">
     <Project Path="src/Modules/Identity.Migrations.SqlServer/Identity.Migrations.SqlServer.csproj" />
     <Project Path="src/Modules/Identity/Identity.csproj" />
+    <Project Path="src/Modules/MasterData.Migrations.SqlServer/MasterData.Migrations.SqlServer.csproj" />
+    <Project Path="src/Modules/MasterData/MasterData.csproj" />
     <Project Path="src/Modules/Notification.Migrations.SqlServer/Notification.Migrations.SqlServer.csproj" />
     <Project Path="src/Modules/Notification/Notification.csproj" />
     <Project Path="src/Modules/Tenancy.Migrations.SqlServer/Tenancy.Migrations.SqlServer.csproj" />
@@ -35,6 +38,7 @@
     <Project Path="tests/Generator.Tests/Generator.Tests.csproj" />
     <Project Path="tests/Identity.Tests/Identity.Tests.csproj" />
     <Project Path="tests/Integration.Tests/Integration.Tests.csproj" />
+    <Project Path="tests/MasterData.Tests/MasterData.Tests.csproj" />
     <Project Path="tests/TestSupport/TestSupport.csproj" />
   </Folder>
   <Folder Name="/tools/">

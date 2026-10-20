@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 
-namespace Saaskit.Identity.Infrastructure;
+namespace Farm360.Identity.Infrastructure;
 
 /// <summary>A user's sign-in details (ASP.NET Core Identity). Its ID is the user's <see cref="Domain.Principal"/> ID.</summary>
 public sealed class PlatformUser : IdentityUser<Guid>

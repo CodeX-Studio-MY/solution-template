@@ -1,4 +1,4 @@
-namespace Saaskit.Core.Data;
+namespace Farm360.Core.Data;
 
 /// <summary>The first response to a POST with an <c>Idempotency-Key</c>, kept so a retry gets the same answer instead of a duplicate.</summary>
 public sealed class IdempotencyRecord

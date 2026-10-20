@@ -1,4 +1,4 @@
-namespace Saaskit.Core.Security;
+namespace Farm360.Core.Security;
 
 /// <summary>
 /// The current <c>access_version</c> of each principal. Identity increments it when assignments, group membership

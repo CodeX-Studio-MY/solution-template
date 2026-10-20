@@ -1,7 +1,7 @@
-using Saaskit.Core.Errors;
+using Farm360.Core.Errors;
 using Microsoft.EntityFrameworkCore;
 
-namespace Saaskit.Core.Data;
+namespace Farm360.Core.Data;
 
 /// <summary>ETag and If-Match support for aggregates. A conflict returns 412; a missing If-Match returns 428.</summary>
 public static class ConcurrencyExtensions

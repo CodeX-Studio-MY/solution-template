@@ -1,4 +1,4 @@
-namespace Saaskit.Core.Security;
+namespace Farm360.Core.Security;
 
 /// <summary>Claim and header names shared by every service.</summary>
 public static class PlatformClaims

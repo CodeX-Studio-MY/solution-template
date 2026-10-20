@@ -1,13 +1,13 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
-using Saaskit.Core.Platform;
-using Saaskit.Identity.Application;
+using Farm360.Core.Platform;
+using Farm360.Identity.Application;
 using Microsoft.Extensions.DependencyInjection;
 using StackExchange.Redis;
-using Role = Saaskit.Core.Platform.Role;
+using Role = Farm360.Core.Platform.Role;
 
-namespace Saaskit.Integration.Tests;
+namespace Farm360.Integration.Tests;
 
 /// <summary>The Gateway as the BFF: sessions in Redis, no tokens in the browser, CSRF, security headers, per-service tokens.</summary>
 [Trait("service", "gateway")]
@@ -92,7 +92,7 @@ public sealed class GatewayTests(Databases databases)
 
         // The session lives in Redis, encrypted, not in the cookie.
         var redis = host.Services.GetRequiredService<IConnectionMultiplexer>();
-        var keys = redis.GetServer(redis.GetEndPoints()[0]).Keys(pattern: "saaskit:bff:session:*").ToList();
+        var keys = redis.GetServer(redis.GetEndPoints()[0]).Keys(pattern: "farm360:bff:session:*").ToList();
         keys.ShouldNotBeEmpty();
         var stored = (byte[])(await redis.GetDatabase().StringGetAsync(keys[0]))!;
         System.Text.Encoding.UTF8.GetString(stored).ShouldNotContain("eyJ");
@@ -151,14 +151,14 @@ public sealed class GatewayTests(Databases databases)
 
         // Drop the cached access tokens so every request below needs a renewal at the same moment.
         var redis = host.Services.GetRequiredService<IConnectionMultiplexer>();
-        foreach (var key in redis.GetServer(redis.GetEndPoints()[0]).Keys(pattern: "saaskit:bff:tokens:*").ToList())
+        foreach (var key in redis.GetServer(redis.GetEndPoints()[0]).Keys(pattern: "farm360:bff:tokens:*").ToList())
             await redis.GetDatabase().KeyDeleteAsync(key);
 
         var responses = await Task.WhenAll(Enumerable.Range(0, 6).Select(_ => browser.SendAsync(Api(HttpMethod.Get, "/api/identity/v1/groups"))));
         responses.ShouldAllBe(r => r.StatusCode == HttpStatusCode.OK);
 
         // And the session still works afterwards (the rotated refresh token was kept).
-        foreach (var key in redis.GetServer(redis.GetEndPoints()[0]).Keys(pattern: "saaskit:bff:tokens:*").ToList())
+        foreach (var key in redis.GetServer(redis.GetEndPoints()[0]).Keys(pattern: "farm360:bff:tokens:*").ToList())
             await redis.GetDatabase().KeyDeleteAsync(key);
         (await browser.SendAsync(Api(HttpMethod.Get, "/api/identity/v1/groups"))).StatusCode.ShouldBe(HttpStatusCode.OK);
     }

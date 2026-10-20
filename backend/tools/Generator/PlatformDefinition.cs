@@ -1,9 +1,9 @@
 using System.Text.RegularExpressions;
-using Saaskit.Core.Platform;
+using Farm360.Core.Platform;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
-namespace Saaskit.Generator;
+namespace Farm360.Generator;
 
 /// <summary>The parsed contents of <c>platform.yaml</c>, the single source of truth for the application's structure.</summary>
 public sealed class PlatformDefinition

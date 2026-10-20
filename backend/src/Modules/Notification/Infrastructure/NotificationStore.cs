@@ -1,9 +1,9 @@
-using Saaskit.Core.Http;
-using Saaskit.Notification.Application;
-using Saaskit.Notification.Domain;
+using Farm360.Core.Http;
+using Farm360.Notification.Application;
+using Farm360.Notification.Domain;
 using Microsoft.EntityFrameworkCore;
 
-namespace Saaskit.Notification.Infrastructure;
+namespace Farm360.Notification.Infrastructure;
 
 internal sealed class NotificationStore(NotificationDbContext db) : INotificationStore
 {

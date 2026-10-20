@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Saaskit.Core.Customization;
+namespace Farm360.Core.Customization;
 
 /// <summary>
 /// The implementation of <typeparamref name="T"/> the current tenant has chosen (rung 3): the logic itself differs, so it is a

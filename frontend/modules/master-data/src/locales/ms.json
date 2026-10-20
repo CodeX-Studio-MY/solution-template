@@ -1,0 +1,6 @@
+{
+  "menu": "Master Data",
+  "fields": { "name": "Nama" },
+  "list": { "title": "Master Data", "empty": "Belum ada apa-apa", "emptyHint": "Tambah yang pertama di bawah." },
+  "form": { "add": "Tambah" }
+}

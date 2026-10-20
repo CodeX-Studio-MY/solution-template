@@ -1,6 +1,6 @@
-using Saaskit.Core.Time;
+using Farm360.Core.Time;
 
-namespace Saaskit.Core.Tests;
+namespace Farm360.Core.Tests;
 
 public sealed class TenantScheduleTests
 {

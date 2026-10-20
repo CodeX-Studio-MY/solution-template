@@ -2,16 +2,16 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Security.Cryptography;
 using System.Text.Json;
-using Saaskit.Core.Platform;
-using Saaskit.Core.Security;
-using Saaskit.Identity.Domain;
-using Saaskit.Identity.Infrastructure;
+using Farm360.Core.Platform;
+using Farm360.Core.Security;
+using Farm360.Identity.Domain;
+using Farm360.Identity.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Saaskit.Integration.Tests;
+namespace Farm360.Integration.Tests;
 
 [Trait("service", "identity")]
 public sealed class AccessManagementTests(Databases databases)
@@ -62,7 +62,7 @@ public sealed class AccessManagementTests(Databases databases)
         await using var host = await IdentityTestHost.StartAsync(databases, "demo", "demo-plus");
         var ali = await host.InTenantAsync("demo", async sp =>
         {
-            var access = sp.GetRequiredService<Saaskit.Identity.Application.IAccessManagement>();
+            var access = sp.GetRequiredService<Farm360.Identity.Application.IAccessManagement>();
             var db = sp.GetRequiredService<IdentityDbContext>();
             var principal = Principal.NewUser("ali");
             db.Principals.Add(principal);
@@ -76,7 +76,7 @@ public sealed class AccessManagementTests(Databases databases)
 
         var plus = await host.InTenantAsync("demo-plus", async sp =>
         {
-            var access = sp.GetRequiredService<Saaskit.Identity.Application.IAccessManagement>();
+            var access = sp.GetRequiredService<Farm360.Identity.Application.IAccessManagement>();
             var db = sp.GetRequiredService<IdentityDbContext>();
             var principal = Principal.NewUser("ali");
             db.Principals.Add(principal);

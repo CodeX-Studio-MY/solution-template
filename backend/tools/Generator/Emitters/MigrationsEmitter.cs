@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace Saaskit.Generator.Emitters;
+namespace Farm360.Generator.Emitters;
 
 /// <summary>
 /// One migrations project per context project and provider, with design-time factories, plus the Migrator's
