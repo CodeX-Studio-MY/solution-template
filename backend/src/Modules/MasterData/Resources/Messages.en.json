@@ -1,3 +1,4 @@
 {
-  "errors.masterData.notFound": "That item was not found."
+  "errors.masterData.notFound": "That farm was not found.",
+  "errors.masterData.codeInUse": "Another farm already uses that code."
 }

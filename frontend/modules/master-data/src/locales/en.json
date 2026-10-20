@@ -1,6 +1,18 @@
 {
   "menu": "Master Data",
-  "fields": { "name": "Name" },
-  "list": { "title": "Master Data", "empty": "Nothing here yet", "emptyHint": "Add the first one below." },
-  "form": { "add": "Add" }
+  "fields": {
+    "code": "Code",
+    "name": "Name",
+    "farmType": "Type"
+  },
+  "farmTypes": {
+    "field": "Field",
+    "greenhouse": "Greenhouse",
+    "nursery": "Nursery"
+  },
+  "list": {
+    "title": "Farms",
+    "empty": "No farms yet",
+    "emptyHint": "Farms you add will appear here."
+  }
 }

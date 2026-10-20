@@ -1,6 +1,18 @@
 {
   "menu": "Master Data",
-  "fields": { "name": "Nama" },
-  "list": { "title": "Master Data", "empty": "Belum ada apa-apa", "emptyHint": "Tambah yang pertama di bawah." },
-  "form": { "add": "Tambah" }
+  "fields": {
+    "code": "Kod",
+    "name": "Nama",
+    "farmType": "Jenis"
+  },
+  "farmTypes": {
+    "field": "Ladang terbuka",
+    "greenhouse": "Rumah hijau",
+    "nursery": "Tapak semaian"
+  },
+  "list": {
+    "title": "Ladang",
+    "empty": "Belum ada ladang",
+    "emptyHint": "Ladang yang anda tambah akan dipaparkan di sini."
+  }
 }

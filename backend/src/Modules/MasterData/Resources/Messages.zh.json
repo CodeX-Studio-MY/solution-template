@@ -1,3 +1,4 @@
 {
-  "errors.masterData.notFound": "未找到该项目。"
+  "errors.masterData.notFound": "找不到该农场。",
+  "errors.masterData.codeInUse": "该代码已被另一个农场使用。"
 }

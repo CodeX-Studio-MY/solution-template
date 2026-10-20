@@ -18,35 +18,35 @@ internal static class MasterDataEndpoints
 {
     public static void Map(IEndpointRouteBuilder api)
     {
-        var items = api.MapGroup("/v1/items").WithTags("items");
+        var farms = api.MapGroup("/v1/farms").WithTags("farms");
 
-        items.MapGet("", (ItemService service, [AsParameters] PageRequest page, CancellationToken ct) => service.ListAsync(page, ct))
+        farms.MapGet("", (FarmService service, [AsParameters] PageRequest page, CancellationToken ct) => service.ListAsync(page, ct))
             .RequireModuleRole(Modules.MasterData, Role.User);
 
-        items.MapGet("/{id:guid}", async (Guid id, ItemService service, HttpResponse response, CancellationToken ct) => With(response, await service.GetAsync(id, ct)))
+        farms.MapGet("/{id:guid}", async (Guid id, FarmService service, HttpResponse response, CancellationToken ct) => With(response, await service.GetAsync(id, ct)))
             .RequireModuleRole(Modules.MasterData, Role.User);
 
         // Create endpoints accept an Idempotency-Key: a repeated request returns the original result and never creates twice.
-        items.MapPost("", async (SaveItemInput body, ItemService service, HttpResponse response, CancellationToken ct) =>
+        farms.MapPost("", async (SaveFarmInput body, FarmService service, HttpResponse response, CancellationToken ct) =>
         {
             var created = await service.CreateAsync(body, ct);
             response.Headers.ETag = created.ETag;
-            return Results.Created($"{PlatformServices.MasterData.RoutePrefix}/v1/items/{created.Id}", created);
-        }).RequireModuleRole(Modules.MasterData, Role.User).RequireIdempotency<MasterDataDbContext>().Produces<ItemDto>(StatusCodes.Status201Created);
+            return Results.Created($"{PlatformServices.MasterData.RoutePrefix}/v1/farms/{created.Id}", created);
+        }).RequireModuleRole(Modules.MasterData, Role.User).RequireIdempotency<MasterDataDbContext>().Produces<FarmDto>(StatusCodes.Status201Created);
 
         // Changes carry the version the client last saw (If-Match): 428 if missing, 412 if someone else changed it first.
-        items.MapPut("/{id:guid}", async (Guid id, SaveItemInput body, [FromHeader(Name = "If-Match")] string? ifMatch, ItemService service, HttpResponse response, CancellationToken ct) =>
-            With(response, await service.RenameAsync(id, ifMatch, body, ct)))
+        farms.MapPut("/{id:guid}", async (Guid id, SaveFarmInput body, [FromHeader(Name = "If-Match")] string? ifMatch, FarmService service, HttpResponse response, CancellationToken ct) =>
+            With(response, await service.UpdateAsync(id, ifMatch, body, ct)))
             .RequireModuleRole(Modules.MasterData, Role.User);
 
-        items.MapDelete("/{id:guid}", async (Guid id, [FromHeader(Name = "If-Match")] string? ifMatch, ItemService service, CancellationToken ct) =>
+        farms.MapDelete("/{id:guid}", async (Guid id, [FromHeader(Name = "If-Match")] string? ifMatch, FarmService service, CancellationToken ct) =>
         {
             await service.DeleteAsync(id, ifMatch, ct);
             return Results.NoContent();
         }).RequireModuleRole(Modules.MasterData, Role.Manager).Produces(StatusCodes.Status204NoContent);
     }
 
-    private static ItemDto With(HttpResponse response, ItemDto dto)
+    private static FarmDto With(HttpResponse response, FarmDto dto)
     {
         response.Headers.ETag = dto.ETag;
         return dto;

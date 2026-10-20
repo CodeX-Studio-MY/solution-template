@@ -5,10 +5,10 @@
     "version": "1.0.0"
   },
   "paths": {
-    "/api/master-data/v1/items": {
+    "/api/master-data/v1/farms": {
       "get": {
         "tags": [
-          "items"
+          "farms"
         ],
         "parameters": [
           {
@@ -52,7 +52,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PageOfItemDto"
+                  "$ref": "#/components/schemas/PageOfFarmDto"
                 }
               }
             }
@@ -61,13 +61,13 @@
       },
       "post": {
         "tags": [
-          "items"
+          "farms"
         ],
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/SaveItemInput"
+                "$ref": "#/components/schemas/SaveFarmInput"
               }
             }
           },
@@ -79,7 +79,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ItemDto"
+                  "$ref": "#/components/schemas/FarmDto"
                 }
               }
             }
@@ -87,10 +87,10 @@
         }
       }
     },
-    "/api/master-data/v1/items/{id}": {
+    "/api/master-data/v1/farms/{id}": {
       "get": {
         "tags": [
-          "items"
+          "farms"
         ],
         "parameters": [
           {
@@ -109,7 +109,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ItemDto"
+                  "$ref": "#/components/schemas/FarmDto"
                 }
               }
             }
@@ -118,7 +118,7 @@
       },
       "put": {
         "tags": [
-          "items"
+          "farms"
         ],
         "parameters": [
           {
@@ -142,7 +142,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/SaveItemInput"
+                "$ref": "#/components/schemas/SaveFarmInput"
               }
             }
           },
@@ -154,7 +154,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ItemDto"
+                  "$ref": "#/components/schemas/FarmDto"
                 }
               }
             }
@@ -163,7 +163,7 @@
       },
       "delete": {
         "tags": [
-          "items"
+          "farms"
         ],
         "parameters": [
           {
@@ -193,10 +193,23 @@
   },
   "components": {
     "schemas": {
-      "ItemDto": {
+      "FarmDto": {
         "required": [
           "id",
           "name",
+          "code",
+          "farmType",
+          "globalGapNumber",
+          "description",
+          "address",
+          "contactPerson",
+          "contactPhone",
+          "areaHectares",
+          "latitude",
+          "longitude",
+          "orderSequence",
+          "isExternal",
+          "isActive",
           "createdOn",
           "eTag"
         ],
@@ -209,6 +222,108 @@
           "name": {
             "type": "string"
           },
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "farmType": {
+            "$ref": "#/components/schemas/FarmType"
+          },
+          "globalGapNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "address": {
+            "type": "string",
+            "nullable": true
+          },
+          "contactPerson": {
+            "type": "string",
+            "nullable": true
+          },
+          "contactPhone": {
+            "type": "string",
+            "nullable": true
+          },
+          "areaHectares": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "enum": [
+                  null
+                ],
+                "nullable": true
+              }
+            ],
+            "format": "double",
+            "nullable": true
+          },
+          "latitude": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "enum": [
+                  null
+                ],
+                "nullable": true
+              }
+            ],
+            "format": "double",
+            "nullable": true
+          },
+          "longitude": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "enum": [
+                  null
+                ],
+                "nullable": true
+              }
+            ],
+            "format": "double",
+            "nullable": true
+          },
+          "orderSequence": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "format": "int32"
+          },
+          "isExternal": {
+            "type": "boolean"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
           "createdOn": {
             "type": "string",
             "format": "date-time"
@@ -216,9 +331,18 @@
           "eTag": {
             "type": "string"
           }
-        }
+        },
+        "description": "A farm on the wire. The location is two numbers: a spatial type never reaches the API (docs/adr/0024)."
       },
-      "PageOfItemDto": {
+      "FarmType": {
+        "enum": [
+          "field",
+          "greenhouse",
+          "nursery"
+        ],
+        "description": "How a farm grows. Stored as a number: append new values, never reorder or remove one."
+      },
+      "PageOfFarmDto": {
         "required": [
           "items",
           "pageNumber",
@@ -230,7 +354,7 @@
           "items": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/ItemDto"
+              "$ref": "#/components/schemas/FarmDto"
             }
           },
           "pageNumber": {
@@ -287,7 +411,7 @@
         },
         "description": "The one response shape for lists."
       },
-      "SaveItemInput": {
+      "SaveFarmInput": {
         "required": [
           "name"
         ],
@@ -295,14 +419,136 @@
         "properties": {
           "name": {
             "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "farmType": {
+            "oneOf": [
+              {
+                "enum": [
+                  null
+                ],
+                "nullable": true
+              },
+              {
+                "$ref": "#/components/schemas/FarmType"
+              }
+            ]
+          },
+          "globalGapNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "address": {
+            "type": "string",
+            "nullable": true
+          },
+          "contactPerson": {
+            "type": "string",
+            "nullable": true
+          },
+          "contactPhone": {
+            "type": "string",
+            "nullable": true
+          },
+          "areaHectares": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "enum": [
+                  null
+                ],
+                "nullable": true
+              }
+            ],
+            "format": "double",
+            "nullable": true
+          },
+          "latitude": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "enum": [
+                  null
+                ],
+                "nullable": true
+              }
+            ],
+            "format": "double",
+            "nullable": true
+          },
+          "longitude": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "enum": [
+                  null
+                ],
+                "nullable": true
+              }
+            ],
+            "format": "double",
+            "nullable": true
+          },
+          "orderSequence": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "enum": [
+                  null
+                ],
+                "nullable": true
+              }
+            ],
+            "format": "int32",
+            "nullable": true
+          },
+          "isExternal": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean",
+            "nullable": true
           }
-        }
+        },
+        "description": "Create and update body. Left out, a field takes its default (type \u0060field\u0060, external, active, order 0)."
       }
     }
   },
   "tags": [
     {
-      "name": "items"
+      "name": "farms"
     }
   ]
 }

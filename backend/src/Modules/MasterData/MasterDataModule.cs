@@ -21,8 +21,8 @@ public sealed class MasterDataModule : IPlatformModule
         var services = builder.Services;
         services.AddModuleDbContext<MasterDataDbContext>(Service.Schema);
         services.AddModuleMessages(typeof(MasterDataModule).Assembly);
-        services.AddScoped<IItemRepository, ItemRepository>();
-        services.AddScoped<ItemService>();
+        services.AddScoped<IFarmRepository, FarmRepository>();
+        services.AddScoped<FarmService>();
     }
 
     public static void MapEndpoints(IEndpointRouteBuilder api) => MasterDataEndpoints.Map(api);

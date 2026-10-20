@@ -1,3 +1,4 @@
 {
-  "errors.masterData.notFound": "Item itu tidak ditemui."
+  "errors.masterData.notFound": "Ladang itu tidak ditemui.",
+  "errors.masterData.codeInUse": "Kod itu sudah digunakan oleh ladang lain."
 }

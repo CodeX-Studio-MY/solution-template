@@ -1,11 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <!-- A business module: one class library that owns its schema and DbContext. It references Core (and Contracts) and nothing else. -->
   <!-- Folders: Domain (depends on nothing), Application (on Domain), Api and Infrastructure (on Application). -->
-  <!-- Locations (spatial): add <PackageReference Include="NetTopologySuite" />; see docs/adding-a-module.md. -->
   <ItemGroup>
     <ProjectReference Include="..\..\Core\Core.csproj" />
     <ProjectReference Include="..\..\Contracts\Contracts.csproj" />
     <EmbeddedResource Include="Resources\Messages.*.json" WithCulture="false" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Farm locations (spatial types; see docs/adding-a-module.md). -->
+    <PackageReference Include="NetTopologySuite" />
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="$(AssemblyName).Tests" />

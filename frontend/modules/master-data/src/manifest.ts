@@ -8,7 +8,7 @@ import zh from "./locales/zh.json";
 export default {
   id: moduleKey,
   basePath,
-  routes: [{ index: true, lazy: () => import("./pages/ItemList") }],
+  routes: [{ index: true, lazy: () => import("./pages/FarmList") }],
   menu: [{ label: "menu", path: "", icon: "ListAlt", requiredRole: "user" }],
   i18n: { namespace: moduleKey, resources: { en, ms, zh } },
 } satisfies ModuleManifest;

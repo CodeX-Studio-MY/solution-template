@@ -6,13 +6,14 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using NetTopologySuite.Geometries;
 
 #nullable disable
 
 namespace Farm360.MasterData.Migrations.SqlServer.Migrations.MasterData
 {
     [DbContext(typeof(MasterDataDbContext))]
-    [Migration("20261020103442_Initial")]
+    [Migration("20261020110933_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -193,11 +194,31 @@ namespace Farm360.MasterData.Migrations.SqlServer.Migrations.MasterData
                     b.ToTable("Outbox", "master_data");
                 });
 
-            modelBuilder.Entity("Farm360.MasterData.Domain.Item", b =>
+            modelBuilder.Entity("Farm360.MasterData.Domain.Farm", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<decimal?>("AreaHectares")
+                        .HasPrecision(19, 4)
+                        .HasColumnType("decimal(19,4)");
+
+                    b.Property<string>("Code")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("ContactPerson")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("ContactPhone")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
@@ -208,13 +229,36 @@ namespace Farm360.MasterData.Migrations.SqlServer.Migrations.MasterData
                     b.Property<DateTime?>("DeletedOn")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int>("FarmType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("GlobalGapNumber")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
+
+                    b.Property<bool>("IsExternal")
+                        .HasColumnType("bit");
+
+                    b.Property<Point>("Location")
+                        .HasColumnType("geography");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("OrderSequence")
+                        .HasColumnType("int");
 
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
@@ -229,12 +273,15 @@ namespace Farm360.MasterData.Migrations.SqlServer.Migrations.MasterData
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Name")
+                    b.HasIndex("Code")
                         .IsUnique()
-                        .HasFilter("[IsDeleted] = 0")
-                        .HasAnnotation("Platform:UniqueAmongNotDeleted", true);
+                        .HasFilter("[IsDeleted] = 0 AND [Code] IS NOT NULL")
+                        .HasAnnotation("Platform:UniqueAmongNotDeleted", true)
+                        .HasAnnotation("Platform:WhereNotNull", "Code");
 
-                    b.ToTable("Items", "master_data");
+                    b.HasIndex("Name");
+
+                    b.ToTable("Farms", "master_data");
                 });
 #pragma warning restore 612, 618
         }
