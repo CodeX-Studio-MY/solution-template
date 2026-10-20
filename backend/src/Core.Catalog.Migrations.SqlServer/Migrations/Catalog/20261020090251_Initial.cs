@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 
-namespace Saaskit.Core.Catalog.Migrations.SqlServer.Migrations.Catalog
+namespace Farm360.Core.Catalog.Migrations.SqlServer.Migrations.Catalog
 {
     /// <inheritdoc />
     public partial class Initial : Migration
@@ -200,6 +200,7 @@ namespace Saaskit.Core.Catalog.Migrations.SqlServer.Migrations.Catalog
                 values: new object[,]
                 {
                     { new Guid("4b8bdd8f-2cd0-5914-9d29-e17f948aca9b"), "Tenant Settings", "tenant-settings" },
+                    { new Guid("5dc6ce18-ee9f-55d2-a74c-bb4446ece8be"), "Master Data", "master-data" },
                     { new Guid("9a8337a5-3cd5-5963-9b61-886a163e630f"), "Access Management", "access-management" },
                     { new Guid("d39d3a7b-c5dc-560a-b527-ce06d0158063"), "Billing", "billing" }
                 });
@@ -210,10 +211,16 @@ namespace Saaskit.Core.Catalog.Migrations.SqlServer.Migrations.Catalog
                 columns: new[] { "ModuleId", "Plan" },
                 values: new object[,]
                 {
-                    { new Guid("4b8bdd8f-2cd0-5914-9d29-e17f948aca9b"), "plus" },
-                    { new Guid("9a8337a5-3cd5-5963-9b61-886a163e630f"), "plus" },
-                    { new Guid("d39d3a7b-c5dc-560a-b527-ce06d0158063"), "plus" },
+                    { new Guid("4b8bdd8f-2cd0-5914-9d29-e17f948aca9b"), "enterprise" },
+                    { new Guid("5dc6ce18-ee9f-55d2-a74c-bb4446ece8be"), "enterprise" },
+                    { new Guid("9a8337a5-3cd5-5963-9b61-886a163e630f"), "enterprise" },
+                    { new Guid("d39d3a7b-c5dc-560a-b527-ce06d0158063"), "enterprise" },
+                    { new Guid("4b8bdd8f-2cd0-5914-9d29-e17f948aca9b"), "lite" },
+                    { new Guid("5dc6ce18-ee9f-55d2-a74c-bb4446ece8be"), "lite" },
+                    { new Guid("9a8337a5-3cd5-5963-9b61-886a163e630f"), "lite" },
+                    { new Guid("d39d3a7b-c5dc-560a-b527-ce06d0158063"), "lite" },
                     { new Guid("4b8bdd8f-2cd0-5914-9d29-e17f948aca9b"), "standard" },
+                    { new Guid("5dc6ce18-ee9f-55d2-a74c-bb4446ece8be"), "standard" },
                     { new Guid("9a8337a5-3cd5-5963-9b61-886a163e630f"), "standard" },
                     { new Guid("d39d3a7b-c5dc-560a-b527-ce06d0158063"), "standard" }
                 });

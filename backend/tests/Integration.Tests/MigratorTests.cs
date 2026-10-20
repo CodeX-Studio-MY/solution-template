@@ -1,18 +1,18 @@
-using Saaskit.Core;
-using Saaskit.Core.Catalog;
-using Saaskit.Core.Catalog.Entities;
-using Saaskit.Core.Data;
-using Saaskit.Core.Data.PostgreSql;
-using Saaskit.Core.Data.SqlServer;
-using Saaskit.Core.Platform;
-using Saaskit.Migrator;
+using Farm360.Core;
+using Farm360.Core.Catalog;
+using Farm360.Core.Catalog.Entities;
+using Farm360.Core.Data;
+using Farm360.Core.Data.PostgreSql;
+using Farm360.Core.Data.SqlServer;
+using Farm360.Core.Platform;
+using Farm360.Migrator;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace Saaskit.Integration.Tests;
+namespace Farm360.Integration.Tests;
 
 [Trait("service", "migrator")]
 public sealed class MigratorTests(Databases databases)

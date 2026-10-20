@@ -1,7 +1,7 @@
-using Saaskit.Core.Data;
-using Saaskit.Core.Security;
+using Farm360.Core.Data;
+using Farm360.Core.Security;
 
-namespace Saaskit.Identity.Domain;
+namespace Farm360.Identity.Domain;
 
 /// <summary>
 /// Anything that can sign in: a user, a machine or a service. Everything is authorized the same way, by its

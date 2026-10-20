@@ -1,4 +1,4 @@
-namespace Saaskit.Generator;
+namespace Farm360.Generator;
 
 internal static class RepoRoot
 {

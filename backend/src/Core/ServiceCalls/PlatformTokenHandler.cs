@@ -1,10 +1,10 @@
 using System.Net.Http.Headers;
-using Saaskit.Core.Platform;
-using Saaskit.Core.Security;
-using Saaskit.Core.Tenancy;
+using Farm360.Core.Platform;
+using Farm360.Core.Security;
+using Farm360.Core.Tenancy;
 using Microsoft.AspNetCore.Http;
 
-namespace Saaskit.Core.ServiceCalls;
+namespace Farm360.Core.ServiceCalls;
 
 /// <summary>
 /// Attaches the right token to a call to another service (4.10). Acting for a user: the user's token is exchanged

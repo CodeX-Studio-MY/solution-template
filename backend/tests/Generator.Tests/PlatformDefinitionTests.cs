@@ -1,10 +1,10 @@
-namespace Saaskit.Generator.Tests;
+namespace Farm360.Generator.Tests;
 
 public sealed class PlatformDefinitionTests
 {
     private static PlatformDefinition Valid() => new()
     {
-        Product = "saaskit",
+        Product = "farm360",
         Org = "Org",
         Defaults = new DefaultsDefinition { Timezone = "Asia/Kuala_Lumpur", Currency = "MYR", Locales = ["en"] },
         Cloud = "azure",

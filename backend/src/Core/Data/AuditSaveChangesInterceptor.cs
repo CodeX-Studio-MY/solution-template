@@ -1,10 +1,10 @@
-using Saaskit.Core.Errors;
-using Saaskit.Core.Security;
-using Saaskit.Core.Tenancy;
+using Farm360.Core.Errors;
+using Farm360.Core.Security;
+using Farm360.Core.Tenancy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
-namespace Saaskit.Core.Data;
+namespace Farm360.Core.Data;
 
 /// <summary>
 /// Fills audit fields from the current principal, turns deletes of soft-deletable entities into updates,

@@ -1,4 +1,4 @@
-import { useFormatters } from "@saaskit/web-core";
+import { useFormatters } from "@farm360/web-core";
 
 interface MoneyTextProps {
   amount: number | string;

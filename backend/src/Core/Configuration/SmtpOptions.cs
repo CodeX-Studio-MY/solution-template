@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Saaskit.Core.Configuration;
+namespace Farm360.Core.Configuration;
 
 [OptionsSection("Smtp", "Outgoing email from the Notification module (Mailpit locally).")]
 public sealed record SmtpOptions

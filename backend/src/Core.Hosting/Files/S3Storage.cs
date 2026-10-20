@@ -1,12 +1,12 @@
-using Saaskit.Core.Configuration;
-using Saaskit.Core.Files;
+using Farm360.Core.Configuration;
+using Farm360.Core.Files;
 using Amazon;
 using Amazon.Runtime;
 using Amazon.S3;
 using Amazon.S3.Model;
 using Microsoft.Extensions.Options;
 
-namespace Saaskit.Core.Hosting.Files;
+namespace Farm360.Core.Hosting.Files;
 
 /// <summary>
 /// Amazon S3, or an S3-compatible emulator (SeaweedFS locally; MinIO is not used, because its community edition no longer

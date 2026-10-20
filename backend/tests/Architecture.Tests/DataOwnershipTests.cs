@@ -1,10 +1,10 @@
-using Saaskit.Core.Data;
-using Saaskit.Core.Data.PostgreSql;
-using Saaskit.Core.Data.SqlServer;
-using Saaskit.Core.Platform;
-using Saaskit.Migrator;
+using Farm360.Core.Data;
+using Farm360.Core.Data.PostgreSql;
+using Farm360.Core.Data.SqlServer;
+using Farm360.Core.Platform;
+using Farm360.Migrator;
 
-namespace Saaskit.Architecture.Tests;
+namespace Farm360.Architecture.Tests;
 
 public sealed class DataOwnershipTests
 {

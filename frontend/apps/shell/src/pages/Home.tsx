@@ -5,8 +5,8 @@ import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { Link as RouterLink } from "react-router";
 import { useTranslation } from "react-i18next";
-import { canAccess, Slot, useSession, useSlotHasExtensions, useTenant, type ModuleManifest } from "@saaskit/web-core";
-import { EmptyState, Icon, PageHeader } from "@saaskit/ui-kit";
+import { canAccess, Slot, useSession, useSlotHasExtensions, useTenant, type ModuleManifest } from "@farm360/web-core";
+import { EmptyState, Icon, PageHeader } from "@farm360/ui-kit";
 
 const cardGrid = { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 320px), 1fr))", gap: 2 } as const;
 

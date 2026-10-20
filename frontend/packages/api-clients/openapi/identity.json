@@ -64,7 +64,7 @@
     "/account/style.css": {
       "get": {
         "tags": [
-          "Saaskit.ApiExporter"
+          "Farm360.ApiExporter"
         ],
         "responses": {
           "200": {
@@ -76,7 +76,7 @@
     "/account/passkey.js": {
       "get": {
         "tags": [
-          "Saaskit.ApiExporter"
+          "Farm360.ApiExporter"
         ],
         "responses": {
           "200": {
@@ -400,7 +400,7 @@
     "/api/identity/v1/users/invitations": {
       "post": {
         "tags": [
-          "Saaskit.ApiExporter"
+          "Farm360.ApiExporter"
         ],
         "requestBody": {
           "content": {
@@ -422,7 +422,7 @@
     "/api/identity/v1/services": {
       "post": {
         "tags": [
-          "Saaskit.ApiExporter"
+          "Farm360.ApiExporter"
         ],
         "requestBody": {
           "content": {
@@ -1649,7 +1649,7 @@
       "name": "ConnectEndpoints"
     },
     {
-      "name": "Saaskit.ApiExporter"
+      "name": "Farm360.ApiExporter"
     },
     {
       "name": "principals"

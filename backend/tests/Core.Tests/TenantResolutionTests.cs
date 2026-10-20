@@ -1,14 +1,14 @@
 using System.Security.Claims;
-using Saaskit.Core.Configuration;
-using Saaskit.Core.Errors;
-using Saaskit.Core.Security;
-using Saaskit.Core.Tenancy;
+using Farm360.Core.Configuration;
+using Farm360.Core.Errors;
+using Farm360.Core.Security;
+using Farm360.Core.Tenancy;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using NSubstitute;
 
-namespace Saaskit.Core.Tests;
+namespace Farm360.Core.Tests;
 
 public sealed class TenantResolutionTests
 {

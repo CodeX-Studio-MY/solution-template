@@ -2,26 +2,26 @@
 #nullable enable
 using Microsoft.EntityFrameworkCore.Design;
 
-namespace Saaskit.Identity.Migrations.SqlServer;
+namespace Farm360.Identity.Migrations.SqlServer;
 
 /// <summary>Lets <c>dotnet ef</c> build IdentityCatalogDbContext for SqlServer.</summary>
-internal sealed class IdentityCatalogDbContextDesignTimeFactory : IDesignTimeDbContextFactory<global::Saaskit.Identity.Infrastructure.IdentityCatalogDbContext>
+internal sealed class IdentityCatalogDbContextDesignTimeFactory : IDesignTimeDbContextFactory<global::Farm360.Identity.Infrastructure.IdentityCatalogDbContext>
 {
-    public global::Saaskit.Identity.Infrastructure.IdentityCatalogDbContext CreateDbContext(string[] args) =>
-        global::Saaskit.Core.Data.DbContextRegistration.Create<global::Saaskit.Identity.Infrastructure.IdentityCatalogDbContext>(
+    public global::Farm360.Identity.Infrastructure.IdentityCatalogDbContext CreateDbContext(string[] args) =>
+        global::Farm360.Core.Data.DbContextRegistration.Create<global::Farm360.Identity.Infrastructure.IdentityCatalogDbContext>(
             null,
-            new global::Saaskit.Core.Data.SqlServer.SqlServerDatabaseProvider(),
+            new global::Farm360.Core.Data.SqlServer.SqlServerDatabaseProvider(),
             "Server=design-time;Database=design-time",
-            global::Saaskit.Core.Platform.PlatformServices.Identity.Schema);
+            global::Farm360.Core.Platform.PlatformServices.Identity.Schema);
 }
 
 /// <summary>Lets <c>dotnet ef</c> build IdentityDbContext for SqlServer.</summary>
-internal sealed class IdentityDbContextDesignTimeFactory : IDesignTimeDbContextFactory<global::Saaskit.Identity.Infrastructure.IdentityDbContext>
+internal sealed class IdentityDbContextDesignTimeFactory : IDesignTimeDbContextFactory<global::Farm360.Identity.Infrastructure.IdentityDbContext>
 {
-    public global::Saaskit.Identity.Infrastructure.IdentityDbContext CreateDbContext(string[] args) =>
-        global::Saaskit.Core.Data.DbContextRegistration.Create<global::Saaskit.Identity.Infrastructure.IdentityDbContext>(
+    public global::Farm360.Identity.Infrastructure.IdentityDbContext CreateDbContext(string[] args) =>
+        global::Farm360.Core.Data.DbContextRegistration.Create<global::Farm360.Identity.Infrastructure.IdentityDbContext>(
             null,
-            new global::Saaskit.Core.Data.SqlServer.SqlServerDatabaseProvider(),
+            new global::Farm360.Core.Data.SqlServer.SqlServerDatabaseProvider(),
             "Server=design-time;Database=design-time",
-            global::Saaskit.Core.Platform.PlatformServices.Identity.Schema);
+            global::Farm360.Core.Platform.PlatformServices.Identity.Schema);
 }

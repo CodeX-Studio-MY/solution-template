@@ -1,4 +1,4 @@
-namespace Saaskit.Core.Configuration;
+namespace Farm360.Core.Configuration;
 
 /// <summary>
 /// Marks a record as one area of the runtime configuration schema, bound from <paramref name="name"/>.

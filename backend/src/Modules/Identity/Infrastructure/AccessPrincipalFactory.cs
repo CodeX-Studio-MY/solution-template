@@ -1,11 +1,11 @@
 using System.Security.Claims;
-using Saaskit.Core.Security;
-using Saaskit.Core.Tenancy;
-using Saaskit.Identity.Domain;
+using Farm360.Core.Security;
+using Farm360.Core.Tenancy;
+using Farm360.Identity.Domain;
 using Microsoft.EntityFrameworkCore;
 using OpenIddict.Abstractions;
 
-namespace Saaskit.Identity.Infrastructure;
+namespace Farm360.Identity.Infrastructure;
 
 /// <summary>Builds the claims of an access token for a principal: effective roles only, never raw assignments.</summary>
 internal sealed class AccessPrincipalFactory(IdentityDbContext db, ITenantContext tenant)

@@ -1,12 +1,12 @@
 using System.Security.Cryptography;
 using System.Text;
-using Saaskit.Core.Hosting.Auth;
-using Saaskit.Core.Platform;
-using Saaskit.Core.Security;
+using Farm360.Core.Hosting.Auth;
+using Farm360.Core.Platform;
+using Farm360.Core.Security;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Saaskit.TestSupport;
+namespace Farm360.TestSupport;
 
 /// <summary>Mints access tokens the way the token server does (ES256, typ at+jwt), so services can be tested alone.</summary>
 public sealed class TestTokens : IDisposable

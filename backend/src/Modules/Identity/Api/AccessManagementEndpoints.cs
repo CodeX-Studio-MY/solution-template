@@ -1,13 +1,13 @@
-using Saaskit.Core.Authorization;
-using Saaskit.Core.Platform;
-using Saaskit.Core.Security;
-using Saaskit.Identity.Application;
+using Farm360.Core.Authorization;
+using Farm360.Core.Platform;
+using Farm360.Core.Security;
+using Farm360.Identity.Application;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 
-namespace Saaskit.Identity.Api;
+namespace Farm360.Identity.Api;
 
 /// <summary>Users, machines, services, groups and module roles. Reads need <c>manager</c>, writes <c>admin</c> in access-management.</summary>
 internal static class AccessManagementEndpoints

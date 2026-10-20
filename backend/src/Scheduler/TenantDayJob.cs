@@ -1,10 +1,10 @@
-using Saaskit.Contracts;
-using Saaskit.Core.Messaging;
-using Saaskit.Core.Tenancy;
-using Saaskit.Core.Time;
+using Farm360.Contracts;
+using Farm360.Core.Messaging;
+using Farm360.Core.Tenancy;
+using Farm360.Core.Time;
 using Quartz;
 
-namespace Saaskit.Scheduler;
+namespace Farm360.Scheduler;
 
 /// <summary>
 /// Every 15 minutes, asks each active tenant "is it 09:00 where you are?" and, for the tenants where it is, sends

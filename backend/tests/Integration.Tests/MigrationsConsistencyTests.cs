@@ -1,8 +1,8 @@
-using Saaskit.Core.Platform;
-using Saaskit.Migrator;
+using Farm360.Core.Platform;
+using Farm360.Migrator;
 using Microsoft.EntityFrameworkCore;
 
-namespace Saaskit.Integration.Tests;
+namespace Farm360.Integration.Tests;
 
 /// <summary>
 /// The model and the migrations of every context never drift apart, for every database provider (SAAS_TEMPLATE_PROMPT 4.13): a change

@@ -1,18 +1,18 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
-using Saaskit.Core.Catalog;
-using Saaskit.Core.Platform;
-using Saaskit.Core.Tenancy;
-using Saaskit.Identity.Infrastructure;
-using Saaskit.Tenancy.Application;
-using Saaskit.Tenancy.Infrastructure;
-using Saaskit.Migrator;
+using Farm360.Core.Catalog;
+using Farm360.Core.Platform;
+using Farm360.Core.Tenancy;
+using Farm360.Identity.Infrastructure;
+using Farm360.Tenancy.Application;
+using Farm360.Tenancy.Infrastructure;
+using Farm360.Migrator;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.JsonWebTokens;
 
-namespace Saaskit.Integration.Tests;
+namespace Farm360.Integration.Tests;
 
 [Trait("service", "tenancy")]
 public sealed class TenancyTests(Databases databases)
@@ -78,17 +78,17 @@ public sealed class TenancyTests(Databases databases)
         await using var host = await TenancyTestHost.StartAsync(databases);
         var op = await OperatorAsync(host);
 
-        var response = await OnboardAsync(op, "saaskit-co");
+        var response = await OnboardAsync(op, "farm360-co");
         var result = await Read<JsonElement>(response);
         var tenantId = result.GetProperty("tenantId").GetGuid();
         var invitation = result.GetProperty("adminInvitationUrl").GetString()!;
-        invitation.ShouldStartWith("https://login.localhost/account/invitation?tenant=saaskit-co&token=");
+        invitation.ShouldStartWith("https://login.localhost/account/invitation?tenant=farm360-co&token=");
 
         await using var scope = host.Services.CreateAsyncScope();
         var catalog = scope.ServiceProvider.GetRequiredService<CatalogDbContext>();
         var tenant = await catalog.Tenants.AsNoTracking().SingleAsync(t => t.Id == tenantId, Ct);
         tenant.Status.ShouldBe(TenantStatus.Active);
-        tenant.Placement.DatabaseName.ShouldBe("saaskit_saaskit_co");
+        tenant.Placement.DatabaseName.ShouldBe("farm360_farm360_co");
         tenant.Placement.Provider.ShouldBe(Databases.DefaultProvider);
         (await catalog.TenantModules.Where(t => t.TenantId == tenantId).CountAsync(Ct)).ShouldBe(Modules.All.Count(m => m.Plans.Contains(Fixture.BasePlan)));
 
@@ -115,7 +115,7 @@ public sealed class TenancyTests(Databases databases)
         await using (var scope = host.Services.CreateAsyncScope())
         {
             var run = await scope.ServiceProvider.GetRequiredService<TenancyCatalogDbContext>().OnboardingRuns.AsNoTracking().SingleAsync(r => r.Slug == "resumable", Ct);
-            run.NextStep.ShouldBe(Saaskit.Tenancy.Domain.OnboardingStep.Migrations);
+            run.NextStep.ShouldBe(Farm360.Tenancy.Domain.OnboardingStep.Migrations);
             run.Error.ShouldNotBeNull();
             (await scope.ServiceProvider.GetRequiredService<CatalogDbContext>().Tenants.CountAsync(t => t.Slug == "resumable", Ct)).ShouldBe(1);
         }
@@ -295,7 +295,7 @@ public sealed class TenancyTests(Databases databases)
     }
 
     /// <summary>A migrator that fails on its first call and then delegates to the real in-process one.</summary>
-    private sealed class FlakyMigrator(IServiceProvider services, Saaskit.Core.Tenancy.ITenantDirectory directory) : ITenantMigrator
+    private sealed class FlakyMigrator(IServiceProvider services, Farm360.Core.Tenancy.ITenantDirectory directory) : ITenantMigrator
     {
         public int Calls { get; private set; }
 
@@ -304,7 +304,7 @@ public sealed class TenancyTests(Databases databases)
             Calls++;
             if (Calls == 1)
                 throw new InvalidOperationException("the migrator job could not start");
-            var runner = ActivatorUtilities.CreateInstance<Saaskit.Migrator.MigrationRunner>(services);
+            var runner = ActivatorUtilities.CreateInstance<Farm360.Migrator.MigrationRunner>(services);
             var tenant = await directory.FindByIdAsync(tenantId, cancellationToken) ?? throw new InvalidOperationException("Unknown tenant.");
             if (!await runner.MigrateTenantAsync(tenant, cancellationToken))
                 throw new InvalidOperationException("The migrator failed.");

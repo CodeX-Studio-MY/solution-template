@@ -1,6 +1,6 @@
-using Saaskit.Core.Data;
+using Farm360.Core.Data;
 
-namespace Saaskit.Identity.Domain;
+namespace Farm360.Identity.Domain;
 
 /// <summary>Kinds of security event recorded in the tenant's audit log.</summary>
 public static class AuditKinds

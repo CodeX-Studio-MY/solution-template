@@ -1,6 +1,6 @@
-using Saaskit.Core.Platform;
+using Farm360.Core.Platform;
 
-namespace Saaskit.Identity.Application;
+namespace Farm360.Identity.Application;
 
 /// <summary>Maps the <c>resource</c> parameter (RFC 8707) to the audiences of the platform's services.</summary>
 public static class TokenAudiences

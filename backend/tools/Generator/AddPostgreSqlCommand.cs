@@ -1,7 +1,7 @@
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace Saaskit.Generator;
+namespace Farm360.Generator;
 
 /// <summary>
 /// <c>scripts/add-postgresql</c>: puts PostgreSQL back into <c>platform.yaml</c>, restores the PostgreSQL migrations projects from the
@@ -78,7 +78,7 @@ internal static partial class AddPostgreSqlCommand
         GenerateCommand.Run(repoRoot, checkOnly: false, skipCompose: skipCompose, skipApi: skipApi);
 
         // 8. The model and the migrations of every context agree, on every provider (no database needed).
-        var exit = Processes.Exec("dotnet", repoRoot, "test", "--project", "backend/tests/Integration.Tests", "--filter-class", "Saaskit.Integration.Tests.MigrationsConsistencyTests");
+        var exit = Processes.Exec("dotnet", repoRoot, "test", "--project", "backend/tests/Integration.Tests", "--filter-class", "Farm360.Integration.Tests.MigrationsConsistencyTests");
 
         // 9. What is left for a person.
         Console.WriteLine();

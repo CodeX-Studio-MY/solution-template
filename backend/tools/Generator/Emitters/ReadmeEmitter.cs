@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace Saaskit.Generator.Emitters;
+namespace Farm360.Generator.Emitters;
 
 /// <summary>The services and modules tables in README.md, between generated-region markers.</summary>
 internal static class ReadmeEmitter

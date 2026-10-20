@@ -1,13 +1,13 @@
 using System.Net.Http.Headers;
-using Saaskit.Core.Catalog;
-using Saaskit.Core.Catalog.Entities;
-using Saaskit.Core.Composition;
-using Saaskit.Core.Hosting;
-using Saaskit.Core.Hosting.Messaging;
-using Saaskit.Core.Platform;
-using Saaskit.Core.Security;
-using Saaskit.Core.Tenancy;
-using Saaskit.Migrator;
+using Farm360.Core.Catalog;
+using Farm360.Core.Catalog.Entities;
+using Farm360.Core.Composition;
+using Farm360.Core.Hosting;
+using Farm360.Core.Hosting.Messaging;
+using Farm360.Core.Platform;
+using Farm360.Core.Security;
+using Farm360.Core.Tenancy;
+using Farm360.Migrator;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.TestHost;
@@ -17,7 +17,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
-namespace Saaskit.TestSupport;
+namespace Farm360.TestSupport;
 
 /// <summary>
 /// One business module hosted exactly as in production (AddPlatform), on the chosen database provider, with real migrations,

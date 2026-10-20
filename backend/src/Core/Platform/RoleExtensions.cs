@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace Saaskit.Core.Platform;
+namespace Farm360.Core.Platform;
 
 public static class RoleExtensions
 {

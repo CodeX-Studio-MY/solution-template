@@ -1,12 +1,12 @@
-using Saaskit.Core.Catalog.Entities;
-using Saaskit.Core.Configuration;
-using Saaskit.Core.Tenancy;
+using Farm360.Core.Catalog.Entities;
+using Farm360.Core.Configuration;
+using Farm360.Core.Tenancy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace Saaskit.Core.Catalog;
+namespace Farm360.Core.Catalog;
 
 /// <summary><see cref="ITenantDirectory"/> over the catalog, with a short-lived in-memory cache.</summary>
 internal sealed class CatalogTenantDirectory(

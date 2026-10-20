@@ -1,7 +1,7 @@
 using System.Reflection;
-using Saaskit.Core.Platform;
+using Farm360.Core.Platform;
 
-namespace Saaskit.Architecture.Tests;
+namespace Farm360.Architecture.Tests;
 
 /// <summary>The assemblies and source files the rules inspect.</summary>
 internal static class Solution

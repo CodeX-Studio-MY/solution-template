@@ -1,10 +1,10 @@
 using System.Text;
-using Saaskit.Core.Hosting.Messaging;
-using Saaskit.Core.Messaging;
-using Saaskit.Core.Platform;
+using Farm360.Core.Hosting.Messaging;
+using Farm360.Core.Messaging;
+using Farm360.Core.Platform;
 using RabbitMQ.Client;
 
-namespace Saaskit.TestSupport;
+namespace Farm360.TestSupport;
 
 /// <summary>Sends an event to the exchange the way a producer in another service would.</summary>
 public static class EventSender

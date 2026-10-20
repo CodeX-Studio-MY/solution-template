@@ -1,4 +1,4 @@
-namespace Saaskit.Generator;
+namespace Farm360.Generator;
 
 /// <summary>
 /// Whether a new module key already appears as a string in the platform's hand-written code (for example <c>"master"</c>, SQL Server's

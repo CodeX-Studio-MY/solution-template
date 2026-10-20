@@ -1,15 +1,15 @@
-using Saaskit.Core;
-using Saaskit.Core.Catalog;
-using Saaskit.Core.Configuration;
-using Saaskit.Core.Data;
-using Saaskit.Core.Data.PostgreSql;
-using Saaskit.Core.Data.SqlServer;
-using Saaskit.Core.Hosting;
-using Saaskit.Core.Hosting.DataProtection;
-using Saaskit.Core.Hosting.Redis;
-using Saaskit.Core.Platform;
-using Saaskit.Core.Tenancy;
-using Saaskit.Migrator;
+using Farm360.Core;
+using Farm360.Core.Catalog;
+using Farm360.Core.Configuration;
+using Farm360.Core.Data;
+using Farm360.Core.Data.PostgreSql;
+using Farm360.Core.Data.SqlServer;
+using Farm360.Core.Hosting;
+using Farm360.Core.Hosting.DataProtection;
+using Farm360.Core.Hosting.Redis;
+using Farm360.Core.Platform;
+using Farm360.Core.Tenancy;
+using Farm360.Migrator;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -38,7 +38,7 @@ if (operatorIndex >= 0)
     // The operator's TOTP secret is protected with the shared Data Protection key ring, so the Tenancy service can read it later.
     builder.Services.AddPlatformRedis(builder.Configuration);
     builder.Services.AddPlatformDataProtection(builder.Configuration);
-    Saaskit.Tenancy.TenancyModule.Register(builder);
+    Farm360.Tenancy.TenancyModule.Register(builder);
 }
 
 using var host = builder.Build();
@@ -60,7 +60,7 @@ if (operatorIndex >= 0)
         return 2;
     }
     await using var scope = host.Services.CreateAsyncScope();
-    var created = await scope.ServiceProvider.GetRequiredService<Saaskit.Tenancy.Application.IOperatorAccounts>()
+    var created = await scope.ServiceProvider.GetRequiredService<Farm360.Tenancy.Application.IOperatorAccounts>()
         .CreateAsync(args[operatorIndex + 1], args[operatorIndex + 2], ct);
     // Shown once: neither value is stored in clear.
     Console.WriteLine($"Operator {created.Email} created.");

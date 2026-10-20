@@ -2,15 +2,15 @@
 #nullable enable
 using Microsoft.EntityFrameworkCore.Design;
 
-namespace Saaskit.Core.Catalog.Migrations.SqlServer;
+namespace Farm360.Core.Catalog.Migrations.SqlServer;
 
 /// <summary>Lets <c>dotnet ef</c> build CatalogDbContext for SqlServer.</summary>
-internal sealed class CatalogDbContextDesignTimeFactory : IDesignTimeDbContextFactory<global::Saaskit.Core.Catalog.CatalogDbContext>
+internal sealed class CatalogDbContextDesignTimeFactory : IDesignTimeDbContextFactory<global::Farm360.Core.Catalog.CatalogDbContext>
 {
-    public global::Saaskit.Core.Catalog.CatalogDbContext CreateDbContext(string[] args) =>
-        global::Saaskit.Core.Data.DbContextRegistration.Create<global::Saaskit.Core.Catalog.CatalogDbContext>(
+    public global::Farm360.Core.Catalog.CatalogDbContext CreateDbContext(string[] args) =>
+        global::Farm360.Core.Data.DbContextRegistration.Create<global::Farm360.Core.Catalog.CatalogDbContext>(
             null,
-            new global::Saaskit.Core.Data.SqlServer.SqlServerDatabaseProvider(),
+            new global::Farm360.Core.Data.SqlServer.SqlServerDatabaseProvider(),
             "Server=design-time;Database=design-time",
-            global::Saaskit.Core.Catalog.CatalogDbContext.SchemaName);
+            global::Farm360.Core.Catalog.CatalogDbContext.SchemaName);
 }

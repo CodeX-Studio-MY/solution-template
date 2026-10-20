@@ -1,4 +1,4 @@
-namespace Saaskit.Core.Tenancy;
+namespace Farm360.Core.Tenancy;
 
 /// <summary>
 /// Tells every instance that a tenant's entitlements, settings, flags or status changed, so cached copies are dropped

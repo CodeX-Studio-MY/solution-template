@@ -1,13 +1,13 @@
 using System.Security.Claims;
-using Saaskit.Core.Configuration;
-using Saaskit.Core.Platform;
-using Saaskit.Core.Tenancy;
+using Farm360.Core.Configuration;
+using Farm360.Core.Platform;
+using Farm360.Core.Tenancy;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
-namespace Saaskit.Gateway.Sessions;
+namespace Farm360.Gateway.Sessions;
 
 /// <summary>
 /// The Gateway is a confidential OAuth client (authorization code with PKCE). After sign-in the tokens stay server-side; the

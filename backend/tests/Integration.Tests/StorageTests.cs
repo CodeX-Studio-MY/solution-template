@@ -1,13 +1,13 @@
 using System.Text;
-using Saaskit.Core.Configuration;
-using Saaskit.Core.Files;
-using Saaskit.Core.Hosting.Files;
+using Farm360.Core.Configuration;
+using Farm360.Core.Files;
+using Farm360.Core.Hosting.Files;
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Options;
 
-namespace Saaskit.Integration.Tests;
+namespace Farm360.Integration.Tests;
 
 /// <summary>Every object-storage adapter behaves the same: put, read, signed download, delete, delete by prefix.</summary>
 public sealed class StorageTests(Databases databases) : IAsyncLifetime
@@ -52,7 +52,7 @@ public sealed class StorageTests(Databases databases) : IAsyncLifetime
         TimeProvider.System);
 
     private static LocalDiskStorage Local() => new LocalDiskStorage(
-        Options.Create(new StorageOptions { Provider = "local", Container = "files", LocalPath = Path.Combine(Path.GetTempPath(), $"saaskit-storage-{Guid.NewGuid():N}") }),
+        Options.Create(new StorageOptions { Provider = "local", Container = "files", LocalPath = Path.Combine(Path.GetTempPath(), $"farm360-storage-{Guid.NewGuid():N}") }),
         new EphemeralDataProtectionProvider(),
         TimeProvider.System);
 

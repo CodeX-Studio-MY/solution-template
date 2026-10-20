@@ -1,11 +1,11 @@
 using System.Security.Claims;
 using System.Text.Encodings.Web;
-using Saaskit.Tenancy.Application;
+using Farm360.Tenancy.Application;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Saaskit.Tenancy.Infrastructure;
+namespace Farm360.Tenancy.Infrastructure;
 
 /// <summary>
 /// Authenticates platform operators on the operator console: <c>Authorization: Operator {session token}</c>. A separate

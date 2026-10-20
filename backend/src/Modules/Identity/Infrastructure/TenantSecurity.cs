@@ -1,10 +1,10 @@
-using Saaskit.Core.Platform;
-using Saaskit.Identity.Application;
-using Saaskit.Identity.Domain;
+using Farm360.Core.Platform;
+using Farm360.Identity.Application;
+using Farm360.Identity.Domain;
 using Microsoft.EntityFrameworkCore;
 using OpenIddict.Abstractions;
 
-namespace Saaskit.Identity.Infrastructure;
+namespace Farm360.Identity.Infrastructure;
 
 internal sealed class TenantSecurity(IdentityDbContext db, IClientRegistry clients, IAuditWriter audit) : ITenantSecurity
 {

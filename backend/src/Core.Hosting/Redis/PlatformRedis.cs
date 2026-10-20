@@ -1,13 +1,13 @@
-using Saaskit.Core.Configuration;
-using Saaskit.Core.Security;
-using Saaskit.Core.Tenancy;
+using Farm360.Core.Configuration;
+using Farm360.Core.Security;
+using Farm360.Core.Tenancy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 using StackExchange.Redis;
 
-namespace Saaskit.Core.Hosting.Redis;
+namespace Farm360.Core.Hosting.Redis;
 
 /// <summary>The Redis-protocol store (Valkey locally): access versions, tenant change notifications, rate limits.</summary>
 public static class PlatformRedis

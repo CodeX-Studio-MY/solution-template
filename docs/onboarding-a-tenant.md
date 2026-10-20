@@ -6,10 +6,10 @@ A tenant is a customer: its own database, its own users, its own plan. Onboardin
 
 ```sh
 scripts/dev-up                                   # once: the stack, and two demo tenants
-scripts/onboard-tenant saaskit-co --plan plus --name "Saaskit Co" --admin-email boss@saaskit-co.example
+scripts/onboard-tenant farm360-co --plan plus --name "Farm360 Co" --admin-email boss@farm360-co.example
 ```
 
-The command prints the tenant's address (`https://saaskit-co.localhost:7443/`; the local certificate covers `*.localhost`, so no new
+The command prints the tenant's address (`https://farm360-co.localhost:7443/`; the local certificate covers `*.localhost`, so no new
 certificate is needed) and the first admin's one-time invitation link. Open it, choose a password, sign in.
 
 `scripts/onboard-tenant` signs in as the development operator that `scripts/dev-up` creates (credentials in `.dev/operator.json`,

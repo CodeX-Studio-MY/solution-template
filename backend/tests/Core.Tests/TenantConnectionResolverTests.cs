@@ -1,11 +1,11 @@
-using Saaskit.Core.Configuration;
-using Saaskit.Core.Data;
-using Saaskit.Core.Errors;
-using Saaskit.Core.Tenancy;
+using Farm360.Core.Configuration;
+using Farm360.Core.Data;
+using Farm360.Core.Errors;
+using Farm360.Core.Tenancy;
 using Microsoft.Extensions.Options;
 using NSubstitute;
 
-namespace Saaskit.Core.Tests;
+namespace Farm360.Core.Tests;
 
 public sealed class TenantConnectionResolverTests
 {

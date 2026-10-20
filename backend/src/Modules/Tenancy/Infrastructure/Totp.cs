@@ -1,7 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Saaskit.Tenancy.Infrastructure;
+namespace Farm360.Tenancy.Infrastructure;
 
 /// <summary>RFC 6238 time-based one-time passwords (HMAC-SHA1, 30 s, 6 digits), compatible with authenticator apps.</summary>
 internal static class Totp

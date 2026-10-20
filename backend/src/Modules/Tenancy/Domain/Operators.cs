@@ -1,7 +1,7 @@
-using Saaskit.Core.Data;
-using Saaskit.Core.Platform;
+using Farm360.Core.Data;
+using Farm360.Core.Platform;
 
-namespace Saaskit.Tenancy.Domain;
+namespace Farm360.Tenancy.Domain;
 
 /// <summary>
 /// A platform operator: our own support staff. A separate realm from every tenant's users, stored in the catalog.

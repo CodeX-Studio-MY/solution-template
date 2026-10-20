@@ -1,14 +1,14 @@
 using System.Security.Cryptography;
 using System.Text;
-using Saaskit.Core.Data;
-using Saaskit.Core.Errors;
-using Saaskit.Core.Security;
+using Farm360.Core.Data;
+using Farm360.Core.Errors;
+using Farm360.Core.Security;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Saaskit.Core.Http;
+namespace Farm360.Core.Http;
 
 public static class IdempotencyExtensions
 {

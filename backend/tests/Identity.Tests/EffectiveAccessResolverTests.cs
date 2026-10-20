@@ -1,7 +1,7 @@
-using Saaskit.Core.Platform;
-using Saaskit.Identity.Domain;
+using Farm360.Core.Platform;
+using Farm360.Identity.Domain;
 
-namespace Saaskit.Identity.Tests;
+namespace Farm360.Identity.Tests;
 
 public sealed class EffectiveAccessResolverTests
 {

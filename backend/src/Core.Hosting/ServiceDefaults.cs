@@ -1,5 +1,5 @@
-using Saaskit.Core.Platform;
-using Saaskit.Core.Tenancy;
+using Farm360.Core.Platform;
+using Farm360.Core.Tenancy;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -8,7 +8,7 @@ using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
-namespace Saaskit.Core.Hosting;
+namespace Farm360.Core.Hosting;
 
 /// <summary>
 /// The Aspire service defaults, kept in Core so there is one shared setup: OpenTelemetry (traces, metrics, logs over OTLP),
@@ -48,7 +48,7 @@ public static class ServiceDefaults
                 })
                 .AddHttpClientInstrumentation()
                 .AddSource("Npgsql")
-                .AddSource("Saaskit.Core.Messaging")
+                .AddSource("Farm360.Core.Messaging")
                 .AddSource(PlatformTelemetry.ActivitySourceName));
 
         if (!string.IsNullOrWhiteSpace(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]))

@@ -1,8 +1,8 @@
-using Saaskit.Core.Platform;
-using Saaskit.Core.Security;
+using Farm360.Core.Platform;
+using Farm360.Core.Security;
 using Microsoft.AspNetCore.Builder;
 
-namespace Saaskit.Core.Authorization;
+namespace Farm360.Core.Authorization;
 
 public static class AuthorizationEndpointExtensions
 {

@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore.Migrations;
-using Saaskit.Scheduler;
+using Farm360.Scheduler;
 
 #nullable disable
 
-namespace Saaskit.Scheduler.Migrations.SqlServer.Migrations.Scheduler
+namespace Farm360.Scheduler.Migrations.SqlServer.Migrations.Scheduler
 {
     /// <inheritdoc />
     public partial class Initial : Migration

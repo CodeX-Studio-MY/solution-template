@@ -1,8 +1,8 @@
 using System.Reflection;
-using Saaskit.Core.Platform;
+using Farm360.Core.Platform;
 using NetArchTest.Rules;
 
-namespace Saaskit.Architecture.Tests;
+namespace Farm360.Architecture.Tests;
 
 public sealed class ModuleBoundaryTests
 {

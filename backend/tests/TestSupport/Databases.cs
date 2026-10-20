@@ -1,7 +1,7 @@
-using Saaskit.Core.Data;
-using Saaskit.Core.Data.PostgreSql;
-using Saaskit.Core.Data.SqlServer;
-using Saaskit.Core.Platform;
+using Farm360.Core.Data;
+using Farm360.Core.Data.PostgreSql;
+using Farm360.Core.Data.SqlServer;
+using Farm360.Core.Platform;
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
 using Testcontainers.MsSql;
@@ -10,7 +10,7 @@ using Testcontainers.PostgreSql;
 using Testcontainers.RabbitMq;
 using Testcontainers.Redis;
 
-namespace Saaskit.TestSupport;
+namespace Farm360.TestSupport;
 
 /// <summary>
 /// One container per database provider listed in platform.yaml (SQL Server 2025, PostgreSQL 18) for the whole test run. Every test that

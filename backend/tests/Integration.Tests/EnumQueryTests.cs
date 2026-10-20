@@ -1,10 +1,10 @@
 using System.Globalization;
-using Saaskit.Core.Hosting;
+using Farm360.Core.Hosting;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.TestHost;
 
-namespace Saaskit.Integration.Tests;
+namespace Farm360.Integration.Tests;
 
 /// <summary>
 /// The API documents enums in camelCase (<c>status=draft</c>) and the generated clients send that. ASP.NET alone binds enum

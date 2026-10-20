@@ -1,9 +1,9 @@
-using Saaskit.Core.Errors;
-using Saaskit.Core.Http;
-using Saaskit.Core.Platform;
-using Saaskit.Sample.Domain;
+using Farm360.Core.Errors;
+using Farm360.Core.Http;
+using Farm360.Core.Platform;
+using Farm360.Sample.Domain;
 
-namespace Saaskit.Sample.Application;
+namespace Farm360.Sample.Application;
 
 public sealed record ItemDto(Guid Id, string Name, DateTime CreatedOn, string ETag);
 

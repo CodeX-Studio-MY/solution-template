@@ -1,9 +1,9 @@
 using System.Net.Mime;
-using Saaskit.Core.Configuration;
+using Farm360.Core.Configuration;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 
-namespace Saaskit.Gateway.Http;
+namespace Farm360.Gateway.Http;
 
 /// <summary>
 /// Serves the built shell app and the frontend modules on every tenant host, so the app, the BFF and /api share one origin.

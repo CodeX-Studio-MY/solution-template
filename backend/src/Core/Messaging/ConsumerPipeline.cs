@@ -1,12 +1,12 @@
 using System.Diagnostics;
 using System.Text.Json;
-using Saaskit.Core.Data;
-using Saaskit.Core.Tenancy;
+using Farm360.Core.Data;
+using Farm360.Core.Tenancy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Saaskit.Core.Messaging;
+namespace Farm360.Core.Messaging;
 
 /// <summary>One consumer: which event, which handler, which module owns it, and which context holds its inbox.</summary>
 public sealed record EventConsumerRegistration(
@@ -39,7 +39,7 @@ public enum ConsumeOutcome
 /// </summary>
 public sealed partial class ConsumerPipeline(IServiceScopeFactory scopes, ITenantDirectory directory, TimeProvider time, ILogger<ConsumerPipeline> logger)
 {
-    private static readonly System.Diagnostics.ActivitySource Source = new("Saaskit.Core.Messaging");
+    private static readonly System.Diagnostics.ActivitySource Source = new("Farm360.Core.Messaging");
 
     public async Task<ConsumeOutcome> ProcessAsync(EventConsumerRegistration registration, EventEnvelope envelope, CancellationToken cancellationToken)
     {

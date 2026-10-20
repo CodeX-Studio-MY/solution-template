@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace Saaskit.Generator.Emitters;
+namespace Farm360.Generator.Emitters;
 
 /// <summary>
 /// Everything the frontend is generated from the backend: each service's OpenAPI document, the error-code union and the event

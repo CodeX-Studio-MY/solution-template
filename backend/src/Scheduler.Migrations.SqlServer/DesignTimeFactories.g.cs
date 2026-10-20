@@ -2,15 +2,15 @@
 #nullable enable
 using Microsoft.EntityFrameworkCore.Design;
 
-namespace Saaskit.Scheduler.Migrations.SqlServer;
+namespace Farm360.Scheduler.Migrations.SqlServer;
 
 /// <summary>Lets <c>dotnet ef</c> build SchedulerStoreDbContext for SqlServer.</summary>
-internal sealed class SchedulerStoreDbContextDesignTimeFactory : IDesignTimeDbContextFactory<global::Saaskit.Scheduler.SchedulerStoreDbContext>
+internal sealed class SchedulerStoreDbContextDesignTimeFactory : IDesignTimeDbContextFactory<global::Farm360.Scheduler.SchedulerStoreDbContext>
 {
-    public global::Saaskit.Scheduler.SchedulerStoreDbContext CreateDbContext(string[] args) =>
-        global::Saaskit.Core.Data.DbContextRegistration.Create<global::Saaskit.Scheduler.SchedulerStoreDbContext>(
+    public global::Farm360.Scheduler.SchedulerStoreDbContext CreateDbContext(string[] args) =>
+        global::Farm360.Core.Data.DbContextRegistration.Create<global::Farm360.Scheduler.SchedulerStoreDbContext>(
             null,
-            new global::Saaskit.Core.Data.SqlServer.SqlServerDatabaseProvider(),
+            new global::Farm360.Core.Data.SqlServer.SqlServerDatabaseProvider(),
             "Server=design-time;Database=design-time",
-            global::Saaskit.Scheduler.SchedulerStoreDbContext.SchemaName);
+            global::Farm360.Scheduler.SchedulerStoreDbContext.SchemaName);
 }

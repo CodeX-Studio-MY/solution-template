@@ -1,5 +1,5 @@
 {
-  "name": "@saaskit/mfe-__KEY__",
+  "name": "@farm360/mfe-__KEY__",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -12,9 +12,9 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@saaskit/api-clients": "workspace:*",
-    "@saaskit/ui-kit": "workspace:*",
-    "@saaskit/web-core": "workspace:*",
+    "@farm360/api-clients": "workspace:*",
+    "@farm360/ui-kit": "workspace:*",
+    "@farm360/web-core": "workspace:*",
     "@emotion/react": "catalog:",
     "@emotion/styled": "catalog:",
     "@mui/icons-material": "catalog:",
@@ -27,7 +27,7 @@
     "zustand": "catalog:"
   },
   "devDependencies": {
-    "@saaskit/build-config": "workspace:*",
+    "@farm360/build-config": "workspace:*",
     "@module-federation/rsbuild-plugin": "catalog:",
     "@rsbuild/core": "catalog:",
     "@rsbuild/plugin-react": "catalog:",

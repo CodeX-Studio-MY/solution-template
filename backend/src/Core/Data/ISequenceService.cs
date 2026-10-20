@@ -1,4 +1,4 @@
-namespace Saaskit.Core.Data;
+namespace Farm360.Core.Data;
 
 /// <summary>
 /// Atomic per-tenant document numbering, in the same transaction as the business data.

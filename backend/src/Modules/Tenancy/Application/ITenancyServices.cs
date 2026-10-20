@@ -1,7 +1,7 @@
-using Saaskit.Core.Platform;
-using Saaskit.Core.Tenancy;
+using Farm360.Core.Platform;
+using Farm360.Core.Tenancy;
 
-namespace Saaskit.Tenancy.Application;
+namespace Farm360.Tenancy.Application;
 
 public sealed record TenantSummary(
     Guid Id,

@@ -1,21 +1,21 @@
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
-using Saaskit.Core.Configuration;
-using Saaskit.Core.Errors;
-using Saaskit.Core.Security;
-using Saaskit.Core.Tenancy;
+using Farm360.Core.Configuration;
+using Farm360.Core.Errors;
+using Farm360.Core.Security;
+using Farm360.Core.Tenancy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
-namespace Saaskit.Gateway.Http;
+namespace Farm360.Gateway.Http;
 
 /// <summary>Resolves the tenant from the host (<c>{tenant}.{BaseDomain}</c>). The browser's session cookie is host-only, so a session never crosses tenants.</summary>
 internal sealed class GatewayTenantMiddleware(RequestDelegate next, IOptions<TenancyOptions> tenancy)
 {
     public async Task InvokeAsync(HttpContext context, ITenantDirectory directory, ITenantContextSetter setter)
     {
-        var slug = Saaskit.Core.Tenancy.TenantResolutionMiddleware.SubdomainOf(context.Request.Host.Host, tenancy.Value.BaseDomain);
+        var slug = Farm360.Core.Tenancy.TenantResolutionMiddleware.SubdomainOf(context.Request.Host.Host, tenancy.Value.BaseDomain);
         if (slug is not null)
         {
             var tenant = await directory.FindBySlugAsync(slug, context.RequestAborted);

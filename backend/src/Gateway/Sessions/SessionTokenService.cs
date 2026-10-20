@@ -1,11 +1,11 @@
 using System.Text.Json;
-using Saaskit.Core.Configuration;
-using Saaskit.Core.Platform;
+using Farm360.Core.Configuration;
+using Farm360.Core.Platform;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
 using StackExchange.Redis;
 
-namespace Saaskit.Gateway.Sessions;
+namespace Farm360.Gateway.Sessions;
 
 /// <summary>
 /// Gets the access token a downstream service accepts, for the signed-in session. Each service has its own audience, so the

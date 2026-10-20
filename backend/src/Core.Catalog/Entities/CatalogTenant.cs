@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations.Schema;
-using Saaskit.Core.Data;
-using Saaskit.Core.Tenancy;
+using Farm360.Core.Data;
+using Farm360.Core.Tenancy;
 
-namespace Saaskit.Core.Catalog.Entities;
+namespace Farm360.Core.Catalog.Entities;
 
 /// <summary>A tenant in the catalog. The slug is stored lowercase, so lookups never depend on database collation.</summary>
 public sealed class CatalogTenant : BaseEntity, IAggregateRoot

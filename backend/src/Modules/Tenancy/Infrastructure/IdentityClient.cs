@@ -1,9 +1,9 @@
 using System.Net.Http.Json;
-using Saaskit.Core.Platform;
-using Saaskit.Core.Security;
-using Saaskit.Tenancy.Application;
+using Farm360.Core.Platform;
+using Farm360.Core.Security;
+using Farm360.Tenancy.Application;
 
-namespace Saaskit.Tenancy.Infrastructure;
+namespace Farm360.Tenancy.Infrastructure;
 
 /// <summary>Typed client for the Identity module's platform endpoints. The service-token handler adds the bearer token.</summary>
 internal sealed class IdentityClient(HttpClient http) : IIdentityClient

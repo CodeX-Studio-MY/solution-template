@@ -1,8 +1,8 @@
-using Saaskit.Core.Tenancy;
-using Saaskit.Core.Time;
+using Farm360.Core.Tenancy;
+using Farm360.Core.Time;
 using Microsoft.Extensions.Time.Testing;
 
-namespace Saaskit.Core.Tests;
+namespace Farm360.Core.Tests;
 
 public sealed class TenantClockTests
 {

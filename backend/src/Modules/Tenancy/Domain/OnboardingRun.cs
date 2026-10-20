@@ -1,6 +1,6 @@
-using Saaskit.Core.Data;
+using Farm360.Core.Data;
 
-namespace Saaskit.Tenancy.Domain;
+namespace Farm360.Tenancy.Domain;
 
 /// <summary>The steps of onboarding a tenant, in order. A run resumes at the first step that hasn't completed.</summary>
 public enum OnboardingStep

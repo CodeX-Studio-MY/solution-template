@@ -1,9 +1,9 @@
-using Saaskit.Core.Tenancy;
+using Farm360.Core.Tenancy;
 using Microsoft.IdentityModel.JsonWebTokens;
 using OpenIddict.Abstractions;
 using OpenIddict.Server;
 
-namespace Saaskit.Identity.Infrastructure;
+namespace Farm360.Identity.Infrastructure;
 
 /// <summary>
 /// Runs first for every token request and chooses the tenant database that the authorizations and tokens live in.

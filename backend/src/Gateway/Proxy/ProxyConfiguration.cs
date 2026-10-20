@@ -1,8 +1,8 @@
-using Saaskit.Core.Configuration;
-using Saaskit.Core.Platform;
+using Farm360.Core.Configuration;
+using Farm360.Core.Platform;
 using Yarp.ReverseProxy.Configuration;
 
-namespace Saaskit.Gateway.Proxy;
+namespace Farm360.Gateway.Proxy;
 
 /// <summary>
 /// The reverse-proxy routes and clusters, built from the services in platform.yaml (through the generated

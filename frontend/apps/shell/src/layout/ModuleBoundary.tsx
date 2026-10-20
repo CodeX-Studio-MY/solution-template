@@ -3,7 +3,7 @@ import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
 import Stack from "@mui/material/Stack";
 import { useTranslation } from "react-i18next";
-import { EmptyState } from "@saaskit/ui-kit";
+import { EmptyState } from "@farm360/ui-kit";
 
 function ModuleError({ onRetry }: { onRetry: () => void }) {
   const { t } = useTranslation("common");

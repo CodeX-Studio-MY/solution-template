@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Saaskit.Core.Configuration;
+namespace Farm360.Core.Configuration;
 
 [OptionsSection("TokenServer", "The token server in the Identity module: keys, lifetimes, platform clients and password rules. Keys come only from the secret store.")]
 public sealed record TokenServerOptions
@@ -14,7 +14,7 @@ public sealed record TokenServerOptions
     public List<string> EncryptionKeys { get; init; } = [];
 
     [Secret]
-    [Setting("Client secrets of platform clients, by client ID (the BFF and each service). Each service holds its own in ServiceClient:ClientSecret.", Example = "saaskit-bff")]
+    [Setting("Client secrets of platform clients, by client ID (the BFF and each service). Each service holds its own in ServiceClient:ClientSecret.", Example = "farm360-bff")]
     public Dictionary<string, string> PlatformClientSecrets { get; init; } = [];
 
     [Range(1, 60)]

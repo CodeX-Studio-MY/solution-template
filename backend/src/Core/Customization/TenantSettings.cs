@@ -1,6 +1,6 @@
-using Saaskit.Core.Tenancy;
+using Farm360.Core.Tenancy;
 
-namespace Saaskit.Core.Customization;
+namespace Farm360.Core.Customization;
 
 /// <summary>
 /// The tenant's stored setting overrides, as the catalog holds them. Implemented by <c>Core.Catalog</c>; modules never see it, they

@@ -1,7 +1,7 @@
 using System.Text.RegularExpressions;
-using Saaskit.Core.Platform;
+using Farm360.Core.Platform;
 
-namespace Saaskit.Architecture.Tests;
+namespace Farm360.Architecture.Tests;
 
 /// <summary>Facts from platform.yaml are never typed by hand outside generated code (section 2.1).</summary>
 public sealed partial class SingleSourceOfTruthTests
@@ -53,7 +53,7 @@ public sealed partial class SingleSourceOfTruthTests
     [Fact]
     public void Feature_flag_keys_are_written_only_where_they_are_declared()
     {
-        var keys = Saaskit.Core.Customization.CustomizationRegistry.Features.Select(f => f.Key).ToList();
+        var keys = Farm360.Core.Customization.CustomizationRegistry.Features.Select(f => f.Key).ToList();
         if (keys.Count == 0)
             return;   // no module has declared a flag: nothing to enforce until one does
         var offenders = Scan(line => keys.Any(key => line.Contains($"\"{key}\"", StringComparison.Ordinal)))
@@ -83,7 +83,7 @@ public sealed partial class SingleSourceOfTruthTests
     [InlineData("if (tenants.Tenant.Slug == slug)")]
     [InlineData("if (tenants.Tenant.Id != id)")]
     [InlineData("if (string.Equals(slug, tenant.TenantSlug))")]
-    [InlineData("if (tenant.TenantSlug.Equals(\"saaskit\"))")]
+    [InlineData("if (tenant.TenantSlug.Equals(\"farm360\"))")]
     [InlineData("switch (tenant.TenantSlug)")]
     public void Tenant_comparisons_are_detected(string line) => TenantComparison().IsMatch(line).ShouldBeTrue();
 

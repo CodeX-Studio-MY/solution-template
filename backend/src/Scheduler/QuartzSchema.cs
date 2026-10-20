@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace Saaskit.Scheduler;
+namespace Farm360.Scheduler;
 
 /// <summary>
 /// Quartz.NET's ADO job-store tables. Quartz ships its own create scripts (idempotent: every statement creates only what is

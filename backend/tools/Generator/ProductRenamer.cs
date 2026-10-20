@@ -1,9 +1,9 @@
 using System.Text;
 
-namespace Saaskit.Generator;
+namespace Farm360.Generator;
 
 /// <summary>
-/// The one-time codemod that names the product: every <c>saaskit</c>, <c>Saaskit</c> and <c>SAASKIT</c> in the repository's text files and
+/// The one-time codemod that names the product: every <c>farm360</c>, <c>Farm360</c> and <c>FARM360</c> in the repository's text files and
 /// paths becomes the new name in the same casing. C# namespaces and npm package scopes can't be read from platform.yaml, so they
 /// are renamed once, when a product is scaffolded from the template (see deviations 4 and 42).
 /// It checks that every file it will change can be opened before it changes any, so a file another program holds (an IDE with the

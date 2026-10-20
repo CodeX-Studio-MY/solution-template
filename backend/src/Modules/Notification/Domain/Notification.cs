@@ -1,6 +1,6 @@
-using Saaskit.Core.Data;
+using Farm360.Core.Data;
 
-namespace Saaskit.Notification.Domain;
+namespace Farm360.Notification.Domain;
 
 /// <summary>A message for one person in one tenant, kept as history with its read status. The text is in the tenant's language at the time it was made.</summary>
 public sealed class UserNotification : BaseEntity

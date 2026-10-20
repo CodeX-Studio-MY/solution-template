@@ -1,8 +1,8 @@
 using System.Security.Cryptography;
-using Saaskit.Core.Configuration;
+using Farm360.Core.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Saaskit.Identity.Infrastructure;
+namespace Farm360.Identity.Infrastructure;
 
 /// <summary>
 /// Loads the token server's keys from configuration (the secret store). The private key exists only in the Identity

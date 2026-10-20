@@ -1,10 +1,10 @@
 using System.Globalization;
 using System.Text.Json;
-using Saaskit.Core.Data;
-using Saaskit.Core.Errors;
+using Farm360.Core.Data;
+using Farm360.Core.Errors;
 using Microsoft.EntityFrameworkCore;
 
-namespace Saaskit.Core.Customization;
+namespace Farm360.Core.Customization;
 
 public enum CustomFieldType
 {

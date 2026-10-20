@@ -1,18 +1,18 @@
 using System.Security.Claims;
 using System.Text.Json.Nodes;
-using Saaskit.Core.Authorization;
-using Saaskit.Core.Platform;
-using Saaskit.Core.Security;
-using Saaskit.Core.Tenancy;
-using Saaskit.Tenancy.Application;
-using Saaskit.Tenancy.Domain;
-using Saaskit.Tenancy.Infrastructure;
+using Farm360.Core.Authorization;
+using Farm360.Core.Platform;
+using Farm360.Core.Security;
+using Farm360.Core.Tenancy;
+using Farm360.Tenancy.Application;
+using Farm360.Tenancy.Domain;
+using Farm360.Tenancy.Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 
-namespace Saaskit.Tenancy.Api;
+namespace Farm360.Tenancy.Api;
 
 internal static class TenancyEndpoints
 {

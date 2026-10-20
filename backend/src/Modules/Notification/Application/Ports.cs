@@ -1,7 +1,7 @@
-using Saaskit.Core.Http;
-using Saaskit.Notification.Domain;
+using Farm360.Core.Http;
+using Farm360.Notification.Domain;
 
-namespace Saaskit.Notification.Application;
+namespace Farm360.Notification.Application;
 
 public sealed record NotificationDto(Guid Id, string Kind, string Title, string Body, string? Link, DateTime CreatedOn, bool IsRead);
 

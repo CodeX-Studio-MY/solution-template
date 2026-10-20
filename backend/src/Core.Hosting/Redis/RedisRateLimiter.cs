@@ -1,6 +1,6 @@
 using StackExchange.Redis;
 
-namespace Saaskit.Core.Hosting.Redis;
+namespace Farm360.Core.Hosting.Redis;
 
 /// <summary>
 /// A fixed-window limiter shared by every instance (ASP.NET Core's built-in limiter counts per instance,

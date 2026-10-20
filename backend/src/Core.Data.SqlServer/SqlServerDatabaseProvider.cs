@@ -1,12 +1,12 @@
-using Saaskit.Core.Errors;
-using Saaskit.Core.Hosting;
+using Farm360.Core.Errors;
+using Farm360.Core.Hosting;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Saaskit.Core.Data.SqlServer;
+namespace Farm360.Core.Data.SqlServer;
 
 public sealed class SqlServerDatabaseProvider : IDatabaseProvider
 {

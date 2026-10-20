@@ -1,12 +1,12 @@
 using System.Diagnostics;
-using Saaskit.Core.Configuration;
-using Saaskit.Core.Errors;
-using Saaskit.Core.Security;
+using Farm360.Core.Configuration;
+using Farm360.Core.Errors;
+using Farm360.Core.Security;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Saaskit.Core.Tenancy;
+namespace Farm360.Core.Tenancy;
 
 /// <summary>
 /// Resolves the tenant of a request. Runs after authentication.

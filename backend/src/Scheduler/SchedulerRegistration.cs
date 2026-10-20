@@ -1,8 +1,8 @@
-using Saaskit.Core.Configuration;
-using Saaskit.Core.Data.PostgreSql;
+using Farm360.Core.Configuration;
+using Farm360.Core.Data.PostgreSql;
 using Quartz;
 
-namespace Saaskit.Scheduler;
+namespace Farm360.Scheduler;
 
 public static class SchedulerRegistration
 {
@@ -17,7 +17,7 @@ public static class SchedulerRegistration
         {
             quartz.ConfigureScheduler(scheduler =>
             {
-                scheduler.InstanceName = $"{Saaskit.Core.Platform.PlatformInfo.Product}-scheduler";
+                scheduler.InstanceName = $"{Farm360.Core.Platform.PlatformInfo.Product}-scheduler";
                 scheduler.GenerateInstanceId = true;
             });
             quartz.UsePersistentStore(store =>

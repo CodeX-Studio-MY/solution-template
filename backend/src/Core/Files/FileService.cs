@@ -1,13 +1,13 @@
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
-using Saaskit.Core.Configuration;
-using Saaskit.Core.Data;
-using Saaskit.Core.Errors;
-using Saaskit.Core.Tenancy;
+using Farm360.Core.Configuration;
+using Farm360.Core.Data;
+using Farm360.Core.Errors;
+using Farm360.Core.Tenancy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
-namespace Saaskit.Core.Files;
+namespace Farm360.Core.Files;
 
 /// <summary>What the caller wants stored. The key and the stored name come from the server, never from this.</summary>
 /// <param name="ModuleKey">The module that owns the file.</param>

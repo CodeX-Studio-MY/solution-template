@@ -2,13 +2,13 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Security.Cryptography;
 using System.Text.Json;
-using Saaskit.Core.Catalog.Entities;
-using Saaskit.Core.Platform;
-using Saaskit.Core.Security;
+using Farm360.Core.Catalog.Entities;
+using Farm360.Core.Platform;
+using Farm360.Core.Security;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Saaskit.Integration.Tests;
+namespace Farm360.Integration.Tests;
 
 /// <summary>Token validation, module roles, principal types, entitlements, suspension, access_version and rate limits.</summary>
 [Trait("service", "identity")]

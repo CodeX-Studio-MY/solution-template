@@ -2,9 +2,9 @@
   "$schema": "http://json.schemastore.org/template",
   "author": "CodeX Studio",
   "classifications": ["Web", "Module"],
-  "identity": "Saaskit.Module.Backend",
+  "identity": "Farm360.Module.Backend",
   "name": "Platform backend module",
-  "shortName": "saaskit-module",
+  "shortName": "farm360-module",
   "description": "A module of the platform: the module class library (Domain, Application, Infrastructure, Api), its thin host and its tests. Use scripts/new-module, which also adds it to platform.yaml, generates its migrations and creates the frontend module.",
   "tags": { "language": "C#", "type": "item" },
   "sourceName": "Sample",
@@ -27,8 +27,8 @@
     "product": {
       "type": "parameter",
       "datatype": "text",
-      "defaultValue": "Saaskit",
-      "replaces": "Saaskit",
+      "defaultValue": "Farm360",
+      "replaces": "Farm360",
       "description": "The product's PascalCase name from platform.yaml (the root namespace)."
     }
   },

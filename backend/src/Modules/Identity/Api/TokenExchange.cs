@@ -1,11 +1,11 @@
 using System.Security.Claims;
-using Saaskit.Core.Configuration;
-using Saaskit.Core.Platform;
-using Saaskit.Core.Security;
-using Saaskit.Core.Tenancy;
-using Saaskit.Identity.Application;
-using Saaskit.Identity.Domain;
-using Saaskit.Identity.Infrastructure;
+using Farm360.Core.Configuration;
+using Farm360.Core.Platform;
+using Farm360.Core.Security;
+using Farm360.Core.Tenancy;
+using Farm360.Identity.Application;
+using Farm360.Identity.Domain;
+using Farm360.Identity.Infrastructure;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -16,7 +16,7 @@ using Microsoft.IdentityModel.Tokens;
 using OpenIddict.Abstractions;
 using OpenIddict.Server.AspNetCore;
 
-namespace Saaskit.Identity.Api;
+namespace Farm360.Identity.Api;
 
 /// <summary>
 /// RFC 8693 token exchange, using OpenIddict's built-in flow. Two uses:

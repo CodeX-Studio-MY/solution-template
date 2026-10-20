@@ -1,9 +1,9 @@
 using System.Diagnostics;
-using Saaskit.Core.Configuration;
-using Saaskit.Tenancy.Application;
+using Farm360.Core.Configuration;
+using Farm360.Tenancy.Application;
 using Microsoft.Extensions.Options;
 
-namespace Saaskit.Tenancy.Infrastructure;
+namespace Farm360.Tenancy.Infrastructure;
 
 /// <summary>
 /// Runs the configured migrator command for one tenant (<c>Migrator --tenant {id}</c>). Tenancy never applies migrations
@@ -33,7 +33,7 @@ internal sealed class ProcessTenantMigrator(IOptions<OnboardingOptions> options)
 /// <summary>The default export: nothing to export until modules hold data (milestone 3 replaces this with the per-module export).</summary>
 internal sealed class NoExportYet : ITenantExporter
 {
-    public Task ExportAsync(Saaskit.Core.Tenancy.TenantInfo tenant, CancellationToken cancellationToken = default) => Task.CompletedTask;
+    public Task ExportAsync(Farm360.Core.Tenancy.TenantInfo tenant, CancellationToken cancellationToken = default) => Task.CompletedTask;
 }
 
 /// <summary>Billing is out of scope: every tenant is in good standing until a provider is wired in.</summary>

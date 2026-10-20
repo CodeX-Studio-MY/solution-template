@@ -1,8 +1,8 @@
-using Saaskit.Core.Catalog.Entities;
-using Saaskit.Core.Data;
+using Farm360.Core.Catalog.Entities;
+using Farm360.Core.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace Saaskit.Core.Catalog;
+namespace Farm360.Core.Catalog;
 
 /// <summary>The tenant directory in the catalog database (schema <see cref="SchemaName"/>).</summary>
 public sealed class CatalogDbContext(DbContextOptions<CatalogDbContext> options) : PlatformDbContext(options)
@@ -10,7 +10,7 @@ public sealed class CatalogDbContext(DbContextOptions<CatalogDbContext> options)
     public const string SchemaName = "catalog";
 
     /// <summary>Module key format, also enforced by a check constraint.</summary>
-    public const string ModuleKeyPattern = Saaskit.Core.Platform.KeyRules.PatternText;
+    public const string ModuleKeyPattern = Farm360.Core.Platform.KeyRules.PatternText;
 
     public DbSet<CatalogTenant> Tenants => Set<CatalogTenant>();
 
@@ -122,7 +122,7 @@ public sealed class CatalogDbContext(DbContextOptions<CatalogDbContext> options)
     /// <summary>Modules and plan contents, from the constants generated from platform.yaml. Reference data only.</summary>
     private static void SeedPlatformData(ModelBuilder modelBuilder)
     {
-        var modules = global::Saaskit.Core.Platform.Modules.All;
+        var modules = global::Farm360.Core.Platform.Modules.All;
         modelBuilder.Entity<CatalogModule>().HasData(modules.Select(m => new CatalogModule
         {
             ModuleId = m.Id,

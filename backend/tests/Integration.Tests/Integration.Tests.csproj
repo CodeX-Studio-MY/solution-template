@@ -20,6 +20,6 @@
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" />
   </ItemGroup>
   <ItemGroup>
-    <Using Include="Saaskit.TestSupport" />
+    <Using Include="Farm360.TestSupport" />
   </ItemGroup>
 </Project>

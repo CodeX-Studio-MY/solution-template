@@ -1,13 +1,13 @@
 using System.Text;
-using Saaskit.Core.Configuration;
-using Saaskit.Core.Messaging;
+using Farm360.Core.Configuration;
+using Farm360.Core.Messaging;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
-namespace Saaskit.Core.Hosting.Messaging;
+namespace Farm360.Core.Hosting.Messaging;
 
 /// <summary>
 /// Runs every registered consumer. For each one it declares the quorum queue, three retry queues (growing delays that

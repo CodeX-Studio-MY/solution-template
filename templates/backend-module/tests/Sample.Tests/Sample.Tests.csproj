@@ -6,6 +6,6 @@
     <ProjectReference Include="..\..\src\Modules\Sample\Sample.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Using Include="Saaskit.TestSupport" />
+    <Using Include="Farm360.TestSupport" />
   </ItemGroup>
 </Project>

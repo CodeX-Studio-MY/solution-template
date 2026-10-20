@@ -1,7 +1,7 @@
-using Saaskit.Core.Platform;
-using Saaskit.Core.Security;
+using Farm360.Core.Platform;
+using Farm360.Core.Security;
 
-namespace Saaskit.Identity.Application;
+namespace Farm360.Identity.Application;
 
 public sealed record PrincipalDto(Guid Id, PrincipalType Type, string DisplayName, bool IsActive, string? ClientId, DateTime? LastSeenOn, string ETag);
 

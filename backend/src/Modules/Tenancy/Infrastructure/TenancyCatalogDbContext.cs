@@ -1,9 +1,9 @@
-using Saaskit.Core.Data;
-using Saaskit.Core.Platform;
-using Saaskit.Tenancy.Domain;
+using Farm360.Core.Data;
+using Farm360.Core.Platform;
+using Farm360.Tenancy.Domain;
 using Microsoft.EntityFrameworkCore;
 
-namespace Saaskit.Tenancy.Infrastructure;
+namespace Farm360.Tenancy.Infrastructure;
 
 /// <summary>Tenancy's own data in the catalog database: onboarding runs, operators, support access and the platform audit log.</summary>
 public sealed class TenancyCatalogDbContext(DbContextOptions<TenancyCatalogDbContext> options) : PlatformDbContext(options)

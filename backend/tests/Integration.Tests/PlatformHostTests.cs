@@ -1,13 +1,13 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
-using Saaskit.Core.Hosting;
-using Saaskit.Core.Security;
-using Saaskit.Migrator;
+using Farm360.Core.Hosting;
+using Farm360.Core.Security;
+using Farm360.Migrator;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.TestHost;
 
-namespace Saaskit.Integration.Tests;
+namespace Farm360.Integration.Tests;
 
 /// <summary>The pipeline every host gets from AddPlatform / UsePlatform.</summary>
 public sealed class PlatformHostTests(Databases databases)

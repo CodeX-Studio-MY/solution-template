@@ -1,7 +1,7 @@
-using Saaskit.Core.Platform;
-using Saaskit.Tenancy.Domain;
+using Farm360.Core.Platform;
+using Farm360.Tenancy.Domain;
 
-namespace Saaskit.Tenancy.Application;
+namespace Farm360.Tenancy.Application;
 
 /// <summary>A newly created operator: shown once. The password and TOTP secret are never stored in clear.</summary>
 public sealed record NewOperator(Guid Id, string Email, string Password, string TotpSecret, string TotpUri);

@@ -3,8 +3,8 @@ import { createBrowserRouter, RouterProvider, type RouteObject } from "react-rou
 import CssBaseline from "@mui/material/CssBaseline";
 import { ThemeProvider } from "@mui/material/styles";
 import { CacheProvider } from "@emotion/react";
-import { useTenantSettings, type ModuleManifest } from "@saaskit/web-core";
-import { createTenantTheme } from "@saaskit/ui-kit";
+import { useTenantSettings, type ModuleManifest } from "@farm360/web-core";
+import { createTenantTheme } from "@farm360/ui-kit";
 import { emotionCache } from "./emotionCache";
 import { AppShell } from "./layout/AppShell";
 import { Home } from "./pages/Home";

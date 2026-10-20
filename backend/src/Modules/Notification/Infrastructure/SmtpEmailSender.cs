@@ -1,11 +1,11 @@
-using Saaskit.Core.Configuration;
-using Saaskit.Notification.Application;
+using Farm360.Core.Configuration;
+using Farm360.Notification.Application;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.Extensions.Options;
 using MimeKit;
 
-namespace Saaskit.Notification.Infrastructure;
+namespace Farm360.Notification.Infrastructure;
 
 /// <summary>SMTP through MailKit. Locally this is Mailpit, which catches every email in a web inbox.</summary>
 internal sealed class SmtpEmailSender(IOptions<SmtpOptions> options) : IEmailSender

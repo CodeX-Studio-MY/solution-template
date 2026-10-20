@@ -1,14 +1,14 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
-using Saaskit.Core.Catalog;
-using Saaskit.Core.Platform;
-using Saaskit.Tenancy.Application;
-using Saaskit.Tenancy.Infrastructure;
+using Farm360.Core.Catalog;
+using Farm360.Core.Platform;
+using Farm360.Tenancy.Application;
+using Farm360.Tenancy.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Saaskit.Integration.Tests;
+namespace Farm360.Integration.Tests;
 
 /// <summary>Rungs 1 and 2: a tenant's settings and feature flags are data, edited by operators and (the allowed ones) by the tenant's own admin, and audited.</summary>
 [Trait("service", "tenancy")]

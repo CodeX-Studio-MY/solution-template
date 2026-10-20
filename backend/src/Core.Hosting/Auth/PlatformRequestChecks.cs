@@ -1,16 +1,16 @@
 using System.Threading.RateLimiting;
-using Saaskit.Core.Configuration;
-using Saaskit.Core.Errors;
-using Saaskit.Core.Hosting.Redis;
-using Saaskit.Core.Security;
-using Saaskit.Core.Tenancy;
+using Farm360.Core.Configuration;
+using Farm360.Core.Errors;
+using Farm360.Core.Hosting.Redis;
+using Farm360.Core.Security;
+using Farm360.Core.Tenancy;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 
-namespace Saaskit.Core.Hosting.Auth;
+namespace Farm360.Core.Hosting.Auth;
 
 /// <summary>Rejects tokens whose <c>access_version</c> is stale (401). Runs after authentication and tenant resolution.</summary>
 internal sealed class AccessVersionMiddleware(RequestDelegate next)

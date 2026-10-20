@@ -1,6 +1,6 @@
 import Alert from "@mui/material/Alert";
 import { useTranslation } from "react-i18next";
-import { ApiError } from "@saaskit/web-core";
+import { ApiError } from "@farm360/web-core";
 
 interface ProblemAlertProps {
   error: Error | undefined;

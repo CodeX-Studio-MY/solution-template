@@ -1,7 +1,7 @@
-using Saaskit.Core.Configuration;
-using Saaskit.Identity.Api;
+using Farm360.Core.Configuration;
+using Farm360.Identity.Api;
 
-namespace Saaskit.Identity.Tests;
+namespace Farm360.Identity.Tests;
 
 /// <summary>
 /// Where a person goes once they have signed in on the central sign-in host. Accepting an invitation or resetting a password
@@ -38,6 +38,6 @@ public sealed class AfterSignInTests
     public void The_default_https_port_is_not_written()
     {
         var production = new TenancyOptions { BaseDomain = "example.com" };
-        AccountEndpoints.AfterSignIn(null, "saaskit-co", production).ShouldBe("https://saaskit-co.example.com/");
+        AccountEndpoints.AfterSignIn(null, "farm360-co", production).ShouldBe("https://farm360-co.example.com/");
     }
 }

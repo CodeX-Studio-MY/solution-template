@@ -10,6 +10,7 @@ export const errorCodes = {
   "access-management.principal-not-found": { status: 404, messageKey: "errors.identity.principalNotFound" },
   "access-management.service-principals-have-no-groups": { status: 422, messageKey: "errors.identity.servicePrincipalsHaveNoGroups" },
   "access-management.unknown-module": { status: 422, messageKey: "errors.identity.unknownModule" },
+  "master-data.not-found": { status: 404, messageKey: "errors.masterData.notFound" },
   "platform.access-changed": { status: 401, messageKey: "errors.platform.accessChanged" },
   "platform.access-check-unavailable": { status: 503, messageKey: "errors.platform.accessCheckUnavailable" },
   "platform.business-rule": { status: 422, messageKey: "errors.platform.businessRule" },

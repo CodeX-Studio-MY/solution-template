@@ -1,12 +1,12 @@
-using Saaskit.Core.Configuration;
-using Saaskit.Core.Tenancy;
+using Farm360.Core.Configuration;
+using Farm360.Core.Tenancy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace Saaskit.Core.Data;
+namespace Farm360.Core.Data;
 
 public static class DbContextRegistration
 {

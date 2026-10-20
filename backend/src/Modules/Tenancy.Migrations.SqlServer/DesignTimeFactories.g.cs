@@ -2,15 +2,15 @@
 #nullable enable
 using Microsoft.EntityFrameworkCore.Design;
 
-namespace Saaskit.Tenancy.Migrations.SqlServer;
+namespace Farm360.Tenancy.Migrations.SqlServer;
 
 /// <summary>Lets <c>dotnet ef</c> build TenancyCatalogDbContext for SqlServer.</summary>
-internal sealed class TenancyCatalogDbContextDesignTimeFactory : IDesignTimeDbContextFactory<global::Saaskit.Tenancy.Infrastructure.TenancyCatalogDbContext>
+internal sealed class TenancyCatalogDbContextDesignTimeFactory : IDesignTimeDbContextFactory<global::Farm360.Tenancy.Infrastructure.TenancyCatalogDbContext>
 {
-    public global::Saaskit.Tenancy.Infrastructure.TenancyCatalogDbContext CreateDbContext(string[] args) =>
-        global::Saaskit.Core.Data.DbContextRegistration.Create<global::Saaskit.Tenancy.Infrastructure.TenancyCatalogDbContext>(
+    public global::Farm360.Tenancy.Infrastructure.TenancyCatalogDbContext CreateDbContext(string[] args) =>
+        global::Farm360.Core.Data.DbContextRegistration.Create<global::Farm360.Tenancy.Infrastructure.TenancyCatalogDbContext>(
             null,
-            new global::Saaskit.Core.Data.SqlServer.SqlServerDatabaseProvider(),
+            new global::Farm360.Core.Data.SqlServer.SqlServerDatabaseProvider(),
             "Server=design-time;Database=design-time",
-            global::Saaskit.Core.Platform.PlatformServices.Tenancy.Schema);
+            global::Farm360.Core.Platform.PlatformServices.Tenancy.Schema);
 }

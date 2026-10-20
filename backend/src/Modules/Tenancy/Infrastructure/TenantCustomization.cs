@@ -1,15 +1,15 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using Saaskit.Contracts;
-using Saaskit.Core.Catalog;
-using Saaskit.Core.Catalog.Entities;
-using Saaskit.Core.Customization;
-using Saaskit.Core.Errors;
-using Saaskit.Tenancy.Application;
-using Saaskit.Tenancy.Domain;
+using Farm360.Contracts;
+using Farm360.Core.Catalog;
+using Farm360.Core.Catalog.Entities;
+using Farm360.Core.Customization;
+using Farm360.Core.Errors;
+using Farm360.Tenancy.Application;
+using Farm360.Tenancy.Domain;
 using Microsoft.EntityFrameworkCore;
 
-namespace Saaskit.Tenancy.Infrastructure;
+namespace Farm360.Tenancy.Infrastructure;
 
 internal sealed class TenantCustomization(
     CatalogDbContext catalog,

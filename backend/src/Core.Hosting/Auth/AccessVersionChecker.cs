@@ -1,12 +1,12 @@
 using System.Collections.Concurrent;
 using System.Globalization;
-using Saaskit.Core.Configuration;
-using Saaskit.Core.Errors;
-using Saaskit.Core.Security;
+using Farm360.Core.Configuration;
+using Farm360.Core.Errors;
+using Farm360.Core.Security;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Saaskit.Core.Hosting.Auth;
+namespace Farm360.Core.Hosting.Auth;
 
 /// <summary>
 /// Compares a token's <c>access_version</c> with the current one. Values are cached in memory for a few seconds.

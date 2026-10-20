@@ -1,6 +1,6 @@
-using Saaskit.Core.Data;
+using Farm360.Core.Data;
 
-namespace Saaskit.Identity.Domain;
+namespace Farm360.Identity.Domain;
 
 /// <summary>An emailed, single-use invitation to create a user. Only a hash of the token is stored.</summary>
 public sealed class Invitation : BaseEntity

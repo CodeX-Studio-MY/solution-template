@@ -1,6 +1,6 @@
-using Saaskit.Generator.Emitters;
+using Farm360.Generator.Emitters;
 
-namespace Saaskit.Generator;
+namespace Farm360.Generator;
 
 /// <summary>Everything <c>scripts/generate</c> does, in order.</summary>
 internal static class GenerateCommand

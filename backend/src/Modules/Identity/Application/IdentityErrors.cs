@@ -1,7 +1,7 @@
-using Saaskit.Core.Errors;
-using Saaskit.Core.Platform;
+using Farm360.Core.Errors;
+using Farm360.Core.Platform;
 
-namespace Saaskit.Identity.Application;
+namespace Farm360.Identity.Application;
 
 /// <summary>The Identity module's error catalog.</summary>
 [ErrorCatalog(Modules.AccessManagement)]

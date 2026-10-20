@@ -1,7 +1,7 @@
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace Saaskit.Generator;
+namespace Farm360.Generator;
 
 /// <summary>
 /// <c>scripts/generate</c> on a fresh copy of the template (the <c>.template</c> marker is there): scaffolds the product. It asks for
@@ -462,8 +462,8 @@ internal sealed record InitAnswers(
     {
         foreach (var module in Modules)
         {
-            if (!Saaskit.Core.Platform.KeyRules.Pattern.IsMatch(module) || Saaskit.Core.Platform.KeyRules.Reserved.Contains(module))
-                throw new PlatformDefinitionException($"'{module}' is not a valid module key: it must match {Saaskit.Core.Platform.KeyRules.Pattern} and not be reserved.");
+            if (!Farm360.Core.Platform.KeyRules.Pattern.IsMatch(module) || Farm360.Core.Platform.KeyRules.Reserved.Contains(module))
+                throw new PlatformDefinitionException($"'{module}' is not a valid module key: it must match {Farm360.Core.Platform.KeyRules.Pattern} and not be reserved.");
             // A business module an earlier run added (a service of the same key that owns it) is resumed; any other existing key is
             // one of the platform's own services or modules.
             var service = platform.Services.FirstOrDefault(s => s.Key == module);

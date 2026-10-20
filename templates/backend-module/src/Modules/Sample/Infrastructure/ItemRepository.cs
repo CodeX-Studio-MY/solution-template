@@ -1,10 +1,10 @@
-using Saaskit.Core.Data;
-using Saaskit.Core.Http;
-using Saaskit.Sample.Application;
-using Saaskit.Sample.Domain;
+using Farm360.Core.Data;
+using Farm360.Core.Http;
+using Farm360.Sample.Application;
+using Farm360.Sample.Domain;
 using Microsoft.EntityFrameworkCore;
 
-namespace Saaskit.Sample.Infrastructure;
+namespace Farm360.Sample.Infrastructure;
 
 internal sealed class ItemRepository(SampleDbContext db) : IItemRepository
 {

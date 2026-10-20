@@ -1,10 +1,10 @@
-using Saaskit.Core.Errors;
-using Saaskit.Core.Security;
-using Saaskit.Core.Tenancy;
+using Farm360.Core.Errors;
+using Farm360.Core.Security;
+using Farm360.Core.Tenancy;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 
-namespace Saaskit.Core.Authorization;
+namespace Farm360.Core.Authorization;
 
 /// <summary>Handles <see cref="ModuleRoleRequirement"/>, <see cref="ModulePermission"/> and <see cref="PrincipalTypeRequirement"/>.</summary>
 internal sealed class PlatformAuthorizationHandler(

@@ -1,7 +1,7 @@
-using Saaskit.Core.Data;
-using Saaskit.Core.Platform;
+using Farm360.Core.Data;
+using Farm360.Core.Platform;
 
-namespace Saaskit.Identity.Domain;
+namespace Farm360.Identity.Domain;
 
 /// <summary>
 /// (principal OR group) → module → role. One role per module per assignee: a principal or group can't hold two

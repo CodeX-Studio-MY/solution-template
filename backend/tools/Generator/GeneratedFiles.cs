@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace Saaskit.Generator;
+namespace Farm360.Generator;
 
 /// <summary>Collects generated files, then writes them (or, with <c>--check</c>, reports which would change).</summary>
 public sealed class GeneratedFiles(string repoRoot)

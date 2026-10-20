@@ -1,10 +1,10 @@
-using Saaskit.Core.Http;
-using Saaskit.Notification.Application;
+using Farm360.Core.Http;
+using Farm360.Notification.Application;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
-namespace Saaskit.Notification.Api;
+namespace Farm360.Notification.Api;
 
 /// <summary>A person's own notifications. Available to every signed-in principal; there is no module role to hold.</summary>
 internal static class NotificationEndpoints

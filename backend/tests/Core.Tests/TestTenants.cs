@@ -1,6 +1,6 @@
-using Saaskit.Core.Tenancy;
+using Farm360.Core.Tenancy;
 
-namespace Saaskit.Core.Tests;
+namespace Farm360.Core.Tests;
 
 internal static class TestTenants
 {

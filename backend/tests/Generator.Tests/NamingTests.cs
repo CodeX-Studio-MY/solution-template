@@ -1,4 +1,4 @@
-namespace Saaskit.Generator.Tests;
+namespace Farm360.Generator.Tests;
 
 public sealed class NamingTests
 {

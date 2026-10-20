@@ -1,4 +1,4 @@
-using Saaskit.DevSeed;
+using Farm360.DevSeed;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 // Development only. Onboards the demo tenant, then exits. Run by scripts/dev-up through the AppHost.

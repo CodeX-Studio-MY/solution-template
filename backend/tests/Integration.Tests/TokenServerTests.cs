@@ -1,13 +1,13 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
-using Saaskit.Core.Platform;
-using Saaskit.Core.Security;
+using Farm360.Core.Platform;
+using Farm360.Core.Security;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Saaskit.Integration.Tests;
+namespace Farm360.Integration.Tests;
 
 [Trait("service", "identity")]
 public sealed class TokenServerTests(Databases databases)
@@ -75,7 +75,7 @@ public sealed class TokenServerTests(Databases databases)
     private static async Task<string> ReadKidAsync(IdentityTestHost host, string clientId) =>
         await host.InTenantAsync("demo", async sp =>
         {
-            var catalog = sp.GetRequiredService<Saaskit.Identity.Infrastructure.IdentityCatalogDbContext>();
+            var catalog = sp.GetRequiredService<Farm360.Identity.Infrastructure.IdentityCatalogDbContext>();
             var app = await Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.SingleAsync(catalog.OidcApplications, a => a.ClientId == clientId);
             return new JsonWebKeySet(app.JsonWebKeySet).Keys.Single().Kid;
         });

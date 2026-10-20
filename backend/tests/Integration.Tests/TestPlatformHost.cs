@@ -1,13 +1,13 @@
 using System.Net.Http.Headers;
-using Saaskit.Core.Authorization;
-using Saaskit.Core.Catalog;
-using Saaskit.Core.Catalog.Entities;
-using Saaskit.Core.Composition;
-using Saaskit.Core.Hosting;
-using Saaskit.Core.Platform;
-using Saaskit.Core.Security;
-using Saaskit.Core.Tenancy;
-using Saaskit.Migrator;
+using Farm360.Core.Authorization;
+using Farm360.Core.Catalog;
+using Farm360.Core.Catalog.Entities;
+using Farm360.Core.Composition;
+using Farm360.Core.Hosting;
+using Farm360.Core.Platform;
+using Farm360.Core.Security;
+using Farm360.Core.Tenancy;
+using Farm360.Migrator;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -18,7 +18,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
-namespace Saaskit.Integration.Tests;
+namespace Farm360.Integration.Tests;
 
 /// <summary>Endpoints guarded by each authorization rule, on the fixture's modules and service.</summary>
 internal sealed class ProbeModule : IPlatformModule

@@ -1,11 +1,11 @@
-using Saaskit.Core.Configuration;
-using Saaskit.Core.Platform;
-using Saaskit.Identity.Application;
+using Farm360.Core.Configuration;
+using Farm360.Core.Platform;
+using Farm360.Identity.Application;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
-namespace Saaskit.Identity.Infrastructure;
+namespace Farm360.Identity.Infrastructure;
 
 /// <summary>
 /// At start-up, registers the platform's own OAuth clients from configuration (secrets come from the secret store):

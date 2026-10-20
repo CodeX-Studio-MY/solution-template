@@ -1,7 +1,7 @@
-using Saaskit.Core.Security;
+using Farm360.Core.Security;
 using StackExchange.Redis;
 
-namespace Saaskit.Core.Hosting.Redis;
+namespace Farm360.Core.Hosting.Redis;
 
 /// <summary>Access versions in Redis: one hash per tenant, field per principal.</summary>
 internal sealed class RedisAccessVersionStore(IConnectionMultiplexer redis) : IAccessVersionStore

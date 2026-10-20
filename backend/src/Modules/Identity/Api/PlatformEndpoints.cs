@@ -1,11 +1,11 @@
-using Saaskit.Core.Authorization;
-using Saaskit.Identity.Application;
+using Farm360.Core.Authorization;
+using Farm360.Identity.Application;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 
-namespace Saaskit.Identity.Api;
+namespace Farm360.Identity.Api;
 
 /// <summary>Called by other platform services (Tenancy), never by users or tenants.</summary>
 internal static class PlatformEndpoints
@@ -21,13 +21,13 @@ internal static class PlatformEndpoints
         // The first admin of a new tenant: an emailed invitation, never a default password.
         platform.MapPost("/invitations", async ([FromBody] FirstAdminBody body, IAccountService accounts, CancellationToken ct) =>
         {
-            var invitation = await accounts.InviteAsync(body.Email, body.DisplayName, body.Modules.Select(m => (m, Saaskit.Core.Platform.Role.Admin)), ct);
+            var invitation = await accounts.InviteAsync(body.Email, body.DisplayName, body.Modules.Select(m => (m, Farm360.Core.Platform.Role.Admin)), ct);
             return new { invitation.PrincipalId, invitation.ExpiresOn, url = invitation.Url };
         }).RequirePlatformService();
         platform.MapGet("/principals/{id:guid}/contact", async (Guid id, IAccessManagement access, CancellationToken ct) =>
             await access.GetContactAsync(id, ct) is { } contact ? Results.Ok(contact) : Results.NotFound()).RequirePlatformService();
-        platform.MapGet("/module-members", (string module, Saaskit.Core.Platform.Role? minRole, IAccessManagement access, CancellationToken ct) =>
-            access.ListModuleMembersAsync(module, minRole ?? Saaskit.Core.Platform.Role.Manager, ct)).RequirePlatformService();
+        platform.MapGet("/module-members", (string module, Farm360.Core.Platform.Role? minRole, IAccessManagement access, CancellationToken ct) =>
+            access.ListModuleMembersAsync(module, minRole ?? Farm360.Core.Platform.Role.Manager, ct)).RequirePlatformService();
         platform.MapPut("/bff-redirect-uris", async ([FromBody] RedirectUrisBody body, ITenantSecurity security, CancellationToken ct) =>
         {
             await security.SetBffRedirectUrisAsync(body.Add ?? [], body.Remove ?? [], ct);
@@ -35,7 +35,7 @@ internal static class PlatformEndpoints
         }).RequirePlatformService();
     }
 
-    internal sealed record SupportTokenBody(Guid GrantId, string OperatorId, string OperatorName, string Module, Saaskit.Core.Platform.Role Role, string Audience, string Reason);
+    internal sealed record SupportTokenBody(Guid GrantId, string OperatorId, string OperatorName, string Module, Farm360.Core.Platform.Role Role, string Audience, string Reason);
 
     internal sealed record FirstAdminBody(string Email, string DisplayName, IReadOnlyList<string> Modules);
 

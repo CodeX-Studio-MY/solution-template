@@ -1,14 +1,14 @@
-using Saaskit.Core.Authorization;
-using Saaskit.Core.Http;
-using Saaskit.Core.Platform;
-using Saaskit.Sample.Application;
-using Saaskit.Sample.Infrastructure;
+using Farm360.Core.Authorization;
+using Farm360.Core.Http;
+using Farm360.Core.Platform;
+using Farm360.Sample.Application;
+using Farm360.Sample.Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 
-namespace Saaskit.Sample.Api;
+namespace Farm360.Sample.Api;
 
 /// <summary>
 /// The HTTP surface, mounted under <c>/api/{module-key}</c> by the platform. Every endpoint requires a signed-in principal (the

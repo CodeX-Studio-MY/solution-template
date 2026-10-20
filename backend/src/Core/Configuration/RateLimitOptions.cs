@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Saaskit.Core.Configuration;
+namespace Farm360.Core.Configuration;
 
 [OptionsSection("RateLimit", "Distributed rate limits (Redis). A tenant's plan can override the per-tenant and per-principal limits.")]
 public sealed record RateLimitOptions

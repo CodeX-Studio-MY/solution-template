@@ -2,7 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using OpenFeature;
 
-namespace Saaskit.Core.Customization;
+namespace Farm360.Core.Customization;
 
 public static class CustomizationRegistration
 {

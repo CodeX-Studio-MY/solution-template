@@ -1,6 +1,6 @@
-using Saaskit.Core.Tenancy;
+using Farm360.Core.Tenancy;
 
-namespace Saaskit.Tenancy.Domain;
+namespace Farm360.Tenancy.Domain;
 
 /// <summary>
 /// The tenant lifecycle: Provisioning → Active → Suspended (read-only) → PendingDeletion → Deleted.

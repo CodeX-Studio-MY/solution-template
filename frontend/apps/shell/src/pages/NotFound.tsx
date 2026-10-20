@@ -1,7 +1,7 @@
 import Button from "@mui/material/Button";
 import { Link as RouterLink } from "react-router";
 import { useTranslation } from "react-i18next";
-import { EmptyState } from "@saaskit/ui-kit";
+import { EmptyState } from "@farm360/ui-kit";
 
 export function NotFound() {
   const { t } = useTranslation("common");
