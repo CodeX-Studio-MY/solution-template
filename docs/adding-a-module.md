@@ -15,7 +15,7 @@ scripts/new-module goods-receipt --name "Goods Receipt"
    `backend/src/Hosts/GoodsReceipt.Host` and `backend/tests/GoodsReceipt.Tests`.
 3. Creates `frontend/modules/goods-receipt` from `templates/frontend-module`.
 4. Runs `scripts/generate`: the constants (`Modules.GoodsReceipt`, `PlatformServices.GoodsReceipt`), the Gateway route, the AppHost
-   resource, the compose file, the CI workflows (`service-goods-receipt.yml`, `frontend-goods-receipt.yml`), the migrations projects,
+   resource, the compose file, the migrations projects,
    `AllInOne.Host`'s registration, the OpenAPI document, the typed API client and the TypeScript types.
 5. Creates the module's first migration for **every** provider, and the catalog migration (the catalog seeds the list of modules and
    plans, which just changed).

@@ -21,7 +21,7 @@ internal static partial class InitCommand
     internal const string Marker = ".template";
 
     /// <summary>What only the template needs, removed from the product.</summary>
-    private static readonly string[] TemplateOnly = [Marker, ".github/workflows/init.yml"];
+    private static readonly string[] TemplateOnly = [Marker];
 
     /// <summary>Parts of README.md about the template itself, between these lines, are removed from the product's README.</summary>
     internal const string TemplateSectionStart = "<!-- BEGIN TEMPLATE ONLY -->";

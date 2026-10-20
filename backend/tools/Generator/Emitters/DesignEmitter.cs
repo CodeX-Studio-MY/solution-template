@@ -62,7 +62,7 @@ internal static class DesignEmitter
         sb.AppendLine();
         sb.AppendLine($"Every visual decision lives in one file: [`{Source}`](../{Source}). It is plain data. The MUI theme reads it directly, and");
         sb.AppendLine("`scripts/generate` derives everything else from it (this page, and `DesignTokens.g.cs` for Identity's server-rendered sign-in pages).");
-        sb.AppendLine("A lint rule fails the build on a colour literal anywhere else, and CI fails if a derived file is out of date.");
+        sb.AppendLine("A lint rule fails the build on a colour literal anywhere else, and `scripts/generate --check` fails if a derived file is out of date.");
         sb.AppendLine();
         sb.AppendLine("## Rules");
         sb.AppendLine();

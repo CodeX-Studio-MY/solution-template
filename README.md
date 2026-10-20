@@ -42,7 +42,7 @@ Maintaining the template itself: `scripts/generate.ps1 --template` regenerates i
 
 > **Single source of truth.** Every fact is defined once. The application's structure lives in
 > [`platform.yaml`](platform.yaml); runtime configuration in the typed options records in `backend/src/Core/Configuration`.
-> Edit the source, then run `scripts/generate.sh` (or `scripts/generate.ps1`). CI fails if generated files drift.
+> Edit the source, then run `scripts/generate.sh` (or `scripts/generate.ps1`). `scripts/generate --check` fails if generated files drift.
 
 ## Architecture
 
@@ -78,7 +78,7 @@ flowchart LR
 - **The browser holds no tokens.** The Gateway is the OAuth client; the browser gets an `HttpOnly` session cookie, and the Gateway gets a
   token per downstream service audience.
 - **Everything about structure is generated.** `platform.yaml` lists the services and modules; `scripts/generate` writes constants,
-  routes, the AppHost, the compose file, CI workflows, API clients and docs, and CI fails if they drift.
+  routes, the AppHost, the compose file, the CI workflow, API clients and docs, and `scripts/generate --check` fails if they drift.
 
 ## Services and modules
 

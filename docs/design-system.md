@@ -3,7 +3,7 @@
 
 Every visual decision lives in one file: [`frontend/packages/ui-kit/src/theme/tokens.ts`](../frontend/packages/ui-kit/src/theme/tokens.ts). It is plain data. The MUI theme reads it directly, and
 `scripts/generate` derives everything else from it (this page, and `DesignTokens.g.cs` for Identity's server-rendered sign-in pages).
-A lint rule fails the build on a colour literal anywhere else, and CI fails if a derived file is out of date.
+A lint rule fails the build on a colour literal anywhere else, and `scripts/generate --check` fails if a derived file is out of date.
 
 ## Rules
 

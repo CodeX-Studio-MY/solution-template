@@ -7,7 +7,7 @@ namespace Saaskit.Generator;
 /// <summary>
 /// <c>scripts/new-module &lt;key&gt;</c>: adds a module to <c>platform.yaml</c>, creates its backend (module, host, tests) and frontend
 /// module from the clean templates in <c>templates/</c>, generates everything that follows from platform.yaml (constants, migrations
-/// projects, gateway route, AppHost, compose, CI workflow, API client), creates its first migrations for every database provider,
+/// projects, gateway route, AppHost, compose, API client), creates its first migrations for every database provider,
 /// and installs the frontend dependencies. No other file needs a manual edit.
 /// </summary>
 internal static class NewModuleCommand
