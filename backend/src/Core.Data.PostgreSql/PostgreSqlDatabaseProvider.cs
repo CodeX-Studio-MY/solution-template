@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.Extensions.DependencyInjection;
+using NetTopologySuite.Geometries;
 using Npgsql;
 
 namespace Saaskit.Core.Data.PostgreSql;
@@ -44,6 +45,8 @@ public sealed class PostgreSqlDatabaseProvider : IDatabaseProvider
             {
                 npgsql.MigrationsHistoryTable("__ef_migrations_history", schema);
                 npgsql.MigrationsAssembly(migrationsAssembly);
+                // Spatial types (NetTopologySuite) as geography, like SQL Server: columns and query parameters (docs/adr/0024).
+                npgsql.UseNetTopologySuite(geographyAsDefault: true);
             })
             // Naming is applied in exactly one place: snake_case tables and columns on PostgreSQL.
             .UseSnakeCaseNamingConvention();
@@ -52,6 +55,18 @@ public sealed class PostgreSqlDatabaseProvider : IDatabaseProvider
     {
         // Guid keys: Npgsql generates UUIDv7 client-side by default, which sorts correctly on PostgreSQL.
         // DateTime (UTC) maps to timestamptz; Npgsql requires DateTimeKind.Utc, which the UTC rule guarantees.
+        // Points are WGS 84 (SRID 4326) geography; other geometry types are plain geography (SRID 4326 by default).
+        configuration.Properties<Point>().HaveColumnType("geography (point, 4326)");
+    }
+
+    /// <summary>The PostGIS extension, only in databases whose model has a spatial column, so other modules don't need PostGIS.</summary>
+    public void ConfigureModel(ModelBuilder modelBuilder)
+    {
+        var spatial = modelBuilder.Model.GetEntityTypes()
+            .SelectMany(e => e.GetProperties())
+            .Any(p => typeof(Geometry).IsAssignableFrom(p.ClrType));
+        if (spatial)
+            modelBuilder.HasPostgresExtension("postgis");
     }
 
     /// <summary>The <c>xmin</c> system column is PostgreSQL's row version; no column is created for it.</summary>

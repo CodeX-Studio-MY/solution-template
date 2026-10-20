@@ -51,6 +51,7 @@ its shape:
 - No `DbContext` maps another module's schema; only the Migrator references migrations. (`DataOwnershipTests`)
 - No hard-coded module keys, role names, flag keys or `/api/` paths; no comparing `TenantId` or `TenantSlug`. (`SingleSourceOfTruthTests`)
 - A migration exists for every model change, per provider. (`MigrationsConsistencyTests`)
+- No spatial type (`NetTopologySuite`) in `Api` or `Contracts`. (`ModuleBoundaryTests`)
 - The frontend module imports only `ui-kit`, `web-core` and `api-clients`, never another module. (ESLint boundaries, with tests)
 
 ## Changing the data model
@@ -72,6 +73,28 @@ dotnet ef migrations add AddSupplier -p src/Modules/GoodsReceipt.Migrations.Post
 
 Migrations are expand-only: add columns and tables, never rename or drop in the same release. The Migrator applies them to every tenant
 database (`scripts/dev-up` runs it for you).
+
+## Storing locations (spatial)
+
+Spatial support is switched on for the whole platform in `Core.Data.*` (see [ADR 0024](adr/0024-spatial-types.md)). A module that stores a
+location only adds the type library to its `.csproj`, with no version: the version is in `Directory.Packages.props`.
+
+```xml
+<PackageReference Include="NetTopologySuite" />
+```
+
+The column is `geography` on both providers. PostgreSQL stores a `Point` as `geography (point, 4326)`, and its migration enables PostGIS
+for you. Distances and `IsWithinDistance` are in metres. The rules:
+
+- **Create points as `new Point(longitude, latitude) { SRID = 4326 }`.** X is the longitude, so the order is longitude first.
+- **Never put `Point` (or any `Geometry`) in a request or response.** It serializes with circular properties, which breaks the OpenAPI
+  document and the generated TypeScript client. Use `Latitude` and `Longitude` numbers, and convert in the `Application` layer. `Domain`
+  may use `Point`.
+- **Validate the numbers:** latitude in [-90, 90], longitude in [-180, 180]. Reject anything else with a validation error before you build
+  the point.
+
+On a managed PostgreSQL server, the PostGIS extension may have to be allowed first. On Azure Database for PostgreSQL (Flexible Server),
+add `postgis` to the `azure.extensions` server parameter.
 
 ## Which parts of the specification you will want next
 

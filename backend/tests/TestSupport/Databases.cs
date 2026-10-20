@@ -13,14 +13,14 @@ using Testcontainers.Redis;
 namespace Saaskit.TestSupport;
 
 /// <summary>
-/// One container per database provider listed in platform.yaml (SQL Server 2025, PostgreSQL 18) for the whole test run. Every test that
+/// One container per database provider listed in platform.yaml (SQL Server 2025, PostgreSQL 18 with PostGIS) for the whole test run. Every test that
 /// touches data runs on every listed provider: a feature isn't done until it passes on all of them. PostgreSQL's container only starts
 /// when PostgreSQL is listed (scripts/add-postgresql adds it).
 /// </summary>
 public sealed class Databases : IAsyncLifetime
 {
     public const string SqlServerImage = "mcr.microsoft.com/mssql/server:2025-latest";
-    public const string PostgreSqlImage = "postgres:18";
+    public const string PostgreSqlImage = "imresamu/postgis:18-3.6";
     public const string ValkeyImage = "valkey/valkey:9";
     public const string RabbitMqImage = "rabbitmq:4-management";
     public const string MailpitImage = "axllent/mailpit:v1.27";

@@ -68,6 +68,28 @@ public sealed class ModuleBoundaryTests
         result.FailingTypeNames.ShouldBeNull();
     }
 
+    /// <summary>
+    /// Spatial values never reach the wire: a NetTopologySuite <c>Point</c> serializes with circular properties and breaks OpenAPI and the
+    /// generated TypeScript client. Endpoints and contracts use latitude and longitude numbers; the Application layer converts (docs/adr/0024).
+    /// </summary>
+    [Theory]
+    [MemberData(nameof(Modules))]
+    public void Api_exposes_no_spatial_types(string module)
+    {
+        var result = Types.InAssembly(Load(module))
+            .That().ResideInNamespace($"{module}.Api")
+            .ShouldNot().HaveDependencyOn("NetTopologySuite")
+            .GetResult();
+        result.FailingTypeNames.ShouldBeNull();
+    }
+
+    [Fact]
+    public void Contracts_expose_no_spatial_types()
+    {
+        var contracts = Solution.Assemblies.Single(a => a.GetName().Name == $"{Solution.Product}.Contracts");
+        contracts.GetReferencedAssemblies().Select(r => r.Name!).ShouldNotContain("NetTopologySuite");
+    }
+
     [Fact]
     public void Only_the_Migrator_references_migrations_assemblies()
     {

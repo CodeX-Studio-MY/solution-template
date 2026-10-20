@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Time.Testing;
+using NetTopologySuite.Geometries;
 
 namespace Saaskit.Integration.Tests;
 
@@ -17,13 +18,40 @@ public sealed class TestModuleDbContext(DbContextOptions<TestModuleDbContext> op
 
     public DbSet<TestItem> Items => Set<TestItem>();
 
-    protected override void ConfigureModel(ModelBuilder modelBuilder) =>
+    public DbSet<TestPlace> Places => Set<TestPlace>();
+
+    protected override void ConfigureModel(ModelBuilder modelBuilder)
+    {
         modelBuilder.Entity<TestItem>(item =>
         {
             item.ToTable("Items");
             item.Property(i => i.Code).HasMaxLength(20);
             item.HasIndex(i => i.Code).IsUniqueAmongNotDeleted();
         });
+        modelBuilder.Entity<TestPlace>(place =>
+        {
+            place.ToTable("Places");
+            place.Property(p => p.Name).HasMaxLength(50);
+        });
+    }
+}
+
+/// <summary>A spatial column: the provider maps it to geography (SRID 4326) and, on PostgreSQL, enables PostGIS.</summary>
+public sealed class TestPlace : BaseEntity
+{
+    private TestPlace()
+    {
+    }
+
+    public TestPlace(string name, Point location)
+    {
+        Name = name;
+        Location = location;
+    }
+
+    public string Name { get; private set; } = "";
+
+    public Point Location { get; private set; } = null!;
 }
 
 public sealed class TestItem : BaseEntity, IAggregateRoot, ISoftDeletable

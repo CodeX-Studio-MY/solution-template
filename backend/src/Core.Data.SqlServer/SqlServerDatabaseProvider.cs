@@ -44,12 +44,19 @@ public sealed class SqlServerDatabaseProvider : IDatabaseProvider
             sql.MigrationsAssembly(migrationsAssembly);
             // SQL Server 2025 / Azure SQL: native json columns.
             sql.UseCompatibilityLevel(170);
+            // Spatial types (NetTopologySuite): geometry properties map to geography (docs/adr/0024).
+            sql.UseNetTopologySuite();
         });
 
     public void ConfigureConventions(ModelConfigurationBuilder configuration)
     {
         // Guid keys: EF Core's SQL Server provider generates sequential GUIDs client-side by default,
         // which suits SQL Server's uniqueidentifier sort order. UUIDv7 would fragment the index.
+    }
+
+    public void ConfigureModel(ModelBuilder modelBuilder)
+    {
+        // Spatial types need nothing on SQL Server: geography is built in.
     }
 
     public void ConfigureConcurrencyToken(EntityTypeBuilder entity) =>

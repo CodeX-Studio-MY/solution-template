@@ -85,7 +85,8 @@ internal sealed class PlatformInfrastructure
                 catalog = sql.AddDatabase("catalog");
                 break;
             case "postgresql":
-                var postgres = builder.AddPostgres("postgres").WithImageTag("18").WithDataVolume(Volume("postgres-data"));
+                // PostgreSQL 18 with PostGIS, for modules with spatial columns (docs/adr/0024). A multi-arch build: postgis/postgis is amd64-only.
+                var postgres = builder.AddPostgres("postgres").WithImage("imresamu/postgis").WithImageTag("18-3.6").WithDataVolume(Volume("postgres-data"));
                 server = postgres;
                 catalog = postgres.AddDatabase("catalog");
                 break;

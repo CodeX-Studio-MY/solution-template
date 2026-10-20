@@ -26,6 +26,9 @@ public interface IDatabaseProvider
     /// <summary>Provider-specific model conventions (key generation, naming, timestamps).</summary>
     void ConfigureConventions(ModelConfigurationBuilder configuration);
 
+    /// <summary>Provider-specific model settings that depend on the finished model (for example the PostGIS extension when it has spatial columns).</summary>
+    void ConfigureModel(ModelBuilder modelBuilder);
+
     /// <summary>Configures the provider's row version as the entity's concurrency token (a shadow property).</summary>
     void ConfigureConcurrencyToken(EntityTypeBuilder entity);
 

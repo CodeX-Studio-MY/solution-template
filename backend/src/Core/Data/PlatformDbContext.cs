@@ -89,6 +89,8 @@ public abstract class PlatformDbContext : DbContext
                     index.SetFilter(string.Join(" AND ", filters));
             }
         }
+
+        Provider.ConfigureModel(modelBuilder);
     }
 }
 
