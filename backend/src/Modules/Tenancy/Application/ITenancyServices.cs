@@ -11,7 +11,13 @@ public sealed record TenantSummary(
     string Plan,
     IReadOnlyList<string> Modules,
     DateTime? DeleteAfter,
-    bool RequireSupportApproval);
+    bool RequireSupportApproval,
+    string TimeZone,
+    string Currency,
+    string Locale);
+
+/// <summary>What a tenant is called and how it formats time and money. A tenant admin and an operator may change it.</summary>
+public sealed record TenantProfile(string DisplayName, string TimeZone, string Currency, string Locale);
 
 public sealed record OnboardRequest(string Slug, string DisplayName, string Plan, string AdminEmail, string AdminName, string? ServerPool = null);
 
@@ -32,6 +38,9 @@ public interface ITenantAdmin
     Task<TenantSummary> GrantModuleAsync(Guid tenantId, string moduleKey, string actor, CancellationToken cancellationToken = default);
 
     Task<TenantSummary> RevokeModuleAsync(Guid tenantId, string moduleKey, string actor, CancellationToken cancellationToken = default);
+
+    /// <summary>Changes the name, time zone (IANA), currency (ISO 4217) and locale (one of the platform's locales).</summary>
+    Task<TenantSummary> UpdateProfileAsync(Guid tenantId, TenantProfile profile, string actor, CancellationToken cancellationToken = default);
 
     Task<TenantSummary> SetSupportApprovalAsync(Guid tenantId, bool required, string actor, CancellationToken cancellationToken = default);
 }

@@ -102,7 +102,7 @@ public sealed partial class TenantResolutionMiddleware(
         if (!host.EndsWith(suffix, StringComparison.OrdinalIgnoreCase))
             return null;
         var label = host[..^suffix.Length].ToLowerInvariant();
-        return label.Length == 0 || label.Contains('.', StringComparison.Ordinal) || label == "login" ? null : label;
+        return label.Length == 0 || label.Contains('.', StringComparison.Ordinal) || label is "login" or "operator" ? null : label;
     }
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "Token tenant {TenantId} does not match subdomain {Subdomain}")]

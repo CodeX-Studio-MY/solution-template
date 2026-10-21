@@ -12,6 +12,7 @@ builder.AddPlatformInfrastructure("gateway");
 builder.Services.AddPlatformOptions<BffOptions>(builder.Configuration);
 builder.Services.AddPlatformOptions<FrontendOptions>(builder.Configuration);
 builder.Services.AddGatewayAuthentication();
+builder.Services.AddOperatorBff(builder.Configuration.GetValidatedOptions<BffOptions>());
 builder.Services.AddAuthorization();
 
 var (routes, clusters) = ProxyConfiguration.Build(
@@ -24,7 +25,19 @@ builder.Services.AddReverseProxy()
     {
         // The tenant's host stays the Host header downstream, so each service can check the token's tenant against it.
         context.AddOriginalHost(true);
-        if (context.Route.Metadata?.ContainsKey(ProxyConfiguration.AudienceMetadata) == true)
+        if (context.Route.Metadata?.ContainsKey(ProxyConfiguration.OperatorMetadata) == true)
+        {
+            context.AddRequestHeaderRemove("Cookie");
+            context.AddRequestHeaderRemove("Authorization");
+            context.AddRequestHeaderRemove(Saaskit.Core.Security.PlatformHeaders.Tenant);
+            context.AddRequestHeaderRemove(Saaskit.Core.Security.PlatformHeaders.Csrf);
+            context.AddRequestTransform(transform =>
+            {
+                transform.ProxyRequest.Headers.TryAddWithoutValidation("Authorization", $"Operator {(string)transform.HttpContext.Items[OperatorBff.TokenItem]!}");
+                return default;
+            });
+        }
+        else if (context.Route.Metadata?.ContainsKey(ProxyConfiguration.AudienceMetadata) == true)
         {
             // The browser's cookie and any headers it tries to set for the platform never reach a service.
             context.AddRequestHeaderRemove("Cookie");
@@ -52,6 +65,7 @@ app.UseAuthorization();
 
 app.MapPlatformHealth();
 BffEndpoints.Map(app);
+OperatorBff.Map(app);
 app.MapReverseProxy(proxy => proxy.Use(SessionGate.InvokeAsync));
 
 app.Run();

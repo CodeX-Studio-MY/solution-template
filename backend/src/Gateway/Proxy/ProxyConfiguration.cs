@@ -12,6 +12,7 @@ internal static class ProxyConfiguration
 {
     public const string AudienceMetadata = "Audience";
     public const string LoginRoute = "login";
+    public const string OperatorMetadata = "Operator";
 
     public static (IReadOnlyList<RouteConfig> Routes, IReadOnlyList<ClusterConfig> Clusters) Build(TenancyOptions tenancy, BffOptions bff)
     {
@@ -44,6 +45,16 @@ internal static class ProxyConfiguration
             ClusterId = PlatformServices.Identity.Key,
             Order = 0,
             Match = new RouteMatch { Hosts = [$"login.{tenancy.BaseDomain}"], Path = "/{**rest}" },
+        });
+
+        // The operator console's API, on the operator host only. The session gate adds the operator's token.
+        routes.Add(new RouteConfig
+        {
+            RouteId = "operator",
+            ClusterId = PlatformServices.Tenancy.Key,
+            Order = 0,
+            Match = new RouteMatch { Hosts = [$"operator.{tenancy.BaseDomain}"], Path = $"{PlatformServices.Tenancy.RoutePrefix}/v1/operator/{{**rest}}" },
+            Metadata = new Dictionary<string, string> { [OperatorMetadata] = "true" },
         });
         return (routes, clusters);
     }

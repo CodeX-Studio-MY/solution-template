@@ -6,6 +6,7 @@ export const errorCodes = {
   "access-management.enrollment-invalid": { status: 422, messageKey: "errors.identity.enrollmentInvalid" },
   "access-management.group-name-in-use": { status: 409, messageKey: "errors.identity.groupNameInUse" },
   "access-management.group-not-found": { status: 404, messageKey: "errors.identity.groupNotFound" },
+  "access-management.invitation-not-pending": { status: 422, messageKey: "errors.identity.invitationNotPending" },
   "access-management.module-not-entitled": { status: 422, messageKey: "errors.identity.moduleNotEntitled" },
   "access-management.principal-not-found": { status: 404, messageKey: "errors.identity.principalNotFound" },
   "access-management.service-principals-have-no-groups": { status: 422, messageKey: "errors.identity.servicePrincipalsHaveNoGroups" },

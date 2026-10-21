@@ -30,6 +30,7 @@ The Gateway acting as the web app's backend-for-frontend (RFC 10017): sessions, 
 | `Bff__SessionDays` | integer | no | `7` | How long a browser session lasts without activity, in days. It matches the refresh token's sliding lifetime. Allowed: 1–30. |
 | `Bff__AllInOneAddress` | string | no |  | When every service runs in one process (AllInOne.Host), route all /api traffic to this address instead of one host per service. Example: `http://allinone`. |
 | `Bff__ShellRoot` | string | no |  | Directory with the built shell app (index.html and its assets), served by the Gateway on every tenant host. Empty disables it. Example: `/app/shell`. |
+| `Bff__OperatorRoot` | string | no |  | Directory with the built operator console (index.html and its assets), served on operator.{BaseDomain}. Empty disables it. Example: `/app/operator`. |
 | `Bff__ModulesRoot` | string | no |  | Directory with the built frontend modules, served at /mfe/{module-key}/{version}/. Empty disables it (a CDN serves them). Example: `/app/mfe`. |
 | `Bff__ExtraSources` | string | no |  | Extra origins the browser may connect to or load scripts from, besides the app itself and the module CDN (space separated). Example: `https://cdn.example.com`. |
 

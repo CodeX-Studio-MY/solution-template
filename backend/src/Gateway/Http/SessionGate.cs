@@ -20,7 +20,20 @@ internal static class SessionGate
 {
     public static async Task InvokeAsync(HttpContext context, Func<Task> next)
     {
-        var audience = context.GetReverseProxyFeature().Route.Config.Metadata?.GetValueOrDefault(ProxyConfiguration.AudienceMetadata);
+        var metadata = context.GetReverseProxyFeature().Route.Config.Metadata;
+        if (metadata?.ContainsKey(ProxyConfiguration.OperatorMetadata) == true)
+        {
+            if (OperatorBff.ReadToken(context) is not { } operatorToken)
+            {
+                await Problem(context, StatusCodes.Status401Unauthorized, "platform.unauthenticated");
+                return;
+            }
+            context.Items[OperatorBff.TokenItem] = operatorToken;
+            await next();
+            return;
+        }
+
+        var audience = metadata?.GetValueOrDefault(ProxyConfiguration.AudienceMetadata);
         if (audience is null)
         {
             await next();   // the central sign-in host: no session, no token

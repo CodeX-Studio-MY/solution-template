@@ -56,6 +56,14 @@ public sealed class CatalogTenant : BaseEntity, IAggregateRoot
     public void ChangePlacement(TenantPlacementData placement) => Placement = placement;
 
     public void ChangePlan(string plan) => Plan = plan;
+
+    public void ChangeProfile(string displayName, string timeZone, string currency, string locale)
+    {
+        DisplayName = displayName;
+        TimeZone = timeZone;
+        Currency = currency;
+        Locale = locale;
+    }
 }
 
 /// <summary>Where a tenant's database lives (a complex type on <see cref="CatalogTenant"/>).</summary>

@@ -288,6 +288,7 @@ internal sealed class PlatformInfrastructure
         {
             gateway = gateway
                 .WithEnvironment(ConfigKeys.Bff.ShellRoot, Path.Combine(frontend, "shell"))
+                .WithEnvironment(ConfigKeys.Bff.OperatorRoot, Path.Combine(frontend, "operator"))
                 .WithEnvironment(ConfigKeys.Bff.ModulesRoot, Path.Combine(frontend, "mfe"));
         }
 

@@ -3,7 +3,16 @@ using Saaskit.Core.Security;
 
 namespace Saaskit.Identity.Application;
 
-public sealed record PrincipalDto(Guid Id, PrincipalType Type, string DisplayName, bool IsActive, string? ClientId, DateTime? LastSeenOn, string ETag);
+/// <summary>Where a principal stands: signed in before or able to, switched off by an admin, or invited and not yet accepted.</summary>
+public enum PrincipalStatus
+{
+    Active,
+    Inactive,
+    Invited,
+}
+
+/// <summary>A user, machine or service. <c>Email</c> is a user's sign-in address (while invited, where the invitation went); null for machines and services.</summary>
+public sealed record PrincipalDto(Guid Id, PrincipalType Type, string DisplayName, bool IsActive, string? ClientId, DateTime? LastSeenOn, string ETag, string? Email, PrincipalStatus Status);
 
 public sealed record GroupDto(Guid Id, string Name, bool IsActive, int MemberCount, string ETag);
 
@@ -30,6 +39,8 @@ public interface IAccessManagement
     Task<PrincipalDto> GetPrincipalAsync(Guid id, CancellationToken cancellationToken = default);
 
     Task<PrincipalDto> SetPrincipalActiveAsync(Guid id, bool active, string? ifMatch, CancellationToken cancellationToken = default);
+
+    Task<PrincipalDto> RenamePrincipalAsync(Guid id, string displayName, string? ifMatch, CancellationToken cancellationToken = default);
 
     /// <summary>Creates a machine (for example a shared tablet) and its one-time enrollment code.</summary>
     Task<MachineEnrollmentDto> CreateMachineAsync(string displayName, CancellationToken cancellationToken = default);
@@ -58,6 +69,8 @@ public interface IAccessManagement
     Task DeleteGroupAsync(Guid id, CancellationToken cancellationToken = default);
 
     Task AddMemberAsync(Guid groupId, Guid principalId, CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<PrincipalDto>> ListGroupMembersAsync(Guid groupId, CancellationToken cancellationToken = default);
 
     Task RemoveMemberAsync(Guid groupId, Guid principalId, CancellationToken cancellationToken = default);
 

@@ -34,6 +34,13 @@ public sealed class Invitation : BaseEntity
     public bool CanAccept(DateTime utcNow) => AcceptedOn is null && utcNow < ExpiresOn;
 
     public void Accept(DateTime utcNow) => AcceptedOn = utcNow;
+
+    /// <summary>A new link for the same invitation: the old token no longer matches.</summary>
+    public void Renew(string tokenHash, DateTime expiresOn)
+    {
+        TokenHash = tokenHash;
+        ExpiresOn = expiresOn;
+    }
 }
 
 /// <summary>A one-time machine enrollment code (valid 15 minutes, single use). Only a hash is stored.</summary>

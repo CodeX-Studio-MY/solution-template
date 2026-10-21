@@ -50,10 +50,29 @@ internal sealed class AccountService(
         await audit.WriteAsync(AuditKinds.InvitationCreated, subject: principal.Id.ToString(), details: new { email = email.Trim() }, saveNow: false, cancellationToken: cancellationToken);
         await db.SaveChangesAsync(cancellationToken);
 
-        var url = new Uri($"{tenancy.Value.Issuer}account/invitation?tenant={Uri.EscapeDataString(tenant.Tenant.Slug)}&token={token}");
+        var url = InvitationUrl(token);
         await messages.SendAsync(new AccountLink("invitation", email.Trim(), displayName, url, expires), cancellationToken);
         return new InvitationResult(principal.Id, url, expires);
     }
+
+    public async Task<InvitationResult> ResendInvitationAsync(Guid principalId, CancellationToken cancellationToken = default)
+    {
+        var invitation = await db.Invitations.SingleOrDefaultAsync(i => i.PrincipalId == principalId && i.AcceptedOn == null, cancellationToken)
+            ?? throw new BusinessRuleException(IdentityErrors.InvitationNotPending);
+        var principal = await db.Principals.SingleAsync(p => p.Id == principalId, cancellationToken);
+        var token = Token();
+        var expires = time.GetUtcNow().UtcDateTime.AddHours(tokenServer.Value.InvitationHours);
+        invitation.Renew(Hash(token), expires);
+        await audit.WriteAsync(AuditKinds.InvitationCreated, subject: principalId.ToString(), details: new { email = invitation.Email, resent = true }, saveNow: false, cancellationToken: cancellationToken);
+        await db.SaveChangesAsync(cancellationToken);
+
+        var url = InvitationUrl(token);
+        await messages.SendAsync(new AccountLink("invitation", invitation.Email, principal.DisplayName, url, expires), cancellationToken);
+        return new InvitationResult(principalId, url, expires);
+    }
+
+    private Uri InvitationUrl(string token) =>
+        new($"{tenancy.Value.Issuer}account/invitation?tenant={Uri.EscapeDataString(tenant.Tenant.Slug)}&token={token}");
 
     public async Task<bool> IsInvitationValidAsync(string token, CancellationToken cancellationToken = default)
     {

@@ -27,6 +27,12 @@ internal static class AccessManagementEndpoints
             response.Headers.ETag = principal.ETag;
             return principal;
         }).RequireModuleRole(Module, Role.Manager);
+        principals.MapPut("/{id:guid}", async (Guid id, [FromBody] NameBody body, [FromHeader(Name = "If-Match")] string? ifMatch, IAccessManagement access, HttpResponse response, CancellationToken ct) =>
+        {
+            var principal = await access.RenamePrincipalAsync(id, body.DisplayName, ifMatch, ct);
+            response.Headers.ETag = principal.ETag;
+            return principal;
+        }).RequireModuleRole(Module, Role.Admin);
         principals.MapPut("/{id:guid}/active", async (Guid id, [FromBody] ActiveBody body, [FromHeader(Name = "If-Match")] string? ifMatch, IAccessManagement access, HttpResponse response, CancellationToken ct) =>
         {
             var principal = await access.SetPrincipalActiveAsync(id, body.Active, ifMatch, ct);
@@ -58,12 +64,20 @@ internal static class AccessManagementEndpoints
         v1.MapPost("/users/invitations", async ([FromBody] InviteBody body, IAccountService accounts, CancellationToken ct) =>
         {
             var invitation = await accounts.InviteAsync(body.Email, body.DisplayName, body.Roles.Select(r => (r.Module, r.Role)), ct);
-            return Results.Created($"{PlatformServices.Identity.RoutePrefix}/v1/principals/{invitation.PrincipalId}", new { invitation.PrincipalId, invitation.ExpiresOn });
+            return TypedResults.Created($"{PlatformServices.Identity.RoutePrefix}/v1/principals/{invitation.PrincipalId}", new InvitationSent(invitation.PrincipalId, invitation.ExpiresOn));
+        }).RequireModuleRole(Module, Role.Admin);
+        v1.MapPost("/users/{id:guid}/invitation", async (Guid id, IAccountService accounts, CancellationToken ct) =>
+        {
+            var invitation = await accounts.ResendInvitationAsync(id, ct);
+            return new InvitationSent(invitation.PrincipalId, invitation.ExpiresOn);
         }).RequireModuleRole(Module, Role.Admin);
 
         var machines = v1.MapGroup("/machines").WithTags("machines");
         machines.MapPost("", async ([FromBody] NameBody body, IAccessManagement access, CancellationToken ct) =>
-            Results.Created("", await access.CreateMachineAsync(body.DisplayName, ct))).RequireModuleRole(Module, Role.Admin);
+        {
+            var enrollment = await access.CreateMachineAsync(body.DisplayName, ct);
+            return TypedResults.Created($"{PlatformServices.Identity.RoutePrefix}/v1/principals/{enrollment.PrincipalId}", enrollment);
+        }).RequireModuleRole(Module, Role.Admin);
         machines.MapPost("/{id:guid}/enrollment", (Guid id, IAccessManagement access, CancellationToken ct) => access.NewEnrollmentCodeAsync(id, ct))
             .RequireModuleRole(Module, Role.Admin);
         // The device redeems its one-time code; the code is the credential. Rate limited, anonymous.
@@ -71,7 +85,10 @@ internal static class AccessManagementEndpoints
             .AllowAnonymous().WithMetadata(AuthRateLimited.Instance);
 
         v1.MapPost("/services", async ([FromBody] ServiceBody body, IAccessManagement access, CancellationToken ct) =>
-            Results.Created("", await access.CreateServiceAsync(body.DisplayName, new ClientCredential(body.PublicKeyJwk, body.Secret), ct))).RequireModuleRole(Module, Role.Admin);
+        {
+            var service = await access.CreateServiceAsync(body.DisplayName, new ClientCredential(body.PublicKeyJwk, body.Secret), ct);
+            return TypedResults.Created($"{PlatformServices.Identity.RoutePrefix}/v1/principals/{service.Id}", service);
+        }).RequireModuleRole(Module, Role.Admin);
 
         var groups = v1.MapGroup("/groups").WithTags("groups");
         groups.MapGet("", (IAccessManagement access, CancellationToken ct) => access.ListGroupsAsync(ct)).RequireModuleRole(Module, Role.Manager);
@@ -79,7 +96,7 @@ internal static class AccessManagementEndpoints
         {
             var group = await access.CreateGroupAsync(body.DisplayName, ct);
             response.Headers.ETag = group.ETag;
-            return Results.Created($"{PlatformServices.Identity.RoutePrefix}/v1/groups/{group.Id}", group);
+            return TypedResults.Created($"{PlatformServices.Identity.RoutePrefix}/v1/groups/{group.Id}", group);
         }).RequireModuleRole(Module, Role.Admin);
         groups.MapPut("/{id:guid}", async (Guid id, [FromBody] NameBody body, [FromHeader(Name = "If-Match")] string? ifMatch, IAccessManagement access, HttpResponse response, CancellationToken ct) =>
         {
@@ -97,6 +114,8 @@ internal static class AccessManagementEndpoints
             await access.AddMemberAsync(id, principalId, ct);
             return Results.NoContent();
         }).RequireModuleRole(Module, Role.Admin);
+        groups.MapGet("/{id:guid}/members", (Guid id, IAccessManagement access, CancellationToken ct) => access.ListGroupMembersAsync(id, ct))
+            .RequireModuleRole(Module, Role.Manager);
         groups.MapDelete("/{id:guid}/members/{principalId:guid}", async (Guid id, Guid principalId, IAccessManagement access, CancellationToken ct) =>
         {
             await access.RemoveMemberAsync(id, principalId, ct);
@@ -126,6 +145,8 @@ internal static class AccessManagementEndpoints
     internal sealed record ServiceBody(string DisplayName, string? PublicKeyJwk, string? Secret);
 
     internal sealed record InviteRole(string Module, Role Role);
+
+    internal sealed record InvitationSent(Guid PrincipalId, DateTime ExpiresOn);
 
     internal sealed record InviteBody(string Email, string DisplayName, IReadOnlyList<InviteRole> Roles);
 }

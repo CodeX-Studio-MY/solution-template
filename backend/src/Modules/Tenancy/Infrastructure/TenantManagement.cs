@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 using Saaskit.Core.Catalog;
 using Saaskit.Core.Catalog.Entities;
@@ -86,6 +87,37 @@ internal sealed class TenantManagement(
         await AuditAsync(tenantId, "module-revoked", actor, new { module = moduleKey });
         await SaveAndPublishAsync(tenantId, cancellationToken);
         return await GetAsync(tenantId, cancellationToken);
+    }
+
+    public async Task<TenantSummary> UpdateProfileAsync(Guid tenantId, TenantProfile profile, string actor, CancellationToken cancellationToken = default)
+    {
+        var clean = ValidateProfile(profile);
+        var tenant = await FindAsync(tenantId, cancellationToken);
+        tenant.ChangeProfile(clean.DisplayName, clean.TimeZone, clean.Currency, clean.Locale);
+        await AuditAsync(tenantId, "profile-changed", actor, clean);
+        await SaveAndPublishAsync(tenantId, cancellationToken);
+        return await GetAsync(tenantId, cancellationToken);
+    }
+
+    private static readonly HashSet<string> IsoCurrencies = [.. CultureInfo.GetCultures(CultureTypes.SpecificCultures)
+        .Select(c => { try { return new RegionInfo(c.Name).ISOCurrencySymbol; } catch (ArgumentException) { return null; } })
+        .OfType<string>()];
+
+    private static TenantProfile ValidateProfile(TenantProfile profile)
+    {
+        var clean = new TenantProfile(profile.DisplayName.Trim(), profile.TimeZone.Trim(), profile.Currency.Trim().ToUpperInvariant(), profile.Locale.Trim());
+        var errors = new List<FieldError>();
+        if (clean.DisplayName.Length == 0)
+            errors.Add(new FieldError("displayName", "validation.required", ["displayName"]));
+        else if (clean.DisplayName.Length > 200)
+            errors.Add(new FieldError("displayName", "validation.maxLength", ["displayName", 200]));
+        if (!TimeZoneInfo.TryFindSystemTimeZoneById(clean.TimeZone, out _))
+            errors.Add(new FieldError("timeZone", "validation.invalid", ["timeZone"]));
+        if (!IsoCurrencies.Contains(clean.Currency))
+            errors.Add(new FieldError("currency", "validation.invalid", ["currency"]));
+        if (!PlatformInfo.DefaultLocales.Contains(clean.Locale))
+            errors.Add(new FieldError("locale", "validation.unknownOption", ["locale"]));
+        return errors.Count > 0 ? throw new ValidationException(errors) : clean;
     }
 
     public async Task<TenantSummary> SetSupportApprovalAsync(Guid tenantId, bool required, string actor, CancellationToken cancellationToken = default)
@@ -210,7 +242,7 @@ internal sealed class TenantManagement(
         Modules.All.SingleOrDefault(m => m.Key == moduleKey)?.Id ?? throw new BusinessRuleException(TenancyErrors.UnknownPlan, $"Unknown module '{moduleKey}'.");
 
     private static TenantSummary ToSummary(CatalogTenant t, List<string> modules) =>
-        new(t.Id, t.Slug, t.DisplayName, t.Status, t.Plan, modules, t.DeleteAfter, t.RequireSupportApproval);
+        new(t.Id, t.Slug, t.DisplayName, t.Status, t.Plan, modules, t.DeleteAfter, t.RequireSupportApproval, t.TimeZone, t.Currency, t.Locale);
 
     private string[] CallbackUris(string slug)
     {

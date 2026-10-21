@@ -6,7 +6,7 @@ using Microsoft.Extensions.Options;
 namespace Saaskit.Gateway.Http;
 
 /// <summary>
-/// Serves the built shell app and the frontend modules on every tenant host, so the app, the BFF and /api share one origin.
+/// Serves the built shell app and the frontend modules on every tenant host (and the operator console on the operator host), so the app, the BFF and /api share one origin.
 /// The shell's index.html is rendered per request: the Gateway injects the CSP style nonce that the shell passes to Emotion.
 /// </summary>
 internal static class ShellHost
@@ -28,22 +28,24 @@ internal static class ShellHost
             });
         }
 
-        if (string.IsNullOrEmpty(bff.ShellRoot) || !Directory.Exists(bff.ShellRoot))
+        var shell = Spa(bff.ShellRoot);
+        var console = Spa(bff.OperatorRoot);
+        if (shell is null && console is null)
             return;
 
-        var provider = new PhysicalFileProvider(bff.ShellRoot);
-        app.UseStaticFiles(new StaticFileOptions
-        {
-            FileProvider = provider,
-            OnPrepareResponse = context =>
-                context.Context.Response.Headers.CacheControl = context.File.Name == "index.html" ? "no-store" : "public, max-age=31536000, immutable",
-        });
+        // The operator host gets the operator console; every other host gets the shell. Neither is ever served on the other's host.
+        PhysicalFileProvider? For(HttpContext context) => OperatorBff.IsOperatorHost(context) ? console : shell;
+        if (console is not null)
+            app.UseWhen(OperatorBff.IsOperatorHost, branch => branch.UseStaticFiles(StaticOptions(console)));
+        if (shell is not null)
+            app.UseWhen(context => !OperatorBff.IsOperatorHost(context), branch => branch.UseStaticFiles(StaticOptions(shell)));
 
         // Single-page app: any other GET that isn't an API, BFF, health or module path gets index.html (with the nonce).
         app.MapFallback(async context =>
         {
             var path = context.Request.Path;
-            if (!HttpMethods.IsGet(context.Request.Method)
+            var provider = For(context);
+            if (provider is null || !HttpMethods.IsGet(context.Request.Method)
                 || path.StartsWithSegments("/api", StringComparison.Ordinal) || path.StartsWithSegments("/bff", StringComparison.Ordinal)
                 || path.StartsWithSegments("/health", StringComparison.Ordinal) || path.StartsWithSegments("/mfe", StringComparison.Ordinal))
             {
@@ -63,4 +65,14 @@ internal static class ShellHost
             await context.Response.WriteAsync(html, context.RequestAborted);
         });
     }
+
+    private static PhysicalFileProvider? Spa(string root) =>
+        string.IsNullOrEmpty(root) || !Directory.Exists(root) ? null : new PhysicalFileProvider(root);
+
+    private static StaticFileOptions StaticOptions(PhysicalFileProvider provider) => new()
+    {
+        FileProvider = provider,
+        OnPrepareResponse = context =>
+            context.Context.Response.Headers.CacheControl = context.File.Name == "index.html" ? "no-store" : "public, max-age=31536000, immutable",
+    };
 }

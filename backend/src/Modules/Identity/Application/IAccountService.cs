@@ -30,6 +30,9 @@ public interface IAccountService
     /// </summary>
     Task<InvitationResult> InviteAsync(string email, string displayName, IEnumerable<(string Module, Role Role)> roles, CancellationToken cancellationToken = default);
 
+    /// <summary>Sends a pending invitation again with a new link and expiry; the old link stops working.</summary>
+    Task<InvitationResult> ResendInvitationAsync(Guid principalId, CancellationToken cancellationToken = default);
+
     /// <summary>Checks an invitation token without using it, for showing the set-password page.</summary>
     Task<bool> IsInvitationValidAsync(string token, CancellationToken cancellationToken = default);
 

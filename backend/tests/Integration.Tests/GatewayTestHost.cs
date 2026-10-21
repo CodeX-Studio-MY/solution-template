@@ -32,7 +32,10 @@ internal sealed class GatewayTestHost : IAsyncDisposable
 
     public IServiceProvider Services => _factory.Services;
 
-    public static async Task<GatewayTestHost> StartAsync(Databases databases, params string[] tenantSlugs)
+    public static Task<GatewayTestHost> StartAsync(Databases databases, params string[] tenantSlugs) => StartAsync(databases, _ => { }, tenantSlugs);
+
+    /// <summary>As above, with extra test services registered last (they replace the defaults).</summary>
+    public static async Task<GatewayTestHost> StartAsync(Databases databases, Action<IServiceCollection> configure, params string[] tenantSlugs)
     {
         var identity = await IdentityTestHost.StartAsync(
             databases,
@@ -63,6 +66,7 @@ internal sealed class GatewayTestHost : IAsyncDisposable
                 services.Configure<OpenIdConnectOptions>(GatewayScheme, oidc => oidc.BackchannelHttpHandler = identity.Server.CreateHandler());
                 services.AddHttpClient(Sessions.SessionTokenServiceClient).ConfigurePrimaryHttpMessageHandler(() => identity.Server.CreateHandler());
                 services.AddSingleton<IForwarderHttpClientFactory>(new InMemoryForwarder(identity.Server));
+                configure(services);
             });
         });
         _ = factory.Server;   // start

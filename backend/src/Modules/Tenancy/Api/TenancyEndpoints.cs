@@ -41,6 +41,8 @@ internal static class TenancyEndpoints
         MapSettingsEndpoints(v1);
         v1.MapGet("/me/tenant", async (ITenantContext tenant, ITenantAdmin admin, CancellationToken ct) => await admin.GetAsync(tenant.Tenant.Id, ct))
             .RequireModuleRole(Modules.TenantSettings, Role.User);
+        v1.MapPut("/me/tenant/profile", (ITenantContext tenant, [FromBody] TenantProfile body, ICurrentPrincipal who, ITenantAdmin admin, CancellationToken ct) =>
+            admin.UpdateProfileAsync(tenant.Tenant.Id, body, who.Id ?? "unknown", ct)).RequireModuleRole(Modules.TenantSettings, Role.Admin);
 
         var support = v1.MapGroup("/support-access").WithTags("support-access");
         support.MapGet("", (ITenantContext tenant, ISupportAccess access, CancellationToken ct) => access.ListForTenantAsync(tenant.Tenant.Id, ct))
@@ -75,15 +77,18 @@ internal static class TenancyEndpoints
             await sessions.SignInAsync(body.Email, body.Password, body.TotpCode, ct)).AllowAnonymous().WithMetadata(AuthRateLimited.Instance);
 
         var secured = op.MapGroup("").RequireAuthorization(OperatorAuthenticationHandler.Policy);
+        secured.MapGet("/me", (ClaimsPrincipal user) => Identity(user));
         secured.MapGet("/tenants", (ITenantAdmin admin, CancellationToken ct) => admin.ListAsync(ct));
         secured.MapGet("/tenants/{id:guid}", (Guid id, ITenantAdmin admin, CancellationToken ct) => admin.GetAsync(id, ct));
         secured.MapPost("/tenants", async ([FromBody] OnboardRequest body, IOnboarding onboarding, CancellationToken ct) =>
         {
             var result = await onboarding.OnboardAsync(body, ct);
-            return Results.Created($"{PlatformServices.Tenancy.RoutePrefix}/v1/operator/tenants/{result.TenantId}", result);
+            return TypedResults.Created($"{PlatformServices.Tenancy.RoutePrefix}/v1/operator/tenants/{result.TenantId}", result);
         });
         secured.MapPut("/tenants/{id:guid}/plan", (Guid id, [FromBody] PlanBody body, ClaimsPrincipal user, ITenantAdmin admin, CancellationToken ct) =>
             admin.ChangePlanAsync(id, body.Plan, Actor(user), ct));
+        secured.MapPut("/tenants/{id:guid}/profile", (Guid id, [FromBody] TenantProfile body, ClaimsPrincipal user, ITenantAdmin admin, CancellationToken ct) =>
+            admin.UpdateProfileAsync(id, body, Actor(user), ct));
         secured.MapPut("/tenants/{id:guid}/modules/{module}", (Guid id, string module, ClaimsPrincipal user, ITenantAdmin admin, CancellationToken ct) =>
             admin.GrantModuleAsync(id, module, Actor(user), ct));
         secured.MapDelete("/tenants/{id:guid}/modules/{module}", (Guid id, string module, ClaimsPrincipal user, ITenantAdmin admin, CancellationToken ct) =>

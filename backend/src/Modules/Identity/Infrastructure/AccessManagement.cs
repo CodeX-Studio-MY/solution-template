@@ -24,15 +24,31 @@ internal sealed class AccessManagement(
 
     public async Task<IReadOnlyList<PrincipalDto>> ListPrincipalsAsync(PrincipalType? type, CancellationToken cancellationToken = default)
     {
-        var query = db.Principals.AsNoTracking();
+        // Tracked: the row version (the ETag) is a shadow property, which no-tracking queries don't load.
+        IQueryable<Principal> query = db.Principals;
         if (type is not null)
             query = query.Where(p => p.Type == type);
         var principals = await query.OrderBy(p => p.DisplayName).ToListAsync(cancellationToken);
-        return [.. principals.Select(ToDto)];
+        return await ToDtosAsync(principals, cancellationToken);
     }
 
     public async Task<PrincipalDto> GetPrincipalAsync(Guid id, CancellationToken cancellationToken = default) =>
-        ToDto(await FindPrincipalAsync(id, cancellationToken));
+        await ToDtoAsync(await FindPrincipalAsync(id, cancellationToken), cancellationToken);
+
+    public async Task<PrincipalDto> RenamePrincipalAsync(Guid id, string displayName, string? ifMatch, CancellationToken cancellationToken = default)
+    {
+        var name = displayName.Trim();
+        if (name.Length == 0)
+            throw new ValidationException([new FieldError("displayName", "validation.required", ["displayName"])]);
+        if (name.Length > Principal.MaxDisplayNameLength)
+            throw new ValidationException([new FieldError("displayName", "validation.maxLength", ["displayName", Principal.MaxDisplayNameLength])]);
+        var principal = await FindPrincipalAsync(id, cancellationToken);
+        db.ApplyIfMatch(principal, ifMatch);
+        principal.Rename(name);
+        await audit.WriteAsync(AuditKinds.PrincipalChanged, subject: id.ToString(), details: new { renamed = name }, saveNow: false, cancellationToken: cancellationToken);
+        await db.SaveChangesAsync(cancellationToken);
+        return await ToDtoAsync(principal, cancellationToken);
+    }
 
     public async Task<PrincipalDto> SetPrincipalActiveAsync(Guid id, bool active, string? ifMatch, CancellationToken cancellationToken = default)
     {
@@ -44,7 +60,7 @@ internal sealed class AccessManagement(
             principal.Disable();
         await audit.WriteAsync(AuditKinds.PrincipalChanged, subject: id.ToString(), details: new { active }, saveNow: false, cancellationToken: cancellationToken);
         await SaveAndPublishAsync([principal], cancellationToken);
-        return ToDto(principal);
+        return await ToDtoAsync(principal, cancellationToken);
     }
 
     public async Task<MachineEnrollmentDto> CreateMachineAsync(string displayName, CancellationToken cancellationToken = default)
@@ -64,7 +80,7 @@ internal sealed class AccessManagement(
         await audit.WriteAsync(AuditKinds.PrincipalChanged, subject: service.Id.ToString(), details: new { created = "service" }, saveNow: false, cancellationToken: cancellationToken);
         await db.SaveChangesAsync(cancellationToken);
         await clients.RegisterAsync(clientId, displayName, tenant.Tenant.Id, credential, ["client_credentials"], cancellationToken);
-        return ToDto(service);
+        return await ToDtoAsync(service, cancellationToken);
     }
 
     public async Task<MachineEnrollmentDto> NewEnrollmentCodeAsync(Guid machineId, CancellationToken cancellationToken = default)
@@ -166,6 +182,17 @@ internal sealed class AccessManagement(
             membership.Activate();
         await audit.WriteAsync(AuditKinds.MembershipChanged, subject: principalId.ToString(), details: new { groupId, added = true }, saveNow: false, cancellationToken: cancellationToken);
         await SaveAndPublishAsync([principal], cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<PrincipalDto>> ListGroupMembersAsync(Guid groupId, CancellationToken cancellationToken = default)
+    {
+        await FindGroupAsync(groupId, cancellationToken);
+        var members = await (from membership in db.GroupMemberships
+                             join principal in db.Principals on membership.PrincipalId equals principal.Id
+                             where membership.GroupId == groupId && membership.IsActive
+                             orderby principal.DisplayName
+                             select principal).ToListAsync(cancellationToken);
+        return await ToDtosAsync(members, cancellationToken);
     }
 
     public async Task RemoveMemberAsync(Guid groupId, Guid principalId, CancellationToken cancellationToken = default)
@@ -345,7 +372,22 @@ internal sealed class AccessManagement(
 
     private string ClientIdFor(Principal principal) => $"{tenant.Tenant.Slug}-{principal.Type.ToClaimValue()}-{principal.Id:N}";
 
-    private PrincipalDto ToDto(Principal p) => new(p.Id, p.Type, p.DisplayName, p.IsActive, p.ClientId, p.LastSeenOn, db.GetETag(p));
+    private async Task<PrincipalDto> ToDtoAsync(Principal p, CancellationToken cancellationToken) => (await ToDtosAsync([p], cancellationToken))[0];
+
+    /// <summary>Adds each user's email (from the user store, or the pending invitation) and status, in two queries for the whole list.</summary>
+    private async Task<IReadOnlyList<PrincipalDto>> ToDtosAsync(IReadOnlyList<Principal> principals, CancellationToken cancellationToken)
+    {
+        var ids = principals.Where(p => p.Type == PrincipalType.User).Select(p => p.Id).ToList();
+        var emails = await db.Users.AsNoTracking().Where(u => ids.Contains(u.Id)).ToDictionaryAsync(u => u.Id, u => u.Email, cancellationToken);
+        var invited = await db.Invitations.AsNoTracking().Where(i => ids.Contains(i.PrincipalId) && i.AcceptedOn == null)
+            .ToDictionaryAsync(i => i.PrincipalId, i => i.Email, cancellationToken);
+        return [.. principals.Select(p =>
+        {
+            var status = p.IsActive ? PrincipalStatus.Active : invited.ContainsKey(p.Id) ? PrincipalStatus.Invited : PrincipalStatus.Inactive;
+            var email = emails.GetValueOrDefault(p.Id) ?? invited.GetValueOrDefault(p.Id);
+            return new PrincipalDto(p.Id, p.Type, p.DisplayName, p.IsActive, p.ClientId, p.LastSeenOn, db.GetETag(p), email, status);
+        })];
+    }
 
     private string ETagOf(Group g) => db.GetETag(g);
 

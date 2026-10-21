@@ -12,6 +12,13 @@ export type Plan = (typeof plans)[number];
 export const moduleKeys = ["access-management", "tenant-settings", "billing"] as const;
 export type ModuleKey = (typeof moduleKeys)[number];
 
+/** Each module's display name (the default; a module's own i18n may translate it) and the plans that include it. */
+export const modules: readonly { key: ModuleKey; name: string; plans: readonly Plan[] }[] = [
+  { key: "access-management", name: "Access Management", plans: ["standard", "plus"] },
+  { key: "tenant-settings", name: "Tenant Settings", plans: ["standard", "plus"] },
+  { key: "billing", name: "Billing", plans: ["standard", "plus"] },
+];
+
 /** Backend services, routed at /api/{service-key}/*. */
 export const serviceKeys = ["identity", "tenancy", "notification"] as const;
 export type ServiceKey = (typeof serviceKeys)[number];

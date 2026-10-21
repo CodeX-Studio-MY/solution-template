@@ -19,6 +19,7 @@ internal static class ConfigKeys
         public const string SessionDays = "Bff__SessionDays";
         public const string AllInOneAddress = "Bff__AllInOneAddress";
         public const string ShellRoot = "Bff__ShellRoot";
+        public const string OperatorRoot = "Bff__OperatorRoot";
         public const string ModulesRoot = "Bff__ModulesRoot";
         public const string ExtraSources = "Bff__ExtraSources";
     }

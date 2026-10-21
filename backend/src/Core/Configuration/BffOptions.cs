@@ -20,6 +20,9 @@ public sealed record BffOptions
     [Setting("Directory with the built shell app (index.html and its assets), served by the Gateway on every tenant host. Empty disables it.", Example = "/app/shell")]
     public string ShellRoot { get; init; } = "";
 
+    [Setting("Directory with the built operator console (index.html and its assets), served on operator.{BaseDomain}. Empty disables it.", Example = "/app/operator")]
+    public string OperatorRoot { get; init; } = "";
+
     [Setting("Directory with the built frontend modules, served at /mfe/{module-key}/{version}/. Empty disables it (a CDN serves them).", Example = "/app/mfe")]
     public string ModulesRoot { get; init; } = "";
 

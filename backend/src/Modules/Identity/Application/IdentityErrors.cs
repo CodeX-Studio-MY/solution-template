@@ -15,5 +15,6 @@ public static class IdentityErrors
     public static readonly ErrorCode DuplicateAssignment = new("access-management.duplicate-assignment", 409, "errors.identity.duplicateAssignment");
     public static readonly ErrorCode ServicePrincipalsHaveNoGroups = new("access-management.service-principals-have-no-groups", 422, "errors.identity.servicePrincipalsHaveNoGroups");
     public static readonly ErrorCode EnrollmentInvalid = new("access-management.enrollment-invalid", 422, "errors.identity.enrollmentInvalid");
+    public static readonly ErrorCode InvitationNotPending = new("access-management.invitation-not-pending", 422, "errors.identity.invitationNotPending");
     public static readonly ErrorCode ModuleNotEntitledForAssignment = new("access-management.module-not-entitled", 422, "errors.identity.moduleNotEntitled");
 }

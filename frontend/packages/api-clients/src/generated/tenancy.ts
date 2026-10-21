@@ -140,6 +140,80 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/tenancy/v1/me/tenant/profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["TenantProfile"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TenantSummary"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/tenancy/v1/operator/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OperatorIdentity"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/tenancy/v1/operator/sessions": {
         parameters: {
             query?: never;
@@ -296,12 +370,14 @@ export interface paths {
                 };
             };
             responses: {
-                /** @description OK */
-                200: {
+                /** @description Created */
+                201: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["OnboardResult"];
+                    };
                 };
             };
         };
@@ -618,6 +694,47 @@ export interface paths {
             requestBody: {
                 content: {
                     "application/json": components["schemas"]["PlanBody"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TenantSummary"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/tenancy/v1/operator/tenants/{id}/profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["TenantProfile"];
                 };
             };
             responses: {
@@ -1109,6 +1226,20 @@ export interface components {
             serverPool?: string | null;
             slug: string;
         };
+        /** @description The outcome of onboarding. AdminInvitationUrl is the first admin's one-time link; null when onboarding resumed after it was already sent. */
+        OnboardResult: {
+            /** Format: uri */
+            adminInvitationUrl: string | null;
+            slug: string;
+            /** Format: uuid */
+            tenantId: string;
+        };
+        OperatorIdentity: {
+            displayName: string;
+            email: string;
+            /** Format: uuid */
+            id: string;
+        };
         PlanBody: {
             plan: string;
         };
@@ -1175,22 +1306,32 @@ export interface components {
             /** Format: date-time */
             expiresOn: string;
         };
+        /** @description What a tenant is called and how it formats time and money. A tenant admin and an operator may change it. */
+        TenantProfile: {
+            currency: string;
+            displayName: string;
+            locale: string;
+            timeZone: string;
+        };
         /**
          * @description Tenant lifecycle: Provisioning → Active → Suspended (read-only) → PendingDeletion → Deleted.
          * @enum {unknown}
          */
         TenantStatus: "provisioning" | "active" | "suspended" | "pendingDeletion" | "deleted";
         TenantSummary: {
+            currency: string;
             /** Format: date-time */
             deleteAfter: string | null;
             displayName: string;
             /** Format: uuid */
             id: string;
+            locale: string;
             modules: string[];
             plan: string;
             requireSupportApproval: boolean;
             slug: string;
             status: components["schemas"]["TenantStatus"];
+            timeZone: string;
         };
         /** @description What the signed-in frontend needs: branding, every flag's effective value, and the values of settings exposed to the UI. */
         UiSettings: {

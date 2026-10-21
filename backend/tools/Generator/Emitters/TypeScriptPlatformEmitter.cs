@@ -26,6 +26,12 @@ internal static class TypeScriptPlatformEmitter
         sb.AppendLine($"export const moduleKeys = [{List(platform.Modules.Select(m => m.Key))}] as const;");
         sb.AppendLine("export type ModuleKey = (typeof moduleKeys)[number];");
         sb.AppendLine();
+        sb.AppendLine("/** Each module's display name (the default; a module's own i18n may translate it) and the plans that include it. */");
+        sb.AppendLine("export const modules: readonly { key: ModuleKey; name: string; plans: readonly Plan[] }[] = [");
+        foreach (var module in platform.Modules)
+            sb.AppendLine($"  {{ key: \"{module.Key}\", name: \"{module.Name.Replace("\"", "\\\"", StringComparison.Ordinal)}\", plans: [{List(module.Plans)}] }},");
+        sb.AppendLine("];");
+        sb.AppendLine();
         sb.AppendLine("/** Backend services, routed at /api/{service-key}/*. */");
         sb.AppendLine($"export const serviceKeys = [{List(platform.Services.Select(s => s.Key))}] as const;");
         sb.AppendLine("export type ServiceKey = (typeof serviceKeys)[number];");

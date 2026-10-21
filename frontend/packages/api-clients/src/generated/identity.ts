@@ -564,12 +564,14 @@ export interface paths {
                 };
             };
             responses: {
-                /** @description OK */
-                200: {
+                /** @description Created */
+                201: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["GroupDto"];
+                    };
                 };
             };
         };
@@ -740,6 +742,43 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/identity/v1/groups/{id}/members": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PrincipalDto"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/identity/v1/groups/{id}/members/{principalId}": {
         parameters: {
             query?: never;
@@ -818,12 +857,14 @@ export interface paths {
                 };
             };
             responses: {
-                /** @description OK */
-                200: {
+                /** @description Created */
+                201: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["MachineEnrollmentDto"];
+                    };
                 };
             };
         };
@@ -1198,7 +1239,34 @@ export interface paths {
                 };
             };
         };
-        put?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: {
+                    "If-Match"?: string;
+                };
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["NameBody"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PrincipalDto"];
+                    };
+                };
+            };
+        };
         post?: never;
         delete?: never;
         options?: never;
@@ -1482,12 +1550,51 @@ export interface paths {
                 };
             };
             responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PrincipalDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/identity/v1/users/{id}/invitation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
                 /** @description OK */
                 200: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["InvitationSent"];
+                    };
                 };
             };
         };
@@ -1519,12 +1626,14 @@ export interface paths {
                 };
             };
             responses: {
-                /** @description OK */
-                200: {
+                /** @description Created */
+                201: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["InvitationSent"];
+                    };
                 };
             };
         };
@@ -1723,6 +1832,12 @@ export interface components {
             memberCount: number | string;
             name: string;
         };
+        InvitationSent: {
+            /** Format: date-time */
+            expiresOn: string;
+            /** Format: uuid */
+            principalId: string;
+        };
         InviteBody: {
             displayName: string;
             email: string;
@@ -1751,17 +1866,25 @@ export interface components {
         NameBody: {
             displayName: string;
         };
+        /** @description A user, machine or service. `Email` is a user's sign-in address (while invited, where the invitation went); null for machines and services. */
         PrincipalDto: {
             clientId: string | null;
             displayName: string;
+            email: string | null;
             eTag: string;
             /** Format: uuid */
             id: string;
             isActive: boolean;
             /** Format: date-time */
             lastSeenOn: string | null;
+            status: components["schemas"]["PrincipalStatus"];
             type: components["schemas"]["PrincipalType"];
         };
+        /**
+         * @description Where a principal stands: signed in before or able to, switched off by an admin, or invited and not yet accepted.
+         * @enum {unknown}
+         */
+        PrincipalStatus: "active" | "inactive" | "invited";
         /** @enum {unknown} */
         PrincipalType: "user" | "machine" | "service";
         RedirectUrisBody: {

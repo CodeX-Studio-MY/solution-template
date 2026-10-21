@@ -144,6 +144,51 @@
             }
           }
         }
+      },
+      "put": {
+        "tags": [
+          "principals"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NameBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrincipalDto"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/identity/v1/principals/{id}/active": {
@@ -413,8 +458,45 @@
           "required": true
         },
         "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvitationSent"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/identity/v1/users/{id}/invitation": {
+      "post": {
+        "tags": [
+          "Saaskit.ApiExporter"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvitationSent"
+                }
+              }
+            }
           }
         }
       }
@@ -435,8 +517,15 @@
           "required": true
         },
         "responses": {
-          "200": {
-            "description": "OK"
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrincipalDto"
+                }
+              }
+            }
           }
         }
       }
@@ -457,8 +546,15 @@
           "required": true
         },
         "responses": {
-          "200": {
-            "description": "OK"
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MachineEnrollmentDto"
+                }
+              }
+            }
           }
         }
       }
@@ -558,8 +654,15 @@
           "required": true
         },
         "responses": {
-          "200": {
-            "description": "OK"
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupDto"
+                }
+              }
+            }
           }
         }
       }
@@ -690,6 +793,39 @@
         "responses": {
           "200": {
             "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/identity/v1/groups/{id}/members": {
+      "get": {
+        "tags": [
+          "groups"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PrincipalDto"
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -1384,6 +1520,23 @@
           }
         }
       },
+      "InvitationSent": {
+        "required": [
+          "principalId",
+          "expiresOn"
+        ],
+        "type": "object",
+        "properties": {
+          "principalId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "expiresOn": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "InviteBody": {
         "required": [
           "email",
@@ -1489,7 +1642,9 @@
           "isActive",
           "clientId",
           "lastSeenOn",
-          "eTag"
+          "eTag",
+          "email",
+          "status"
         ],
         "type": "object",
         "properties": {
@@ -1517,8 +1672,24 @@
           },
           "eTag": {
             "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "$ref": "#/components/schemas/PrincipalStatus"
           }
-        }
+        },
+        "description": "A user, machine or service. \u0060Email\u0060 is a user\u0027s sign-in address (while invited, where the invitation went); null for machines and services."
+      },
+      "PrincipalStatus": {
+        "enum": [
+          "active",
+          "inactive",
+          "invited"
+        ],
+        "description": "Where a principal stands: signed in before or able to, switched off by an admin, or invited and not yet accepted."
       },
       "PrincipalType": {
         "enum": [
