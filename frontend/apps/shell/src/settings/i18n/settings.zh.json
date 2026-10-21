@@ -1,0 +1,151 @@
+{
+  "title": "设置",
+  "subtitle": "管理您的组织、谁可以使用它，以及每个应用的行为方式。",
+  "nav": "设置分区",
+  "groups": {
+    "subtitle": "一次为多人授予相同的访问权限。",
+    "create": "新建用户组",
+    "name": "名称",
+    "members": "成员",
+    "empty": "还没有用户组。",
+    "emptyHint": "创建用户组，然后添加成员并授予访问权限。",
+    "createTitle": "新建用户组",
+    "renameTitle": "重命名用户组",
+    "created": "用户组已创建。",
+    "renamed": "用户组已重命名。",
+    "deleteTitle": "删除 {{name}}？",
+    "deleteText": "其成员将失去该用户组授予的访问权限。",
+    "deleted": "用户组已删除。",
+    "addMember": "添加成员",
+    "memberAdded": "已添加成员。",
+    "removeMember": "将 {{name}} 移出用户组",
+    "memberRemoved": "已移除成员。",
+    "noMembers": "还没有成员。",
+    "roles": "每位成员的访问权限"
+  },
+  "sections": {
+    "profile": "资料",
+    "branding": "品牌",
+    "modules": "应用设置",
+    "features": "功能",
+    "support": "支持访问",
+    "users": "用户",
+    "groups": "用户组",
+    "machines": "设备与集成"
+  },
+  "profile": {
+    "subtitle": "您的组织名称，以及日期、时间和金额的显示方式。",
+    "saved": "资料已保存。",
+    "plan": "套餐",
+    "address": "地址",
+    "status": "状态",
+    "modules": "您的套餐包含的应用"
+  },
+  "branding": {
+    "subtitle": "您组织中每个人看到的颜色和标志。",
+    "primaryColor": "主色",
+    "primaryColorHelp": "十六进制颜色，例如 #1f5fbf。留空则使用默认值。",
+    "logoUrl": "标志",
+    "logoUrlHelp": "上传图片，或填写本站的路径。",
+    "upload": "上传标志",
+    "remove": "移除标志",
+    "tooLarge": "标志必须小于 {{size}} KB。",
+    "saved": "品牌已保存。",
+    "preview": "标志预览"
+  },
+  "modules": {
+    "subtitle": "每个应用为您的组织提供的选项。部分选项由服务提供方设置。",
+    "empty": "您的应用还没有任何设置。",
+    "saved": "设置已保存。"
+  },
+  "features": {
+    "subtitle": "可选功能及其是否已为您的组织开启。如需更改，请联系服务提供方。",
+    "feature": "功能",
+    "module": "应用",
+    "state": "状态",
+    "empty": "没有可选功能。"
+  },
+  "support": {
+    "subtitle": "服务提供方支持团队查看您数据的请求。未经您的批准，不会共享任何内容。",
+    "operator": "申请人",
+    "module": "应用",
+    "role": "权限",
+    "reason": "原因",
+    "expires": "截止",
+    "status": "状态",
+    "empty": "没有支持请求。",
+    "approve": "批准",
+    "deny": "拒绝",
+    "revoke": "撤销",
+    "approveTitle": "批准支持访问？",
+    "approveText": "{{operator}} 将可以在 {{expires}} 之前以 {{role}} 身份操作 {{module}}。",
+    "denyTitle": "拒绝此请求？",
+    "revokeTitle": "立即撤销支持访问？",
+    "approved": "已批准支持访问。",
+    "denied": "已拒绝请求。",
+    "revoked": "已撤销支持访问。",
+    "statuses": {
+      "pending": "等待您处理",
+      "approved": "已批准",
+      "denied": "已拒绝",
+      "revoked": "已撤销"
+    }
+  },
+  "users": {
+    "subtitle": "可以登录的人员，以及他们在每个应用中可以执行的操作。",
+    "invite": "邀请用户",
+    "name": "姓名",
+    "email": "电子邮件",
+    "status": "状态",
+    "lastSeen": "最近活动",
+    "never": "从未",
+    "search": "搜索用户",
+    "empty": "还没有用户。",
+    "emptyHint": "邀请应使用本应用的人员。",
+    "inviteTitle": "邀请用户",
+    "inviteText": "对方将收到一封电子邮件，其中包含设置密码的链接。",
+    "invited": "邀请已发送至 {{email}}。",
+    "roles": "访问权限",
+    "rolesHint": "他们在每个应用中可以执行的操作。用户组可能会授予更多权限。",
+    "edit": "编辑用户",
+    "saved": "已保存。",
+    "deactivate": "停用",
+    "activate": "启用",
+    "deactivateTitle": "停用 {{name}}？",
+    "deactivateText": "对方将在所有设备上退出登录，在您重新启用之前无法登录。",
+    "activated": "{{name}} 可以重新登录。",
+    "deactivated": "{{name}} 已无法登录。",
+    "resend": "重新发送邀请",
+    "resent": "已发送新的邀请。",
+    "effective": "有效权限",
+    "effectiveHint": "直接角色与用户组角色的合并结果，并受您套餐所含内容的限制。",
+    "noAccess": "尚无访问权限。",
+    "roleSaved": "访问权限已更新。"
+  },
+  "machines": {
+    "subtitle": "共享设备（例如仓库平板电脑）以及调用 API 的外部系统。",
+    "add": "添加设备",
+    "name": "名称",
+    "type": "类型",
+    "clientId": "客户端 ID",
+    "status": "状态",
+    "empty": "还没有设备或集成。",
+    "types": {
+      "machine": "设备",
+      "service": "集成"
+    },
+    "addTitle": "添加设备",
+    "codeTitle": "{{name}} 的注册码",
+    "codeText": "请在 15 分钟内（{{expires}} 之前）在设备上输入此代码。它只显示一次：{{code}}",
+    "newCode": "新的注册码",
+    "copied": "已复制。"
+  },
+  "access": {
+    "denied": "您无权访问设置的这一部分。"
+  },
+  "navGroups": {
+    "organization": "组织",
+    "access": "访问权限",
+    "applications": "应用"
+  }
+}

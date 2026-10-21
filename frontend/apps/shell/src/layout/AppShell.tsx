@@ -22,6 +22,7 @@ import { useColorScheme } from "@mui/material/styles";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import MenuIcon from "@mui/icons-material/Menu";
 import MenuOpen from "@mui/icons-material/MenuOpen";
+import SettingsIcon from "@mui/icons-material/Settings";
 import { useTranslation } from "react-i18next";
 import {
   atLeast,
@@ -34,9 +35,12 @@ import {
   type Role,
 } from "@saaskit/web-core";
 import { Icon, tokens } from "@saaskit/ui-kit";
+import { visibleSections, type SettingsSection } from "../settings/sections";
 
 interface Props {
   manifests: readonly ModuleManifest[];
+  /** The Settings area's sections: the gear shows when the person may open at least one. */
+  settings: readonly SettingsSection[];
 }
 
 const collapsedKey = "saaskit.sidebar.collapsed";
@@ -69,7 +73,7 @@ interface Entry {
  * The top bar, the sidebar and the page area. Menu entries come from the loaded modules and are shown by role (the API still
  * decides access). The sidebar collapses to icons on a wide screen and becomes a drawer on a narrow one.
  */
-export function AppShell({ manifests }: Props) {
+export function AppShell({ manifests, settings }: Props) {
   const { t } = useTranslation();
   const session = useSession();
   const tenant = useTenant();
@@ -90,7 +94,13 @@ export function AppShell({ manifests }: Props) {
       })),
   );
   const current = manifests.find((m) => pathname === m.basePath || pathname.startsWith(`${m.basePath}/`));
-  const currentLabel = current ? t(current.menu[0]?.label ?? current.id, { ns: current.i18n.namespace }) : undefined;
+  const inSettings = pathname === "/settings" || pathname.startsWith("/settings/");
+  const currentLabel = inSettings
+    ? t("common:nav.settings")
+    : current
+      ? t(current.menu[0]?.label ?? current.id, { ns: current.i18n.namespace })
+      : undefined;
+  const canOpenSettings = visibleSections(settings, moduleRoles).length > 0;
 
   const width = collapsed ? tokens.layout.sidebarCollapsedWidth : tokens.layout.sidebarWidth;
 
@@ -146,6 +156,18 @@ export function AppShell({ manifests }: Props) {
               {tenant.name || t("common:app.name")}
             </Typography>
           </Box>
+          {canOpenSettings ? (
+            <Tooltip title={t("common:nav.settings")}>
+              <IconButton
+                component={RouterLink}
+                to="/settings"
+                aria-label={t("common:nav.settings")}
+                color={inSettings ? "primary" : "default"}
+              >
+                <SettingsIcon />
+              </IconButton>
+            </Tooltip>
+          ) : null}
           <UserMenu highestRole={highestRole(moduleRoles)} tenantName={tenant.name} />
         </Toolbar>
       </AppBar>

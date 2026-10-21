@@ -10,7 +10,19 @@
     "back": "Back",
     "retry": "Try again",
     "signOut": "Sign out",
-    "signIn": "Sign in"
+    "signIn": "Sign in",
+    "ok": "OK",
+    "close": "Close",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "create": "Create",
+    "remove": "Remove",
+    "search": "Search",
+    "reset": "Reset",
+    "dismiss": "Dismiss",
+    "copy": "Copy"
   },
   "errors": {
     "generic": "Something went wrong. Please try again.",
@@ -60,5 +72,33 @@
     "loading": "Loading…",
     "viewAll": "View all",
     "none": "Nothing here right now."
+  },
+  "master": {
+    "loading": "Loading…",
+    "noOptions": "No matches",
+    "failed": "The list could not be loaded."
+  },
+  "settingsForm": {
+    "default": "Default: {{value}}",
+    "resetToDefault": "Use the default",
+    "readOnly": "Set by your provider",
+    "saved": "Settings saved.",
+    "noSettings": "Nothing to configure here.",
+    "on": "On",
+    "off": "Off"
+  },
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "invited": "Invited"
+  },
+  "roleSelect": {
+    "none": "No access"
+  },
+  "profile": {
+    "displayName": "Organisation name",
+    "timeZone": "Time zone",
+    "currency": "Currency",
+    "locale": "Language"
   }
 }

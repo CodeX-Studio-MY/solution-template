@@ -3,7 +3,14 @@ import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { useTranslation } from "react-i18next";
-import { apiJson, useResource, type FieldError, type ServiceKey } from "@saaskit/web-core";
+import { apiJson, useApiQuery, type FieldError, type ServiceKey } from "@saaskit/web-core";
+
+/** The tenant's extra fields for an entity, cached (the form and the summary share one request). */
+export function useCustomFieldDefinitions(owner: ServiceKey, entity: string) {
+  return useApiQuery(["custom-fields", owner, entity], () =>
+    apiJson<CustomFieldDefinition[]>(owner, `v1/custom-fields?entity=${encodeURIComponent(entity)}`),
+  );
+}
 
 /** One extra field a tenant defined for an entity. The server validates the values; this only renders and collects them. */
 export interface CustomFieldDefinition {
@@ -38,10 +45,7 @@ interface CustomFieldsSectionProps {
 export function CustomFieldsSection({ entity, service, values, onChange, errors = [], disabled }: CustomFieldsSectionProps) {
   const { t } = useTranslation();
   const owner = (service ?? entity) as ServiceKey;
-  const definitions = useResource(
-    () => apiJson<CustomFieldDefinition[]>(owner, `v1/custom-fields?entity=${encodeURIComponent(entity)}`),
-    [owner, entity],
-  );
+  const definitions = useCustomFieldDefinitions(owner, entity);
 
   const fields = [...(definitions.data ?? [])].sort((a, b) => a.displayOrder - b.displayOrder);
   if (fields.length === 0) return null;

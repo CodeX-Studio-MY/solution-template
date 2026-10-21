@@ -1,0 +1,151 @@
+{
+  "title": "Settings",
+  "subtitle": "Manage your organisation, who can use it, and how each application behaves.",
+  "nav": "Settings sections",
+  "groups": {
+    "subtitle": "Give the same access to several people at once.",
+    "create": "New group",
+    "name": "Name",
+    "members": "Members",
+    "empty": "No groups yet.",
+    "emptyHint": "Create a group, then add people and give it access.",
+    "createTitle": "New group",
+    "renameTitle": "Rename group",
+    "created": "Group created.",
+    "renamed": "Group renamed.",
+    "deleteTitle": "Delete {{name}}?",
+    "deleteText": "Its members lose the access the group gave them.",
+    "deleted": "Group deleted.",
+    "addMember": "Add a member",
+    "memberAdded": "Member added.",
+    "removeMember": "Remove {{name}} from the group",
+    "memberRemoved": "Member removed.",
+    "noMembers": "No members yet.",
+    "roles": "Access for every member"
+  },
+  "sections": {
+    "profile": "Profile",
+    "branding": "Branding",
+    "modules": "Application settings",
+    "features": "Features",
+    "support": "Support access",
+    "users": "Users",
+    "groups": "Groups",
+    "machines": "Devices & integrations"
+  },
+  "profile": {
+    "subtitle": "Your organisation's name and how dates, times and money are shown.",
+    "saved": "Profile saved.",
+    "plan": "Plan",
+    "address": "Address",
+    "status": "Status",
+    "modules": "Applications in your plan"
+  },
+  "branding": {
+    "subtitle": "The colour and logo everyone in your organisation sees.",
+    "primaryColor": "Primary colour",
+    "primaryColorHelp": "A hex colour such as #1f5fbf. Leave empty for the default.",
+    "logoUrl": "Logo",
+    "logoUrlHelp": "Upload an image, or a path on this site.",
+    "upload": "Upload logo",
+    "remove": "Remove logo",
+    "tooLarge": "The logo must be smaller than {{size}} KB.",
+    "saved": "Branding saved.",
+    "preview": "Logo preview"
+  },
+  "modules": {
+    "subtitle": "Options each application offers your organisation. Some are set by your provider.",
+    "empty": "None of your applications has settings yet.",
+    "saved": "Settings saved."
+  },
+  "features": {
+    "subtitle": "Optional features and whether they are on for your organisation. Ask your provider to change them.",
+    "feature": "Feature",
+    "module": "Application",
+    "state": "State",
+    "empty": "No optional features."
+  },
+  "support": {
+    "subtitle": "Requests from your provider's support team to look at your data. Nothing is shared without your approval.",
+    "operator": "Requested by",
+    "module": "Application",
+    "role": "Access",
+    "reason": "Reason",
+    "expires": "Until",
+    "status": "Status",
+    "empty": "No support requests.",
+    "approve": "Approve",
+    "deny": "Deny",
+    "revoke": "Revoke",
+    "approveTitle": "Approve support access?",
+    "approveText": "{{operator}} will be able to act as {{role}} in {{module}} until {{expires}}.",
+    "denyTitle": "Deny this request?",
+    "revokeTitle": "Revoke support access now?",
+    "approved": "Support access approved.",
+    "denied": "Request denied.",
+    "revoked": "Support access revoked.",
+    "statuses": {
+      "pending": "Waiting for you",
+      "approved": "Approved",
+      "denied": "Denied",
+      "revoked": "Revoked"
+    }
+  },
+  "users": {
+    "subtitle": "People who can sign in, and what they can do in each application.",
+    "invite": "Invite user",
+    "name": "Name",
+    "email": "Email",
+    "status": "Status",
+    "lastSeen": "Last seen",
+    "never": "Never",
+    "search": "Search users",
+    "empty": "No users yet.",
+    "emptyHint": "Invite the people who should use the app.",
+    "inviteTitle": "Invite a user",
+    "inviteText": "They'll get an email with a link to choose a password.",
+    "invited": "Invitation sent to {{email}}.",
+    "roles": "Access",
+    "rolesHint": "What they can do in each application. Groups may give more.",
+    "edit": "Edit user",
+    "saved": "Saved.",
+    "deactivate": "Deactivate",
+    "activate": "Activate",
+    "deactivateTitle": "Deactivate {{name}}?",
+    "deactivateText": "They are signed out everywhere and can't sign in until you activate them again.",
+    "activated": "{{name}} can sign in again.",
+    "deactivated": "{{name}} can no longer sign in.",
+    "resend": "Resend invitation",
+    "resent": "A new invitation was sent.",
+    "effective": "Effective access",
+    "effectiveHint": "Direct roles and group roles combined, limited to what your plan includes.",
+    "noAccess": "No access yet.",
+    "roleSaved": "Access updated."
+  },
+  "machines": {
+    "subtitle": "Shared devices (such as a warehouse tablet) and external systems that call the API.",
+    "add": "Add device",
+    "name": "Name",
+    "type": "Kind",
+    "clientId": "Client ID",
+    "status": "Status",
+    "empty": "No devices or integrations yet.",
+    "types": {
+      "machine": "Device",
+      "service": "Integration"
+    },
+    "addTitle": "Add a device",
+    "codeTitle": "Enrollment code for {{name}}",
+    "codeText": "Enter this code on the device within 15 minutes (until {{expires}}). It is shown only once: {{code}}",
+    "newCode": "New enrollment code",
+    "copied": "Copied."
+  },
+  "access": {
+    "denied": "You don't have access to this part of Settings."
+  },
+  "navGroups": {
+    "organization": "Organisation",
+    "access": "Access",
+    "applications": "Applications"
+  }
+}

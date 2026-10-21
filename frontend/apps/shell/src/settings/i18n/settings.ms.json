@@ -1,0 +1,151 @@
+{
+  "title": "Tetapan",
+  "subtitle": "Urus organisasi anda, siapa yang boleh menggunakannya, dan cara setiap aplikasi berfungsi.",
+  "nav": "Bahagian tetapan",
+  "groups": {
+    "subtitle": "Beri akses yang sama kepada beberapa orang sekaligus.",
+    "create": "Kumpulan baharu",
+    "name": "Nama",
+    "members": "Ahli",
+    "empty": "Belum ada kumpulan.",
+    "emptyHint": "Cipta kumpulan, kemudian tambah orang dan beri akses.",
+    "createTitle": "Kumpulan baharu",
+    "renameTitle": "Namakan semula kumpulan",
+    "created": "Kumpulan dicipta.",
+    "renamed": "Kumpulan dinamakan semula.",
+    "deleteTitle": "Padam {{name}}?",
+    "deleteText": "Ahlinya kehilangan akses yang diberikan oleh kumpulan ini.",
+    "deleted": "Kumpulan dipadam.",
+    "addMember": "Tambah ahli",
+    "memberAdded": "Ahli ditambah.",
+    "removeMember": "Buang {{name}} daripada kumpulan",
+    "memberRemoved": "Ahli dibuang.",
+    "noMembers": "Belum ada ahli.",
+    "roles": "Akses untuk setiap ahli"
+  },
+  "sections": {
+    "profile": "Profil",
+    "branding": "Penjenamaan",
+    "modules": "Tetapan aplikasi",
+    "features": "Ciri",
+    "support": "Akses sokongan",
+    "users": "Pengguna",
+    "groups": "Kumpulan",
+    "machines": "Peranti & integrasi"
+  },
+  "profile": {
+    "subtitle": "Nama organisasi anda dan cara tarikh, masa dan wang dipaparkan.",
+    "saved": "Profil disimpan.",
+    "plan": "Pelan",
+    "address": "Alamat",
+    "status": "Status",
+    "modules": "Aplikasi dalam pelan anda"
+  },
+  "branding": {
+    "subtitle": "Warna dan logo yang dilihat oleh semua orang dalam organisasi anda.",
+    "primaryColor": "Warna utama",
+    "primaryColorHelp": "Warna heks seperti #1f5fbf. Biarkan kosong untuk lalai.",
+    "logoUrl": "Logo",
+    "logoUrlHelp": "Muat naik imej, atau laluan di laman ini.",
+    "upload": "Muat naik logo",
+    "remove": "Buang logo",
+    "tooLarge": "Logo mesti lebih kecil daripada {{size}} KB.",
+    "saved": "Penjenamaan disimpan.",
+    "preview": "Pratonton logo"
+  },
+  "modules": {
+    "subtitle": "Pilihan yang ditawarkan setiap aplikasi kepada organisasi anda. Sesetengahnya ditetapkan oleh pembekal anda.",
+    "empty": "Belum ada aplikasi yang mempunyai tetapan.",
+    "saved": "Tetapan disimpan."
+  },
+  "features": {
+    "subtitle": "Ciri pilihan dan sama ada ia dihidupkan untuk organisasi anda. Minta pembekal anda untuk mengubahnya.",
+    "feature": "Ciri",
+    "module": "Aplikasi",
+    "state": "Keadaan",
+    "empty": "Tiada ciri pilihan."
+  },
+  "support": {
+    "subtitle": "Permintaan daripada pasukan sokongan pembekal anda untuk melihat data anda. Tiada apa dikongsi tanpa kelulusan anda.",
+    "operator": "Diminta oleh",
+    "module": "Aplikasi",
+    "role": "Akses",
+    "reason": "Sebab",
+    "expires": "Sehingga",
+    "status": "Status",
+    "empty": "Tiada permintaan sokongan.",
+    "approve": "Lulus",
+    "deny": "Tolak",
+    "revoke": "Tarik balik",
+    "approveTitle": "Luluskan akses sokongan?",
+    "approveText": "{{operator}} boleh bertindak sebagai {{role}} dalam {{module}} sehingga {{expires}}.",
+    "denyTitle": "Tolak permintaan ini?",
+    "revokeTitle": "Tarik balik akses sokongan sekarang?",
+    "approved": "Akses sokongan diluluskan.",
+    "denied": "Permintaan ditolak.",
+    "revoked": "Akses sokongan ditarik balik.",
+    "statuses": {
+      "pending": "Menunggu anda",
+      "approved": "Diluluskan",
+      "denied": "Ditolak",
+      "revoked": "Ditarik balik"
+    }
+  },
+  "users": {
+    "subtitle": "Orang yang boleh log masuk, dan apa yang boleh mereka lakukan dalam setiap aplikasi.",
+    "invite": "Jemput pengguna",
+    "name": "Nama",
+    "email": "E-mel",
+    "status": "Status",
+    "lastSeen": "Kali terakhir dilihat",
+    "never": "Tidak pernah",
+    "search": "Cari pengguna",
+    "empty": "Belum ada pengguna.",
+    "emptyHint": "Jemput orang yang patut menggunakan aplikasi ini.",
+    "inviteTitle": "Jemput pengguna",
+    "inviteText": "Mereka akan menerima e-mel dengan pautan untuk memilih kata laluan.",
+    "invited": "Jemputan dihantar kepada {{email}}.",
+    "roles": "Akses",
+    "rolesHint": "Apa yang boleh mereka lakukan dalam setiap aplikasi. Kumpulan mungkin memberi lebih.",
+    "edit": "Sunting pengguna",
+    "saved": "Disimpan.",
+    "deactivate": "Nyahaktifkan",
+    "activate": "Aktifkan",
+    "deactivateTitle": "Nyahaktifkan {{name}}?",
+    "deactivateText": "Mereka dilog keluar di semua tempat dan tidak boleh log masuk sehingga anda mengaktifkan mereka semula.",
+    "activated": "{{name}} boleh log masuk semula.",
+    "deactivated": "{{name}} tidak lagi boleh log masuk.",
+    "resend": "Hantar semula jemputan",
+    "resent": "Jemputan baharu telah dihantar.",
+    "effective": "Akses berkesan",
+    "effectiveHint": "Peranan langsung dan peranan kumpulan digabungkan, terhad kepada apa yang termasuk dalam pelan anda.",
+    "noAccess": "Belum ada akses.",
+    "roleSaved": "Akses dikemas kini."
+  },
+  "machines": {
+    "subtitle": "Peranti dikongsi (seperti tablet gudang) dan sistem luar yang memanggil API.",
+    "add": "Tambah peranti",
+    "name": "Nama",
+    "type": "Jenis",
+    "clientId": "ID klien",
+    "status": "Status",
+    "empty": "Belum ada peranti atau integrasi.",
+    "types": {
+      "machine": "Peranti",
+      "service": "Integrasi"
+    },
+    "addTitle": "Tambah peranti",
+    "codeTitle": "Kod pendaftaran untuk {{name}}",
+    "codeText": "Masukkan kod ini pada peranti dalam masa 15 minit (sehingga {{expires}}). Ia dipaparkan sekali sahaja: {{code}}",
+    "newCode": "Kod pendaftaran baharu",
+    "copied": "Disalin."
+  },
+  "access": {
+    "denied": "Anda tiada akses ke bahagian Tetapan ini."
+  },
+  "navGroups": {
+    "organization": "Organisasi",
+    "access": "Akses",
+    "applications": "Aplikasi"
+  }
+}

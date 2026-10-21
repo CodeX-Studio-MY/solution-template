@@ -10,7 +10,19 @@
     "back": "Kembali",
     "retry": "Cuba lagi",
     "signOut": "Log keluar",
-    "signIn": "Log masuk"
+    "signIn": "Log masuk",
+    "ok": "OK",
+    "close": "Tutup",
+    "confirm": "Sahkan",
+    "delete": "Padam",
+    "edit": "Sunting",
+    "add": "Tambah",
+    "create": "Cipta",
+    "remove": "Buang",
+    "search": "Cari",
+    "reset": "Set semula",
+    "dismiss": "Tutup",
+    "copy": "Salin"
   },
   "errors": {
     "generic": "Sesuatu telah berlaku. Sila cuba lagi.",
@@ -60,5 +72,33 @@
     "loading": "Memuatkan…",
     "viewAll": "Lihat semua",
     "none": "Tiada apa-apa buat masa ini."
+  },
+  "master": {
+    "loading": "Memuatkan…",
+    "noOptions": "Tiada padanan",
+    "failed": "Senarai tidak dapat dimuatkan."
+  },
+  "settingsForm": {
+    "default": "Lalai: {{value}}",
+    "resetToDefault": "Guna nilai lalai",
+    "readOnly": "Ditetapkan oleh pembekal anda",
+    "saved": "Tetapan disimpan.",
+    "noSettings": "Tiada apa untuk ditetapkan di sini.",
+    "on": "Hidup",
+    "off": "Mati"
+  },
+  "status": {
+    "active": "Aktif",
+    "inactive": "Tidak aktif",
+    "invited": "Dijemput"
+  },
+  "roleSelect": {
+    "none": "Tiada akses"
+  },
+  "profile": {
+    "displayName": "Nama organisasi",
+    "timeZone": "Zon waktu",
+    "currency": "Mata wang",
+    "locale": "Bahasa"
   }
 }

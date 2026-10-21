@@ -19,3 +19,5 @@ export async function setupI18nForTest(namespaces: Record<string, NamespaceResou
   await initI18n("en");
   for (const [namespace, resources] of Object.entries(namespaces)) addNamespace(namespace, resources);
 }
+
+export { TestProviders } from "./providers";

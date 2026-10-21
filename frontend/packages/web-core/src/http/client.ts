@@ -11,7 +11,7 @@ export const loginPath = "/bff/login";
 type Redirect = (url: string) => void;
 let redirect: Redirect = (url) => window.location.assign(url);
 
-/** Tests replace how the page is sent to sign in. */
+/** Replaces what happens when the session has ended: tests record it; the operator console shows its own sign-in. */
 export function setRedirect(next: Redirect): void {
   redirect = next;
 }

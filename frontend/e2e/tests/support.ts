@@ -37,6 +37,21 @@ export async function mockApp(page: Page, scenario: Scenario = {}) {
       }),
     "GET /api/tenancy/v1/me/modules": (route) => json(route, { modules }),
     "GET /api/tenancy/v1/me/settings": (route) => json(route, { branding, features, values: {} }),
+    // Settings opens on the organisation's profile.
+    "GET /api/tenancy/v1/me/tenant": (route) =>
+      json(route, {
+        id: "44444444-4444-4444-4444-444444444444",
+        slug: "demo",
+        displayName: "Demo Co",
+        status: "active",
+        plan: "standard",
+        modules: [],
+        deleteAfter: null,
+        requireSupportApproval: true,
+        timeZone: "Asia/Kuala_Lumpur",
+        currency: "MYR",
+        locale: "en",
+      }),
     ...scenario.routes,
   };
 

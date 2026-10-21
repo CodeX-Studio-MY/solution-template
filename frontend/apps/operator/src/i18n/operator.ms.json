@@ -1,0 +1,83 @@
+{
+  "title": "Konsol operator",
+  "signIn": {
+    "title": "Log masuk operator",
+    "subtitle": "Untuk kakitangan platform sahaja. Penyewa log masuk di alamat mereka sendiri.",
+    "email": "E-mel",
+    "password": "Kata laluan",
+    "totp": "Kod pengesah",
+    "submit": "Log masuk"
+  },
+  "signOut": "Log keluar",
+  "tenants": {
+    "title": "Penyewa",
+    "subtitle": "Setiap organisasi di platform.",
+    "search": "Cari penyewa",
+    "slug": "Alamat",
+    "name": "Nama",
+    "plan": "Pelan",
+    "status": "Status",
+    "modules": "Aplikasi",
+    "empty": "Belum ada penyewa.",
+    "onboard": "Daftarkan penyewa"
+  },
+  "statuses": {
+    "provisioning": "Sedang disediakan",
+    "active": "Aktif",
+    "suspended": "Digantung",
+    "pendingDeletion": "Menunggu pemadaman",
+    "deleted": "Dipadam"
+  },
+  "onboard": {
+    "title": "Daftarkan penyewa",
+    "text": "Mencipta pangkalan data penyewa, mendayakan aplikasi pelannya dan menjemput pentadbir pertamanya.",
+    "slug": "Alamat",
+    "slugHelp": "Huruf kecil, digit dan sengkang. Ia menjadi alamat web penyewa.",
+    "displayName": "Nama",
+    "plan": "Pelan",
+    "adminEmail": "E-mel pentadbir pertama",
+    "adminName": "Nama pentadbir pertama",
+    "submit": "Daftarkan",
+    "doneTitle": "{{name}} sudah sedia",
+    "doneText": "Hantar pautan sekali guna ini kepada pentadbir pertama: {{url}}",
+    "doneResumed": "Pendaftaran selesai. Pentadbir pertama telah pun dijemput."
+  },
+  "tenant": {
+    "back": "Semua penyewa",
+    "tabs": {
+      "overview": "Gambaran keseluruhan",
+      "settings": "Tetapan",
+      "features": "Ciri"
+    },
+    "profile": "Profil",
+    "profileSaved": "Profil disimpan.",
+    "plan": "Pelan",
+    "planSaved": "Pelan ditukar.",
+    "planTitle": "Tukar {{name}} kepada {{plan}}?",
+    "planText": "Aplikasi yang tidak termasuk dalam pelan baharu dibuang serta-merta.",
+    "modules": "Aplikasi",
+    "modulesHint": "Aplikasi pelan sentiasa hidup. Yang lain boleh ditambah.",
+    "inPlan": "Dalam pelan",
+    "moduleSaved": "Aplikasi dikemas kini.",
+    "supportApproval": "Akses sokongan memerlukan kelulusan penyewa",
+    "supportApprovalSaved": "Dasar sokongan disimpan.",
+    "lifecycle": "Kitaran hayat",
+    "settingsSaved": "Tetapan disimpan.",
+    "featureSaved": "Ciri dikemas kini.",
+    "featureDefault": "Lalai ({{state}})"
+  },
+  "lifecycle": {
+    "suspend": "Gantung",
+    "resume": "Sambung semula",
+    "offboard": "Mula menamatkan",
+    "cancel": "Batalkan penamatan",
+    "complete": "Padam terus",
+    "suspendTitle": "Gantung {{name}}?",
+    "suspendText": "Penyewa menjadi baca sahaja sehingga anda menyambungnya semula.",
+    "offboardTitle": "Mula menamatkan {{name}}?",
+    "offboardText": "Semua orang dilog keluar dan data penyewa dieksport. Ia dipadam selepas tempoh tangguh melainkan anda membatalkannya.",
+    "completeTitle": "Padam {{name}} terus?",
+    "completeText": "Pangkalan data penyewa dibuang. Tindakan ini tidak boleh dibuat asal.",
+    "done": "{{name}}: {{status}}."
+  }
+}

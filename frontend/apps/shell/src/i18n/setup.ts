@@ -1,10 +1,10 @@
 import { addNamespace, initI18n } from "@saaskit/web-core";
-import en from "./common.en.json";
-import ms from "./common.ms.json";
-import zh from "./common.zh.json";
+import { commonStrings } from "@saaskit/ui-kit";
+import { settingsStrings } from "../settings/strings";
 
-/** Starts i18n in the tenant's locale and registers the shell's own strings (namespace `common`). */
+/** Starts i18n in the tenant's locale and registers the shared strings (`common`) and the Settings area's (`settings`). */
 export async function setupI18n(locale: string): Promise<void> {
   await initI18n(locale);
-  addNamespace("common", { en, ms, zh });
+  addNamespace("common", commonStrings);
+  addNamespace("settings", settingsStrings);
 }

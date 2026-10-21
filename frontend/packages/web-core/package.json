@@ -22,7 +22,8 @@
     "react-router": "catalog:",
     "zustand": "catalog:",
     "i18next": "catalog:",
-    "react-i18next": "catalog:"
+    "react-i18next": "catalog:",
+    "@tanstack/react-query": "catalog:"
   },
   "devDependencies": {
     "react": "catalog:",
@@ -38,6 +39,7 @@
     "jsdom": "catalog:",
     "@testing-library/react": "catalog:",
     "@testing-library/dom": "catalog:",
-    "@testing-library/jest-dom": "catalog:"
+    "@testing-library/jest-dom": "catalog:",
+    "@tanstack/react-query": "catalog:"
   }
 }

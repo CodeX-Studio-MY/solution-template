@@ -31,7 +31,9 @@ createServer(async (request, response) => {
 
   // posix: a URL path always uses "/", also on Windows (where path.normalize would turn it into backslashes).
   const safe = posix.normalize(url.pathname).replace(/^(\.\.\/)+/, "");
-  const target = safe.startsWith("/mfe/") ? join(dist, safe) : join(dist, "shell", safe);
+  // As on the Gateway: operator.{domain} gets the operator console, every other host the shell.
+  const app = url.hostname.startsWith("operator.") ? "operator" : "shell";
+  const target = safe.startsWith("/mfe/") ? join(dist, safe) : join(dist, app, safe);
   const asset = await file(target);
   if (asset && !target.endsWith("index.html")) {
     response.setHeader("Content-Type", types[extname(target)] ?? "application/octet-stream");
@@ -44,7 +46,7 @@ createServer(async (request, response) => {
     response.end();
     return;
   }
-  const index = await file(join(dist, "shell", "index.html"));
+  const index = await file(join(dist, app, "index.html"));
   response.setHeader("Content-Type", "text/html");
   response.setHeader("Cache-Control", "no-store");
   response.end((index?.toString() ?? "").replaceAll("__CSP_NONCE__", nonce));

@@ -14,6 +14,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@saaskit/api-clients": "workspace:*",
     "@saaskit/web-core": "workspace:*",
     "@emotion/cache": "catalog:"
   },
@@ -25,7 +26,8 @@
     "@emotion/react": "catalog:",
     "@emotion/styled": "catalog:",
     "i18next": "catalog:",
-    "react-i18next": "catalog:"
+    "react-i18next": "catalog:",
+    "@tanstack/react-query": "catalog:"
   },
   "devDependencies": {
     "react": "catalog:",
@@ -46,6 +48,7 @@
     "@testing-library/react": "catalog:",
     "@testing-library/dom": "catalog:",
     "@testing-library/jest-dom": "catalog:",
-    "@testing-library/user-event": "catalog:"
+    "@testing-library/user-event": "catalog:",
+    "@tanstack/react-query": "catalog:"
   }
 }

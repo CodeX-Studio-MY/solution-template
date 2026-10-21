@@ -11,9 +11,9 @@ const colourLiteral = {
 };
 const apiLiteral = {
   selector:
-    "Literal[value=/\\/api\\//]:not(CallExpression[callee.property.name=/^(GET|POST|PUT|DELETE|PATCH)$/] > Literal:first-child), TemplateElement[value.raw=/\\/api\\//]",
+    "Literal[value=/\\/api\\//]:not(CallExpression[callee.property.name=/^(GET|POST|PUT|DELETE|PATCH)$/] > Literal:first-child):not(CallExpression[callee.name=/^(useMaster|masterKey|invalidateMaster)$/] > Literal), TemplateElement[value.raw=/\\/api\\//]",
   message:
-    'Don\'t spell /api/ paths. Call the typed client (api("service").GET("/api/...")), or use apiPath(service, path) from @saaskit/web-core.',
+    'Don\'t spell /api/ paths. Call the typed client (api("service").GET("/api/...")) or useMaster("service", "/api/..."), or use apiPath(service, path) from @saaskit/web-core.',
 };
 const localhostLiteral = {
   selector: "Literal[value=/localhost|127\\.0\\.0\\.1/]",
@@ -49,6 +49,7 @@ export default tseslint.config(
     settings: {
       "boundaries/elements": [
         { type: "shell", pattern: "apps/shell/**" },
+        { type: "operator", pattern: "apps/operator/**" },
         { type: "ui-kit", pattern: "packages/ui-kit/**" },
         { type: "web-core", pattern: "packages/web-core/**" },
         { type: "api-clients", pattern: "packages/api-clients/**" },
@@ -71,7 +72,10 @@ export default tseslint.config(
         {
           default: "allow",
           policies: [
-            { from: { element: { type: "module" } }, disallow: { to: { element: { type: "shell" } } } },
+            { from: { element: { type: "module" } }, disallow: { to: { element: { types: { anyOf: ["shell", "operator"] } } } } },
+            // The two apps share code only through the packages.
+            { from: { element: { type: "operator" } }, disallow: { to: { element: { types: { anyOf: ["shell", "module"] } } } } },
+            { from: { element: { type: "shell" } }, disallow: { to: { element: { type: "operator" } } } },
             {
               from: { element: { type: "module" } },
               disallow: { to: { element: { type: "module", captured: { name: "!{{ from.element.captured.name }}" } } } },
@@ -84,7 +88,7 @@ export default tseslint.config(
             },
             {
               from: { element: { types: { anyOf: ["ui-kit", "web-core", "api-clients"] } } },
-              disallow: { to: { element: { types: { anyOf: ["shell", "module"] } } } },
+              disallow: { to: { element: { types: { anyOf: ["shell", "operator", "module"] } } } },
             },
             {
               from: { element: { type: "web-core" } },

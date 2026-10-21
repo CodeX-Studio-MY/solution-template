@@ -22,11 +22,13 @@ RUN dotnet publish backend/src/Gateway/Gateway.csproj --configuration Release --
 FROM ${RUNTIME_IMAGE} AS runtime
 ENV ASPNETCORE_HTTP_PORTS=8080 \
     Bff__ShellRoot=/app/shell \
+    Bff__OperatorRoot=/app/operator \
     Bff__ModulesRoot=/app/mfe \
     TZ=UTC
 WORKDIR /app
 COPY --from=build /app .
 COPY --from=frontend /src/frontend/dist/shell shell
+COPY --from=frontend /src/frontend/dist/operator operator
 COPY --from=frontend /src/frontend/dist/mfe mfe
 USER app
 EXPOSE 8080

@@ -16,6 +16,7 @@ export const sharedPackages = [
   "zustand",
   "i18next",
   "react-i18next",
+  "@tanstack/react-query",
   "@saaskit/web-core",
   "@saaskit/ui-kit",
 ] as const;

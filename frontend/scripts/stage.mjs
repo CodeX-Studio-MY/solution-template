@@ -1,5 +1,6 @@
 // Lays the built frontend out the way the Gateway serves it:
 //   dist/shell/                        the shell app (Bff:ShellRoot)
+//   dist/operator/                     the operator console (Bff:OperatorRoot), served on operator.{BaseDomain}
 //   dist/mfe/{module-key}/{version}/   each module (Bff:ModulesRoot), immutable per version
 // MODULE_VERSION defaults to the catalog's default module version, so a fresh tenant gets the modules built here.
 import { cp, mkdir, readdir, rm } from "node:fs/promises";
@@ -13,6 +14,7 @@ const out = join(root, "dist");
 
 await rm(out, { recursive: true, force: true });
 await cp(join(root, "apps", "shell", "dist"), join(out, "shell"), { recursive: true });
+await cp(join(root, "apps", "operator", "dist"), join(out, "operator"), { recursive: true });
 
 // A product with no business module yet has no modules to stage (and git keeps no empty folder).
 const modules = join(root, "modules");

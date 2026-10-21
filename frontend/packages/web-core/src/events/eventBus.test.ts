@@ -17,11 +17,11 @@ describe("eventBus", () => {
   it("isolates a failing listener from the others and from the emitter", () => {
     vi.spyOn(console, "error").mockImplementation(() => undefined);
     const good = vi.fn();
-    eventBus.on("notify", () => {
+    eventBus.on("navigate", () => {
       throw new Error("boom");
     });
-    eventBus.on("notify", good);
-    expect(() => eventBus.emit("notify", { message: "hi" })).not.toThrow();
+    eventBus.on("navigate", good);
+    expect(() => eventBus.emit("navigate", { to: "/" })).not.toThrow();
     expect(good).toHaveBeenCalled();
   });
 });

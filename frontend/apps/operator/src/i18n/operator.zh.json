@@ -1,0 +1,83 @@
+{
+  "title": "运营控制台",
+  "signIn": {
+    "title": "运营人员登录",
+    "subtitle": "仅供平台员工使用。租户请在各自的地址登录。",
+    "email": "电子邮件",
+    "password": "密码",
+    "totp": "验证器代码",
+    "submit": "登录"
+  },
+  "signOut": "退出登录",
+  "tenants": {
+    "title": "租户",
+    "subtitle": "平台上的所有组织。",
+    "search": "搜索租户",
+    "slug": "地址",
+    "name": "名称",
+    "plan": "套餐",
+    "status": "状态",
+    "modules": "应用",
+    "empty": "还没有租户。",
+    "onboard": "开通租户"
+  },
+  "statuses": {
+    "provisioning": "开通中",
+    "active": "正常",
+    "suspended": "已暂停",
+    "pendingDeletion": "待删除",
+    "deleted": "已删除"
+  },
+  "onboard": {
+    "title": "开通租户",
+    "text": "创建租户的数据库，启用其套餐中的应用，并邀请第一位管理员。",
+    "slug": "地址",
+    "slugHelp": "小写字母、数字和连字符，将成为租户的网址。",
+    "displayName": "名称",
+    "plan": "套餐",
+    "adminEmail": "第一位管理员的电子邮件",
+    "adminName": "第一位管理员的姓名",
+    "submit": "开通",
+    "doneTitle": "{{name}} 已就绪",
+    "doneText": "请将此一次性链接发送给第一位管理员：{{url}}",
+    "doneResumed": "开通已完成。第一位管理员此前已收到邀请。"
+  },
+  "tenant": {
+    "back": "所有租户",
+    "tabs": {
+      "overview": "概览",
+      "settings": "设置",
+      "features": "功能"
+    },
+    "profile": "资料",
+    "profileSaved": "资料已保存。",
+    "plan": "套餐",
+    "planSaved": "套餐已更改。",
+    "planTitle": "将 {{name}} 更改为 {{plan}}？",
+    "planText": "新套餐不包含的应用将立即移除。",
+    "modules": "应用",
+    "modulesHint": "套餐内的应用始终开启，其他应用可以额外添加。",
+    "inPlan": "套餐内",
+    "moduleSaved": "应用已更新。",
+    "supportApproval": "支持访问需要租户批准",
+    "supportApprovalSaved": "支持策略已保存。",
+    "lifecycle": "生命周期",
+    "settingsSaved": "设置已保存。",
+    "featureSaved": "功能已更新。",
+    "featureDefault": "默认（{{state}}）"
+  },
+  "lifecycle": {
+    "suspend": "暂停",
+    "resume": "恢复",
+    "offboard": "开始注销",
+    "cancel": "取消注销",
+    "complete": "永久删除",
+    "suspendTitle": "暂停 {{name}}？",
+    "suspendText": "在您恢复之前，该租户将变为只读。",
+    "offboardTitle": "开始注销 {{name}}？",
+    "offboardText": "所有人将被退出登录，租户数据将被导出。除非您取消，否则将在宽限期后删除。",
+    "completeTitle": "永久删除 {{name}}？",
+    "completeText": "租户的数据库将被删除。此操作无法撤销。",
+    "done": "{{name}}：{{status}}。"
+  }
+}

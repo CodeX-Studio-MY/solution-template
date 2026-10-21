@@ -6,8 +6,6 @@
 export interface AppEvents {
   /** Ask the shell to go somewhere (modules link to each other by URL, never by import). */
   navigate: { to: string };
-  /** Show a short message (a snackbar) in the shell. */
-  notify: { message: string; severity?: "success" | "info" | "warning" | "error" };
 }
 
 type Handler<K extends keyof AppEvents> = (payload: AppEvents[K]) => void;

@@ -26,7 +26,8 @@
     "react-dom": "catalog:",
     "react-i18next": "catalog:",
     "react-router": "catalog:",
-    "zustand": "catalog:"
+    "zustand": "catalog:",
+    "@tanstack/react-query": "catalog:"
   },
   "devDependencies": {
     "@saaskit/build-config": "workspace:*",

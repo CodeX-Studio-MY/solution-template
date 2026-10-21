@@ -1,8 +1,8 @@
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { useTranslation } from "react-i18next";
-import { apiJson, useResource, type ServiceKey } from "@saaskit/web-core";
-import type { CustomFieldDefinition } from "./CustomFieldsSection";
+import type { ServiceKey } from "@saaskit/web-core";
+import { useCustomFieldDefinitions } from "./CustomFieldsSection";
 
 interface CustomFieldsSummaryProps {
   entity: string;
@@ -14,10 +14,7 @@ interface CustomFieldsSummaryProps {
 export function CustomFieldsSummary({ entity, service, values }: CustomFieldsSummaryProps) {
   const { t } = useTranslation();
   const owner = (service ?? entity) as ServiceKey;
-  const definitions = useResource(
-    () => apiJson<CustomFieldDefinition[]>(owner, `v1/custom-fields?entity=${encodeURIComponent(entity)}`),
-    [owner, entity],
-  );
+  const definitions = useCustomFieldDefinitions(owner, entity);
   const shown = [...(definitions.data ?? [])].sort((a, b) => a.displayOrder - b.displayOrder).filter((d) => values[d.key] !== undefined);
   if (shown.length === 0) return null;
   return (

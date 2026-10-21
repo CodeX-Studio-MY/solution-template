@@ -3,7 +3,7 @@ import { MemoryRouter } from "react-router";
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { registerExtensions, unregisterExtensions, type ModuleManifest } from "@saaskit/web-core";
 import { setTenantForTest, setupI18nForTest, signInForTest } from "@saaskit/web-core/testing";
-import common from "../i18n/common.en.json";
+import { commonStrings } from "@saaskit/ui-kit";
 import { Home } from "./Home";
 
 const orders = {
@@ -33,7 +33,7 @@ function renderHome(manifests: ModuleManifest[]) {
 describe("Home", () => {
   beforeAll(async () => {
     await setupI18nForTest({
-      common: { en: common },
+      common: commonStrings,
       "goods-receipt": { en: { menu: "Goods receipts" } },
       "supplier-rating": { en: { menu: "Supplier ratings" } },
     });

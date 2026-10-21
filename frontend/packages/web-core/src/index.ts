@@ -41,4 +41,25 @@ export { useTranslation } from "react-i18next";
 
 export type { ModuleManifest, ModuleRoute, MenuItem, SettingsPage, ExtensionDefinition, SlotExtension } from "./module/contract";
 
-export { useResource, type Resource } from "./hooks/useResource";
+export { queryClient, createPlatformQueryClient, PlatformQueryProvider } from "./query/queryClient";
+export { useApiQuery, useApiMutation, type ApiMutationOptions } from "./query/useApi";
+export {
+  useMaster,
+  masterKey,
+  invalidateMaster,
+  type Master,
+  type MasterItem,
+  type MasterOption,
+  type MasterOptions,
+  type ListPath,
+} from "./query/useMaster";
+export { useSnackbar, useSnackbarStore, snackbar, type Snack, type Snackbar, type Severity } from "./feedback/snackbar";
+export {
+  useDialog,
+  useDialogStore,
+  dialog,
+  type Dialog,
+  type DialogRequest,
+  type ConfirmOptions,
+  type AlertOptions,
+} from "./feedback/dialog";

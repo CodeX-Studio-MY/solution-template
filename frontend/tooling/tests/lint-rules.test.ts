@@ -51,6 +51,13 @@ describe("frontend lint rules", () => {
     expect(await messages('declare const c: { GET(p: string): void }; c.GET("/api/goods-receipt/v1/requests");', moduleFile)).toEqual(
       [],
     );
+    // The typed master-data helpers take the same OpenAPI path.
+    expect(
+      await messages(
+        'declare function useMaster(s: string, p: string): void; export function useFarms() { useMaster("farm", "/api/farm/v1/farms"); }',
+        moduleFile,
+      ),
+    ).toEqual([]);
   });
 
   it("rejects host names in code", async () => {

@@ -1,0 +1,83 @@
+{
+  "title": "Operator console",
+  "signIn": {
+    "title": "Operator sign-in",
+    "subtitle": "For the platform's own staff. Tenants sign in at their own address.",
+    "email": "Email",
+    "password": "Password",
+    "totp": "Authenticator code",
+    "submit": "Sign in"
+  },
+  "signOut": "Sign out",
+  "tenants": {
+    "title": "Tenants",
+    "subtitle": "Every organisation on the platform.",
+    "search": "Search tenants",
+    "slug": "Address",
+    "name": "Name",
+    "plan": "Plan",
+    "status": "Status",
+    "modules": "Applications",
+    "empty": "No tenants yet.",
+    "onboard": "Onboard tenant"
+  },
+  "statuses": {
+    "provisioning": "Provisioning",
+    "active": "Active",
+    "suspended": "Suspended",
+    "pendingDeletion": "Pending deletion",
+    "deleted": "Deleted"
+  },
+  "onboard": {
+    "title": "Onboard a tenant",
+    "text": "Creates the tenant's database, enables its plan's applications and invites its first administrator.",
+    "slug": "Address",
+    "slugHelp": "Lowercase letters, digits and hyphens. It becomes the tenant's web address.",
+    "displayName": "Name",
+    "plan": "Plan",
+    "adminEmail": "First administrator's email",
+    "adminName": "First administrator's name",
+    "submit": "Onboard",
+    "doneTitle": "{{name}} is ready",
+    "doneText": "Send this one-time link to the first administrator: {{url}}",
+    "doneResumed": "Onboarding finished. The first administrator was already invited."
+  },
+  "tenant": {
+    "back": "All tenants",
+    "tabs": {
+      "overview": "Overview",
+      "settings": "Settings",
+      "features": "Features"
+    },
+    "profile": "Profile",
+    "profileSaved": "Profile saved.",
+    "plan": "Plan",
+    "planSaved": "Plan changed.",
+    "planTitle": "Change {{name}} to {{plan}}?",
+    "planText": "Applications that the new plan doesn't include are removed at once.",
+    "modules": "Applications",
+    "modulesHint": "The plan's applications are always on. Others can be added on top.",
+    "inPlan": "In the plan",
+    "moduleSaved": "Applications updated.",
+    "supportApproval": "Support access needs the tenant's approval",
+    "supportApprovalSaved": "Support policy saved.",
+    "lifecycle": "Lifecycle",
+    "settingsSaved": "Settings saved.",
+    "featureSaved": "Feature updated.",
+    "featureDefault": "Default ({{state}})"
+  },
+  "lifecycle": {
+    "suspend": "Suspend",
+    "resume": "Resume",
+    "offboard": "Begin offboarding",
+    "cancel": "Cancel offboarding",
+    "complete": "Delete for good",
+    "suspendTitle": "Suspend {{name}}?",
+    "suspendText": "The tenant becomes read-only until you resume it.",
+    "offboardTitle": "Begin offboarding {{name}}?",
+    "offboardText": "Everyone is signed out and the tenant's data is exported. It is deleted after the grace period unless you cancel.",
+    "completeTitle": "Delete {{name}} for good?",
+    "completeText": "The tenant's database is dropped. This can't be undone.",
+    "done": "{{name}}: {{status}}."
+  }
+}

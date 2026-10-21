@@ -1,6 +1,19 @@
 {
   "menu": "__DISPLAY__",
-  "fields": { "name": "Name" },
-  "list": { "title": "__DISPLAY__", "empty": "Nothing here yet", "emptyHint": "Add the first one below." },
-  "form": { "add": "Add" }
+  "fields": {
+    "name": "Name"
+  },
+  "list": {
+    "title": "__DISPLAY__",
+    "empty": "Nothing here yet",
+    "emptyHint": "Add the first one below.",
+    "delete": "Delete {{name}}",
+    "deleteTitle": "Delete {{name}}?",
+    "deleteText": "This can't be undone.",
+    "deleted": "Deleted."
+  },
+  "form": {
+    "add": "Add",
+    "added": "Added."
+  }
 }
