@@ -1,18 +1,70 @@
 {
   "menu": "Master Data",
+  "settings": {
+    "groups": {
+      "master": "Induk"
+    },
+    "farms": "Ladang"
+  },
   "fields": {
+    "orderSequence": "#",
     "code": "Kod",
     "name": "Nama",
-    "farmType": "Jenis"
+    "farmType": "Jenis",
+    "globalGapNumber": "GGN (nombor GLOBALG.A.P.)",
+    "description": "Penerangan",
+    "latitude": "Latitud",
+    "longitude": "Longitud",
+    "areaHectares": "Keluasan (ha)",
+    "contactPerson": "Orang untuk dihubungi",
+    "contactPhone": "Telefon untuk dihubungi",
+    "address": "Alamat",
+    "isActive": "Aktif",
+    "isExternal": "Luaran (bukan milik kami)",
+    "status": "Status"
   },
   "farmTypes": {
     "field": "Ladang terbuka",
     "greenhouse": "Rumah hijau",
     "nursery": "Tapak semaian"
   },
+  "status": {
+    "active": "Aktif",
+    "inactive": "Tidak aktif",
+    "external": "Luaran"
+  },
   "list": {
     "title": "Ladang",
+    "subtitle": "Ladang tempat anda bercucuk tanam, mengikut susunan dalam senarai.",
     "empty": "Belum ada ladang",
-    "emptyHint": "Ladang yang anda tambah akan dipaparkan di sini."
+    "emptyHint": "Tambah ladang pertama anda untuk bermula.",
+    "actions": "Tindakan",
+    "actionsFor": "Tindakan untuk {{name}}",
+    "stale": "Ladang ini telah diubah oleh orang lain. Senarai telah dimuat semula; sila cuba lagi."
+  },
+  "actions": {
+    "add": "Tambah ladang",
+    "edit": "Ubah",
+    "moveUp": "Naikkan",
+    "moveDown": "Turunkan",
+    "delete": "Padam"
+  },
+  "form": {
+    "addTitle": "Tambah ladang",
+    "editTitle": "Ubah ladang",
+    "close": "Tutup",
+    "cancel": "Batal",
+    "save": "Simpan",
+    "general": "Umum",
+    "locationAndSize": "Lokasi dan keluasan",
+    "contact": "Hubungan",
+    "status": "Status",
+    "globalGapNumberHelp": "Hanya untuk ladang yang diperakui GLOBALG.A.P.",
+    "locationHelp": "Darjah perpuluhan, contohnya latitud 3.1390 dan longitud 101.6869. Biarkan kosong jika tidak diketahui.",
+    "orderHelp": "Kedudukan dalam senarai. Ladang di antaranya akan beralih untuk memberi ruang."
+  },
+  "delete": {
+    "title": "Padam ladang?",
+    "text": "{{name}} tidak akan dipaparkan lagi dalam senarai. Ladang selepasnya akan naik satu tempat."
   }
 }

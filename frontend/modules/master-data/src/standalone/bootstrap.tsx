@@ -9,7 +9,8 @@ import manifest from "../manifest";
 
 /**
  * A lightweight dev shell so the module can run on its own (`pnpm dev` in this folder): a session from the Gateway it proxies
- * to, the tenant's language and theme, and just this module's routes. The real shell does all of this and more.
+ * to, the tenant's language and theme, and just this module's routes and settings pages (at the same paths as in the shell).
+ * The real shell does all of this and more.
  */
 async function start() {
   await useSessionStore.getState().load();
@@ -17,9 +18,12 @@ async function start() {
   await initI18n(useTenantStore.getState().tenant.locale);
   addNamespace("common", { en: { actions: { cancel: "Cancel" }, customFields: { title: "Additional information", none: "None" } } });
   if (manifest.i18n.resources) addNamespace(manifest.i18n.namespace, manifest.i18n.resources);
+  const settings = (manifest.settings ?? []).map((page) => ({ path: `/settings${manifest.basePath}/${page.path}`, lazy: page.lazy }));
+  const home = settings[0]?.path ?? manifest.basePath;
   return createBrowserRouter([
     { path: manifest.basePath, children: manifest.routes.map((r) => ({ ...r })) as never },
-    { path: "*", element: <a href={manifest.basePath}>{manifest.id}</a> },
+    ...settings,
+    { path: "*", element: <a href={home}>{manifest.id}</a> },
   ]);
 }
 

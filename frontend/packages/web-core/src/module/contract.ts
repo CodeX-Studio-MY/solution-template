@@ -20,10 +20,17 @@ export interface MenuItem {
   requiredRole: Role;
 }
 
-/** A page in the shell's Settings area. */
+/**
+ * A page in the shell's Settings area, opened from the gear in the top bar (never the sidebar): base data and configuration.
+ * The shell mounts it at `/settings{basePath}/{path}`.
+ */
 export interface SettingsPage {
   id: string;
+  /** i18n key (module namespace) of the section the page is listed under, for example "Master". Pages sharing a label share a section. */
+  group: string;
+  /** i18n key (module namespace) of the page's name in the menu and the breadcrumb. */
   label: string;
+  /** Relative to `/settings{basePath}`. */
   path: string;
   requiredRole: Role;
   lazy: () => Promise<{ Component: ComponentType }>;

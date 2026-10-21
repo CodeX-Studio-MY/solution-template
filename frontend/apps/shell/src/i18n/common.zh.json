@@ -41,7 +41,9 @@
     "yourApps": "您的应用",
     "subtitle": "以下是 {{name}} 需要您关注的事项。",
     "today": "概览",
-    "open": "打开"
+    "open": "打开",
+    "settingsOnly": "还没有应用",
+    "settingsOnlyHint": "农场等基础数据位于“设置”中，即右上角的齿轮图标。"
   },
   "user": {
     "menu": "账户菜单",

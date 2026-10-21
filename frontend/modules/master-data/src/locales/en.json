@@ -1,18 +1,70 @@
 {
   "menu": "Master Data",
+  "settings": {
+    "groups": {
+      "master": "Master"
+    },
+    "farms": "Farm"
+  },
   "fields": {
+    "orderSequence": "#",
     "code": "Code",
     "name": "Name",
-    "farmType": "Type"
+    "farmType": "Type",
+    "globalGapNumber": "GGN (GLOBALG.A.P. number)",
+    "description": "Description",
+    "latitude": "Latitude",
+    "longitude": "Longitude",
+    "areaHectares": "Area (ha)",
+    "contactPerson": "Contact person",
+    "contactPhone": "Contact phone",
+    "address": "Address",
+    "isActive": "Active",
+    "isExternal": "External (not owned by us)",
+    "status": "Status"
   },
   "farmTypes": {
     "field": "Field",
     "greenhouse": "Greenhouse",
     "nursery": "Nursery"
   },
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "external": "External"
+  },
   "list": {
     "title": "Farms",
+    "subtitle": "The farms you grow on, in the order lists show them.",
     "empty": "No farms yet",
-    "emptyHint": "Farms you add will appear here."
+    "emptyHint": "Add your first farm to start.",
+    "actions": "Actions",
+    "actionsFor": "Actions for {{name}}",
+    "stale": "This farm was changed by someone else. The list has been reloaded; please try again."
+  },
+  "actions": {
+    "add": "Add farm",
+    "edit": "Edit",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "delete": "Delete"
+  },
+  "form": {
+    "addTitle": "Add farm",
+    "editTitle": "Edit farm",
+    "close": "Close",
+    "cancel": "Cancel",
+    "save": "Save",
+    "general": "General",
+    "locationAndSize": "Location and size",
+    "contact": "Contact",
+    "status": "Status",
+    "globalGapNumberHelp": "Only for GLOBALG.A.P. certified farms.",
+    "locationHelp": "Decimal degrees, for example latitude 3.1390 and longitude 101.6869. Leave both empty if unknown.",
+    "orderHelp": "Position in lists. The farms in between move to make room."
+  },
+  "delete": {
+    "title": "Delete farm?",
+    "text": "{{name}} will no longer appear in lists. The farms after it move up one place."
   }
 }

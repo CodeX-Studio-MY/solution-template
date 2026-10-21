@@ -41,7 +41,9 @@
     "yourApps": "Your applications",
     "subtitle": "Here is what needs your attention at {{name}}.",
     "today": "At a glance",
-    "open": "Open"
+    "open": "Open",
+    "settingsOnly": "No applications yet",
+    "settingsOnlyHint": "Base data such as farms is under Settings, the gear at the top right."
   },
   "user": {
     "menu": "Account menu",

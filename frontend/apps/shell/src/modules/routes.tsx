@@ -26,3 +26,23 @@ export function moduleRoutes(manifests: readonly ModuleManifest[]): RouteObject[
     children: manifest.routes.map(toRoute),
   }));
 }
+
+/**
+ * The modules' settings pages (base data, configuration), opened from the gear in the top bar. Each is mounted at
+ * `/settings{basePath}/{path}`, in its module's error boundary, for people with at least the page's role in that module.
+ */
+export function settingsRoutes(manifests: readonly ModuleManifest[]): RouteObject[] {
+  return manifests.flatMap((manifest) =>
+    (manifest.settings ?? []).map((page) => ({
+      path: `settings${manifest.basePath}/${page.path}`,
+      element: (
+        <ModuleBoundary moduleId={manifest.id}>
+          <RequireModuleRole module={manifest.id} role={page.requiredRole} fallback={<Navigate to="/" replace />}>
+            <Outlet />
+          </RequireModuleRole>
+        </ModuleBoundary>
+      ),
+      children: [{ index: true, lazy: page.lazy }],
+    })),
+  );
+}

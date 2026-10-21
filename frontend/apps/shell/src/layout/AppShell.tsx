@@ -34,6 +34,8 @@ import {
   type Role,
 } from "@farm360/web-core";
 import { Icon, tokens } from "@farm360/ui-kit";
+import { SettingsMenu } from "./SettingsMenu";
+import { settingsEntries } from "./settingsEntries";
 
 interface Props {
   manifests: readonly ModuleManifest[];
@@ -89,8 +91,16 @@ export function AppShell({ manifests }: Props) {
         label: t(item.label, { ns: manifest.i18n.namespace }),
       })),
   );
+  const settings = settingsEntries(manifests, moduleRoles, t);
+  const currentSetting = settings.find((entry) => pathname === entry.to || pathname.startsWith(`${entry.to}/`));
   const current = manifests.find((m) => pathname === m.basePath || pathname.startsWith(`${m.basePath}/`));
   const currentLabel = current ? t(current.menu[0]?.label ?? current.id, { ns: current.i18n.namespace }) : undefined;
+  // Home / Settings / Master / Farm for a settings page; Home / {module} for a module page.
+  const trail = currentSetting
+    ? [t("common:nav.settings"), currentSetting.group, currentSetting.label]
+    : currentLabel
+      ? [currentLabel]
+      : [];
 
   const width = collapsed ? tokens.layout.sidebarCollapsedWidth : tokens.layout.sidebarWidth;
 
@@ -146,6 +156,7 @@ export function AppShell({ manifests }: Props) {
               {tenant.name || t("common:app.name")}
             </Typography>
           </Box>
+          <SettingsMenu entries={settings} />
           <UserMenu highestRole={highestRole(moduleRoles)} tenantName={tenant.name} />
         </Toolbar>
       </AppBar>
@@ -192,14 +203,22 @@ export function AppShell({ manifests }: Props) {
           py: 3,
         }}
       >
-        {currentLabel ? (
+        {trail.length > 0 ? (
           <Breadcrumbs aria-label={t("common:nav.breadcrumbs")} sx={{ mb: 2 }}>
             <Link component={RouterLink} to="/" color="inherit" underline="hover">
               {t("common:nav.home")}
             </Link>
-            <Typography color="text.primary" aria-current="page">
-              {currentLabel}
-            </Typography>
+            {trail.map((label, index) =>
+              index === trail.length - 1 ? (
+                <Typography key={index} color="text.primary" aria-current="page">
+                  {label}
+                </Typography>
+              ) : (
+                <Typography key={index} color="text.secondary">
+                  {label}
+                </Typography>
+              ),
+            )}
           </Breadcrumbs>
         ) : null}
         <Outlet />

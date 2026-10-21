@@ -7,6 +7,7 @@ import { Link as RouterLink } from "react-router";
 import { useTranslation } from "react-i18next";
 import { canAccess, Slot, useSession, useSlotHasExtensions, useTenant, type ModuleManifest } from "@farm360/web-core";
 import { EmptyState, Icon, PageHeader } from "@farm360/ui-kit";
+import { settingsEntries } from "../layout/settingsEntries";
 
 const cardGrid = { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 320px), 1fr))", gap: 2 } as const;
 
@@ -20,6 +21,7 @@ export function Home({ manifests }: { manifests: readonly ModuleManifest[] }) {
   const roles = useSession()?.moduleRoles ?? {};
   const hasWidgets = useSlotHasExtensions("home.dashboard");
   const available = manifests.filter((m) => m.menu.some((item) => canAccess(roles, m.id, item.requiredRole)));
+  const hasSettings = settingsEntries(manifests, roles, t).length > 0;
 
   return (
     <>
@@ -28,7 +30,11 @@ export function Home({ manifests }: { manifests: readonly ModuleManifest[] }) {
         subtitle={tenant.name ? t("common:home.subtitle", { name: tenant.name }) : t("common:home.intro")}
       />
       {available.length === 0 ? (
-        <EmptyState title={t("common:errors.noModules")} />
+        hasSettings ? (
+          <EmptyState title={t("common:home.settingsOnly")} hint={t("common:home.settingsOnlyHint")} />
+        ) : (
+          <EmptyState title={t("common:errors.noModules")} />
+        )
       ) : (
         <Stack spacing={4}>
           {hasWidgets ? (

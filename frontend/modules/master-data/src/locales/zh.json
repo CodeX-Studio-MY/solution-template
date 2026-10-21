@@ -1,18 +1,70 @@
 {
   "menu": "Master Data",
+  "settings": {
+    "groups": {
+      "master": "主数据"
+    },
+    "farms": "农场"
+  },
   "fields": {
+    "orderSequence": "#",
     "code": "代码",
     "name": "名称",
-    "farmType": "类型"
+    "farmType": "类型",
+    "globalGapNumber": "GGN（GLOBALG.A.P. 编号）",
+    "description": "描述",
+    "latitude": "纬度",
+    "longitude": "经度",
+    "areaHectares": "面积（公顷）",
+    "contactPerson": "联系人",
+    "contactPhone": "联系电话",
+    "address": "地址",
+    "isActive": "启用",
+    "isExternal": "外部（非自有）",
+    "status": "状态"
   },
   "farmTypes": {
     "field": "露天农场",
     "greenhouse": "温室",
     "nursery": "苗圃"
   },
+  "status": {
+    "active": "启用",
+    "inactive": "停用",
+    "external": "外部"
+  },
   "list": {
     "title": "农场",
+    "subtitle": "您种植的农场，按列表中的顺序排列。",
     "empty": "还没有农场",
-    "emptyHint": "您添加的农场将显示在这里。"
+    "emptyHint": "添加第一个农场即可开始。",
+    "actions": "操作",
+    "actionsFor": "{{name}} 的操作",
+    "stale": "该农场已被他人修改。列表已重新加载，请重试。"
+  },
+  "actions": {
+    "add": "添加农场",
+    "edit": "编辑",
+    "moveUp": "上移",
+    "moveDown": "下移",
+    "delete": "删除"
+  },
+  "form": {
+    "addTitle": "添加农场",
+    "editTitle": "编辑农场",
+    "close": "关闭",
+    "cancel": "取消",
+    "save": "保存",
+    "general": "常规",
+    "locationAndSize": "位置和面积",
+    "contact": "联系方式",
+    "status": "状态",
+    "globalGapNumberHelp": "仅适用于通过 GLOBALG.A.P. 认证的农场。",
+    "locationHelp": "十进制度数，例如纬度 3.1390、经度 101.6869。未知时两项都留空。",
+    "orderHelp": "在列表中的位置。中间的农场会相应移动。"
+  },
+  "delete": {
+    "title": "删除农场？",
+    "text": "{{name}} 将不再显示在列表中。其后的农场会上移一位。"
   }
 }

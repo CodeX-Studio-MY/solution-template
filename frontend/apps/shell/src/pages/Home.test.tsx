@@ -76,4 +76,27 @@ describe("Home", () => {
     renderHome([orders]);
     expect(screen.getByText("No applications are available for your account.")).toBeInTheDocument();
   });
+
+  it("points to Settings when the person only has settings pages", () => {
+    signInForTest(["master-data:user"]);
+    const masterData = {
+      id: "master-data",
+      basePath: "/master-data",
+      routes: [],
+      menu: [],
+      settings: [
+        {
+          id: "farms",
+          group: "groups.master",
+          label: "farms",
+          path: "farms",
+          requiredRole: "user",
+          lazy: () => Promise.resolve({ Component: () => null }),
+        },
+      ],
+      i18n: { namespace: "master-data" },
+    } satisfies ModuleManifest;
+    renderHome([masterData]);
+    expect(screen.getByText(common.home.settingsOnlyHint)).toBeInTheDocument();
+  });
 });

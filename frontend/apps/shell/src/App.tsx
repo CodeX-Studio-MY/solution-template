@@ -9,9 +9,9 @@ import { emotionCache } from "./emotionCache";
 import { AppShell } from "./layout/AppShell";
 import { Home } from "./pages/Home";
 import { NotFound } from "./pages/NotFound";
-import { moduleRoutes } from "./modules/routes";
+import { moduleRoutes, settingsRoutes } from "./modules/routes";
 
-/** The routes: the layout with the home page, every module under its base path, and a 404. */
+/** The routes: the layout with the home page, every module under its base path, the modules' settings pages, and a 404. */
 export function buildRoutes(manifests: readonly ModuleManifest[]): RouteObject[] {
   return [
     {
@@ -20,6 +20,7 @@ export function buildRoutes(manifests: readonly ModuleManifest[]): RouteObject[]
       children: [
         { index: true, element: <Home manifests={manifests} /> },
         ...moduleRoutes(manifests),
+        ...settingsRoutes(manifests),
         { path: "*", element: <NotFound /> },
       ],
     },

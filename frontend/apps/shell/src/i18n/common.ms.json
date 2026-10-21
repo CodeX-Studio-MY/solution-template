@@ -41,7 +41,9 @@
     "yourApps": "Aplikasi anda",
     "subtitle": "Inilah yang memerlukan perhatian anda di {{name}}.",
     "today": "Sekilas pandang",
-    "open": "Buka"
+    "open": "Buka",
+    "settingsOnly": "Belum ada aplikasi",
+    "settingsOnlyHint": "Data asas seperti ladang terdapat di bawah Tetapan, ikon gear di bahagian atas kanan."
   },
   "user": {
     "menu": "Menu akaun",
