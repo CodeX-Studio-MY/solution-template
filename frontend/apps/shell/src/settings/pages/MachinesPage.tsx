@@ -6,11 +6,15 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
+import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
 import { useTranslation } from "react-i18next";
-import { ApiError, unwrap, useApiMutation, useApiQuery, useDialog, useFormatters } from "@saaskit/web-core";
+import { ApiError, unwrap, unwrapEmpty, useApiMutation, useApiQuery, useDialog, useFormatters, type Role } from "@saaskit/web-core";
 import { EmptyState, FormDialog, PageHeader, ProblemAlert, StatusChip } from "@saaskit/ui-kit";
 import { identity, identityQueries, useCanManageAccess, type Enrollment, type Principal } from "../api";
+import { SidePanel } from "../SidePanel";
+import { RolesEditor } from "./RolesEditor";
 
 /** Shared devices and integrations. A device gets a one-time code to enroll with; it registers only its public key. */
 export function Component() {
@@ -18,7 +22,8 @@ export function Component() {
   const canEdit = useCanManageAccess();
   const dialog = useDialog();
   const format = useFormatters();
-  const [adding, setAdding] = useState(false);
+  const [adding, setAdding] = useState<"machine" | "service" | null>(null);
+  const [openId, setOpenId] = useState<string | null>(null);
   const list = useApiQuery(["identity", "principals", "non-users"], async (signal) => {
     const [machines, services] = await Promise.all([
       unwrap(identity.GET("/api/identity/v1/principals", { params: { query: { type: "machine" } }, signal })),
@@ -48,9 +53,14 @@ export function Component() {
         subtitle={t("machines.subtitle")}
         actions={
           canEdit ? (
-            <Button variant="contained" onClick={() => setAdding(true)}>
-              {t("machines.add")}
-            </Button>
+            <>
+              <Button variant="outlined" onClick={() => setAdding("service")}>
+                {t("machines.addIntegration")}
+              </Button>
+              <Button variant="contained" onClick={() => setAdding("machine")}>
+                {t("machines.add")}
+              </Button>
+            </>
           ) : null
         }
       />
@@ -72,7 +82,11 @@ export function Component() {
             <TableBody>
               {rows.map((principal) => (
                 <TableRow key={principal.id}>
-                  <TableCell>{principal.displayName}</TableCell>
+                  <TableCell>
+                    <Button variant="text" onClick={() => setOpenId(principal.id)} sx={{ p: 0, minWidth: 0, textTransform: "none" }}>
+                      {principal.displayName}
+                    </Button>
+                  </TableCell>
                   <TableCell>{t(`machines.types.${principal.type}`)}</TableCell>
                   <TableCell sx={{ fontFamily: "monospace" }}>{principal.clientId ?? "—"}</TableCell>
                   <TableCell>
@@ -91,7 +105,11 @@ export function Component() {
           </Table>
         </Paper>
       )}
-      {adding ? <AddDialog onClose={() => setAdding(false)} onCreated={showCode} /> : null}
+      <SidePanel open={Boolean(rows.find((p) => p.id === openId))} onClose={() => setOpenId(null)}>
+        {rows.find((p) => p.id === openId) ? <AccessPanel principal={rows.find((p) => p.id === openId)!} canEdit={canEdit} /> : null}
+      </SidePanel>
+      {adding === "machine" ? <AddDialog onClose={() => setAdding(null)} onCreated={showCode} /> : null}
+      {adding === "service" ? <AddIntegrationDialog onClose={() => setAdding(null)} /> : null}
     </>
   );
 }
@@ -126,5 +144,99 @@ function AddDialog({ onClose, onCreated }: { onClose: () => void; onCreated: (na
         helperText={error}
       />
     </FormDialog>
+  );
+}
+
+/** 32 random bytes, base64url: the integration's client secret. Made here, sent once, shown once; the server keeps only a hash. */
+function newSecret(): string {
+  const bytes = crypto.getRandomValues(new Uint8Array(32));
+  return btoa(String.fromCharCode(...bytes))
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+}
+
+function AddIntegrationDialog({ onClose }: { onClose: () => void }) {
+  const { t } = useTranslation("settings");
+  const dialog = useDialog();
+  const [name, setName] = useState("");
+  const create = useApiMutation(
+    async () => {
+      const secret = newSecret();
+      const service = await unwrap(identity.POST("/api/identity/v1/services", { body: { displayName: name, secret, publicKeyJwk: null } }));
+      return { service, secret };
+    },
+    {
+      invalidate: identityQueries,
+      onSuccess: async ({ service, secret }) => {
+        onClose();
+        await dialog.alert({
+          title: t("machines.secretTitle", { name: service.displayName }),
+          text: t("machines.secretText", { clientId: service.clientId ?? "", secret }),
+          confirmLabel: t("common:actions.close"),
+        });
+      },
+    },
+  );
+  const error = create.error instanceof ApiError ? create.error.forField("displayName")?.message : undefined;
+  return (
+    <FormDialog
+      open
+      title={t("machines.integrationTitle")}
+      text={t("machines.integrationText")}
+      submitLabel={t("common:actions.create")}
+      busy={create.isPending}
+      onSubmit={() => create.mutate()}
+      onClose={onClose}
+    >
+      <TextField
+        label={t("machines.name")}
+        required
+        autoFocus
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        error={Boolean(error)}
+        helperText={error}
+      />
+    </FormDialog>
+  );
+}
+
+/** What a device or integration may do, per application. */
+function AccessPanel({ principal, canEdit }: { principal: Principal; canEdit: boolean }) {
+  const { t } = useTranslation("settings");
+  const id = principal.id;
+  const assignments = useApiQuery(["identity", "principals", id, "assignments"], (signal) =>
+    unwrap(identity.GET("/api/identity/v1/principals/{id}/assignments", { params: { path: { id } }, signal })),
+  );
+  const setRole = useApiMutation(
+    async ({ module, role }: { module: string; role: Role | null }) => {
+      if (role)
+        await unwrap(
+          identity.PUT("/api/identity/v1/principals/{id}/assignments/{module}", { params: { path: { id, module } }, body: { role } }),
+        );
+      else
+        await unwrapEmpty(identity.DELETE("/api/identity/v1/principals/{id}/assignments/{module}", { params: { path: { id, module } } }));
+    },
+    { invalidate: identityQueries, success: t("users.roleSaved") },
+  );
+  return (
+    <Stack spacing={3}>
+      <Typography variant="h2" component="h2">
+        {principal.displayName}
+      </Typography>
+      <Typography variant="body2" color="text.secondary">
+        {t(`machines.types.${principal.type}`)} · {principal.clientId ?? "—"}
+      </Typography>
+      <ProblemAlert error={assignments.error ?? undefined} />
+      <Typography variant="h3" component="h3">
+        {t("users.roles")}
+      </Typography>
+      <RolesEditor
+        value={Object.fromEntries((assignments.data ?? []).map((a) => [a.module, a.role]))}
+        onChange={(module, role) => setRole.mutate({ module, role })}
+        disabled={!canEdit || setRole.isPending}
+      />
+    </Stack>
   );
 }

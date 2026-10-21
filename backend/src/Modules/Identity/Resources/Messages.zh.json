@@ -1,0 +1,12 @@
+{
+  "errors.identity.duplicateAssignment": "该角色已分配。",
+  "errors.identity.emailInUse": "使用该电子邮件的人已有账户或邀请。",
+  "errors.identity.enrollmentInvalid": "该注册码已失效，请申请新的注册码。",
+  "errors.identity.groupNameInUse": "已存在同名用户组。",
+  "errors.identity.groupNotFound": "未找到该用户组。",
+  "errors.identity.invitationNotPending": "该用户没有待处理的邀请。",
+  "errors.identity.moduleNotEntitled": "您组织的套餐不包含该应用。",
+  "errors.identity.principalNotFound": "未找到该用户或设备。",
+  "errors.identity.servicePrincipalsHaveNoGroups": "集成不能成为用户组成员。",
+  "errors.identity.unknownModule": "该应用不存在。"
+}

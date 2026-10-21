@@ -31,7 +31,9 @@
     "support": "Akses sokongan",
     "users": "Pengguna",
     "groups": "Kumpulan",
-    "machines": "Peranti & integrasi"
+    "machines": "Peranti & integrasi",
+    "audit": "Log keselamatan",
+    "activity": "Aktiviti organisasi"
   },
   "profile": {
     "subtitle": "Nama organisasi anda dan cara tarikh, masa dan wang dipaparkan.",
@@ -138,7 +140,12 @@
     "codeTitle": "Kod pendaftaran untuk {{name}}",
     "codeText": "Masukkan kod ini pada peranti dalam masa 15 minit (sehingga {{expires}}). Ia dipaparkan sekali sahaja: {{code}}",
     "newCode": "Kod pendaftaran baharu",
-    "copied": "Disalin."
+    "copied": "Disalin.",
+    "addIntegration": "Tambah integrasi",
+    "integrationTitle": "Tambah integrasi",
+    "integrationText": "Untuk sistem luar (ERP, rakan kongsi) yang memanggil API dengan aliran kelayakan klien.",
+    "secretTitle": "Kelayakan untuk {{name}}",
+    "secretText": "ID klien: {{clientId}} · Rahsia: {{secret}} — salin rahsia sekarang; ia tidak dipaparkan lagi."
   },
   "access": {
     "denied": "Anda tiada akses ke bahagian Tetapan ini."
@@ -147,5 +154,11 @@
     "organization": "Organisasi",
     "access": "Akses",
     "applications": "Aplikasi"
+  },
+  "audit": {
+    "subtitle": "Log masuk, perubahan akses dan segala yang dilakukan kakitangan sokongan dengan akses sokongan. Disimpan selamanya; tiada apa boleh diubah."
+  },
+  "activity": {
+    "subtitle": "Perubahan pada pelan, aplikasi, tetapan dan dasar sokongan organisasi anda, oleh pentadbir anda dan pembekal anda."
   }
 }

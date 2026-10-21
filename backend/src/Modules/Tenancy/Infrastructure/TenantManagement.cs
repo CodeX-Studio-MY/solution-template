@@ -5,6 +5,7 @@ using Saaskit.Core.Catalog.Entities;
 using Saaskit.Core.Configuration;
 using Saaskit.Core.Data;
 using Saaskit.Core.Errors;
+using Saaskit.Core.Http;
 using Saaskit.Core.Platform;
 using Saaskit.Core.Tenancy;
 using Saaskit.Tenancy.Application;
@@ -87,6 +88,16 @@ internal sealed class TenantManagement(
         await AuditAsync(tenantId, "module-revoked", actor, new { module = moduleKey });
         await SaveAndPublishAsync(tenantId, cancellationToken);
         return await GetAsync(tenantId, cancellationToken);
+    }
+
+    public async Task<Page<TenantActivity>> ListActivityAsync(Guid tenantId, PageRequest page, CancellationToken cancellationToken = default)
+    {
+        await FindAsync(tenantId, cancellationToken);
+        var entries = await tenancy.AuditLog.AsNoTracking().Where(e => e.TenantId == tenantId).OrderByDescending(e => e.Id).ToPageAsync(page, cancellationToken);
+        // Operators are named; a tenant's own people are named by the Identity service, so they stay IDs here.
+        var ids = entries.Items.Select(e => Guid.TryParse(e.Actor, out var id) ? id : (Guid?)null).OfType<Guid>().Distinct().ToList();
+        var operators = await tenancy.Operators.AsNoTracking().Where(o => ids.Contains(o.Id)).ToDictionaryAsync(o => o.Id, o => o.DisplayName, cancellationToken);
+        return entries.Map(e => new TenantActivity(e.Id, e.OccurredOn, e.Kind, e.Actor, Guid.TryParse(e.Actor, out var id) ? operators.GetValueOrDefault(id) : null, e.Details));
     }
 
     public async Task<TenantSummary> UpdateProfileAsync(Guid tenantId, TenantProfile profile, string actor, CancellationToken cancellationToken = default)

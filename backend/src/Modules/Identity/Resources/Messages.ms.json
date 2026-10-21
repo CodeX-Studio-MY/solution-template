@@ -1,0 +1,12 @@
+{
+  "errors.identity.duplicateAssignment": "Peranan itu sudah diberikan.",
+  "errors.identity.emailInUse": "Seseorang dengan e-mel itu sudah mempunyai akaun atau jemputan.",
+  "errors.identity.enrollmentInvalid": "Kod pendaftaran itu tidak sah lagi. Minta kod baharu.",
+  "errors.identity.groupNameInUse": "Kumpulan dengan nama itu sudah wujud.",
+  "errors.identity.groupNotFound": "Kumpulan itu tidak dijumpai.",
+  "errors.identity.invitationNotPending": "Tiada jemputan tertunda untuk pengguna ini.",
+  "errors.identity.moduleNotEntitled": "Pelan organisasi anda tidak termasuk aplikasi itu.",
+  "errors.identity.principalNotFound": "Pengguna atau peranti itu tidak dijumpai.",
+  "errors.identity.servicePrincipalsHaveNoGroups": "Integrasi tidak boleh menjadi ahli kumpulan.",
+  "errors.identity.unknownModule": "Aplikasi itu tidak wujud."
+}

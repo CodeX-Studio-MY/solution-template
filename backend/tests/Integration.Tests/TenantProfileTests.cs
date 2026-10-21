@@ -54,5 +54,12 @@ public sealed class TenantProfileTests(Databases databases)
         (await Caller("user").PutAsJsonAsync($"{Api}/me/tenant/profile", new { displayName = "X", timeZone = "UTC", currency = "MYR", locale = "en" }, Ct)).StatusCode.ShouldBe(HttpStatusCode.Forbidden);
         (await Read(await op.PutAsJsonAsync($"{Api}/operator/tenants/{tenantId}/profile", new { displayName = "Prof", timeZone = "UTC", currency = "MYR", locale = "en" }, Ct)))
             .GetProperty("locale").GetString().ShouldBe("en");
+
+        // Both changes are in the tenant's activity, newest first: the operator's (named) above the admin's.
+        var activity = (await Read(await op.GetAsync($"{Api}/operator/tenants/{tenantId}/activity?PageSize=5", Ct))).GetProperty("items").EnumerateArray().ToList();
+        activity.Take(2).Select(a => a.GetProperty("kind").GetString()).ShouldBe(["profile-changed", "profile-changed"]);
+        activity[0].GetProperty("actorName").GetString().ShouldBe("Ops");
+        (await Read(await admin.GetAsync($"{Api}/me/activity", Ct))).GetProperty("items").GetArrayLength().ShouldBeGreaterThan(1);
+        (await Caller("user").GetAsync($"{Api}/me/activity", Ct)).StatusCode.ShouldBe(HttpStatusCode.Forbidden);
     }
 }

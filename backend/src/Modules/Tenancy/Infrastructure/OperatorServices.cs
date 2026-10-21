@@ -25,15 +25,54 @@ internal sealed class OperatorAccounts(
         if (await db.Operators.AnyAsync(o => o.NormalizedEmail == normalised, cancellationToken))
             throw new ConflictException(TenancyErrors.OperatorExists);
 
-        // A long random passphrase, shown once. The operator changes nothing about it: it is only the first factor.
-        var password = Convert.ToBase64String(RandomNumberGenerator.GetBytes(24));
-        var secret = Totp.NewSecret();
-        var hasher = new PasswordHasher<object>();
-        var op = new PlatformOperator(email, displayName, hasher.HashPassword(new object(), password), protection.CreateProtector(OperatorSessions.SecretPurpose).Protect(secret));
+        var (password, secret, hash, protectedSecret) = NewCredentials();
+        var op = new PlatformOperator(email, displayName, hash, protectedSecret);
         db.Operators.Add(op);
         db.AuditLog.Add(new TenancyAuditEntry(time.GetUtcNow().UtcDateTime, null, "operator-created", "system", JsonSerializer.Serialize(new { op.Email })));
         await db.SaveChangesAsync(cancellationToken);
         return new NewOperator(op.Id, op.Email, password, secret, Totp.Uri(PlatformInfo.Product + " operators", op.Email, secret));
+    }
+
+    public async Task<NewOperator> ResetCredentialsAsync(string email, CancellationToken cancellationToken = default)
+    {
+        var op = await FindAsync(email, cancellationToken) ?? throw new NotFoundException(TenancyErrors.OperatorLoginFailed);
+        var (password, secret, hash, protectedSecret) = NewCredentials();
+        op.ReplaceCredentials(hash, protectedSecret);
+        db.AuditLog.Add(new TenancyAuditEntry(time.GetUtcNow().UtcDateTime, null, "operator-credentials-reset", "system", JsonSerializer.Serialize(new { op.Email })));
+        await db.SaveChangesAsync(cancellationToken);
+        return new NewOperator(op.Id, op.Email, password, secret, Totp.Uri(PlatformInfo.Product + " operators", op.Email, secret));
+    }
+
+    public async Task<bool> CredentialsMatchAsync(string email, string password, string totpSecret, CancellationToken cancellationToken = default)
+    {
+        var op = await FindAsync(email, cancellationToken);
+        if (op is null)
+            return false;
+        string stored;
+        try
+        {
+            stored = protection.CreateProtector(OperatorSessions.SecretPurpose).Unprotect(op.TotpSecret);
+        }
+        catch (CryptographicException)
+        {
+            return false;   // protected with a key ring that is gone
+        }
+        return stored == totpSecret
+            && new PasswordHasher<object>().VerifyHashedPassword(new object(), op.PasswordHash, password) != PasswordVerificationResult.Failed;
+    }
+
+    private Task<PlatformOperator?> FindAsync(string email, CancellationToken cancellationToken)
+    {
+        var normalised = email.Trim().ToUpperInvariant();
+        return db.Operators.SingleOrDefaultAsync(o => o.NormalizedEmail == normalised, cancellationToken);
+    }
+
+    /// <summary>A long random passphrase and a TOTP secret, shown once. The passphrase is only the first factor.</summary>
+    private (string Password, string Secret, string Hash, string ProtectedSecret) NewCredentials()
+    {
+        var password = Convert.ToBase64String(RandomNumberGenerator.GetBytes(24));
+        var secret = Totp.NewSecret();
+        return (password, secret, new PasswordHasher<object>().HashPassword(new object(), password), protection.CreateProtector(OperatorSessions.SecretPurpose).Protect(secret));
     }
 }
 

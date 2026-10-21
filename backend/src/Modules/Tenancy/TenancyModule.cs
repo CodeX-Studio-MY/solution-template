@@ -1,3 +1,4 @@
+using Saaskit.Core.Localization;
 using Saaskit.Core.Composition;
 using Saaskit.Core.Configuration;
 using Saaskit.Core.Data;
@@ -21,6 +22,7 @@ public sealed class TenancyModule : IPlatformModule
     public static void Register(IHostApplicationBuilder builder)
     {
         var services = builder.Services;
+        services.AddModuleMessages(typeof(TenancyModule).Assembly);
         services.AddCatalogDbContext<TenancyCatalogDbContext>(Service.Schema);
         services.AddPlatformOptions<OnboardingOptions>(builder.Configuration);
         services.AddPlatformOptions<FrontendOptions>(builder.Configuration);

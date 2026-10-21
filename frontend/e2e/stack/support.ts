@@ -1,3 +1,4 @@
+import { createHmac } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -37,4 +38,22 @@ export async function signIn(page: Page, slug: string): Promise<void> {
   await page.getByLabel("Password").fill(password);
   await page.getByRole("button", { name: "Sign in", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Welcome" })).toBeVisible({ timeout: 30_000 });
+}
+
+/** The development operator that scripts/dev-up creates. */
+export function devOperator(): { email: string; password: string; totpSecret: string } {
+  return JSON.parse(readFileSync(join(root, ".dev", "operator.json"), "utf8")) as { email: string; password: string; totpSecret: string };
+}
+
+/** The current TOTP code (RFC 6238: SHA-1, 30 s, 6 digits) for a base32 secret. */
+export function totp(secret: string): string {
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+  let bits = "";
+  for (const c of secret.replace(/=+$/, "").toUpperCase()) bits += alphabet.indexOf(c).toString(2).padStart(5, "0");
+  const key = Buffer.from(bits.match(/.{8}/g)!.map((b) => Number.parseInt(b, 2)));
+  const counter = Buffer.alloc(8);
+  counter.writeBigUInt64BE(BigInt(Math.floor(Date.now() / 1000 / 30)));
+  const hmac = createHmac("sha1", key).update(counter).digest();
+  const offset = hmac[hmac.length - 1]! & 0x0f;
+  return String((hmac.readUInt32BE(offset) & 0x7fffffff) % 1_000_000).padStart(6, "0");
 }

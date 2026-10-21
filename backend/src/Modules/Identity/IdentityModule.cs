@@ -1,3 +1,4 @@
+using Saaskit.Core.Localization;
 using Saaskit.Core.Composition;
 using Saaskit.Core.Data;
 using Saaskit.Core.Platform;
@@ -15,6 +16,7 @@ public sealed class IdentityModule : IPlatformModule
 
     public static void Register(IHostApplicationBuilder builder)
     {
+        builder.Services.AddModuleMessages(typeof(IdentityModule).Assembly);
         builder.Services.AddModuleDbContext<IdentityDbContext>(Service.Schema);
         builder.Services.AddCatalogDbContext<IdentityCatalogDbContext>(Service.Schema);
         IdentityModuleSetup.Add(builder.Services, builder.Configuration);

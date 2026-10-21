@@ -523,6 +523,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/identity/v1/audit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    kind?: string;
+                    Page?: number | string;
+                    PageSize?: number | string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PageOfAuditRecord"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/identity/v1/groups": {
         parameters: {
             query?: never;
@@ -1801,6 +1840,22 @@ export interface components {
             module: string;
             role: components["schemas"]["Role"];
         };
+        /** @description One audit record, with the names of who did it and what it was done to (when they are people or devices of this tenant). */
+        AuditRecord: {
+            actorId: string | null;
+            actorName: string | null;
+            actorType: string | null;
+            details: string | null;
+            /** Format: int64 */
+            id: number | string;
+            kind: string;
+            /** Format: date-time */
+            occurredOn: string;
+            onBehalfOf: string | null;
+            remoteAddress: string | null;
+            subject: string | null;
+            subjectName: string | null;
+        };
         /** @description A person to contact: for notifications and emails. */
         ContactDto: {
             displayName: string;
@@ -1865,6 +1920,19 @@ export interface components {
         };
         NameBody: {
             displayName: string;
+        };
+        /** @description The one response shape for lists. */
+        PageOfAuditRecord: {
+            hasNext?: boolean;
+            items: components["schemas"]["AuditRecord"][];
+            /** Format: int32 */
+            pageNumber: number | string;
+            /** Format: int32 */
+            pageSize: number | string;
+            /** Format: int32 */
+            totalCount: number | string;
+            /** Format: int32 */
+            totalPages?: number | string;
         };
         /** @description A user, machine or service. `Email` is a user's sign-in address (while invited, where the invitation went); null for machines and services. */
         PrincipalDto: {

@@ -47,7 +47,8 @@
     "tabs": {
       "overview": "概览",
       "settings": "设置",
-      "features": "功能"
+      "features": "功能",
+      "activity": "活动"
     },
     "profile": "资料",
     "profileSaved": "资料已保存。",
@@ -64,7 +65,15 @@
     "lifecycle": "生命周期",
     "settingsSaved": "设置已保存。",
     "featureSaved": "功能已更新。",
-    "featureDefault": "默认（{{state}}）"
+    "featureDefault": "默认（{{state}}）",
+    "support": "申请支持访问",
+    "supportHint": "对单个应用的限时、可审计访问。如果租户要求审批，须先由其管理员批准。",
+    "module": "应用",
+    "role": "权限",
+    "minutes": "时长（分钟）",
+    "reason": "原因",
+    "request": "申请",
+    "requested": "已申请支持访问（{{status}}）。"
   },
   "lifecycle": {
     "suspend": "暂停",

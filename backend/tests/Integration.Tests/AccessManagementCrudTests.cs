@@ -42,6 +42,11 @@ public sealed class AccessManagementCrudTests(Databases databases)
         (await admin.PutAsJsonAsync($"{Api}/principals/{id}", new { displayName = " " }, Ct)).StatusCode.ShouldBe(HttpStatusCode.BadRequest);
 
         var group = (await Read(await admin.PostAsJsonAsync($"{Api}/groups", new { displayName = "Field" }, Ct), HttpStatusCode.Created)).GetProperty("id").GetGuid();
+        // The list carries each group's ETag (read with tracking: the row version is a shadow property).
+        (await Read(await admin.GetAsync($"{Api}/groups", Ct))).EnumerateArray().Single().GetProperty("eTag").GetString().ShouldNotBeNullOrEmpty();
+        // Module errors come back as text in the caller's language, not as a message key.
+        var duplicate = await Read(await admin.PostAsJsonAsync($"{Api}/groups", new { displayName = "field" }, Ct), HttpStatusCode.Conflict);
+        duplicate.GetProperty("message").GetString().ShouldBe("A group with that name already exists.");
         (await admin.PutAsync($"{Api}/groups/{group}/members/{id}", null, Ct)).StatusCode.ShouldBe(HttpStatusCode.NoContent);
         var manager = host.ApiClient("demo", (Modules.AccessManagement, Role.Manager));
         var members = (await Read(await manager.GetAsync($"{Api}/groups/{group}/members", Ct))).EnumerateArray().ToList();
@@ -64,5 +69,26 @@ public sealed class AccessManagementCrudTests(Databases databases)
         var manager = host.ApiClient("demo", (Modules.AccessManagement, Role.Manager));
         (await manager.PostAsync($"{Api}/users/{id}/invitation", null, Ct)).StatusCode.ShouldBe(HttpStatusCode.Forbidden);
         (await admin.PostAsync($"{Api}/users/{Guid.NewGuid()}/invitation", null, Ct)).StatusCode.ShouldBe(HttpStatusCode.UnprocessableEntity);
+    }
+
+    [Fact]
+    public async Task Admins_read_the_audit_log_newest_first_with_names_and_others_cannot()
+    {
+        await using var host = await IdentityTestHost.StartAsync(databases, "demo");
+        var admin = host.ApiClient("demo", (Modules.AccessManagement, Role.Admin));
+        var id = (await Read(await admin.PostAsJsonAsync($"{Api}/users/invitations", new { email = "aud@example.com", displayName = "Audrey", roles = Array.Empty<object>() }, Ct), HttpStatusCode.Created))
+            .GetProperty("principalId").GetGuid();
+        (await admin.PutAsJsonAsync($"{Api}/principals/{id}/assignments/{Modules.TenantSettings}", new { role = "user" }, Ct)).EnsureSuccessStatusCode();
+
+        var page = await Read(await admin.GetAsync($"{Api}/audit?PageSize=10", Ct));
+        var items = page.GetProperty("items").EnumerateArray().ToList();
+        items.Select(i => i.GetProperty("kind").GetString()).Take(2).ShouldBe(["assignment-changed", "invitation-created"]);
+        items[0].GetProperty("subjectName").GetString().ShouldBe("Audrey");
+
+        var filtered = await Read(await admin.GetAsync($"{Api}/audit?kind=invitation-created", Ct));
+        filtered.GetProperty("items").EnumerateArray().ShouldAllBe(i => i.GetProperty("kind").GetString() == "invitation-created");
+
+        var manager = host.ApiClient("demo", (Modules.AccessManagement, Role.Manager));
+        (await manager.GetAsync($"{Api}/audit", Ct)).StatusCode.ShouldBe(HttpStatusCode.Forbidden);
     }
 }

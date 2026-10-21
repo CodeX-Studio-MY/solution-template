@@ -15,14 +15,16 @@ using Microsoft.Extensions.Hosting;
 
 // Usage: Migrator --catalog | --tenant <id-or-slug> | --all   (flags can be combined; --catalog always runs first)
 //        Migrator --create-operator <email> <display name>   (bootstrap: creates a platform operator and prints its credentials once)
+//        Migrator --reset-operator <email>                   (recovery: new password and TOTP key for an operator who lost them)
 var operatorIndex = Array.IndexOf(args, "--create-operator");
+var resetIndex = Array.IndexOf(args, "--reset-operator");
 var catalog = args.Contains("--catalog");
 var all = args.Contains("--all");
 var tenantIndex = Array.IndexOf(args, "--tenant");
 var tenantArg = tenantIndex >= 0 && tenantIndex + 1 < args.Length ? args[tenantIndex + 1] : null;
-if (!catalog && !all && tenantArg is null && operatorIndex < 0)
+if (!catalog && !all && tenantArg is null && operatorIndex < 0 && resetIndex < 0)
 {
-    Console.Error.WriteLine("Usage: Migrator --catalog | --tenant <id-or-slug> | --all | --create-operator <email> <display name>");
+    Console.Error.WriteLine("Usage: Migrator --catalog | --tenant <id-or-slug> | --all | --create-operator <email> <display name> | --reset-operator <email>");
     return 2;
 }
 
@@ -33,7 +35,7 @@ builder.Services.AddSingleton<IDatabaseProvider, SqlServerDatabaseProvider>();
 builder.Services.AddSingleton<IDatabaseProvider, PostgreSqlDatabaseProvider>();
 builder.Services.AddTenantCatalog();
 builder.Services.AddSingleton<MigrationRunner>();
-if (operatorIndex >= 0)
+if (operatorIndex >= 0 || resetIndex >= 0)
 {
     // The operator's TOTP secret is protected with the shared Data Protection key ring, so the Tenancy service can read it later.
     builder.Services.AddPlatformRedis(builder.Configuration);
@@ -62,11 +64,21 @@ if (operatorIndex >= 0)
     await using var scope = host.Services.CreateAsyncScope();
     var created = await scope.ServiceProvider.GetRequiredService<Saaskit.Tenancy.Application.IOperatorAccounts>()
         .CreateAsync(args[operatorIndex + 1], args[operatorIndex + 2], ct);
-    // Shown once: neither value is stored in clear.
-    Console.WriteLine($"Operator {created.Email} created.");
-    Console.WriteLine($"Password:  {created.Password}");
-    Console.WriteLine($"TOTP key:  {created.TotpSecret}");
-    Console.WriteLine($"TOTP link: {created.TotpUri}");
+    PrintOperator(created, "created");
+    return 0;
+}
+
+if (resetIndex >= 0)
+{
+    if (args.Length < resetIndex + 2)
+    {
+        Console.Error.WriteLine("Usage: Migrator --reset-operator <email>");
+        return 2;
+    }
+    await using var scope = host.Services.CreateAsyncScope();
+    var reset = await scope.ServiceProvider.GetRequiredService<Saaskit.Tenancy.Application.IOperatorAccounts>()
+        .ResetCredentialsAsync(args[resetIndex + 1], ct);
+    PrintOperator(reset, "has new sign-in details");
     return 0;
 }
 
@@ -99,3 +111,12 @@ if (all)
 }
 
 return 0;
+
+// Shown once: neither value is stored in clear.
+static void PrintOperator(Saaskit.Tenancy.Application.NewOperator op, string what)
+{
+    Console.WriteLine($"Operator {op.Email} {what}.");
+    Console.WriteLine($"Password:  {op.Password}");
+    Console.WriteLine($"TOTP key:  {op.TotpSecret}");
+    Console.WriteLine($"TOTP link: {op.TotpUri}");
+}

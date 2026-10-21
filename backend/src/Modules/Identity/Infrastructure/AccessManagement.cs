@@ -129,7 +129,8 @@ internal sealed class AccessManagement(
 
     public async Task<IReadOnlyList<GroupDto>> ListGroupsAsync(CancellationToken cancellationToken = default)
     {
-        var rows = await db.Groups.AsNoTracking()
+        // Tracked: the row version (the ETag) is a shadow property, which no-tracking queries don't load.
+        var rows = await db.Groups
             .OrderBy(g => g.Name)
             .Select(g => new { Group = g, Members = db.GroupMemberships.Count(m => m.GroupId == g.Id && m.IsActive) })
             .ToListAsync(cancellationToken);

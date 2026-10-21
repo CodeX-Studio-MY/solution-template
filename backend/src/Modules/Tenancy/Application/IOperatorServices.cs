@@ -14,6 +14,12 @@ public sealed record SessionDto(string Token, DateTime ExpiresOn);
 public interface IOperatorAccounts
 {
     Task<NewOperator> CreateAsync(string email, string displayName, CancellationToken cancellationToken = default);
+
+    /// <summary>Issues a new password and TOTP secret (shown once) for an operator who lost them. The old ones stop working.</summary>
+    Task<NewOperator> ResetCredentialsAsync(string email, CancellationToken cancellationToken = default);
+
+    /// <summary>Whether these are still the operator's password and TOTP secret. Checks only; never counts as a failed sign-in.</summary>
+    Task<bool> CredentialsMatchAsync(string email, string password, string totpSecret, CancellationToken cancellationToken = default);
 }
 
 /// <summary>Operator sign-in. MFA (a TOTP code) is always required; failed attempts lock the account with growing delays.</summary>

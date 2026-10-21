@@ -31,7 +31,9 @@
     "support": "Support access",
     "users": "Users",
     "groups": "Groups",
-    "machines": "Devices & integrations"
+    "machines": "Devices & integrations",
+    "audit": "Security log",
+    "activity": "Organisation activity"
   },
   "profile": {
     "subtitle": "Your organisation's name and how dates, times and money are shown.",
@@ -138,7 +140,12 @@
     "codeTitle": "Enrollment code for {{name}}",
     "codeText": "Enter this code on the device within 15 minutes (until {{expires}}). It is shown only once: {{code}}",
     "newCode": "New enrollment code",
-    "copied": "Copied."
+    "copied": "Copied.",
+    "addIntegration": "Add integration",
+    "integrationTitle": "Add an integration",
+    "integrationText": "For an external system (an ERP, a partner) that calls the API with the client-credentials flow.",
+    "secretTitle": "Credentials for {{name}}",
+    "secretText": "Client ID: {{clientId}} · Secret: {{secret}} — copy the secret now; it is not shown again."
   },
   "access": {
     "denied": "You don't have access to this part of Settings."
@@ -147,5 +154,11 @@
     "organization": "Organisation",
     "access": "Access",
     "applications": "Applications"
+  },
+  "audit": {
+    "subtitle": "Sign-ins, access changes and everything support staff did with support access. Kept for good; nothing can be changed."
+  },
+  "activity": {
+    "subtitle": "Changes to your organisation's plan, applications, settings and support policy, by your admins and your provider."
   }
 }

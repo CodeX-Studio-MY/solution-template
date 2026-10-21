@@ -18,3 +18,4 @@ export { SettingsForm, type SettingsView } from "./components/SettingsForm";
 export { commonStrings } from "./i18n/common";
 export { FormDialog } from "./components/FormDialog";
 export { TenantProfileForm, type TenantProfile } from "./components/TenantProfileForm";
+export { ActivityTable, type ActivityRow } from "./components/ActivityTable";

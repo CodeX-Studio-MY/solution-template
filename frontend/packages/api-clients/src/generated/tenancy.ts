@@ -35,6 +35,44 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/tenancy/v1/me/activity": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    Page?: number | string;
+                    PageSize?: number | string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PageOfTenantActivity"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/tenancy/v1/me/modules": {
         parameters: {
             query?: never;
@@ -412,6 +450,46 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["TenantSummary"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/tenancy/v1/operator/tenants/{id}/activity": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    Page?: number | string;
+                    PageSize?: number | string;
+                };
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PageOfTenantActivity"];
                     };
                 };
             };
@@ -1240,6 +1318,19 @@ export interface components {
             /** Format: uuid */
             id: string;
         };
+        /** @description The one response shape for lists. */
+        PageOfTenantActivity: {
+            hasNext?: boolean;
+            items: components["schemas"]["TenantActivity"][];
+            /** Format: int32 */
+            pageNumber: number | string;
+            /** Format: int32 */
+            pageSize: number | string;
+            /** Format: int32 */
+            totalCount: number | string;
+            /** Format: int32 */
+            totalPages?: number | string;
+        };
         PlanBody: {
             plan: string;
         };
@@ -1305,6 +1396,17 @@ export interface components {
             accessToken: string;
             /** Format: date-time */
             expiresOn: string;
+        };
+        /** @description One change to a tenant (plan, modules, settings, lifecycle, support access), and who made it. */
+        TenantActivity: {
+            actor: string | null;
+            actorName: string | null;
+            details: string | null;
+            /** Format: int64 */
+            id: number | string;
+            kind: string;
+            /** Format: date-time */
+            occurredOn: string;
         };
         /** @description What a tenant is called and how it formats time and money. A tenant admin and an operator may change it. */
         TenantProfile: {

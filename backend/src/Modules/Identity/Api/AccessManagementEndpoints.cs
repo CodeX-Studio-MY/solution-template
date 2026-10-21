@@ -1,4 +1,5 @@
 using Saaskit.Core.Authorization;
+using Saaskit.Core.Http;
 using Saaskit.Core.Platform;
 using Saaskit.Core.Security;
 using Saaskit.Identity.Application;
@@ -71,6 +72,10 @@ internal static class AccessManagementEndpoints
             var invitation = await accounts.ResendInvitationAsync(id, ct);
             return new InvitationSent(invitation.PrincipalId, invitation.ExpiresOn);
         }).RequireModuleRole(Module, Role.Admin);
+
+        // The tenant's security log: sign-ins, access changes, and what support staff did with support access.
+        v1.MapGet("/audit", (IAuditReader audit, [AsParameters] PageRequest page, string? kind, CancellationToken ct) => audit.ListAsync(page, kind, ct))
+            .WithTags("audit").RequireModuleRole(Module, Role.Admin);
 
         var machines = v1.MapGroup("/machines").WithTags("machines");
         machines.MapPost("", async ([FromBody] NameBody body, IAccessManagement access, CancellationToken ct) =>

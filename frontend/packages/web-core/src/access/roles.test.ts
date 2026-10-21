@@ -10,14 +10,7 @@ describe("roles", () => {
   });
 
   it("keeps the highest role per module and ignores anything it doesn't understand", () => {
-    const roles = parseRoles([
-      "goods-receipt:user",
-      "goods-receipt:manager",
-      "supplier-rating:admin",
-      "garbage",
-      "x:nonsense",
-      ":user",
-    ]);
+    const roles = parseRoles(["goods-receipt:user", "goods-receipt:manager", "supplier-rating:admin", "garbage", "x:nonsense", ":user"]);
     expect(roles).toEqual({ "goods-receipt": "manager", "supplier-rating": "admin" });
   });
 

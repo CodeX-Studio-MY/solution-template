@@ -17,6 +17,10 @@ git-ignored) and calls the Tenancy service's operator API. It exists for local d
 console, `https://operator.localhost:7443/` locally (the same `.dev/operator.json` credentials) and `operator.{BaseDomain}` elsewhere, or
 call the same API.
 
+Operators are created with `Migrator --create-operator <email> "<name>"`. One who lost their password or authenticator gets new ones
+with `Migrator --reset-operator <email>` (the old ones stop working). Both print the details once. Locally, `scripts/dev-up` checks
+`.dev/operator.json` against the database and issues new details when they no longer match, so a reset volume never leaves a stale file.
+
 ## What the pipeline does
 
 Each step is recorded in the catalog; a failed run **resumes where it stopped** when you run it again with the same slug.

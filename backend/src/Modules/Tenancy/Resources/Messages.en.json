@@ -1,0 +1,16 @@
+{
+  "errors.tenancy.grantNotFound": "That support access request was not found.",
+  "errors.tenancy.invalidTransition": "The tenant can't make that change from its current state.",
+  "errors.tenancy.onboardingFailed": "Onboarding stopped part-way. Run it again with the same address to resume.",
+  "errors.tenancy.operatorExists": "An operator with that email already exists.",
+  "errors.tenancy.operatorLoginFailed": "Those sign-in details are not right, or the account is locked for a while.",
+  "errors.tenancy.reservedSlug": "That address is reserved. Choose another.",
+  "errors.tenancy.slugInUse": "That address is already taken.",
+  "errors.tenancy.slugInvalid": "Use lowercase letters, digits and hyphens, starting with a letter (2–30 characters).",
+  "errors.tenancy.supportAccessInvalid": "That support access request is not valid.",
+  "errors.tenancy.supportAccessNotUsable": "That support access is not approved, or it has expired.",
+  "errors.tenancy.tenantNotFound": "That tenant was not found.",
+  "errors.tenancy.unknownFeature": "That feature doesn't exist.",
+  "errors.tenancy.unknownPlan": "That plan doesn't exist.",
+  "errors.tenancy.unknownSettings": "That application has no settings."
+}

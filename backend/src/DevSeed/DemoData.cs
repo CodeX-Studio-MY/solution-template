@@ -10,7 +10,7 @@ namespace Saaskit.DevSeed;
 /// </summary>
 internal sealed partial class DemoData(IServiceProvider services)
 {
-    private static readonly JsonSerializerOptions Indented = new() { WriteIndented = true, Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
+    private static readonly JsonSerializerOptions Indented = new(JsonSerializerDefaults.Web) { WriteIndented = true, Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
 
     public async Task SeedAsync(string invitationsFile, CancellationToken cancellationToken)
     {
@@ -55,19 +55,31 @@ internal sealed partial class DemoData(IServiceProvider services)
     /// </summary>
     private async Task EnsureOperatorAsync(string file, CancellationToken cancellationToken)
     {
-        if (File.Exists(file))
-            return;
+        const string Email = "dev-operator@example.com";
         await using var scope = services.CreateAsyncScope();
+        var accounts = scope.ServiceProvider.GetRequiredService<IOperatorAccounts>();
+        if (File.Exists(file))
+        {
+            var saved = JsonSerializer.Deserialize<SavedOperator>(await File.ReadAllTextAsync(file, cancellationToken), Web);
+            if (saved is not null && await accounts.CredentialsMatchAsync(saved.Email, saved.Password, saved.TotpSecret, cancellationToken))
+                return;
+        }
+        // No file, or one from another database (a reset volume, another branch): issue details that work and save them.
+        NewOperator created;
         try
         {
-            var created = await scope.ServiceProvider.GetRequiredService<IOperatorAccounts>().CreateAsync("dev-operator@example.com", "Dev Operator", cancellationToken);
-            await File.WriteAllTextAsync(file, JsonSerializer.Serialize(new { email = created.Email, password = created.Password, totpSecret = created.TotpSecret }, Indented), cancellationToken);
+            created = await accounts.CreateAsync(Email, "Dev Operator", cancellationToken);
         }
         catch (Saaskit.Core.Errors.ConflictException)
         {
-            // It exists from an earlier run whose credentials were lost: scripts/dev-down --reset starts clean.
+            created = await accounts.ResetCredentialsAsync(Email, cancellationToken);
         }
+        await File.WriteAllTextAsync(file, JsonSerializer.Serialize(new SavedOperator(created.Email, created.Password, created.TotpSecret), Indented), cancellationToken);
     }
+
+    private static readonly JsonSerializerOptions Web = new(JsonSerializerDefaults.Web);
+
+    private sealed record SavedOperator(string Email, string Password, string TotpSecret);
 
     [LoggerMessage(Level = LogLevel.Information, Message = "INVITATION {Tenant} {Url}")]
     private static partial void LogInvitation(ILogger logger, string tenant, string url);

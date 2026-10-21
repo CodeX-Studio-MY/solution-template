@@ -47,7 +47,8 @@
     "tabs": {
       "overview": "Gambaran keseluruhan",
       "settings": "Tetapan",
-      "features": "Ciri"
+      "features": "Ciri",
+      "activity": "Aktiviti"
     },
     "profile": "Profil",
     "profileSaved": "Profil disimpan.",
@@ -64,7 +65,15 @@
     "lifecycle": "Kitaran hayat",
     "settingsSaved": "Tetapan disimpan.",
     "featureSaved": "Ciri dikemas kini.",
-    "featureDefault": "Lalai ({{state}})"
+    "featureDefault": "Lalai ({{state}})",
+    "support": "Minta akses sokongan",
+    "supportHint": "Akses terhad masa dan diaudit kepada satu aplikasi. Jika penyewa memerlukan kelulusan, pentadbirnya mesti meluluskannya dahulu.",
+    "module": "Aplikasi",
+    "role": "Akses",
+    "minutes": "Selama (minit)",
+    "reason": "Sebab",
+    "request": "Minta",
+    "requested": "Akses sokongan diminta ({{status}})."
   },
   "lifecycle": {
     "suspend": "Gantung",

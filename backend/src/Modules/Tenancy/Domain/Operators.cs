@@ -42,6 +42,15 @@ public sealed class PlatformOperator : BaseEntity, IAggregateRoot
 
     public void Deactivate() => IsActive = false;
 
+    /// <summary>New sign-in details (a lost authenticator or password). Clears any lockout.</summary>
+    public void ReplaceCredentials(string passwordHash, string totpSecret)
+    {
+        PasswordHash = passwordHash;
+        TotpSecret = totpSecret;
+        FailedAttempts = 0;
+        LockedUntil = null;
+    }
+
     public void RecordFailure(DateTime utcNow)
     {
         FailedAttempts++;

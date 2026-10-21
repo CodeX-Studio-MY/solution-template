@@ -47,7 +47,8 @@
     "tabs": {
       "overview": "Overview",
       "settings": "Settings",
-      "features": "Features"
+      "features": "Features",
+      "activity": "Activity"
     },
     "profile": "Profile",
     "profileSaved": "Profile saved.",
@@ -64,7 +65,15 @@
     "lifecycle": "Lifecycle",
     "settingsSaved": "Settings saved.",
     "featureSaved": "Feature updated.",
-    "featureDefault": "Default ({{state}})"
+    "featureDefault": "Default ({{state}})",
+    "support": "Request support access",
+    "supportHint": "Time-limited, audited access to one application. If the tenant requires approval, its admin must approve it first.",
+    "module": "Application",
+    "role": "Access",
+    "minutes": "For (minutes)",
+    "reason": "Reason",
+    "request": "Request",
+    "requested": "Support access requested ({{status}})."
   },
   "lifecycle": {
     "suspend": "Suspend",

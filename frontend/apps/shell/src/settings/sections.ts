@@ -63,6 +63,15 @@ const builtIn: SettingsSection[] = [
     lazy: () => import("./pages/SupportAccessPage"),
   },
   {
+    path: "activity",
+    group: "organization",
+    label: "sections.activity",
+    ns: "settings",
+    module: "tenant-settings",
+    role: "admin",
+    lazy: () => import("./pages/ActivityPage"),
+  },
+  {
     path: "users",
     group: "access",
     label: "sections.users",
@@ -88,6 +97,15 @@ const builtIn: SettingsSection[] = [
     module: "access-management",
     role: "manager",
     lazy: () => import("./pages/MachinesPage"),
+  },
+  {
+    path: "audit",
+    group: "access",
+    label: "sections.audit",
+    ns: "settings",
+    module: "access-management",
+    role: "admin",
+    lazy: () => import("./pages/SecurityLogPage"),
   },
 ];
 

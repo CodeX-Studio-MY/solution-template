@@ -18,10 +18,12 @@ import Tabs from "@mui/material/Tabs";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { useTranslation } from "react-i18next";
-import { modules, plans, unwrap, useApiMutation, useApiQuery, useDialog } from "@saaskit/web-core";
+import { ApiError, modules, plans, unwrap, useApiMutation, useApiQuery, useDialog, type Role } from "@saaskit/web-core";
 import {
+  ActivityTable,
   PageHeader,
   ProblemAlert,
+  RoleSelect,
   SettingsForm,
   StatusChip,
   TenantProfileForm,
@@ -31,7 +33,7 @@ import {
 import { tenancy, tenantsKey, type TenantSummary } from "../api";
 import { statusTone } from "./statusTone";
 
-type TabName = "overview" | "settings" | "features";
+type TabName = "overview" | "settings" | "features" | "activity";
 
 /** One tenant: profile, plan and add-ons, support policy, lifecycle, and (as an operator) every setting and flag. */
 export function Component() {
@@ -57,13 +59,14 @@ export function Component() {
             actions={<StatusChip label={t(`statuses.${data.status}`)} tone={statusTone[data.status]} />}
           />
           <Tabs value={tab} onChange={(_, next: TabName) => setTab(next)} sx={{ mb: 3 }}>
-            {(["overview", "settings", "features"] as const).map((name) => (
+            {(["overview", "settings", "features", "activity"] as const).map((name) => (
               <Tab key={name} value={name} label={t(`tenant.tabs.${name}`)} />
             ))}
           </Tabs>
           {tab === "overview" ? <Overview tenant={data} /> : null}
           {tab === "settings" ? <Settings tenantId={data.id} /> : null}
           {tab === "features" ? <Features tenantId={data.id} /> : null}
+          {tab === "activity" ? <Activity tenantId={data.id} /> : null}
         </>
       ) : null}
     </>
@@ -178,6 +181,9 @@ function Overview({ tenant }: { tenant: TenantSummary }) {
             );
           })}
         </Stack>
+      </Section>
+      <Section title={t("tenant.support")} hint={t("tenant.supportHint")}>
+        <SupportRequest tenant={tenant} />
       </Section>
       <Section title={t("tenants.status")}>
         <Stack spacing={2}>
@@ -357,6 +363,107 @@ function Features({ tenantId }: { tenantId: string }) {
           </TableBody>
         </Table>
       </Paper>
+    </>
+  );
+}
+
+function SupportRequest({ tenant }: { tenant: TenantSummary }) {
+  const { t } = useTranslation("operator");
+  const [form, setForm] = useState<{ module: string; role: Role | null; minutes: number; reason: string }>({
+    module: tenant.modules[0] ?? "",
+    role: "user",
+    minutes: 60,
+    reason: "",
+  });
+  const request = useApiMutation(
+    () =>
+      unwrap(
+        tenancy.POST("/api/tenancy/v1/operator/support-access", {
+          body: { tenantSlug: tenant.slug, module: form.module, role: form.role ?? "user", minutes: form.minutes, reason: form.reason },
+        }),
+      ),
+    {
+      invalidate: [tenantsKey],
+      success: (grant) => t("tenant.requested", { status: grant.status }),
+      onSuccess: () => setForm((f) => ({ ...f, reason: "" })),
+    },
+  );
+  const fieldError = (name: string) => (request.error instanceof ApiError ? request.error.forField(name)?.message : undefined);
+  return (
+    <Stack spacing={2} sx={{ maxWidth: 560 }}>
+      <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+        <TextField
+          select
+          size="small"
+          label={t("tenant.module")}
+          value={form.module}
+          onChange={(e) => setForm((f) => ({ ...f, module: e.target.value }))}
+        >
+          {tenant.modules.map((key) => (
+            <MenuItem key={key} value={key}>
+              {modules.find((m) => m.key === key)?.name ?? key}
+            </MenuItem>
+          ))}
+        </TextField>
+        <RoleSelect label={t("tenant.role")} value={form.role} allowNone={false} onChange={(role) => setForm((f) => ({ ...f, role }))} />
+        <TextField
+          size="small"
+          type="number"
+          label={t("tenant.minutes")}
+          value={form.minutes}
+          onChange={(e) => setForm((f) => ({ ...f, minutes: Number(e.target.value) }))}
+          slotProps={{ htmlInput: { min: 5, max: 480 } }}
+          error={Boolean(fieldError("minutes"))}
+          helperText={fieldError("minutes")}
+        />
+      </Stack>
+      <TextField
+        label={t("tenant.reason")}
+        required
+        multiline
+        minRows={2}
+        value={form.reason}
+        onChange={(e) => setForm((f) => ({ ...f, reason: e.target.value }))}
+        error={Boolean(fieldError("reason"))}
+        helperText={fieldError("reason")}
+      />
+      <div>
+        <Button variant="contained" onClick={() => request.mutate()} disabled={request.isPending || !form.reason.trim() || !form.module}>
+          {t("tenant.request")}
+        </Button>
+      </div>
+    </Stack>
+  );
+}
+
+function Activity({ tenantId }: { tenantId: string }) {
+  const { t } = useTranslation("operator");
+  const [paging, setPaging] = useState({ page: 1, pageSize: 25 });
+  const log = useApiQuery([...tenantsKey, tenantId, "activity", paging], (signal) =>
+    unwrap(
+      tenancy.GET("/api/tenancy/v1/operator/tenants/{id}/activity", {
+        params: { path: { id: tenantId }, query: { Page: paging.page, PageSize: paging.pageSize } },
+        signal,
+      }),
+    ),
+  );
+  return (
+    <>
+      <ProblemAlert error={log.error ?? undefined} />
+      <ActivityTable
+        label={t("tenant.tabs.activity")}
+        rows={log.data?.items.map((e) => ({
+          id: e.id,
+          occurredOn: e.occurredOn,
+          kind: e.kind,
+          who: e.actorName ?? e.actor,
+          details: e.details,
+        }))}
+        totalCount={Number(log.data?.totalCount ?? 0)}
+        page={paging.page}
+        pageSize={paging.pageSize}
+        onPage={(page, pageSize) => setPaging({ page, pageSize })}
+      />
     </>
   );
 }

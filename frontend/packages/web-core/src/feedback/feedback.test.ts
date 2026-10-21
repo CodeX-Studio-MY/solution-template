@@ -5,12 +5,16 @@ import { snackbar, useSnackbarStore } from "./snackbar";
 describe("snackbar", () => {
   beforeEach(() => useSnackbarStore.setState({ queue: [] }));
 
-  it("queues messages in order with their severity and dismisses by id", () => {
+  it("shows the latest message at once, but keeps errors until they are dismissed", () => {
+    snackbar.error("failed");
     snackbar.info("one");
-    snackbar.warning("two");
-    const [first, second] = useSnackbarStore.getState().queue;
-    expect([first?.message, first?.severity, second?.severity]).toEqual(["one", "info", "warning"]);
-    useSnackbarStore.getState().dismiss(first!.id);
+    snackbar.success("two");
+    const queue = useSnackbarStore.getState().queue;
+    expect(queue.map((s) => [s.message, s.severity])).toEqual([
+      ["failed", "error"],
+      ["two", "success"],
+    ]);
+    useSnackbarStore.getState().dismiss(queue[0]!.id);
     expect(useSnackbarStore.getState().queue.map((s) => s.message)).toEqual(["two"]);
   });
 

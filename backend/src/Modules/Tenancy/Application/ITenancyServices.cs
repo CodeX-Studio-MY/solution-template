@@ -1,3 +1,4 @@
+using Saaskit.Core.Http;
 using Saaskit.Core.Platform;
 using Saaskit.Core.Tenancy;
 
@@ -15,6 +16,9 @@ public sealed record TenantSummary(
     string TimeZone,
     string Currency,
     string Locale);
+
+/// <summary>One change to a tenant (plan, modules, settings, lifecycle, support access), and who made it.</summary>
+public sealed record TenantActivity(long Id, DateTime OccurredOn, string Kind, string? Actor, string? ActorName, string? Details);
 
 /// <summary>What a tenant is called and how it formats time and money. A tenant admin and an operator may change it.</summary>
 public sealed record TenantProfile(string DisplayName, string TimeZone, string Currency, string Locale);
@@ -38,6 +42,9 @@ public interface ITenantAdmin
     Task<TenantSummary> GrantModuleAsync(Guid tenantId, string moduleKey, string actor, CancellationToken cancellationToken = default);
 
     Task<TenantSummary> RevokeModuleAsync(Guid tenantId, string moduleKey, string actor, CancellationToken cancellationToken = default);
+
+    /// <summary>The tenant's change history, newest first.</summary>
+    Task<Page<TenantActivity>> ListActivityAsync(Guid tenantId, PageRequest page, CancellationToken cancellationToken = default);
 
     /// <summary>Changes the name, time zone (IANA), currency (ISO 4217) and locale (one of the platform's locales).</summary>
     Task<TenantSummary> UpdateProfileAsync(Guid tenantId, TenantProfile profile, string actor, CancellationToken cancellationToken = default);

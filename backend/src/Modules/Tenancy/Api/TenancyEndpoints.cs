@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using System.Text.Json.Nodes;
 using Saaskit.Core.Authorization;
+using Saaskit.Core.Http;
 using Saaskit.Core.Platform;
 using Saaskit.Core.Security;
 using Saaskit.Core.Tenancy;
@@ -41,6 +42,8 @@ internal static class TenancyEndpoints
         MapSettingsEndpoints(v1);
         v1.MapGet("/me/tenant", async (ITenantContext tenant, ITenantAdmin admin, CancellationToken ct) => await admin.GetAsync(tenant.Tenant.Id, ct))
             .RequireModuleRole(Modules.TenantSettings, Role.User);
+        v1.MapGet("/me/activity", (ITenantContext tenant, ITenantAdmin admin, [AsParameters] PageRequest page, CancellationToken ct) => admin.ListActivityAsync(tenant.Tenant.Id, page, ct))
+            .RequireModuleRole(Modules.TenantSettings, Role.Admin);
         v1.MapPut("/me/tenant/profile", (ITenantContext tenant, [FromBody] TenantProfile body, ICurrentPrincipal who, ITenantAdmin admin, CancellationToken ct) =>
             admin.UpdateProfileAsync(tenant.Tenant.Id, body, who.Id ?? "unknown", ct)).RequireModuleRole(Modules.TenantSettings, Role.Admin);
 
@@ -87,6 +90,7 @@ internal static class TenancyEndpoints
         });
         secured.MapPut("/tenants/{id:guid}/plan", (Guid id, [FromBody] PlanBody body, ClaimsPrincipal user, ITenantAdmin admin, CancellationToken ct) =>
             admin.ChangePlanAsync(id, body.Plan, Actor(user), ct));
+        secured.MapGet("/tenants/{id:guid}/activity", (Guid id, ITenantAdmin admin, [AsParameters] PageRequest page, CancellationToken ct) => admin.ListActivityAsync(id, page, ct));
         secured.MapPut("/tenants/{id:guid}/profile", (Guid id, [FromBody] TenantProfile body, ClaimsPrincipal user, ITenantAdmin admin, CancellationToken ct) =>
             admin.UpdateProfileAsync(id, body, Actor(user), ct));
         secured.MapPut("/tenants/{id:guid}/modules/{module}", (Guid id, string module, ClaimsPrincipal user, ITenantAdmin admin, CancellationToken ct) =>

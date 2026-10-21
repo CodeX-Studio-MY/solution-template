@@ -73,6 +73,7 @@ internal static class IdentityModuleSetup
 
         services.AddScoped<AccessPrincipalFactory>();
         services.AddScoped<Application.IAuditWriter, AuditWriter>();
+        services.AddScoped<Application.IAuditReader, AuditReader>();
         services.AddScoped<Application.IClientRegistry, ClientRegistry>();
         services.AddScoped<Application.IAccountService, AccountService>();
         services.AddScoped<Application.IAccessManagement, AccessManagement>();

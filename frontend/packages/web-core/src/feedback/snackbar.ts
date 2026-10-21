@@ -17,10 +17,14 @@ interface SnackbarState {
 
 let nextId = 1;
 
-/** The shell's `SnackbarHost` shows the first message in the queue; the rest wait their turn. */
+/**
+ * The shell's `SnackbarHost` shows the first message in the queue. A new message replaces older ones that aren't errors (the latest
+ * news is what matters, and feedback never waits behind a stale "Saved."); errors stay until the person dismisses them.
+ */
 export const useSnackbarStore = create<SnackbarState>((set) => ({
   queue: [],
-  push: (message, severity) => set((state) => ({ queue: [...state.queue, { id: nextId++, message, severity }] })),
+  push: (message, severity) =>
+    set((state) => ({ queue: [...state.queue.filter((snack) => snack.severity === "error"), { id: nextId++, message, severity }] })),
   dismiss: (id) => set((state) => ({ queue: state.queue.filter((snack) => snack.id !== id) })),
 }));
 

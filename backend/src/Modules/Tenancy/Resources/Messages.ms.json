@@ -1,0 +1,16 @@
+{
+  "errors.tenancy.grantNotFound": "Permintaan akses sokongan itu tidak dijumpai.",
+  "errors.tenancy.invalidTransition": "Penyewa tidak boleh membuat perubahan itu daripada keadaannya sekarang.",
+  "errors.tenancy.onboardingFailed": "Pendaftaran berhenti separuh jalan. Jalankan semula dengan alamat yang sama untuk menyambung.",
+  "errors.tenancy.operatorExists": "Operator dengan e-mel itu sudah wujud.",
+  "errors.tenancy.operatorLoginFailed": "Butiran log masuk itu tidak betul, atau akaun dikunci buat seketika.",
+  "errors.tenancy.reservedSlug": "Alamat itu dikhaskan. Pilih yang lain.",
+  "errors.tenancy.slugInUse": "Alamat itu sudah digunakan.",
+  "errors.tenancy.slugInvalid": "Gunakan huruf kecil, digit dan sengkang, bermula dengan huruf (2–30 aksara).",
+  "errors.tenancy.supportAccessInvalid": "Permintaan akses sokongan itu tidak sah.",
+  "errors.tenancy.supportAccessNotUsable": "Akses sokongan itu belum diluluskan, atau telah tamat tempoh.",
+  "errors.tenancy.tenantNotFound": "Penyewa itu tidak dijumpai.",
+  "errors.tenancy.unknownFeature": "Ciri itu tidak wujud.",
+  "errors.tenancy.unknownPlan": "Pelan itu tidak wujud.",
+  "errors.tenancy.unknownSettings": "Aplikasi itu tiada tetapan."
+}

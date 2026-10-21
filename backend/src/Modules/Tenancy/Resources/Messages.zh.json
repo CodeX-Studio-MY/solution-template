@@ -1,0 +1,16 @@
+{
+  "errors.tenancy.grantNotFound": "未找到该支持访问请求。",
+  "errors.tenancy.invalidTransition": "租户在当前状态下无法进行该更改。",
+  "errors.tenancy.onboardingFailed": "开通中途停止。请使用相同地址重新运行以继续。",
+  "errors.tenancy.operatorExists": "已存在使用该电子邮件的运营人员。",
+  "errors.tenancy.operatorLoginFailed": "登录信息不正确，或账户暂时被锁定。",
+  "errors.tenancy.reservedSlug": "该地址为保留地址，请选择其他地址。",
+  "errors.tenancy.slugInUse": "该地址已被占用。",
+  "errors.tenancy.slugInvalid": "请使用小写字母、数字和连字符，以字母开头（2–30 个字符）。",
+  "errors.tenancy.supportAccessInvalid": "该支持访问请求无效。",
+  "errors.tenancy.supportAccessNotUsable": "该支持访问尚未批准或已过期。",
+  "errors.tenancy.tenantNotFound": "未找到该租户。",
+  "errors.tenancy.unknownFeature": "该功能不存在。",
+  "errors.tenancy.unknownPlan": "该套餐不存在。",
+  "errors.tenancy.unknownSettings": "该应用没有设置。"
+}
