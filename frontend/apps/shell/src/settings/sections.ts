@@ -1,9 +1,9 @@
 import type { ComponentType } from "react";
-import { canAccess, type ModuleKey, type ModuleManifest, type ModuleRoles, type Role } from "@saaskit/web-core";
+import { canAccess, type ModuleKey, type ModuleRoles, type Role } from "@saaskit/web-core";
 
-export type SettingsGroup = "organization" | "access" | "applications";
+export type SettingsGroup = "organization" | "access";
 
-/** One page of the Settings area. The list below is the single source for the menu, the routes and the top bar's gear. */
+/** One page of the platform Settings. The list below is the single source for its menu, its routes and the top bar's gear. */
 export interface SettingsSection {
   path: string;
   group: SettingsGroup;
@@ -16,7 +16,8 @@ export interface SettingsSection {
   lazy: () => Promise<{ Component: ComponentType }>;
 }
 
-const builtIn: SettingsSection[] = [
+/** The platform settings behind the gear. Each module's own settings are in the module (`/{module}/settings`). */
+export const settingsSections: readonly SettingsSection[] = [
   {
     path: "profile",
     group: "organization",
@@ -108,24 +109,6 @@ const builtIn: SettingsSection[] = [
     lazy: () => import("./pages/SecurityLogPage"),
   },
 ];
-
-/** The platform's pages, then each loaded module's own (`manifest.settings`), under `/settings/{module}/{path}`. */
-export function settingsSections(manifests: readonly ModuleManifest[]): SettingsSection[] {
-  return [
-    ...builtIn,
-    ...manifests.flatMap((manifest) =>
-      (manifest.settings ?? []).map((page) => ({
-        path: `${manifest.id}/${page.path}`,
-        group: "applications" as const,
-        label: page.label,
-        ns: manifest.i18n.namespace,
-        module: manifest.id,
-        role: page.requiredRole,
-        lazy: page.lazy,
-      })),
-    ),
-  ];
-}
 
 export function visibleSections(sections: readonly SettingsSection[], roles: ModuleRoles): SettingsSection[] {
   return sections.filter((section) => canAccess(roles, section.module, section.role));

@@ -38,7 +38,8 @@ The rules that hold for every rung:
   build on a comparison against `TenantId` or `TenantSlug` in a business module, and a lint rule does the same in the frontend.
 - **Every variation has a default**, so a new tenant works with zero configuration (`A_new_tenant_works_with_no_configuration`).
 - **Settings, flags and strategy choices are data in the catalog.** Operators edit all of them through the Tenancy service; a tenant's
-  own admin edits only the settings marked `[TenantEditable]`. **Every change is audited.**
+  own people edit only the settings marked `[TenantEditable]`: the module's managers read them and its admins change them (in the
+  module, under Settings), and a `tenant-settings` admin may do so for every module. **Every change is audited.**
 - A strategy key that doesn't exist falls back to the default and logs a warning.
 
 ## 1. Setting

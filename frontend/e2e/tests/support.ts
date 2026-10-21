@@ -37,6 +37,8 @@ export async function mockApp(page: Page, scenario: Scenario = {}) {
       }),
     "GET /api/tenancy/v1/me/modules": (route) => json(route, { modules }),
     "GET /api/tenancy/v1/me/settings": (route) => json(route, { branding, features, values: {} }),
+    // Which modules the person may configure (the sidebar's Settings entries): none unless a test says so.
+    "GET /api/tenancy/v1/settings": (route) => json(route, []),
     // Settings opens on the organisation's profile.
     "GET /api/tenancy/v1/me/tenant": (route) =>
       json(route, {

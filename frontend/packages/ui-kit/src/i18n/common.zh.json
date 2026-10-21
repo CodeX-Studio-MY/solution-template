@@ -45,7 +45,9 @@
     "applications": "应用",
     "collapse": "收起菜单",
     "expand": "展开菜单",
-    "breadcrumbs": "面包屑导航"
+    "breadcrumbs": "面包屑导航",
+    "moduleSettings": "设置",
+    "platformSettings": "平台设置"
   },
   "home": {
     "welcome": "欢迎",
@@ -143,5 +145,11 @@
       "status-active": "已恢复",
       "status-suspended": "已暂停"
     }
+  },
+  "moduleSettings": {
+    "title": "{{name}} 设置",
+    "general": "常规",
+    "none": "这里没有您可以配置的内容。",
+    "tabs": "设置分区"
   }
 }

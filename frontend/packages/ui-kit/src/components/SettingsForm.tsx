@@ -25,6 +25,8 @@ interface SettingsFormProps {
   onSave: (changes: Record<string, unknown>) => Promise<unknown>;
   saving?: boolean;
   error?: Error | null;
+  /** Shown but not changeable (someone who may read the settings, not change them). */
+  readOnly?: boolean;
 }
 
 type Values = Record<string, unknown>;
@@ -33,7 +35,7 @@ type Values = Record<string, unknown>;
  * Edits one module's settings. The form is built from what the server says about each setting (its default, allowed values and
  * whether the tenant may change it), so a new setting appears here without any frontend change.
  */
-export function SettingsForm({ view, labels = {}, editAll = false, onSave, saving, error }: SettingsFormProps) {
+export function SettingsForm({ view, labels = {}, editAll = false, onSave, saving, error, readOnly = false }: SettingsFormProps) {
   const { t } = useTranslation();
   const initial = view.values as Values;
   // What the person typed, over the server's values. A new view from the server (after a save) starts clean.
@@ -59,10 +61,10 @@ export function SettingsForm({ view, labels = {}, editAll = false, onSave, savin
       <Stack spacing={2.5} sx={{ maxWidth: 560 }}>
         {view.settings.map((setting) => {
           const name = setting.name;
-          const editable = editAll || setting.tenantEditable;
+          const editable = !readOnly && (editAll || setting.tenantEditable);
           const label = labels[name]?.label ?? name;
           const fieldError = apiError?.forField(name)?.message;
-          const help = fieldError ?? (editable ? labels[name]?.help : t("common:settingsForm.readOnly"));
+          const help = fieldError ?? (editable || readOnly ? labels[name]?.help : t("common:settingsForm.readOnly"));
           const value = values[name];
           const set = (next: unknown) => setEdits((e) => ({ view: e.view, values: { ...e.values, [name]: next } }));
           const overridden = name in overrides;
@@ -116,11 +118,13 @@ export function SettingsForm({ view, labels = {}, editAll = false, onSave, savin
             </Stack>
           );
         })}
-        <div>
-          <Button type="submit" variant="contained" disabled={saving || Object.keys(changes).length === 0}>
-            {t("common:actions.save")}
-          </Button>
-        </div>
+        {readOnly ? null : (
+          <div>
+            <Button type="submit" variant="contained" disabled={saving || Object.keys(changes).length === 0}>
+              {t("common:actions.save")}
+            </Button>
+          </div>
+        )}
       </Stack>
     </form>
   );

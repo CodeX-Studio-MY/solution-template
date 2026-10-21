@@ -122,10 +122,33 @@ public sealed class TenantCustomizationTests(Databases databases)
         ui.GetProperty("branding").GetProperty("primaryColor").GetString().ShouldBe("#aa3300");
         ui.GetProperty("values").TryGetProperty(Fixture.Entitled, out _).ShouldBeFalse();
 
-        // Ordinary users can't read or change settings.
+        // Ordinary users see no module's settings and change none.
         var user = Caller(host, tenantId, "self", $"{Modules.TenantSettings}:user");
-        (await user.GetAsync($"{Api}/settings", Ct)).StatusCode.ShouldBe(HttpStatusCode.Forbidden);
+        (await Read(await user.GetAsync($"{Api}/settings", Ct))).GetArrayLength().ShouldBe(0);
+        (await user.GetAsync($"{Api}/settings/{Modules.TenantSettings}", Ct)).StatusCode.ShouldBe(HttpStatusCode.Forbidden);
         (await user.PutAsJsonAsync($"{Api}/settings/{Modules.TenantSettings}", new { primaryColor = "#000000" }, Ct)).StatusCode.ShouldBe(HttpStatusCode.Forbidden);
+    }
+
+    [Fact]
+    public async Task A_module_configures_itself_its_managers_read_and_its_admins_change_only_its_own_settings()
+    {
+        await using var host = await TenancyTestHost.StartAsync(databases);
+        var op = await OperatorAsync(host);
+        var tenantId = await OnboardAsync(op, "own");
+        var moduleAdmin = Caller(host, tenantId, "own", $"{Fixture.Entitled}:admin");
+        var moduleManager = Caller(host, tenantId, "own", $"{Fixture.Entitled}:manager");
+
+        // The list holds exactly the modules the caller may configure.
+        (await Read(await moduleManager.GetAsync($"{Api}/settings", Ct))).EnumerateArray().Select(v => v.GetProperty("moduleKey").GetString()).ShouldBe([Fixture.Entitled]);
+        (await moduleManager.GetAsync($"{Api}/settings/{Fixture.Entitled}", Ct)).StatusCode.ShouldBe(HttpStatusCode.OK);
+        (await moduleManager.PutAsJsonAsync($"{Api}/settings/{Fixture.Entitled}", new { autoApproveBelow = 300 }, Ct)).StatusCode.ShouldBe(HttpStatusCode.Forbidden);
+
+        var saved = await Read(await moduleAdmin.PutAsJsonAsync($"{Api}/settings/{Fixture.Entitled}", new { autoApproveBelow = 300 }, Ct));
+        saved.GetProperty("values").GetProperty("autoApproveBelow").GetInt32().ShouldBe(300);
+        // Still only the settings a tenant may edit, and never another module's.
+        (await moduleAdmin.PutAsJsonAsync($"{Api}/settings/{Fixture.Entitled}", new { approvalPolicy = "two-level" }, Ct)).StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        (await moduleAdmin.GetAsync($"{Api}/settings/{Modules.TenantSettings}", Ct)).StatusCode.ShouldBe(HttpStatusCode.Forbidden);
+        (await moduleAdmin.PutAsJsonAsync($"{Api}/settings/{Modules.TenantSettings}", new { primaryColor = "#000000" }, Ct)).StatusCode.ShouldBe(HttpStatusCode.Forbidden);
     }
 
     [Fact]

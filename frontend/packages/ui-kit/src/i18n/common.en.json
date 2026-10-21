@@ -45,7 +45,9 @@
     "applications": "Applications",
     "collapse": "Collapse menu",
     "expand": "Expand menu",
-    "breadcrumbs": "Breadcrumb"
+    "breadcrumbs": "Breadcrumb",
+    "moduleSettings": "Settings",
+    "platformSettings": "Platform settings"
   },
   "home": {
     "welcome": "Welcome",
@@ -143,5 +145,11 @@
       "status-active": "Resumed",
       "status-suspended": "Suspended"
     }
+  },
+  "moduleSettings": {
+    "title": "{{name}} settings",
+    "general": "General",
+    "none": "There's nothing here you can configure.",
+    "tabs": "Settings sections"
   }
 }

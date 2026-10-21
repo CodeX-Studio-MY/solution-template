@@ -39,4 +39,13 @@ describe("loadModules", () => {
     expect((await loadModules(wrongId, [{ id: "goods-receipt", entry: "x" }])).failures).toHaveLength(1);
     expect((await loadModules(wrongPath, [{ id: "goods-receipt", entry: "x" }])).failures).toHaveLength(1);
   });
+
+  it("rejects a manifest that claims the shell's settings path", async () => {
+    await setupI18nForTest();
+    const own = (id: string) =>
+      Promise.resolve(manifest(id, { routes: [{ path: "settings/rules", lazy: async () => ({ Component: () => null }) }] }));
+    const result = await loadModules(own, [{ id: "goods-receipt", entry: "x" }]);
+    expect(result.modules).toEqual([]);
+    expect(result.failures[0]?.error.message).toContain('"settings" route');
+  });
 });

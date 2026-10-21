@@ -1,5 +1,5 @@
 {
-  "title": "设置",
+  "title": "平台设置",
   "subtitle": "管理您的组织、谁可以使用它，以及每个应用的行为方式。",
   "nav": "设置分区",
   "groups": {
@@ -26,7 +26,7 @@
   "sections": {
     "profile": "资料",
     "branding": "品牌",
-    "modules": "应用设置",
+    "modules": "平台服务",
     "features": "功能",
     "support": "支持访问",
     "users": "用户",
@@ -56,8 +56,8 @@
     "preview": "标志预览"
   },
   "modules": {
-    "subtitle": "每个应用为您的组织提供的选项。部分选项由服务提供方设置。",
-    "empty": "您的应用还没有任何设置。",
+    "subtitle": "平台自身服务（例如计费）的设置。各应用的设置位于应用内菜单中的“设置”。",
+    "empty": "平台服务都没有设置。",
     "saved": "设置已保存。"
   },
   "features": {
@@ -152,8 +152,7 @@
   },
   "navGroups": {
     "organization": "组织",
-    "access": "访问权限",
-    "applications": "应用"
+    "access": "访问权限"
   },
   "audit": {
     "subtitle": "登录、权限变更，以及支持人员使用支持访问所做的一切。永久保存，不可更改。"

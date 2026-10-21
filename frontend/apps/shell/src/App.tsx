@@ -10,19 +10,22 @@ import { AppShell } from "./layout/AppShell";
 import { Home } from "./pages/Home";
 import { NotFound } from "./pages/NotFound";
 import { moduleRoutes } from "./modules/routes";
+import { ManifestsContext } from "./modules/manifests";
 import { settingsRoute } from "./settings/routes";
-import { settingsSections } from "./settings/sections";
 
-/** The routes: the layout with the home page, Settings, every module under its base path, and a 404. */
+/** The routes: the layout with the home page, the platform Settings, every module under its base path, and a 404. */
 export function buildRoutes(manifests: readonly ModuleManifest[]): RouteObject[] {
-  const sections = settingsSections(manifests);
   return [
     {
       path: "/",
-      element: <AppShell manifests={manifests} settings={sections} />,
+      element: (
+        <ManifestsContext value={manifests}>
+          <AppShell manifests={manifests} />
+        </ManifestsContext>
+      ),
       children: [
         { index: true, element: <Home manifests={manifests} /> },
-        settingsRoute(sections),
+        settingsRoute(),
         ...moduleRoutes(manifests),
         { path: "*", element: <NotFound /> },
       ],

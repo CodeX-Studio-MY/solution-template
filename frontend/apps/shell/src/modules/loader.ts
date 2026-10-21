@@ -45,6 +45,14 @@ export async function loadModules(load: Loader = loadRemoteManifest, entries?: M
       failures.push({ id, error: new Error(`Module "${id}" did not expose a valid manifest.`) });
       return;
     }
+    // `{basePath}/settings` is the shell's: the module's Settings, built from its backend settings and `manifest.settings`.
+    if (manifest.routes.some((route) => route.path?.replace(/^\//, "").split("/")[0] === "settings")) {
+      failures.push({
+        id,
+        error: new Error(`Module "${id}" declares a "settings" route; list its settings pages under "settings" in the manifest instead.`),
+      });
+      return;
+    }
     if (manifest.i18n.resources) addNamespace(manifest.i18n.namespace, manifest.i18n.resources);
     registerExtensions(manifest.id, manifest.extensions ?? []);
     modules.push({ manifest });

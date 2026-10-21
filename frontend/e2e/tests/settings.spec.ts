@@ -31,7 +31,7 @@ test("an admin opens Settings from the gear, invites a user, and sees it confirm
     },
   });
   await page.goto("/");
-  await page.getByRole("link", { name: "Settings" }).click();
+  await page.getByRole("link", { name: "Platform settings" }).click();
   await page.getByRole("navigation", { name: "Settings sections" }).getByRole("link", { name: "Users" }).click();
   await expect(page.getByRole("heading", { level: 1, name: "Users" })).toBeVisible();
   await expect(page.getByRole("cell", { name: "siti@example.com" })).toBeVisible();
@@ -113,5 +113,5 @@ test("someone without a role in Settings has no gear and is turned away", async 
   await mockApp(page, { roles: ["billing:user"] });
   await page.goto("/settings/users");
   await expect(page.getByText("You don't have access to this part of Settings.")).toBeVisible();
-  await expect(page.getByRole("link", { name: "Settings" })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Platform settings" })).toHaveCount(0);
 });

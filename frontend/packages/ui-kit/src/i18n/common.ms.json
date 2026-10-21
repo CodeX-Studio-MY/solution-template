@@ -45,7 +45,9 @@
     "applications": "Aplikasi",
     "collapse": "Kecilkan menu",
     "expand": "Besarkan menu",
-    "breadcrumbs": "Jejak navigasi"
+    "breadcrumbs": "Jejak navigasi",
+    "moduleSettings": "Tetapan",
+    "platformSettings": "Tetapan platform"
   },
   "home": {
     "welcome": "Selamat datang",
@@ -143,5 +145,11 @@
       "status-active": "Disambung semula",
       "status-suspended": "Digantung"
     }
+  },
+  "moduleSettings": {
+    "title": "Tetapan {{name}}",
+    "general": "Umum",
+    "none": "Tiada apa yang boleh anda tetapkan di sini.",
+    "tabs": "Bahagian tetapan"
   }
 }

@@ -7,7 +7,7 @@ test("the demo admin invites a user, makes a group with a member, and changes th
   await signIn(page, "demo");
   const run = Date.now().toString(36);
 
-  await page.getByRole("link", { name: "Settings" }).click();
+  await page.getByRole("link", { name: "Platform settings" }).click();
   await expect(page.getByRole("heading", { level: 1, name: "Profile" })).toBeVisible();
   await expect(page.getByLabel("Organisation name")).not.toHaveValue("");
 

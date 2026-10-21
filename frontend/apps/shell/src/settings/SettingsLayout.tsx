@@ -11,7 +11,7 @@ import { useSession } from "@saaskit/web-core";
 import { EmptyState, tokens } from "@saaskit/ui-kit";
 import { visibleSections, type SettingsGroup, type SettingsSection } from "./sections";
 
-const groups: SettingsGroup[] = ["organization", "access", "applications"];
+const groups: SettingsGroup[] = ["organization", "access"];
 
 /** The Settings area: a menu of the sections this person may open, and the open section. */
 export function SettingsLayout({ sections }: { sections: readonly SettingsSection[] }) {

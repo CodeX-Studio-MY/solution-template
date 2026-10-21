@@ -3,6 +3,7 @@ import { Link as RouterLink, NavLink, Outlet, useLocation } from "react-router";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Breadcrumbs from "@mui/material/Breadcrumbs";
+import Collapse from "@mui/material/Collapse";
 import Divider from "@mui/material/Divider";
 import Drawer from "@mui/material/Drawer";
 import IconButton from "@mui/material/IconButton";
@@ -22,6 +23,8 @@ import { useColorScheme } from "@mui/material/styles";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import MenuIcon from "@mui/icons-material/Menu";
 import MenuOpen from "@mui/icons-material/MenuOpen";
+import ExpandLess from "@mui/icons-material/ExpandLess";
+import ExpandMore from "@mui/icons-material/ExpandMore";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { useTranslation } from "react-i18next";
 import {
@@ -35,12 +38,11 @@ import {
   type Role,
 } from "@saaskit/web-core";
 import { Icon, tokens } from "@saaskit/ui-kit";
-import { visibleSections, type SettingsSection } from "../settings/sections";
+import { settingsSections, visibleSections } from "../settings/sections";
+import { useConfigurableModules, useModuleName } from "../settings/api";
 
 interface Props {
   manifests: readonly ModuleManifest[];
-  /** The Settings area's sections: the gear shows when the person may open at least one. */
-  settings: readonly SettingsSection[];
 }
 
 const collapsedKey = "saaskit.sidebar.collapsed";
@@ -63,17 +65,25 @@ function writeCollapsed(value: boolean): void {
 }
 
 interface Entry {
-  manifest: ModuleManifest;
   to: string;
   icon: string;
   label: string;
+}
+
+/** A module's part of the sidebar: its menu entries the person may open, then its Settings when there is something to configure. */
+interface ModuleGroup {
+  id: string;
+  label: string;
+  icon: string;
+  entries: Entry[];
+  hasSettings: boolean;
 }
 
 /**
  * The top bar, the sidebar and the page area. Menu entries come from the loaded modules and are shown by role (the API still
  * decides access). The sidebar collapses to icons on a wide screen and becomes a drawer on a narrow one.
  */
-export function AppShell({ manifests, settings }: Props) {
+export function AppShell({ manifests }: Props) {
   const { t } = useTranslation();
   const session = useSession();
   const tenant = useTenant();
@@ -83,16 +93,24 @@ export function AppShell({ manifests, settings }: Props) {
   const [collapsed, setCollapsed] = useState(readCollapsed);
   const moduleRoles = session?.moduleRoles ?? {};
 
-  const entries: Entry[] = manifests.flatMap((manifest) =>
-    manifest.menu
-      .filter((item) => canAccess(moduleRoles, manifest.id, item.requiredRole))
-      .map((item) => ({
-        manifest,
-        icon: item.icon,
-        to: `${manifest.basePath}${item.path ? `/${item.path}` : ""}`,
-        label: t(item.label, { ns: manifest.i18n.namespace }),
-      })),
-  );
+  const moduleName = useModuleName();
+  const configurable = useConfigurableModules().data ?? [];
+  const groups: ModuleGroup[] = manifests
+    .map((manifest) => {
+      const entries: Entry[] = manifest.menu
+        .filter((item) => canAccess(moduleRoles, manifest.id, item.requiredRole))
+        .map((item) => ({
+          icon: item.icon,
+          to: `${manifest.basePath}${item.path ? `/${item.path}` : ""}`,
+          label: t(item.label, { ns: manifest.i18n.namespace }),
+        }));
+      const hasSettings =
+        configurable.some((view) => view.moduleKey === manifest.id && view.settings.length > 0) ||
+        (manifest.settings ?? []).some((page) => canAccess(moduleRoles, manifest.id, page.requiredRole));
+      if (hasSettings) entries.push({ icon: "Settings", to: `${manifest.basePath}/settings`, label: t("common:nav.moduleSettings") });
+      return { id: manifest.id, label: moduleName(manifest.id), icon: manifest.menu[0]?.icon ?? "Apps", entries, hasSettings };
+    })
+    .filter((group) => group.entries.length > 0);
   const current = manifests.find((m) => pathname === m.basePath || pathname.startsWith(`${m.basePath}/`));
   const inSettings = pathname === "/settings" || pathname.startsWith("/settings/");
   const currentLabel = inSettings
@@ -100,7 +118,7 @@ export function AppShell({ manifests, settings }: Props) {
     : current
       ? t(current.menu[0]?.label ?? current.id, { ns: current.i18n.namespace })
       : undefined;
-  const canOpenSettings = visibleSections(settings, moduleRoles).length > 0;
+  const canOpenSettings = visibleSections(settingsSections, moduleRoles).length > 0;
 
   const width = collapsed ? tokens.layout.sidebarCollapsedWidth : tokens.layout.sidebarWidth;
 
@@ -157,11 +175,11 @@ export function AppShell({ manifests, settings }: Props) {
             </Typography>
           </Box>
           {canOpenSettings ? (
-            <Tooltip title={t("common:nav.settings")}>
+            <Tooltip title={t("common:nav.platformSettings")}>
               <IconButton
                 component={RouterLink}
                 to="/settings"
-                aria-label={t("common:nav.settings")}
+                aria-label={t("common:nav.platformSettings")}
                 color={inSettings ? "primary" : "default"}
               >
                 <SettingsIcon />
@@ -188,7 +206,7 @@ export function AppShell({ manifests, settings }: Props) {
           },
         }}
       >
-        <Sidebar entries={entries} collapsed={collapsed} onNavigate={() => undefined} />
+        <Sidebar groups={groups} collapsed={collapsed} onNavigate={() => undefined} />
       </Drawer>
       <Drawer
         variant="temporary"
@@ -197,7 +215,7 @@ export function AppShell({ manifests, settings }: Props) {
         ModalProps={{ keepMounted: true }}
         sx={{ display: { xs: "block", md: "none" }, "& .MuiDrawer-paper": { width: tokens.layout.sidebarWidth } }}
       >
-        <Sidebar entries={entries} collapsed={false} onNavigate={() => setMobileOpen(false)} />
+        <Sidebar groups={groups} collapsed={false} onNavigate={() => setMobileOpen(false)} />
       </Drawer>
 
       <Box
@@ -238,7 +256,7 @@ function highestRole(moduleRoles: Partial<Record<string, Role>>): Role | null {
   return best;
 }
 
-function Sidebar({ entries, collapsed, onNavigate }: { entries: Entry[]; collapsed: boolean; onNavigate: () => void }) {
+function Sidebar({ groups, collapsed, onNavigate }: { groups: ModuleGroup[]; collapsed: boolean; onNavigate: () => void }) {
   const { t } = useTranslation();
   return (
     <Box component="nav" aria-label={t("common:nav.menu")}>
@@ -264,11 +282,48 @@ function Sidebar({ entries, collapsed, onNavigate }: { entries: Entry[]; collaps
           )
         }
       >
-        {entries.map((entry) => (
-          <NavItem key={entry.to} to={entry.to} icon={entry.icon} label={entry.label} collapsed={collapsed} onNavigate={onNavigate} />
-        ))}
+        {groups.map((group) =>
+          // A module with one entry and nothing to configure stays one item; otherwise its entries (and Settings) are grouped.
+          group.entries.length === 1 && !group.hasSettings ? (
+            <NavItem key={group.id} {...group.entries[0]!} collapsed={collapsed} onNavigate={onNavigate} />
+          ) : collapsed ? (
+            group.entries.map((entry) => (
+              <NavItem key={entry.to} {...entry} label={`${group.label} · ${entry.label}`} collapsed onNavigate={onNavigate} />
+            ))
+          ) : (
+            <NavGroup key={group.id} group={group} onNavigate={onNavigate} />
+          ),
+        )}
       </List>
     </Box>
+  );
+}
+
+/** A module's entries under its name. Open by default; the module the person is in always shows its entries. */
+function NavGroup({ group, onNavigate }: { group: ModuleGroup; onNavigate: () => void }) {
+  const { pathname } = useLocation();
+  const [open, setOpen] = useState(true);
+  const inside = group.entries.some((entry) => pathname === entry.to || pathname.startsWith(`${entry.to}/`));
+  const expanded = open || inside;
+  return (
+    <>
+      <ListItem disablePadding>
+        <ListItemButton onClick={() => setOpen(!expanded)} aria-expanded={expanded} sx={{ mx: 1, borderRadius: 1 }}>
+          <ListItemIcon sx={{ minWidth: 40, justifyContent: "center" }}>
+            <Icon name={group.icon} />
+          </ListItemIcon>
+          <ListItemText primary={group.label} />
+          {expanded ? <ExpandLess /> : <ExpandMore />}
+        </ListItemButton>
+      </ListItem>
+      <Collapse in={expanded} timeout="auto" unmountOnExit>
+        <List disablePadding aria-label={group.label}>
+          {group.entries.map((entry) => (
+            <NavItem key={entry.to} {...entry} collapsed={false} onNavigate={onNavigate} indent />
+          ))}
+        </List>
+      </Collapse>
+    </>
   );
 }
 
@@ -279,6 +334,7 @@ function NavItem({
   collapsed,
   onNavigate,
   end,
+  indent,
 }: {
   to: string;
   icon: string;
@@ -286,6 +342,7 @@ function NavItem({
   collapsed: boolean;
   onNavigate: () => void;
   end?: boolean;
+  indent?: boolean;
 }) {
   const button = (
     <ListItemButton
@@ -296,6 +353,7 @@ function NavItem({
       aria-label={collapsed ? label : undefined}
       sx={{
         mx: 1,
+        pl: indent ? 4 : undefined,
         borderRadius: 1,
         justifyContent: collapsed ? "center" : "flex-start",
         "&.active": {

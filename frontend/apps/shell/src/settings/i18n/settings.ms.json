@@ -1,5 +1,5 @@
 {
-  "title": "Tetapan",
+  "title": "Tetapan platform",
   "subtitle": "Urus organisasi anda, siapa yang boleh menggunakannya, dan cara setiap aplikasi berfungsi.",
   "nav": "Bahagian tetapan",
   "groups": {
@@ -26,7 +26,7 @@
   "sections": {
     "profile": "Profil",
     "branding": "Penjenamaan",
-    "modules": "Tetapan aplikasi",
+    "modules": "Perkhidmatan platform",
     "features": "Ciri",
     "support": "Akses sokongan",
     "users": "Pengguna",
@@ -56,8 +56,8 @@
     "preview": "Pratonton logo"
   },
   "modules": {
-    "subtitle": "Pilihan yang ditawarkan setiap aplikasi kepada organisasi anda. Sesetengahnya ditetapkan oleh pembekal anda.",
-    "empty": "Belum ada aplikasi yang mempunyai tetapan.",
+    "subtitle": "Tetapan perkhidmatan platform sendiri, seperti pengebilan. Tetapan setiap aplikasi ada dalam aplikasi itu, di bawah Tetapan dalam menunya.",
+    "empty": "Tiada perkhidmatan platform yang mempunyai tetapan.",
     "saved": "Tetapan disimpan."
   },
   "features": {
@@ -152,8 +152,7 @@
   },
   "navGroups": {
     "organization": "Organisasi",
-    "access": "Akses",
-    "applications": "Aplikasi"
+    "access": "Akses"
   },
   "audit": {
     "subtitle": "Log masuk, perubahan akses dan segala yang dilakukan kakitangan sokongan dengan akses sokongan. Disimpan selamanya; tiada apa boleh diubah."

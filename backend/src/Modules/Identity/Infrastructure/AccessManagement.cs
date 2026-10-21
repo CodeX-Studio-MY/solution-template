@@ -74,9 +74,9 @@ internal sealed class AccessManagement(
     public async Task<PrincipalDto> CreateServiceAsync(string displayName, ClientCredential credential, CancellationToken cancellationToken = default)
     {
         var service = Principal.NewService(displayName);
+        db.Principals.Add(service);   // first: EF assigns the ID here, and the client ID is built from it
         var clientId = ClientIdFor(service);
         service.AttachClient(clientId);
-        db.Principals.Add(service);
         await audit.WriteAsync(AuditKinds.PrincipalChanged, subject: service.Id.ToString(), details: new { created = "service" }, saveNow: false, cancellationToken: cancellationToken);
         await db.SaveChangesAsync(cancellationToken);
         await clients.RegisterAsync(clientId, displayName, tenant.Tenant.Id, credential, ["client_credentials"], cancellationToken);

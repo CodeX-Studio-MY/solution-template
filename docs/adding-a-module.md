@@ -109,7 +109,7 @@ query cache, the snackbar and the dialog host, so a module only calls the hooks.
 | Tell the person something | `useSnackbar().success(...)` / `info` / `warning` / `error` / `fromError(e)` | Callable outside React too (`snackbar`). |
 | Ask first | `if (await useDialog().confirm({ title, tone: "danger" })) ...` | `alert({ title, text })` for a message that needs an OK. One dialog at a time. |
 | A small form in a dialog | `<FormDialog>` | Enter submits; fields are the children. |
-| A settings page | `settings: [{ id, label, path, requiredRole, lazy }]` in `manifest.ts` | Appears under the shell's **Settings** (top bar gear) for people with that role. The module's settings values themselves (`[TenantSettings]` records) are already editable under Settings → Application settings, built from the backend's metadata. |
+| Module settings | Nothing for the values; `settings: [{ id, label, path, requiredRole, lazy }]` in `manifest.ts` for pages of your own | The shell adds **Settings** to the module's part of the sidebar (`/{module}/settings`). Its General tab is built from the module's `[TenantSettings]` record; your pages are further tabs. Managers of the module read them, its admins change them (a tenant-settings admin may too). The top bar gear is for platform settings only. Don't declare a `settings` route yourself: the path is the shell's. |
 
 In tests, wrap components that use these hooks in `TestProviders` from `@saaskit/web-core/testing`. The template's `ItemList` shows a
 list, an add and a confirm-then-delete.

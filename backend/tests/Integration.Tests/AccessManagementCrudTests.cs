@@ -91,4 +91,19 @@ public sealed class AccessManagementCrudTests(Databases databases)
         var manager = host.ApiClient("demo", (Modules.AccessManagement, Role.Manager));
         (await manager.GetAsync($"{Api}/audit", Ct)).StatusCode.ShouldBe(HttpStatusCode.Forbidden);
     }
+
+    [Fact]
+    public async Task Each_integration_gets_its_own_client_id()
+    {
+        await using var host = await IdentityTestHost.StartAsync(databases, "demo");
+        var admin = host.ApiClient("demo", (Modules.AccessManagement, Role.Admin));
+        async Task<string> Create(string name) =>
+            (await Read(await admin.PostAsJsonAsync($"{Api}/services", new { displayName = name, secret = $"{name}-secret-0123456789abcdef", publicKeyJwk = (string?)null }, Ct), HttpStatusCode.Created))
+                .GetProperty("clientId").GetString()!;
+
+        var first = await Create("ERP");
+        var second = await Create("Partner");
+        first.ShouldNotBe(second);
+        first.ShouldNotContain("00000000000000000000000000000000");
+    }
 }

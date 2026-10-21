@@ -1,28 +1,12 @@
-import { Outlet, type RouteObject } from "react-router";
-import { ModuleBoundary } from "../layout/ModuleBoundary";
+import type { RouteObject } from "react-router";
 import { SettingsLayout } from "./SettingsLayout";
-import type { SettingsSection } from "./sections";
+import { settingsSections } from "./sections";
 
-/** `/settings/*`: the layout, then one lazy route per section. A module's page runs inside its own error boundary. */
-export function settingsRoute(sections: readonly SettingsSection[]): RouteObject {
+/** `/settings/*`: the platform settings layout, then one lazy route per section. */
+export function settingsRoute(): RouteObject {
   return {
     path: "settings",
-    element: <SettingsLayout sections={sections} />,
-    children: [
-      { index: true, element: null },
-      ...sections.map((section) =>
-        section.ns === "settings"
-          ? { path: section.path, lazy: section.lazy }
-          : {
-              path: section.path,
-              element: (
-                <ModuleBoundary moduleId={String(section.module)}>
-                  <Outlet />
-                </ModuleBoundary>
-              ),
-              children: [{ index: true, lazy: section.lazy }],
-            },
-      ),
-    ],
+    element: <SettingsLayout sections={settingsSections} />,
+    children: [{ index: true, element: null }, ...settingsSections.map((section) => ({ path: section.path, lazy: section.lazy }))],
   };
 }

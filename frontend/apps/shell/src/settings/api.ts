@@ -1,6 +1,6 @@
 import type { IdentitySchemas, TenancySchemas } from "@saaskit/api-clients";
 import { useTranslation } from "react-i18next";
-import { api, masterKey, modules, useRouteAccess } from "@saaskit/web-core";
+import { api, canAccess, masterKey, modules, unwrap, useApiQuery, useRouteAccess, useSession } from "@saaskit/web-core";
 
 export const identity = api("identity");
 export const tenancy = api("tenancy");
@@ -35,4 +35,15 @@ export function humanize(name: string): string {
 export function useModuleName(): (key: string) => string {
   const { t } = useTranslation();
   return (key) => t("menu", { ns: key, defaultValue: modules.find((m) => m.key === key)?.name ?? key });
+}
+
+/** The modules whose settings this person may read (manager in the module, or a tenant-settings admin), with their settings. */
+export function useConfigurableModules() {
+  return useApiQuery(["tenancy", "settings"], (signal) => unwrap(tenancy.GET("/api/tenancy/v1/settings", { signal })));
+}
+
+/** Changing a module's settings: admin in that module, or a tenant-settings admin (the API applies the same rule). */
+export function useCanChangeSettings(moduleKey: string): boolean {
+  const roles = useSession()?.moduleRoles ?? {};
+  return canAccess(roles, moduleKey, "admin") || canAccess(roles, "tenant-settings", "admin");
 }

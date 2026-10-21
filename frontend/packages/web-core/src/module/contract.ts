@@ -20,7 +20,10 @@ export interface MenuItem {
   requiredRole: Role;
 }
 
-/** A page in the shell's Settings area. */
+/**
+ * A tab of the module's own Settings (`{basePath}/settings/{path}`), next to General (the module's backend settings, which the shell
+ * renders by itself). `settings` is reserved under the base path: a module never declares that route.
+ */
 export interface SettingsPage {
   id: string;
   label: string;

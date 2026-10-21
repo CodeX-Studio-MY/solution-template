@@ -1,5 +1,5 @@
 {
-  "title": "Settings",
+  "title": "Platform settings",
   "subtitle": "Manage your organisation, who can use it, and how each application behaves.",
   "nav": "Settings sections",
   "groups": {
@@ -26,7 +26,7 @@
   "sections": {
     "profile": "Profile",
     "branding": "Branding",
-    "modules": "Application settings",
+    "modules": "Platform services",
     "features": "Features",
     "support": "Support access",
     "users": "Users",
@@ -56,8 +56,8 @@
     "preview": "Logo preview"
   },
   "modules": {
-    "subtitle": "Options each application offers your organisation. Some are set by your provider.",
-    "empty": "None of your applications has settings yet.",
+    "subtitle": "Settings of the platform's own services, such as billing. Each application's settings are in the application itself, under Settings in its menu.",
+    "empty": "None of the platform's services has settings.",
     "saved": "Settings saved."
   },
   "features": {
@@ -152,8 +152,7 @@
   },
   "navGroups": {
     "organization": "Organisation",
-    "access": "Access",
-    "applications": "Applications"
+    "access": "Access"
   },
   "audit": {
     "subtitle": "Sign-ins, access changes and everything support staff did with support access. Kept for good; nothing can be changed."

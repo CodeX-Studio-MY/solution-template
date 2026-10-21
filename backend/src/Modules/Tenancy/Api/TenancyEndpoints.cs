@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using System.Text.Json.Nodes;
 using Saaskit.Core.Authorization;
+using Saaskit.Core.Errors;
 using Saaskit.Core.Http;
 using Saaskit.Core.Platform;
 using Saaskit.Core.Security;
@@ -58,17 +59,22 @@ internal static class TenancyEndpoints
             access.DecideAsync(tenant.Tenant.Id, id, SupportAccessStatus.Revoked, who.Id ?? "unknown", ct)).RequireModuleRole(Modules.TenantSettings, Role.Admin);
     }
 
-    /// <summary>A tenant admin reads settings and changes the ones marked editable (rung 1). Flags are read-only here.</summary>
+    /// <summary>
+    /// A module's settings (rung 1): its managers read them and its admins change the ones marked editable. A tenant-settings admin
+    /// may do both for every module. Flags are read-only here.
+    /// </summary>
     private static void MapSettingsEndpoints(RouteGroupBuilder v1)
     {
         var settings = v1.MapGroup("/settings").WithTags("settings");
-        settings.MapGet("", (ITenantContext tenant, ITenantCustomization customization, CancellationToken ct) => customization.GetAllSettingsAsync(tenant.Tenant.Id, ct))
-            .RequireModuleRole(Modules.TenantSettings, Role.Admin);
-        settings.MapGet("/{moduleKey}", (string moduleKey, ITenantContext tenant, ITenantCustomization customization, CancellationToken ct) => customization.GetSettingsAsync(tenant.Tenant.Id, moduleKey, ct))
-            .RequireModuleRole(Modules.TenantSettings, Role.Admin);
-        settings.MapPut("/{moduleKey}", (string moduleKey, [FromBody] JsonObject changes, ITenantContext tenant, ICurrentPrincipal who, ITenantCustomization customization, CancellationToken ct) =>
-            customization.SetSettingsAsync(tenant.Tenant.Id, moduleKey, changes, tenantAdmin: true, who.Id ?? "unknown", ct))
-            .RequireModuleRole(Modules.TenantSettings, Role.Admin);
+        // Only the modules the caller may read: the shell shows a module's Settings entry from this list.
+        settings.MapGet("", async (ITenantContext tenant, IAccessEvaluator access, ITenantCustomization customization, CancellationToken ct) =>
+            (await customization.GetAllSettingsAsync(tenant.Tenant.Id, ct)).Where(view => MayConfigure(access, view.ModuleKey, Role.Manager)).ToList());
+        settings.MapGet("/{moduleKey}", (string moduleKey, ITenantContext tenant, IAccessEvaluator access, ITenantCustomization customization, CancellationToken ct) =>
+            MayConfigure(access, moduleKey, Role.Manager) ? customization.GetSettingsAsync(tenant.Tenant.Id, moduleKey, ct) : throw new ForbiddenException());
+        settings.MapPut("/{moduleKey}", (string moduleKey, [FromBody] JsonObject changes, ITenantContext tenant, ICurrentPrincipal who, IAccessEvaluator access, ITenantCustomization customization, CancellationToken ct) =>
+            MayConfigure(access, moduleKey, Role.Admin)
+                ? customization.SetSettingsAsync(tenant.Tenant.Id, moduleKey, changes, tenantAdmin: true, who.Id ?? "unknown", ct)
+                : throw new ForbiddenException());
         v1.MapGet("/features", (ITenantContext tenant, ITenantCustomization customization, CancellationToken ct) => customization.GetFeaturesAsync(tenant.Tenant.Id, ct))
             .RequireModuleRole(Modules.TenantSettings, Role.Admin);
     }
@@ -117,6 +123,10 @@ internal static class TenancyEndpoints
         secured.MapPost("/support-access/{id:guid}/token", (Guid id, ClaimsPrincipal user, ISupportAccess access, CancellationToken ct) =>
             access.IssueTokenAsync(Identity(user), id, ct));
     }
+
+    /// <summary>At least <paramref name="role"/> in the module itself, or admin in tenant-settings (who configures every module).</summary>
+    private static bool MayConfigure(IAccessEvaluator access, string moduleKey, Role role) =>
+        access.HasRole(moduleKey, role) || access.HasRole(Modules.TenantSettings, Role.Admin);
 
     private static string Actor(ClaimsPrincipal user) => user.FindFirstValue(OperatorAuthenticationHandler.OperatorIdClaim) ?? "unknown";
 
