@@ -3,9 +3,10 @@
 React, Rsbuild, MUI and Module Federation 2.0 in a pnpm workspace (Turborepo for tasks).
 
 ```
-apps/shell            the host: layout, theme, i18n, session, error boundaries, module loader
+apps/shell            the host: layout, theme, i18n, session, error boundaries, module loader, Settings
+apps/operator         the operator console, served on operator.{BaseDomain}
 packages/ui-kit       tokens.ts (the only file with colours), MUI theme, shared components, CustomFieldsSection
-packages/web-core     HTTP client, session and tenant stores, guards, event bus, slots, formatting, i18n
+packages/web-core     HTTP client, query cache and hooks (useApiQuery, useMaster, useSnackbar, useDialog), session and tenant stores, guards, event bus, slots, formatting, i18n
 packages/api-clients  typed clients, GENERATED from each service's OpenAPI document
 modules/*             federated modules; each exposes ./manifest and never imports another module
 tooling               shared build config (the Module Federation shared singletons) and the lint-rule tests

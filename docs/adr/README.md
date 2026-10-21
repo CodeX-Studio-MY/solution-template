@@ -28,6 +28,7 @@ Each page states a decision, why, and the alternative that was rejected. Add one
 | 0022 | [A monorepo with Module Federation, not a repository per micro frontend](0022-monorepo-and-module-federation.md) |
 | 0023 | [License policy](0023-license-policy.md) |
 | 0024 | [Spatial types with NetTopologySuite, as geography in SRID 4326](0024-spatial-types.md) |
+| 0025 | [TanStack Query as the shared data layer](0025-tanstack-query-data-layer.md) |
 
 ## Writing one
 

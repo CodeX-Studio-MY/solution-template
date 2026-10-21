@@ -96,6 +96,24 @@ for you. Distances and `IsWithinDistance` are in metres. The rules:
 On a managed PostgreSQL server, the PostGIS extension may have to be allowed first. On Azure Database for PostgreSQL (Flexible Server),
 add `postgis` to the `azure.extensions` server parameter.
 
+## The frontend module's toolkit
+
+Everything a screen needs comes from `@saaskit/web-core` (logic) and `@saaskit/ui-kit` (components). The shell already renders the
+query cache, the snackbar and the dialog host, so a module only calls the hooks.
+
+| Need | Use | Notes |
+|---|---|---|
+| Load data | `useApiQuery(key, (signal) => unwrap(client.GET(...)))` | Cached under `key`, shared with every module (TanStack Query, ADR 0025). Typed by the OpenAPI document. |
+| Change data | `useApiMutation(fn, { invalidate, success })` | Refreshes `invalidate` and shows `success`. A failure shows the server's localized message, except field errors, which the form shows (`error.forField(name)`). |
+| Reference ("master") data | `useMaster("farm", "/api/farm/v1/farms")` and `<MasterSelect master={...} />` | Any service's list endpoint (array or `Page<T>`), fetched once for the whole app; `options`, `byId`, `labelOf`. After changing a master, invalidate `masterKey("farm")`. |
+| Tell the person something | `useSnackbar().success(...)` / `info` / `warning` / `error` / `fromError(e)` | Callable outside React too (`snackbar`). |
+| Ask first | `if (await useDialog().confirm({ title, tone: "danger" })) ...` | `alert({ title, text })` for a message that needs an OK. One dialog at a time. |
+| A small form in a dialog | `<FormDialog>` | Enter submits; fields are the children. |
+| A settings page | `settings: [{ id, label, path, requiredRole, lazy }]` in `manifest.ts` | Appears under the shell's **Settings** (top bar gear) for people with that role. The module's settings values themselves (`[TenantSettings]` records) are already editable under Settings → Application settings, built from the backend's metadata. |
+
+In tests, wrap components that use these hooks in `TestProviders` from `@saaskit/web-core/testing`. The template's `ItemList` shows a
+list, an add and a confirm-then-delete.
+
 ## Which parts of the specification you will want next
 
 - **Plans and entitlement**: `platform.yaml` lists the plans that include the module (the default is all of them). A module only some

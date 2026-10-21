@@ -13,8 +13,9 @@ The command prints the tenant's address (`https://saaskit-co.localhost:7443/`; t
 certificate is needed) and the first admin's one-time invitation link. Open it, choose a password, sign in.
 
 `scripts/onboard-tenant` signs in as the development operator that `scripts/dev-up` creates (credentials in `.dev/operator.json`,
-git-ignored) and calls the Tenancy service's operator API. It exists for local development only; in production, operators use the
-operator console (out of scope for this template) or call the same API.
+git-ignored) and calls the Tenancy service's operator API. It exists for local development only. Operators otherwise use the operator
+console, `https://operator.localhost:7443/` locally (the same `.dev/operator.json` credentials) and `operator.{BaseDomain}` elsewhere, or
+call the same API.
 
 ## What the pipeline does
 
