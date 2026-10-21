@@ -3,6 +3,9 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using Farm360.Core.Platform;
 using Farm360.Core.Security;
+using Farm360.MasterData.Infrastructure;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Role = Farm360.Core.Platform.Role;
 
 namespace Farm360.MasterData.Tests;
@@ -49,7 +52,6 @@ public sealed class MasterDataApiTests(Databases databases)
             areaHectares = 12.5m,
             latitude = 4.4721,
             longitude = 101.3801,
-            orderSequence = 2,
             isExternal = false,
         }, Ct), HttpStatusCode.Created);
         var id = created.GetProperty("id").GetGuid();
@@ -103,6 +105,103 @@ public sealed class MasterDataApiTests(Databases databases)
         await ReadAsync(await user.PostAsJsonAsync($"{Api}/farms", new { name = "Second", code = "FRM-001" }, Ct), HttpStatusCode.Created);
     }
 
+    /// <summary>The farms' names in list order, checking that the positions are exactly 1..N.</summary>
+    private static async Task<string[]> OrderAsync(HttpClient client)
+    {
+        var farms = (await ReadAsync(await client.GetAsync($"{Api}/farms?PageSize=100", Ct))).GetProperty("items").EnumerateArray().ToList();
+        farms.Select(f => f.GetProperty("orderSequence").GetInt32()).ShouldBe(Enumerable.Range(1, farms.Count));
+        return [.. farms.Select(f => f.GetProperty("name").GetString()!)];
+    }
+
+    private static async Task<JsonElement> FindByNameAsync(HttpClient client, string name) =>
+        (await ReadAsync(await client.GetAsync($"{Api}/farms?PageSize=100", Ct))).GetProperty("items").EnumerateArray()
+            .Single(f => f.GetProperty("name").GetString() == name);
+
+    private static async Task<HttpResponseMessage> MoveAsync(HttpClient client, string name, int position)
+    {
+        var farm = await FindByNameAsync(client, name);
+        using var move = WithIfMatch(HttpMethod.Put, $"{Api}/farms/{farm.GetProperty("id").GetGuid()}", farm.GetProperty("eTag").GetString(),
+            new { name, orderSequence = position });
+        return await client.SendAsync(move, Ct);
+    }
+
+    [Theory]
+    [MemberData(nameof(Databases.Providers), MemberType = typeof(Databases))]
+    public async Task Moving_a_farm_shifts_the_farms_in_between_and_the_order_stays_one_to_n(string provider)
+    {
+        await using var host = await ModuleTestHost.StartAsync<MasterDataModule>(databases, provider, null, "demo");
+        var user = host.Client("demo", host.Token("demo", roles: AsUser));
+        var manager = host.Client("demo", host.Token("demo", roles: AsManager));
+
+        // New farms go to the end; a position sent on create is ignored.
+        for (var i = 1; i <= 10; i++)
+            await ReadAsync(await user.PostAsJsonAsync($"{Api}/farms", new { name = $"F{i}", orderSequence = 1 }, Ct), HttpStatusCode.Created);
+        (await OrderAsync(user)).ShouldBe(["F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10"]);
+
+        // 10 -> 5: the farms at 5..9 move down one place (6 rows change).
+        await ReadAsync(await MoveAsync(user, "F10", 5));
+        (await OrderAsync(user)).ShouldBe(["F1", "F2", "F3", "F4", "F10", "F5", "F6", "F7", "F8", "F9"]);
+
+        // 2 -> 7: the farms at 3..7 move up one place.
+        await ReadAsync(await MoveAsync(user, "F2", 7));
+        (await OrderAsync(user)).ShouldBe(["F1", "F3", "F4", "F10", "F5", "F6", "F2", "F7", "F8", "F9"]);
+
+        // Out of range is clamped to 1..N.
+        await ReadAsync(await MoveAsync(user, "F1", 99));
+        (await OrderAsync(user)).ShouldBe(["F3", "F4", "F10", "F5", "F6", "F2", "F7", "F8", "F9", "F1"]);
+
+        // An update without a position keeps the farm where it is.
+        var f5 = await FindByNameAsync(user, "F5");
+        using (var rename = WithIfMatch(HttpMethod.Put, $"{Api}/farms/{f5.GetProperty("id").GetGuid()}", f5.GetProperty("eTag").GetString(), new { name = "F5" }))
+            (await ReadAsync(await user.SendAsync(rename, Ct))).GetProperty("orderSequence").GetInt32().ShouldBe(4);
+
+        // Deleting closes the gap.
+        var f4 = await FindByNameAsync(manager, "F4");
+        using (var delete = WithIfMatch(HttpMethod.Delete, $"{Api}/farms/{f4.GetProperty("id").GetGuid()}", f4.GetProperty("eTag").GetString()))
+            (await manager.SendAsync(delete, Ct)).StatusCode.ShouldBe(HttpStatusCode.NoContent);
+        (await OrderAsync(user)).ShouldBe(["F3", "F10", "F5", "F6", "F2", "F7", "F8", "F9", "F1"]);
+
+        // A new farm still goes to the end.
+        await ReadAsync(await user.PostAsJsonAsync($"{Api}/farms", new { name = "F11" }, Ct), HttpStatusCode.Created);
+        (await OrderAsync(user)).ShouldBe(["F3", "F10", "F5", "F6", "F2", "F7", "F8", "F9", "F1", "F11"]);
+    }
+
+    [Theory]
+    [MemberData(nameof(Databases.Providers), MemberType = typeof(Databases))]
+    public async Task A_farm_saved_before_positions_were_kept_can_still_be_edited(string provider)
+    {
+        await using var host = await ModuleTestHost.StartAsync<MasterDataModule>(databases, provider, null, "demo");
+        var user = host.Client("demo", host.Token("demo", roles: AsUser));
+        var created = await ReadAsync(await user.PostAsJsonAsync($"{Api}/farms", new { name = "Old farm" }, Ct), HttpStatusCode.Created);
+        var id = created.GetProperty("id").GetGuid();
+
+        // Farms created before positions were kept 1..N were saved at 0 when no position was sent.
+        await host.InTenantAsync("demo", services => services.GetRequiredService<MasterDataDbContext>().Farms
+            .Where(f => f.Id == id)
+            .ExecuteUpdateAsync(s => s.SetProperty(f => f.OrderSequence, 0), Ct));
+
+        var farm = await ReadAsync(await user.GetAsync($"{Api}/farms/{id}", Ct));
+        using var rename = WithIfMatch(HttpMethod.Put, $"{Api}/farms/{id}", farm.GetProperty("eTag").GetString(), new { name = "Old farm, renamed" });
+        var renamed = await ReadAsync(await user.SendAsync(rename, Ct));
+        renamed.GetProperty("name").GetString().ShouldBe("Old farm, renamed");
+        renamed.GetProperty("orderSequence").GetInt32().ShouldBe(0);
+    }
+
+    [Theory]
+    [MemberData(nameof(Databases.Providers), MemberType = typeof(Databases))]
+    public async Task Concurrent_moves_never_leave_two_farms_at_one_position(string provider)
+    {
+        await using var host = await ModuleTestHost.StartAsync<MasterDataModule>(databases, provider, null, "demo");
+        var user = host.Client("demo", host.Token("demo", roles: AsUser));
+        for (var i = 1; i <= 8; i++)
+            await ReadAsync(await user.PostAsJsonAsync($"{Api}/farms", new { name = $"F{i}" }, Ct), HttpStatusCode.Created);
+
+        // Each move succeeds or loses to another (412: its version was shifted); either way the order stays 1..N.
+        var results = await Task.WhenAll(Enumerable.Range(1, 8).Select(i => MoveAsync(user, $"F{i}", 9 - i)));
+        results.Select(r => r.StatusCode).ShouldAllBe(s => s == HttpStatusCode.OK || s == HttpStatusCode.PreconditionFailed);
+        (await OrderAsync(user)).Length.ShouldBe(8);
+    }
+
     [Theory]
     [MemberData(nameof(Databases.Providers), MemberType = typeof(Databases))]
     public async Task A_tenant_never_sees_another_tenants_farms(string provider)
@@ -138,6 +237,6 @@ public sealed class MasterDataApiTests(Databases databases)
         (await FieldErrorsAsync(new { name = "Farm", latitude = 3, longitude = 181 })).ShouldBe(["longitude"]);
         (await FieldErrorsAsync(new { name = "Farm", longitude = 101 })).ShouldBe(["latitude"]);
         (await FieldErrorsAsync(new { name = "Farm", areaHectares = -1 })).ShouldBe(["areaHectares"]);
-        (await FieldErrorsAsync(new { name = "Farm", orderSequence = -1 })).ShouldBe(["orderSequence"]);
+        (await FieldErrorsAsync(new { name = "Farm", orderSequence = 0 })).ShouldBe(["orderSequence"]);
     }
 }

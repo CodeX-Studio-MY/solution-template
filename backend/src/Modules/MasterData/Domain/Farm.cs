@@ -15,7 +15,6 @@ public sealed record FarmDetails(
     string? ContactPhone = null,
     decimal? AreaHectares = null,
     Point? Location = null,
-    int OrderSequence = 0,
     bool IsExternal = true,
     bool IsActive = true);
 
@@ -37,7 +36,12 @@ public sealed class Farm : BaseEntity, IAggregateRoot, ISoftDeletable
     {
     }
 
-    public Farm(FarmDetails details) => Apply(details);
+    /// <summary>A new farm at <paramref name="position"/> in the tenant's list (the service places it at the end).</summary>
+    public Farm(FarmDetails details, int position)
+    {
+        Apply(details);
+        MoveTo(position);
+    }
 
     public string Name { get; private set; } = "";
 
@@ -62,7 +66,7 @@ public sealed class Farm : BaseEntity, IAggregateRoot, ISoftDeletable
     /// <summary>Where the farm is (SRID 4326, X is the longitude).</summary>
     public Point? Location { get; private set; }
 
-    /// <summary>Where the farm appears in lists, lowest first.</summary>
+    /// <summary>Where the farm appears in lists: 1 to N with no gaps. The service keeps the other farms in step when one moves.</summary>
     public int OrderSequence { get; private set; }
 
     /// <summary>The farm belongs to someone else (for example a contract grower), not to the tenant.</summary>
@@ -78,6 +82,13 @@ public sealed class Farm : BaseEntity, IAggregateRoot, ISoftDeletable
 
     /// <summary>The code as the farm stores it (trimmed; empty is not set), so a uniqueness check compares like with like.</summary>
     public static string? NormalizeCode(string? code) => OrNull(code);
+
+    /// <summary>Puts the farm at <paramref name="position"/>. Shifting the farms in between is the service's job.</summary>
+    public void MoveTo(int position)
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThan(position, 1);
+        OrderSequence = position;
+    }
 
     public void MarkDeleted(DateTime utcNow)
     {
@@ -100,7 +111,6 @@ public sealed class Farm : BaseEntity, IAggregateRoot, ISoftDeletable
         ContactPhone = OrNull(details.ContactPhone);
         AreaHectares = details.AreaHectares;
         Location = details.Location;
-        OrderSequence = details.OrderSequence;
         IsExternal = details.IsExternal;
         IsActive = details.IsActive;
     }

@@ -26,7 +26,11 @@ public sealed record FarmDto(
     DateTime CreatedOn,
     string ETag);
 
-/// <summary>Create and update body. Left out, a field takes its default (type <c>field</c>, external, active, order 0).</summary>
+/// <summary>
+/// Create and update body. Left out, a field takes its default (type <c>field</c>, external, active). The position is ignored on
+/// create (a new farm goes to the end); on update it moves the farm there (clamped to 1..N) and left out keeps its place. The JSON name is
+/// <c>orderSequence</c>.
+/// </summary>
 public sealed record SaveFarmInput(
     string Name,
     string? Code = null,
@@ -61,6 +65,21 @@ public interface IFarmRepository
     /// <summary>Whether a farm that is not deleted already has this code (other than <paramref name="exceptId"/>).</summary>
     Task<bool> CodeInUseAsync(string code, Guid? exceptId, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Runs <paramref name="work"/> in a transaction that holds the tenant's farm-order lock, so two changes to the order never interleave
+    /// (which would leave two farms at one position). Commits when it returns; rolls everything back when it throws.
+    /// </summary>
+    Task InOrderLockAsync(Func<Task> work, CancellationToken cancellationToken = default);
+
+    /// <summary>How many farms are not deleted (N: the last position).</summary>
+    Task<int> CountAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>The highest position in use, or 0 when there are no farms.</summary>
+    Task<int> LastPositionAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>Adds <paramref name="delta"/> to the position of every farm (not deleted) from <paramref name="first"/> to <paramref name="last"/>, in one statement.</summary>
+    Task ShiftAsync(int first, int last, int delta, CancellationToken cancellationToken = default);
+
     void Add(Farm farm);
 
     string ETagOf(Farm farm);
@@ -82,33 +101,63 @@ public sealed class FarmService(IFarmRepository farms, TimeProvider time)
     public async Task<FarmDto> GetAsync(Guid id, CancellationToken cancellationToken = default) =>
         ToDto(await FindAsync(id, cancellationToken));
 
+    /// <summary>Creates a farm at the end of the list.</summary>
     public async Task<FarmDto> CreateAsync(SaveFarmInput input, CancellationToken cancellationToken = default)
     {
         var details = ToDetails(input);
-        await EnsureCodeIsFreeAsync(details.Code, null, cancellationToken);
-        var farm = new Farm(details);
-        farms.Add(farm);
-        await farms.SaveAsync(cancellationToken);
-        return ToDto(farm);
+        Farm? farm = null;
+        await farms.InOrderLockAsync(async () =>
+        {
+            await EnsureCodeIsFreeAsync(details.Code, null, cancellationToken);
+            farm = new Farm(details, await farms.LastPositionAsync(cancellationToken) + 1);
+            farms.Add(farm);
+            await farms.SaveAsync(cancellationToken);
+        }, cancellationToken);
+        return ToDto(farm!);
     }
 
+    /// <summary>
+    /// Updates a farm. A new <c>OrderSequence</c> moves it there and shifts the farms in between by one: moving 10 to 5 puts 5..9 at 6..10;
+    /// moving 5 to 10 puts 6..10 at 5..9. The order stays 1..N with no gaps.
+    /// </summary>
     public async Task<FarmDto> UpdateAsync(Guid id, string? ifMatch, SaveFarmInput input, CancellationToken cancellationToken = default)
     {
         var details = ToDetails(input);
-        var farm = await FindAsync(id, cancellationToken);
-        farms.ApplyIfMatch(farm, ifMatch);
-        await EnsureCodeIsFreeAsync(details.Code, id, cancellationToken);
-        farm.Update(details);
-        await farms.SaveAsync(cancellationToken);
-        return ToDto(farm);
+        Farm? farm = null;
+        await farms.InOrderLockAsync(async () =>
+        {
+            farm = await FindAsync(id, cancellationToken);
+            farms.ApplyIfMatch(farm, ifMatch);
+            await EnsureCodeIsFreeAsync(details.Code, id, cancellationToken);
+
+            var from = farm.OrderSequence;
+            var to = input.OrderSequence is { } requested ? Math.Clamp(requested, 1, await farms.CountAsync(cancellationToken)) : from;
+            if (to < from)
+                await farms.ShiftAsync(to, from - 1, +1, cancellationToken);
+            else if (to > from)
+                await farms.ShiftAsync(from + 1, to, -1, cancellationToken);
+
+            farm.Update(details);
+            // Only when it moves: a farm saved before positions were kept 1..N (at 0) stays editable without moving it.
+            if (to != from)
+                farm.MoveTo(to);
+            // A stale If-Match fails here (412), and the shift above is rolled back with it.
+            await farms.SaveAsync(cancellationToken);
+        }, cancellationToken);
+        return ToDto(farm!);
     }
 
+    /// <summary>Deletes a farm (soft) and closes the gap: the farms after it move up by one.</summary>
     public async Task DeleteAsync(Guid id, string? ifMatch, CancellationToken cancellationToken = default)
     {
-        var farm = await FindAsync(id, cancellationToken);
-        farms.ApplyIfMatch(farm, ifMatch);
-        farm.MarkDeleted(time.GetUtcNow().UtcDateTime);
-        await farms.SaveAsync(cancellationToken);
+        await farms.InOrderLockAsync(async () =>
+        {
+            var farm = await FindAsync(id, cancellationToken);
+            farms.ApplyIfMatch(farm, ifMatch);
+            farm.MarkDeleted(time.GetUtcNow().UtcDateTime);
+            await farms.SaveAsync(cancellationToken);
+            await farms.ShiftAsync(farm.OrderSequence + 1, int.MaxValue, -1, cancellationToken);
+        }, cancellationToken);
     }
 
     private async Task<Farm> FindAsync(Guid id, CancellationToken cancellationToken) =>
@@ -138,8 +187,8 @@ public sealed class FarmService(IFarmRepository farms, TimeProvider time)
             errors.Add("farmType", "validation.unknownOption", "Farm type");
         if (input.AreaHectares is < 0 or > MaxAreaHectares)
             errors.Add("areaHectares", "validation.range", "Area", 0, MaxAreaHectares);
-        if (input.OrderSequence is < 0)
-            errors.Add("orderSequence", "validation.range", "Order", 0, int.MaxValue);
+        if (input.OrderSequence is < 1)
+            errors.Add("orderSequence", "validation.positive", "Order");
 
         // A location is both numbers or neither.
         if (input.Latitude is null && input.Longitude is not null)
@@ -164,7 +213,6 @@ public sealed class FarmService(IFarmRepository farms, TimeProvider time)
             input.ContactPhone,
             input.AreaHectares,
             input.Latitude is { } latitude && input.Longitude is { } longitude ? ToPoint(latitude, longitude) : null,
-            input.OrderSequence ?? 0,
             input.IsExternal ?? true,
             input.IsActive ?? true);
     }

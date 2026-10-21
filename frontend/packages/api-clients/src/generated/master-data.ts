@@ -194,7 +194,11 @@ export interface components {
             /** Format: int32 */
             totalPages?: number | string;
         };
-        /** @description Create and update body. Left out, a field takes its default (type `field`, external, active, order 0). */
+        /**
+         * @description Create and update body. Left out, a field takes its default (type `field`, external, active). The position is ignored on
+         *     create (a new farm goes to the end); on update it moves the farm there (clamped to 1..N) and left out keeps its place. The JSON name is
+         *     `orderSequence`.
+         */
         SaveFarmInput: {
             address?: string | null;
             /** Format: double */

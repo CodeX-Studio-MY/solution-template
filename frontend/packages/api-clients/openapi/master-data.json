@@ -542,7 +542,7 @@
             "nullable": true
           }
         },
-        "description": "Create and update body. Left out, a field takes its default (type \u0060field\u0060, external, active, order 0)."
+        "description": "Create and update body. Left out, a field takes its default (type \u0060field\u0060, external, active). The position is ignored on\ncreate (a new farm goes to the end); on update it moves the farm there (clamped to 1..N) and left out keeps its place. The JSON name is\n\u0060orderSequence\u0060."
       }
     }
   },
