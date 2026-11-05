@@ -18,7 +18,7 @@ e2e                   Playwright against the built app, served with the Gateway'
 ```sh
 pnpm install
 pnpm build                  # builds the shell and every module, then lays them out in dist/ the way the Gateway serves them
-pnpm typecheck && pnpm lint && pnpm test    # all packages
+pnpm typecheck && pnpm lint && pnpm build && pnpm test    # all packages (the browser tests in `test` need the build)
 pnpm e2e                    # needs `pnpm build` first (the mocked-API tests)
 pnpm e2e:stack              # signs in against the running stack (scripts/dev-up.sh first)
 ```

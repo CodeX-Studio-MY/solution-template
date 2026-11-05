@@ -186,13 +186,14 @@ alone) and `--skip-api` (skip the OpenAPI export and typed clients).
 dotnet test --solution backend/saaskit.slnx     # unit, architecture and integration tests (Docker required)
 cd frontend
 pnpm install
-pnpm typecheck && pnpm lint && pnpm test && pnpm build
 pnpm --filter @saaskit/e2e exec playwright install chromium    # once, for the browser tests
-pnpm e2e                                         # Playwright against the built app, with the API mocked
+pnpm typecheck && pnpm lint && pnpm build
+pnpm test                                        # unit tests, and Playwright against the built app with the API mocked (needs the build)
+pnpm e2e                                         # only the mocked Playwright tests
 pnpm e2e:stack                                   # Playwright against the running stack (run scripts/dev-up.sh first)
 ```
 
-The same commands work in PowerShell. `pnpm e2e` needs `pnpm build` first.
+The same commands work in PowerShell.
 
 ## Deploy
 
