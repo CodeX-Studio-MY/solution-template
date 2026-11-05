@@ -15,7 +15,7 @@ namespace Saaskit.TestSupport;
 /// <summary>
 /// One container per database provider listed in platform.yaml (SQL Server 2025, PostgreSQL 18 with PostGIS) for the whole test run. Every test that
 /// touches data runs on every listed provider: a feature isn't done until it passes on all of them. PostgreSQL's container only starts
-/// when PostgreSQL is listed (scripts/add-postgresql adds it).
+/// when PostgreSQL is listed (not supported in this release, ADR 0011).
 /// </summary>
 public sealed class Databases : IAsyncLifetime
 {
@@ -99,7 +99,7 @@ public sealed class Databases : IAsyncLifetime
         {
             SqlServerDatabaseProvider.ProviderName => _sqlServer.GetConnectionString(),
             PostgreSqlDatabaseProvider.ProviderName when _postgreSql is not null => _postgreSql.GetConnectionString(),
-            _ => throw new InvalidOperationException($"'{provider}' is not listed in platform.yaml (database.providers); scripts/add-postgresql adds PostgreSQL."),
+            _ => throw new InvalidOperationException($"'{provider}' is not listed in platform.yaml (database.providers)."),
         };
 
     public static IDatabaseProvider Provider(string provider) =>

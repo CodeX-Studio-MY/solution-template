@@ -74,7 +74,7 @@ public sealed class AuthorizationTests(Databases databases)
         without.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
         (await Code(without)).ShouldBe("platform.module-not-entitled");
 
-        (await host.Client("demo-plus.localhost", host.Tokens.Create(host.Tenants["demo-plus"].Id, roles: roles)).GetAsync(TestPlatformHost.Path("/probe/optional"), Ct))
+        (await host.Client("demo-complete.localhost", host.Tokens.Create(host.Tenants["demo-complete"].Id, roles: roles)).GetAsync(TestPlatformHost.Path("/probe/optional"), Ct))
             .StatusCode.ShouldBe(HttpStatusCode.OK);
     }
 
@@ -127,7 +127,7 @@ public sealed class AuthorizationTests(Databases databases)
     {
         await using var host = await TestPlatformHost.StartAsync(databases);
         var token = host.Tokens.Create(host.Tenants["demo"].Id, roles: [Entitled(Role.Admin)]);
-        var response = await host.Client("demo-plus.localhost", token).GetAsync(TestPlatformHost.Path("/probe/user"), Ct);
+        var response = await host.Client("demo-complete.localhost", token).GetAsync(TestPlatformHost.Path("/probe/user"), Ct);
         response.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
         (await Code(response)).ShouldBe("platform.tenant-mismatch");
     }
@@ -138,11 +138,11 @@ public sealed class AuthorizationTests(Databases databases)
         await using var host = await TestPlatformHost.StartAsync(databases);
         var platform = host.Tokens.Create(null, PrincipalType.Service, [Entitled(Role.User)], permissions: [PlatformPermissions.TenantAny]);
         var client = host.Client("localhost", platform);
-        client.DefaultRequestHeaders.Add(PlatformHeaders.Tenant, "demo-plus");
-        (await client.GetStringAsync(TestPlatformHost.Path("/probe/whoami"), Ct)).ShouldBe("demo-plus");
+        client.DefaultRequestHeaders.Add(PlatformHeaders.Tenant, "demo-complete");
+        (await client.GetStringAsync(TestPlatformHost.Path("/probe/whoami"), Ct)).ShouldBe("demo-complete");
 
         var user = host.Client("localhost", host.Tokens.Create(host.Tenants["demo"].Id, roles: [Entitled(Role.User)]));
-        user.DefaultRequestHeaders.Add(PlatformHeaders.Tenant, "demo-plus");
+        user.DefaultRequestHeaders.Add(PlatformHeaders.Tenant, "demo-complete");
         (await user.GetAsync(TestPlatformHost.Path("/probe/whoami"), Ct)).StatusCode.ShouldBe(HttpStatusCode.Forbidden);
     }
 
@@ -181,8 +181,8 @@ public sealed class AuthorizationTests(Databases databases)
     public async Task Removing_a_module_from_a_tenant_takes_effect_without_waiting_for_tokens()
     {
         await using var host = await TestPlatformHost.StartAsync(databases);
-        var tenant = host.Tenants["demo-plus"];
-        var client = host.Client("demo-plus.localhost", host.Tokens.Create(tenant.Id, roles: [RoleExtensions.ToModuleRole(Fixture.Optional, Role.User)]));
+        var tenant = host.Tenants["demo-complete"];
+        var client = host.Client("demo-complete.localhost", host.Tokens.Create(tenant.Id, roles: [RoleExtensions.ToModuleRole(Fixture.Optional, Role.User)]));
         (await client.GetAsync(TestPlatformHost.Path("/probe/optional"), Ct)).StatusCode.ShouldBe(HttpStatusCode.OK);
 
         await using (var scope = host.Services.CreateAsyncScope())

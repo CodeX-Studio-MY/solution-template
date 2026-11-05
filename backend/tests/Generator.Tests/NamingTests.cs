@@ -5,7 +5,7 @@ public sealed class NamingTests
     [Theory]
     [InlineData("goods-receipt", "GoodsReceipt")]
     [InlineData("identity", "Identity")]
-    [InlineData("cost-center", "CostCenter")]
+    [InlineData("crop-planning", "CropPlanning")]
     public void Pascal_case(string key, string expected) => Naming.Pascal(key).ShouldBe(expected);
 
     [Fact]

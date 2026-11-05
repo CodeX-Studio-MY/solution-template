@@ -95,7 +95,7 @@ internal static partial class InitCommand
         Step("dotnet", Path.Combine(repoRoot, "backend"), "tool", "restore");   // dotnet ef, for the migrations
         var skipCompose = !AspireAvailable();
         if (skipCompose)
-            Console.WriteLine("The Aspire CLI isn't installed: deploy/docker-compose.yml is left as it is. Install it (https://aspire.dev) and run scripts/generate later.");
+            Console.WriteLine("The Aspire CLI isn't installed: deploy/docker-compose.yml is left as it is. Install it (https://aspire.dev) and run scripts/generate.sh (scripts/generate.ps1 on Windows) later.");
 
         // A module an earlier run added to platform.yaml but stopped before its migrations is resumed, not added again.
         var existing = PlatformDefinition.Load(platformPath).Modules.Select(m => m.Key).ToHashSet(StringComparer.Ordinal);
@@ -142,8 +142,9 @@ internal static partial class InitCommand
 
         Console.WriteLine();
         Console.WriteLine($"{Naming.Pascal(answers.Product)} is ready.");
-        Console.WriteLine("  scripts/dev-up                       start everything locally and sign in to https://demo.localhost:7443/");
-        Console.WriteLine("  scripts/new-module <key>             add a business module (backend, frontend, migrations, CI)");
+        var extension = OperatingSystem.IsWindows() ? "ps1" : "sh";
+        Console.WriteLine($"  scripts/dev-up.{extension}                    start everything locally and sign in to https://demo.localhost:7443/");
+        Console.WriteLine($"  scripts/new-module.{extension} <key>          add a business module (backend, frontend, migrations, CI)");
         Console.WriteLine($"  dotnet test --solution backend/{answers.Product}.slnx   every test, including integration tests (Docker)");
         return 0;
     }
@@ -239,7 +240,7 @@ internal static partial class InitCommand
 
     /// <summary>
     /// Local data volumes named after the product (<c>{product}-sql-data</c>, ...) are left by an earlier copy of the same product. Its
-    /// databases have another migration history, so this copy's Migrator would fail on them and scripts/dev-up would never start.
+    /// databases have another migration history, so this copy's Migrator would fail on them and the stack would never start.
     /// They may hold someone's work, so they are only deleted when the person says so; --yes never deletes them.
     /// </summary>
     private static void OfferToDeleteOldDevData(string product, InitOptions options)
@@ -266,12 +267,12 @@ internal static partial class InitCommand
             if (string.Equals(Console.ReadLine()?.Trim(), "y", StringComparison.OrdinalIgnoreCase))
             {
                 foreach (var volume in volumes)
-                    Processes.Capture("docker", Directory.GetCurrentDirectory(), "Stop the earlier copy (scripts/dev-down) and try again.", "volume", "rm", volume);
+                    Processes.Capture("docker", Directory.GetCurrentDirectory(), "Stop the earlier copy (scripts/dev-down.sh or scripts/dev-down.ps1) and try again.", "volume", "rm", volume);
                 Console.WriteLine("Deleted.");
                 return;
             }
         }
-        Console.WriteLine($"Kept. Before scripts/dev-up, delete it with: docker volume rm {string.Join(" ", volumes)}  (or scripts/dev-down -Reset from the earlier copy).");
+        Console.WriteLine($"Kept. Before starting the stack, delete it with: docker volume rm {string.Join(" ", volumes)}  (or scripts/dev-down.sh --reset, scripts/dev-down.ps1 -Reset on Windows, from the earlier copy).");
     }
 
     private const string ModulesLine = "modules-to-add:";
@@ -368,7 +369,7 @@ internal static class InitCommandUsage
 {
     public const string Text =
         "Usage: scripts/generate [--product <key>] [--org \"Org\"] [--timezone <IANA id>] [--currency <ISO 4217>] [--locales en,ms] " +
-        "[--plans standard,plus] [--cloud azure|aws] [--modules key1,key2] [--yes] [--skip-checks] [--no-git]";
+        "[--plans lite,advanced,complete] [--cloud azure|aws] [--modules key1,key2] [--yes] [--skip-checks] [--no-git]";
 }
 
 /// <summary>What the product is called and its defaults, from the options or asked for, checked before anything changes.</summary>

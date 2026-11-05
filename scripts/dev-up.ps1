@@ -1,5 +1,5 @@
 # Starts the whole stack locally with the Aspire AppHost, onboards the demo tenant and prints how to sign in.
-#   scripts/dev-up.ps1 [-Provider sqlserver|postgresql] [-AllInOne] [-NoBuild]
+#   scripts/dev-up.ps1 [-AllInOne] [-NoBuild]   (-Provider postgresql is refused: not supported in this release)
 param(
   [ValidateSet('sqlserver', 'postgresql')][string]$Provider = 'sqlserver',
   [switch]$AllInOne,
@@ -23,7 +23,7 @@ function Invoke-Native {
   } finally { $ErrorActionPreference = $previous }
 }
 if ($Provider -eq 'postgresql' -and -not (Select-String -Path platform.yaml -Pattern '^\s*providers:.*postgresql' -Quiet)) {
-  throw 'PostgreSQL migrations are not in this build (platform.yaml lists only sqlserver). Run scripts/add-postgresql.ps1 first.'
+  throw 'PostgreSQL is not supported in this release (platform.yaml lists only sqlserver; see docs/adr/0011-sql-server-and-postgresql.md).'
 }
 foreach ($tool in 'dotnet', 'docker', 'node', 'mkcert') {
   if (-not (Get-Command $tool -ErrorAction SilentlyContinue)) { throw "$tool is required." }

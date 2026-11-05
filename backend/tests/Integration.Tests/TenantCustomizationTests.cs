@@ -65,7 +65,7 @@ public sealed class TenantCustomizationTests(Databases databases)
     {
         await using var host = await TenancyTestHost.StartAsync(databases);
         var op = await OperatorAsync(host);
-        var tenantId = await OnboardAsync(op, "plus");
+        var tenantId = await OnboardAsync(op, "second");
 
         var changed = await Read(await op.PutAsJsonAsync($"{Api}/operator/tenants/{tenantId}/settings/{Fixture.Entitled}",
             new { autoApproveBelow = 200, approvalPolicy = "two-level" }, Ct));

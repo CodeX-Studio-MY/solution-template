@@ -1,4 +1,4 @@
-# SINGLE SOURCE OF TRUTH for the application's structure (see docs/adr and SAAS_TEMPLATE_PROMPT.md section 2.1).
+# SINGLE SOURCE OF TRUTH for the application's structure (see docs/adr/0010-single-source-of-truth.md).
 # Edit this file, then run scripts/generate. Never repeat these facts anywhere else.
 
 product: saaskit
@@ -9,7 +9,7 @@ defaults:
   locales: [en, ms, zh]
 cloud: azure
 database:
-  providers: [sqlserver]   # PostgreSQL migrations are added back with scripts/add-postgresql; the environment picks one (Database:Provider)
+  providers: [sqlserver]   # PostgreSQL is not supported in this release (ADR 0011)
 
 roles: [user, manager, admin]          # lowest to highest
 plans: [lite, advanced, complete]          # lowest to highest

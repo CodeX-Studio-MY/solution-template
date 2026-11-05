@@ -28,7 +28,8 @@ try
         case "new-module":
             return NewModuleCommand.Run(repoRoot, args[1..]);
         case "add-postgresql":
-            return AddPostgreSqlCommand.Run(repoRoot, args.Contains("--skip-compose"), args.Contains("--skip-api"));
+            Console.Error.WriteLine("PostgreSQL is not supported in this release: its migrations are not part of it (see docs/adr/0011-sql-server-and-postgresql.md). SQL Server is the supported database.");
+            return 2;
         case "init":
             return InitCommand.Run(repoRoot, args[1..]);
         case "rename" when args.Length == 5 && args[1] == "--from" && args[3] == "--to":
@@ -36,7 +37,7 @@ try
             Console.WriteLine($"Renamed '{args[2]}' to '{args[4]}' in {renamed.ChangedFiles.Count} files and {renamed.RenamedPaths.Count} paths.");
             return 0;
         default:
-            Console.Error.WriteLine($"Unknown command '{command}'. Commands: generate [--check] [--skip-compose] [--skip-api] | init (see scripts/generate) | new-module <key> [--name \"Display Name\"] [--no-frontend] [--skip-compose] | add-postgresql [--skip-compose] [--skip-api] | rename --from <product> --to <product>");
+            Console.Error.WriteLine($"Unknown command '{command}'. Commands: generate [--check] [--skip-compose] [--skip-api] | init (see scripts/generate) | new-module <key> [--name \"Display Name\"] [--no-frontend] [--skip-compose] | rename --from <product> --to <product>");
             return 2;
     }
 }

@@ -8,7 +8,7 @@ Libraries have turned commercial after teams depended on them (AutoMapper and Me
 
 ## Decision
 
-The template depends on no library that needs a paid commercial license unless `docs/deviations.md` records the decision. `scripts/check-licenses` enforces it: a deny-list of known commercial libraries plus an allow-list of licenses, with `docs/license-exceptions.json` for reviewed exceptions. MUI X is used in its MIT edition only. Mapping is hand-written or Mapperly.
+The template depends on no library that needs a paid commercial license unless `docs/license-exceptions.json` records the decision and the reason. `scripts/check-licenses` enforces it: a deny-list of known commercial libraries plus an allow-list of licenses, with `docs/license-exceptions.json` for reviewed exceptions. MUI X is used in its MIT edition only. Mapping is hand-written or Mapperly.
 
 ## Alternative rejected
 

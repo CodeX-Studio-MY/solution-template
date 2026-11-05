@@ -1,7 +1,7 @@
 # Tenant customization
 
 Every customer is different in some way. This page explains how the platform lets them be, **without a fork, a branch per
-customer, or an `if (tenant == "...")` anywhere**. The examples use a hypothetical `goods-receipt` module (`scripts/new-module
+customer, or an `if (tenant == "...")` anywhere**. The examples use a hypothetical `goods-receipt` module (`scripts/new-module.sh
 goods-receipt`) and a `supplier-rating` add-on; replace them with your own modules.
 
 | Rung | What varies per tenant | Example |
@@ -107,13 +107,17 @@ The use case asks `ITenantStrategy<IReceiptCheck>.GetCurrentAsync()` and calls i
 ## 4. Custom fields
 
 A tenant needs extra data on a record: a *definition* (a row in the module's own schema) plus a *value* in one native JSON column
-(`json` on SQL Server 2025, `jsonb` on PostgreSQL).
+(`json` on SQL Server 2025).
+
+The platform provides the parts, not the endpoints: `CustomFieldDefinition` and `CustomFieldValidator` in `Core`, the
+`ConfigureCustomFieldDefinitions` model extension and the `CustomFieldsSection` component. The template's modules ship no custom-field
+endpoints, so a module that wants them adds its own, shaped like this (the paths are an example for a `goods-receipt` module):
 
 - `GET /api/goods-receipt/v1/custom-fields?entity=goods-receipt` returns the definitions; records carry `"customFields": { "warehouse": "WH-1" }`.
 - Admins define them with `PUT /api/goods-receipt/v1/custom-fields/{entity}/{key}` (label, type `text|number|date|list`, required, options, order).
-- The **server** validates every write against the definitions (required, type, listed option; unknown keys are refused, not stored).
+- The module validates every write against the definitions with `CustomFieldValidator` (required, type, listed option; unknown keys are refused, not stored).
 - The frontend renders them with `<CustomFieldsSection entity="goods-receipt" />` from `ui-kit`. It is driven entirely by the definitions
-  API, so there is no tenant-specific code in the frontend, and a tenant with no definitions sees nothing.
+  endpoint above, so there is no tenant-specific code in the frontend, and a tenant with no definitions sees nothing.
 - Keys other modules rely on are agreed in `Contracts` (`WellKnownCustomFields`).
 
 ## 5. Event extension
@@ -151,12 +155,12 @@ home page.
 
 An add-on is an ordinary module with its own schema, `DbContext`, migrations and endpoints protected by
 `RequireModuleRole(Modules.SupplierRating, Role.Manager)`. It is simply listed under the higher plans only in `platform.yaml`
-(`plans: [plus]`). For a tenant without it, its endpoints return 403 (`platform.module-not-entitled`), its events aren't delivered, and
+(`plans: [advanced, complete]`). For a tenant without it, its endpoints return 403 (`platform.module-not-entitled`), its events aren't delivered, and
 its menu and panels never load.
 
 ## Adding your own
 
 - A new setting: add a property (with a default) to the record in `Contracts`. Nothing else.
-- A new flag: add a `const string` with `[FeatureFlag]`, then run `scripts/generate` (the frontend type is generated).
+- A new flag: add a `const string` with `[FeatureFlag]`, then run `scripts/generate.sh` (the frontend type is generated).
 - A new strategy: add an interface, one implementation per variation registered with a key, and `AddTenantStrategy`.
 - A new custom-field entity: map `CustomFieldDefinition` in the module's `DbContext` (`ConfigureCustomFieldDefinitions`) and a JSON column on the entity.

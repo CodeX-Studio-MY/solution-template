@@ -16,14 +16,18 @@ RUN pnpm install --frozen-lockfile && pnpm build
 
 FROM ${SDK_IMAGE} AS build
 WORKDIR /src
+COPY .editorconfig .editorconfig
 COPY backend/ backend/
 RUN dotnet publish backend/src/Gateway/Gateway.csproj --configuration Release --output /app /p:UseAppHost=false
 
 FROM ${RUNTIME_IMAGE} AS runtime
+# SQL Server's client needs ICU; the Alpine image ships without it and runs in invariant mode, which the client refuses.
+RUN apk add --no-cache icu-libs
 ENV ASPNETCORE_HTTP_PORTS=8080 \
     Bff__ShellRoot=/app/shell \
     Bff__OperatorRoot=/app/operator \
     Bff__ModulesRoot=/app/mfe \
+    DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false \
     TZ=UTC
 WORKDIR /app
 COPY --from=build /app .

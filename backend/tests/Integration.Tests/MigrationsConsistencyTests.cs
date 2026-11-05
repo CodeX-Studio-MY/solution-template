@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Saaskit.Integration.Tests;
 
 /// <summary>
-/// The model and the migrations of every context never drift apart, for every database provider (SAAS_TEMPLATE_PROMPT 4.13): a change
+/// The model and the migrations of every context never drift apart, for every database provider: a change
 /// to an entity, an index, a module list in platform.yaml (the catalog seeds it) without its migration fails here, not in production.
 /// This does not need a database.
 /// </summary>

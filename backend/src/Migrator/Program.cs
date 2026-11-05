@@ -49,8 +49,8 @@ var ct = host.Services.GetRequiredService<IHostApplicationLifetime>().Applicatio
 var databaseOptions = host.Services.GetRequiredService<Microsoft.Extensions.Options.IOptions<DatabaseOptions>>().Value;
 if (!PlatformInfo.DatabaseProviders.Contains(databaseOptions.Provider))
 {
-    // The migrations of a provider that platform.yaml doesn't list were removed from this build.
-    Console.Error.WriteLine($"This build has no migrations for '{databaseOptions.Provider}' (platform.yaml lists: {string.Join(", ", PlatformInfo.DatabaseProviders)}). Run scripts/add-postgresql to add PostgreSQL.");
+    // A provider that platform.yaml doesn't list has no migrations in this build.
+    Console.Error.WriteLine($"This build has no migrations for '{databaseOptions.Provider}' (platform.yaml lists: {string.Join(", ", PlatformInfo.DatabaseProviders)}). PostgreSQL is not supported in this release (ADR 0011).");
     return 2;
 }
 

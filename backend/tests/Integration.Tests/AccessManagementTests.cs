@@ -33,13 +33,13 @@ public sealed class AccessManagementTests(Databases databases)
         return (await response.Content.ReadFromJsonAsync<JsonElement>(Ct)).GetProperty("principalId").GetGuid();
     }
 
-    /// <summary>The Ali example (section 4.5), on a tenant where every module is entitled: the highest role always wins.</summary>
+    /// <summary>The Ali example, on a tenant where every module is entitled: the highest role always wins.</summary>
     [Fact]
     public async Task Direct_and_group_roles_combine_and_the_highest_wins()
     {
-        await using var host = await IdentityTestHost.StartAsync(databases, "demo-plus");
-        var admin = host.ApiClient("demo-plus", Admin);
-        var ali = await NewUserAsync(host, "ali", "demo-plus");
+        await using var host = await IdentityTestHost.StartAsync(databases, "demo-complete");
+        var admin = host.ApiClient("demo-complete", Admin);
+        var ali = await NewUserAsync(host, "ali", "demo-complete");
 
         (await admin.PutAsJsonAsync($"{Api}/principals/{ali}/assignments/{Modules.TenantSettings}", new { role = "admin" }, Ct)).EnsureSuccessStatusCode();
         (await admin.PutAsJsonAsync($"{Api}/principals/{ali}/assignments/{Fixture.Optional}", new { role = "user" }, Ct)).EnsureSuccessStatusCode();
@@ -59,7 +59,7 @@ public sealed class AccessManagementTests(Databases databases)
     [Fact]
     public async Task Entitlement_overrides_assignment_in_the_effective_access()
     {
-        await using var host = await IdentityTestHost.StartAsync(databases, "demo", "demo-plus");
+        await using var host = await IdentityTestHost.StartAsync(databases, "demo", "demo-complete");
         var ali = await host.InTenantAsync("demo", async sp =>
         {
             var access = sp.GetRequiredService<Saaskit.Identity.Application.IAccessManagement>();
@@ -74,7 +74,7 @@ public sealed class AccessManagementTests(Databases databases)
         // "demo" is not entitled to the optional module, so only tenant-settings remains.
         ali.RoleClaims.ShouldBe(["tenant-settings:admin"]);
 
-        var plus = await host.InTenantAsync("demo-plus", async sp =>
+        var completeTenant = await host.InTenantAsync("demo-complete", async sp =>
         {
             var access = sp.GetRequiredService<Saaskit.Identity.Application.IAccessManagement>();
             var db = sp.GetRequiredService<IdentityDbContext>();
@@ -84,7 +84,7 @@ public sealed class AccessManagementTests(Databases databases)
             await access.SetPrincipalRoleAsync(principal.Id, Fixture.Optional, Role.Manager, Ct);
             return await access.GetEffectiveAccessAsync(principal.Id, Ct);
         });
-        plus.RoleClaims.ShouldBe(["billing:manager"]);
+        completeTenant.RoleClaims.ShouldBe(["billing:manager"]);
     }
 
     [Fact]
@@ -299,9 +299,9 @@ public sealed class AccessManagementTests(Databases databases)
     [Fact]
     public async Task A_token_for_a_principal_with_every_module_stays_under_4_KB()
     {
-        await using var host = await IdentityTestHost.StartAsync(databases, "demo-plus");
-        var key = await host.RegisterMachineAsync("demo-plus", "everything", roles: [.. Modules.All.Select(m => (m.Key, Role.Admin))]);
-        await host.InTenantAsync("demo-plus", async sp =>
+        await using var host = await IdentityTestHost.StartAsync(databases, "demo-complete");
+        var key = await host.RegisterMachineAsync("demo-complete", "everything", roles: [.. Modules.All.Select(m => (m.Key, Role.Admin))]);
+        await host.InTenantAsync("demo-complete", async sp =>
         {
             var db = sp.GetRequiredService<IdentityDbContext>();
             var machine = await db.Principals.SingleAsync(p => p.ClientId == "everything", Ct);
@@ -309,7 +309,7 @@ public sealed class AccessManagementTests(Databases databases)
                 db.DataScopeAssignments.Add(DataScopeAssignment.ForPrincipal(machine.Id, "site", $"site-{site:D4}"));
             await db.SaveChangesAsync(Ct);
         });
-        var kid = await OnlyKidAsync(host, "everything", "demo-plus");
+        var kid = await OnlyKidAsync(host, "everything", "demo-complete");
 
         var response = await host.Client().PostAsync("/connect/token", new FormUrlEncodedContent(new Dictionary<string, string>
         {

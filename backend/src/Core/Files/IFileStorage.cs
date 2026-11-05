@@ -41,7 +41,7 @@ public interface IMalwareScanner
 
 /// <summary>
 /// The default scanner: accepts everything, because no scanner is configured. Replace it before taking real uploads
-/// (it is recorded in docs/deviations.md and the runbooks).
+/// (see ADR 0029 and the runbooks).
 /// </summary>
 internal sealed class NoScanner : IMalwareScanner
 {

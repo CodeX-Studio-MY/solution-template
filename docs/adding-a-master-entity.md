@@ -5,8 +5,9 @@ module for it, **Base** (`base`, in every plan). It ships empty: its migration h
 opens an empty page. This guide adds the first master entity, `MsFarm`, from the database to the screen. Every other master (`MsCrop`,
 `MsStatus`, `MsFarmBlock`) is the same steps again.
 
-A product that is not scaffolded yet names the module the same way as the rest: in a product called Aviot it is `Aviot.Base`, the
-context is `BaseDbContext`, and `Modules.Base` is the key. Replace `Saaskit` below with your product's name.
+In a product called Aviot the module is `Aviot.Base`, the context is `BaseDbContext`, and `Modules.Base` is the key. The code below says
+`Saaskit`: use your product's name. The module template (`templates/backend-module`, `templates/frontend-module`) has a complete example,
+an `Item`, to copy from.
 
 ## The naming rule
 
@@ -81,9 +82,11 @@ The table lives in the `base` schema of each tenant's database. No other module 
 
 ## 3. The service
 
-`Application/MsFarmService.cs`: a port to the store (`IMsFarmRepository`), the use cases, and the module's error catalog. Endpoints only
-translate HTTP; the rules (validation, "not found") live here. Follow the shape of the module template (`templates/backend-module`):
-`ListAsync`, `GetAsync`, `CreateAsync`, `RenameAsync`, `DeleteAsync`, with `ApplyIfMatch` before every change.
+`Application/MsFarmService.cs`: a port to the store (`IMsFarmRepository`), the use cases, the DTOs and the module's error catalog.
+Endpoints only translate HTTP; the rules (validation, "not found") live here. Copy `ItemService.cs` from the module template
+(`templates/backend-module/src/Modules/Sample/Application/`) and rename: `ListAsync`, `GetAsync`, `CreateAsync`, `RenameAsync`,
+`DeleteAsync`, with `ApplyIfMatch` before every change. Copy `Infrastructure/ItemRepository.cs` the same way as `MsFarmRepository`
+(it is `internal`).
 
 ```csharp
 [ErrorCatalog(Modules.Base)]
@@ -94,12 +97,17 @@ public static class BaseErrors
 ```
 
 Add the message to `Resources/Messages.en.json`, `.ms.json` and `.zh.json` (`"errors.base.farmNotFound": "..."`), in every locale in
-`platform.yaml`. Register the service and the repository in `BaseModule.Register`:
+`platform.yaml`. Register the service and the repository in `BaseModule.Register`. `BaseModule.cs` also needs
+`using Microsoft.Extensions.DependencyInjection;`, `using Saaskit.Base.Application;` and `using Saaskit.Base.Infrastructure;`:
 
 ```csharp
 services.AddScoped<IMsFarmRepository, MsFarmRepository>();
 services.AddScoped<MsFarmService>();
 ```
+
+**Duplicate names.** The unique index in step 2 is the last line of defence: a second farm with the same name makes the database
+refuse the insert, and the API answers 500 (`platform.unexpected`). Check for an existing name in the service first and throw a
+`ConflictException` with an error code of its own, as the Identity module does for groups (a 409 with a message).
 
 ## 4. The endpoints
 
@@ -120,7 +128,7 @@ farms.MapPost("", async (SaveFarmInput body, MsFarmService service, HttpResponse
 }).RequireModuleRole(Modules.Base, Role.Manager).RequireIdempotency<BaseDbContext>().Produces<MsFarmDto>(StatusCodes.Status201Created);
 ```
 
-Add `PUT /{id}` (`If-Match`) and `DELETE /{id}` the same way. Never write a role name or a module key as a string: `SingleSourceOfTruthTests`
+Add `GET /{id}`, `PUT /{id}` (`If-Match`) and `DELETE /{id}` the same way; `Api/SampleEndpoints.cs` in the module template has all five. Never write a role name or a module key as a string: `SingleSourceOfTruthTests`
 fails the build.
 
 ## 5. The migration
@@ -132,15 +140,16 @@ dotnet tool restore
 dotnet ef migrations add AddMsFarm -p src/Modules/Base.Migrations.SqlServer -s src/Modules/Base.Migrations.SqlServer -c BaseDbContext -o Migrations/Base
 ```
 
-Check the new file creates a table named `MsFarm` with the key `MsFarmId`. If `platform.yaml` lists PostgreSQL as well, run the command for
-`Base.Migrations.PostgreSql` too (`MigrationsConsistencyTests` fails otherwise). Migrations are expand-only: add tables and columns; never
-rename or drop in the same release. `scripts/dev-up` runs the Migrator, which applies it to every tenant database.
+Check the new file creates a table named `MsFarm` with the key `MsFarmId`. Migrations are expand-only: add tables and columns; never
+rename or drop in the same release. `scripts/dev-up.sh` runs the Migrator, which applies it to every tenant database.
 
-Then run `scripts/generate`: it exports Base's OpenAPI document and regenerates the typed client (`BaseSchemas`), which the next step uses.
+Then run `scripts/generate.sh` (`scripts/generate.ps1` on Windows): it exports Base's OpenAPI document and regenerates the typed client
+(`BaseSchemas`), which the next step uses.
 
 ## 6. The screen
 
-`frontend/modules/base/src/pages/FarmList.tsx`. Use the hooks every module screen uses, as in `templates/frontend-module`:
+`frontend/modules/base/src/pages/FarmList.tsx`. Copy `src/pages/ItemList.tsx` and `src/types.ts` from `templates/frontend-module` and rename
+(`types.ts` exports `MsFarmDto` from the generated `BaseSchemas`). The page uses the hooks every module screen uses:
 
 - `useApiQuery` for the list, and `useApiMutation` for create, rename and delete (it refreshes the queries you name and shows a snackbar).
 - `useDialog().confirm` before a delete.
@@ -181,6 +190,7 @@ other module's table as a plain column: there is no foreign key across modules, 
 - [ ] Entity `MsFarm`, table `MsFarm`, no key mapping (the column is `MsFarmId`)
 - [ ] `RequireModuleRole(Modules.Base, ...)` on every endpoint
 - [ ] Error messages in en, ms and zh
-- [ ] Migration made with `dotnet ef`, and `scripts/generate` run
+- [ ] Migration made with `dotnet ef`, and `scripts/generate.sh` run
+- [ ] A duplicate name answers 409, not 500
 - [ ] Page text in en, ms and zh; the menu entry in `manifest.ts`
-- [ ] A test in `backend/tests/Base.Tests` (create, list, rename, delete, tenant isolation) and one for the page
+- [ ] A test in `backend/tests/Base.Tests` (create, list, rename, delete, tenant isolation) and one for the page (the Base module's own `Home.test.tsx` and the shell's Playwright test of the empty page need updating if you replace that page)

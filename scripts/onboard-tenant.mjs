@@ -1,9 +1,9 @@
 // Creates a fully isolated tenant in the stack that scripts/dev-up started: its own database (created and migrated), its modules
 // for the plan, and a first-admin invitation. It signs in as the development operator (credentials saved by dev-up in .dev/operator.json).
 //
-//   scripts/onboard-tenant <slug> [--plan <plan key>] [--name "Display Name"] [--admin-email you@example.com] [--url http://localhost:5002]
+//   scripts/onboard-tenant.sh <slug> [--plan <plan key>] [--name "Display Name"] [--admin-email you@example.com] [--url http://localhost:5002]
 //
-// Local development only: in production, operators use the operator console, which is out of scope for this template.
+// Local development only: operators use the operator console (operator.localhost:7443 locally).
 import { createHmac } from "node:crypto";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -14,13 +14,13 @@ const args = process.argv.slice(2);
 const slug = args.find((a) => !a.startsWith("--"));
 const option = (name) => (args.includes(name) ? args[args.indexOf(name) + 1] : undefined);
 if (!slug) {
-  console.error('Usage: scripts/onboard-tenant <slug> [--plan <plan key>] [--name "Display Name"] [--admin-email you@example.com] [--url http://localhost:5002]');
+  console.error('Usage: scripts/onboard-tenant.sh <slug> [--plan <plan key>] [--name "Display Name"] [--admin-email you@example.com] [--url http://localhost:5002]');
   process.exit(2);
 }
 
 const operatorFile = join(root, ".dev", "operator.json");
 if (!existsSync(operatorFile)) {
-  console.error("No development operator found. Start the stack with scripts/dev-up first (it creates one).");
+  console.error("No development operator found. Start the stack with scripts/dev-up.sh (scripts/dev-up.ps1 on Windows) first (it creates one).");
   process.exit(1);
 }
 const operator = JSON.parse(readFileSync(operatorFile, "utf8"));
