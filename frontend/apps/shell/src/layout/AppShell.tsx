@@ -30,14 +30,16 @@ import { useTranslation } from "react-i18next";
 import {
   atLeast,
   canAccess,
+  api,
   roles as roleOrder,
+  unwrap,
   useSession,
   useTenant,
   useTenantSettings,
   type ModuleManifest,
   type Role,
 } from "@saaskit/web-core";
-import { Icon, tokens } from "@saaskit/ui-kit";
+import { Icon, LanguageMenu, tokens } from "@saaskit/ui-kit";
 import { settingsSections, visibleSections } from "../settings/sections";
 import { useConfigurableModules, useModuleName } from "../settings/api";
 
@@ -186,6 +188,7 @@ export function AppShell({ manifests }: Props) {
               </IconButton>
             </Tooltip>
           ) : null}
+          <LanguageMenu onChange={saveLanguage} />
           <UserMenu highestRole={highestRole(moduleRoles)} tenantName={tenant.name} />
         </Toolbar>
       </AppBar>
@@ -430,6 +433,11 @@ function UserMenu({ highestRole: role, tenantName }: { highestRole: Role | null;
       </Menu>
     </>
   );
+}
+
+/** Saves the person's language. A support session or a suspended tenant is refused; the language still applies for this session. */
+async function saveLanguage(locale: string): Promise<void> {
+  await unwrap(api("identity").PUT("/api/identity/v1/me/preferences", { body: { locale } }));
 }
 
 /** Signing out is a POST (with the CSRF header), not a link, so a page can't sign you out by embedding an image. */
