@@ -1002,6 +1002,52 @@
         }
       }
     },
+    "/api/identity/v1/me/preferences": {
+      "get": {
+        "tags": [
+          "preferences"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserPreferencesDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "preferences"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreferencesBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserPreferencesDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/identity/v1/platform/revoke-all-tokens": {
       "post": {
         "tags": [
@@ -1835,6 +1881,18 @@
         },
         "description": "The one response shape for lists."
       },
+      "PreferencesBody": {
+        "required": [
+          "locale"
+        ],
+        "type": "object",
+        "properties": {
+          "locale": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
       "PrincipalDto": {
         "required": [
           "id",
@@ -2013,6 +2071,19 @@
             "format": "date-time"
           }
         }
+      },
+      "UserPreferencesDto": {
+        "required": [
+          "locale"
+        ],
+        "type": "object",
+        "properties": {
+          "locale": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "description": "A signed-in user\u0027s preferences. Locale is null until they choose a language."
       }
     }
   },
@@ -2034,6 +2105,9 @@
     },
     {
       "name": "groups"
+    },
+    {
+      "name": "preferences"
     },
     {
       "name": "platform"

@@ -362,6 +362,26 @@ namespace Saaskit.Identity.Migrations.SqlServer.Migrations.Identity
                 });
 
             migrationBuilder.CreateTable(
+                name: "UserPreferences",
+                schema: "identity",
+                columns: table => new
+                {
+                    UserPreferenceId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Locale = table.Column<string>(type: "varchar(16)", unicode: false, maxLength: 16, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserPreferences", x => x.UserPreferenceId);
+                    table.ForeignKey(
+                        name: "FK_UserPreferences_Principals_UserPreferenceId",
+                        column: x => x.UserPreferenceId,
+                        principalSchema: "identity",
+                        principalTable: "Principals",
+                        principalColumn: "PrincipalId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Users",
                 schema: "identity",
                 columns: table => new
@@ -728,6 +748,10 @@ namespace Saaskit.Identity.Migrations.SqlServer.Migrations.Identity
 
             migrationBuilder.DropTable(
                 name: "UserPasskeys",
+                schema: "identity");
+
+            migrationBuilder.DropTable(
+                name: "UserPreferences",
                 schema: "identity");
 
             migrationBuilder.DropTable(

@@ -167,7 +167,7 @@ public sealed class AuthorizationTests(Databases databases)
     [Fact]
     public async Task Rate_limits_come_from_the_plan_and_return_429_with_Retry_After()
     {
-        await using var host = await TestPlatformHost.StartAsync(databases, limit: new PlanLimit { Plan = Fixture.BasePlan, PerTenantPerMinute = 100, PerPrincipalPerMinute = 3 });
+        await using var host = await TestPlatformHost.StartAsync(databases, limit: new PlanLimit { PlanId = SeededPlans.IdOf(Fixture.BasePlan), PerTenantPerMinute = 100, PerPrincipalPerMinute = 3 });
         var client = host.Client("demo.localhost", host.Tokens.Create(host.Tenants["demo"].Id, roles: [Entitled(Role.User)]));
 
         for (var i = 0; i < 3; i++)

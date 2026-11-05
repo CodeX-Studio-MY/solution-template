@@ -35,37 +35,44 @@ internal sealed class TenantManagement(
     {
         var tenants = await catalog.Tenants.AsNoTracking().OrderBy(t => t.Slug).ToListAsync(cancellationToken);
         var modules = await ModulesByTenantAsync(tenants.Select(t => t.Id).ToList(), cancellationToken);
-        return [.. tenants.Select(t => ToSummary(t, modules[t.Id]))];
+        var plans = await catalog.Plans.AsNoTracking().ToDictionaryAsync(p => p.PlanId, cancellationToken);
+        return [.. tenants.Select(t => ToSummary(t, plans[t.PlanId], modules[t.Id]))];
     }
 
     public async Task<TenantSummary> GetAsync(Guid tenantId, CancellationToken cancellationToken = default)
     {
         var tenant = await FindAsync(tenantId, cancellationToken);
-        return ToSummary(tenant, (await ModulesByTenantAsync([tenantId], cancellationToken))[tenantId]);
+        var plan = await catalog.Plans.AsNoTracking().SingleAsync(p => p.PlanId == tenant.PlanId, cancellationToken);
+        return ToSummary(tenant, plan, (await ModulesByTenantAsync([tenantId], cancellationToken))[tenantId]);
     }
 
     public async Task<TenantSummary> ChangePlanAsync(Guid tenantId, string plan, string actor, CancellationToken cancellationToken = default)
     {
-        if (!Plans.All.Contains(plan))
-            throw new BusinessRuleException(TenancyErrors.UnknownPlan, plan);
+        var target = await catalog.Plans.AsNoTracking().SingleOrDefaultAsync(p => p.PlanKey == plan, cancellationToken)
+            ?? throw new BusinessRuleException(TenancyErrors.UnknownPlan, plan);
         var tenant = await FindAsync(tenantId, cancellationToken);
-        var previous = tenant.Plan;
-        tenant.ChangePlan(plan);
+        if (!target.IsActive && target.PlanId != tenant.PlanId)
+            throw new BusinessRuleException(TenancyErrors.PlanRetired, plan);
+        var previous = await catalog.Plans.AsNoTracking().SingleAsync(p => p.PlanId == tenant.PlanId, cancellationToken);
+        tenant.ChangePlan(target.PlanId);
 
         // Reconcile: the plan's modules are entitled; modules from the previous plan that the new plan lacks are removed.
         // Add-ons granted on top of a plan are kept only if they were not part of the previous plan.
-        var oldPlanModules = Modules.All.Where(m => m.Plans.Contains(previous)).Select(m => m.Id).ToHashSet();
-        var newPlanModules = Modules.All.Where(m => m.Plans.Contains(plan)).Select(m => m.Id).ToHashSet();
+        var oldPlanModules = (await PlanModuleIdsAsync(previous.PlanId, cancellationToken)).ToHashSet();
+        var newPlanModules = (await PlanModuleIdsAsync(target.PlanId, cancellationToken)).ToHashSet();
         var current = await catalog.TenantModules.Where(t => t.TenantId == tenantId).ToListAsync(cancellationToken);
         foreach (var row in current.Where(r => oldPlanModules.Contains(r.ModuleId) && !newPlanModules.Contains(r.ModuleId)))
             catalog.TenantModules.Remove(row);
         foreach (var moduleId in newPlanModules.Where(id => current.All(r => r.ModuleId != id)))
             catalog.TenantModules.Add(new TenantModule { TenantId = tenantId, ModuleId = moduleId });
 
-        await AuditAsync(tenantId, "plan-changed", actor, new { from = previous, to = plan });
+        await AuditAsync(tenantId, "plan-changed", actor, new { from = previous.PlanKey, to = plan });
         await SaveAndPublishAsync(tenantId, cancellationToken);
         return await GetAsync(tenantId, cancellationToken);
     }
+
+    private async Task<List<Guid>> PlanModuleIdsAsync(short planId, CancellationToken cancellationToken) =>
+        await catalog.PlanModuleAccess.AsNoTracking().Where(a => a.PlanId == planId).Select(a => a.ModuleId).ToListAsync(cancellationToken);
 
     public async Task<TenantSummary> GrantModuleAsync(Guid tenantId, string moduleKey, string actor, CancellationToken cancellationToken = default)
     {
@@ -110,7 +117,7 @@ internal sealed class TenantManagement(
         return await GetAsync(tenantId, cancellationToken);
     }
 
-    private static readonly HashSet<string> IsoCurrencies = [.. CultureInfo.GetCultures(CultureTypes.SpecificCultures)
+    internal static readonly HashSet<string> IsoCurrencies = [.. CultureInfo.GetCultures(CultureTypes.SpecificCultures)
         .Select(c => { try { return new RegionInfo(c.Name).ISOCurrencySymbol; } catch (ArgumentException) { return null; } })
         .OfType<string>()];
 
@@ -257,8 +264,8 @@ internal sealed class TenantManagement(
     private static Guid ModuleId(string moduleKey) =>
         Modules.All.SingleOrDefault(m => m.Key == moduleKey)?.Id ?? throw new BusinessRuleException(TenancyErrors.UnknownPlan, $"Unknown module '{moduleKey}'.");
 
-    private static TenantSummary ToSummary(CatalogTenant t, List<string> modules) =>
-        new(t.Id, t.Slug, t.DisplayName, t.Status, t.Plan, modules, t.DeleteAfter, t.RequireSupportApproval, t.TimeZone, t.Currency, t.Locale);
+    private static TenantSummary ToSummary(CatalogTenant t, Plan plan, List<string> modules) =>
+        new(t.Id, t.Slug, t.DisplayName, t.Status, plan.PlanKey, plan.DisplayName, modules, t.DeleteAfter, t.RequireSupportApproval, t.TimeZone, t.Currency, t.Locale);
 
     private string[] CallbackUris(string slug)
     {

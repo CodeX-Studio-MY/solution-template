@@ -151,5 +151,9 @@
     "general": "Umum",
     "none": "Tiada apa yang boleh anda tetapkan di sini.",
     "tabs": "Bahagian tetapan"
+  },
+  "language": {
+    "label": "Bahasa",
+    "notSaved": "Bahasa telah ditukar buat sementara, tetapi tidak dapat disimpan."
   }
 }

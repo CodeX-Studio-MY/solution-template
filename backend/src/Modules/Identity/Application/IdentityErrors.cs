@@ -17,4 +17,5 @@ public static class IdentityErrors
     public static readonly ErrorCode EnrollmentInvalid = new("access-management.enrollment-invalid", 422, "errors.identity.enrollmentInvalid");
     public static readonly ErrorCode InvitationNotPending = new("access-management.invitation-not-pending", 422, "errors.identity.invitationNotPending");
     public static readonly ErrorCode ModuleNotEntitledForAssignment = new("access-management.module-not-entitled", 422, "errors.identity.moduleNotEntitled");
+    public static readonly ErrorCode PreferencesNotForSupport = new("access-management.preferences-not-for-support", 403, "errors.identity.preferencesNotForSupport");
 }

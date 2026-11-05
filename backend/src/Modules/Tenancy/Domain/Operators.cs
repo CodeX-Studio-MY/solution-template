@@ -36,11 +36,16 @@ public sealed class PlatformOperator : BaseEntity, IAggregateRoot
 
     public bool IsActive { get; private set; }
 
+    /// <summary>The console language this operator chose (one of the platform's locales). Empty means the browser's language.</summary>
+    public string? Locale { get; private set; }
+
     public int FailedAttempts { get; private set; }
 
     public DateTime? LockedUntil { get; private set; }
 
     public void Deactivate() => IsActive = false;
+
+    public void SetLocale(string? locale) => Locale = locale;
 
     /// <summary>New sign-in details (a lost authenticator or password). Clears any lockout.</summary>
     public void ReplaceCredentials(string passwordHash, string totpSecret)

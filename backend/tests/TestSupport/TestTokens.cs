@@ -29,7 +29,8 @@ public sealed class TestTokens : IDisposable
         DateTime? expires = null,
         string tokenType = PlatformTokenValidation.AccessTokenType,
         IEnumerable<string>? permissions = null,
-        SigningCredentials? credentials = null)
+        SigningCredentials? credentials = null,
+        string? actor = null)
     {
         var claims = new Dictionary<string, object>
         {
@@ -43,6 +44,9 @@ public sealed class TestTokens : IDisposable
             claims[PlatformClaims.Roles] = roles.ToArray();
         if (permissions is not null)
             claims[PlatformClaims.Permissions] = permissions.ToArray();
+        // RFC 8693: the acting party (a support operator, or the machine a user signed in on) is the sub inside act.
+        if (actor is not null)
+            claims[PlatformClaims.Actor] = new Dictionary<string, object> { [PlatformClaims.Subject] = actor };
 
         var now = TimeProvider.System.GetUtcNow().UtcDateTime;
         return new JsonWebTokenHandler().CreateToken(new SecurityTokenDescriptor

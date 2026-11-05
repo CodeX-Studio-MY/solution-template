@@ -66,7 +66,7 @@ internal sealed class AuditSaveChangesInterceptor(
                 softDeletable.MarkDeleted(now);
             }
 
-            if (entry.Entity is not BaseEntity entity)
+            if (entry.Entity is not AuditedEntity entity)
                 continue;
             if (entry.State == EntityState.Added)
                 entity.SetCreated(now, by);

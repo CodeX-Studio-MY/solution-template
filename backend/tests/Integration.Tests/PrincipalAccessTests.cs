@@ -159,13 +159,17 @@ public sealed class PrincipalAccessTests(Databases databases)
 
         await using var scope = host.Services.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<TenancyCatalogDbContext>();
-        db.PrincipalUserProviders.Add(new PrincipalUserProvider(one, LoginProvider.Google, "g-1", "one@gmail.com", now));
-        db.PrincipalUserProviders.Add(new PrincipalUserProvider(one, LoginProvider.Microsoft, "m-1", null, now));
+        // The seeded settings rows: one per kind, numbered by kind.
+        const short google = (short)LoginProvider.Google, microsoft = (short)LoginProvider.Microsoft;
+        db.PrincipalUserProviders.Add(new PrincipalUserProvider(one, google, "g-1", "one@gmail.com", true, now));
+        db.PrincipalUserProviders.Add(new PrincipalUserProvider(one, microsoft, "m-1", null, false, now));
         await db.SaveChangesAsync(Ct);
         var providers = (await Read(await op.GetAsync($"{Api}/principals/{one}", Ct))).GetProperty("providers").EnumerateArray().ToList();
-        providers.Select(p => p.GetProperty("provider").GetString()).ShouldBe(["google", "microsoft"]);
+        providers.Select(p => p.GetProperty("providerKey").GetString()).ShouldBe(["google", "microsoft"]);
+        providers[0].GetProperty("providerType").GetString().ShouldBe("google");
+        providers[0].GetProperty("providerEmailVerified").GetBoolean().ShouldBeTrue();
 
-        var taken = db.PrincipalUserProviders.Add(new PrincipalUserProvider(two, LoginProvider.Google, "g-1", null, now));
+        var taken = db.PrincipalUserProviders.Add(new PrincipalUserProvider(two, google, "g-1", null, false, now));
         await Should.ThrowAsync<DbUpdateException>(() => db.SaveChangesAsync(Ct));
         taken.State = EntityState.Detached;
 

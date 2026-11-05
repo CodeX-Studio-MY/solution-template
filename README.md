@@ -91,9 +91,9 @@ flowchart LR
 
 | Module | Name | Plans |
 |---|---|---|
-| `access-management` | Access Management | standard, plus |
-| `tenant-settings` | Tenant Settings | standard, plus |
-| `billing` | Billing | standard, plus |
+| `access-management` | Access Management | lite, advanced, complete |
+| `tenant-settings` | Tenant Settings | lite, advanced, complete |
+| `billing` | Billing | lite, advanced, complete |
 <!-- END GENERATED: modules -->
 
 ## Quick start

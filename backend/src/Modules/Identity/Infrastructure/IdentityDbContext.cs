@@ -17,6 +17,8 @@ public sealed class IdentityDbContext(DbContextOptions<IdentityDbContext> option
 
     public DbSet<PlatformUser> Users => Set<PlatformUser>();
 
+    public DbSet<UserPreference> UserPreferences => Set<UserPreference>();
+
     public DbSet<Group> Groups => Set<Group>();
 
     public DbSet<GroupMembership> GroupMemberships => Set<GroupMembership>();
@@ -47,6 +49,15 @@ public sealed class IdentityDbContext(DbContextOptions<IdentityDbContext> option
         });
 
         ConfigureUserStore(modelBuilder);
+
+        modelBuilder.Entity<UserPreference>(preference =>
+        {
+            preference.ToTable("UserPreferences");
+            preference.HasKey(p => p.UserPreferenceId);
+            preference.Property(p => p.UserPreferenceId).ValueGeneratedNever();
+            preference.Property(p => p.Locale).HasMaxLength(UserPreference.MaxLocaleLength).IsUnicode(false);
+            preference.HasOne<Principal>().WithOne().HasForeignKey<UserPreference>(p => p.UserPreferenceId).OnDelete(DeleteBehavior.Cascade);
+        });
 
         modelBuilder.Entity<Group>(group =>
         {

@@ -1,6 +1,7 @@
 import i18next, { type i18n as I18n } from "i18next";
 import { initReactI18next } from "react-i18next";
 import { platformDefaults } from "../generated/platform";
+import { useTenantStore } from "../tenant/tenantStore";
 
 /** Translations of one namespace, by locale. */
 export type NamespaceResources = Partial<Record<string, Record<string, unknown>>>;
@@ -38,4 +39,15 @@ export function addNamespace(namespace: string, resources: NamespaceResources): 
   for (const [locale, bundle] of Object.entries(resources)) {
     if (bundle) i18n.addResourceBundle(locale, namespace, bundle, true, true);
   }
+}
+
+/**
+ * Switches the language at once, with no reload: the strings, `<html lang>` (the server's messages follow it through
+ * Accept-Language) and the formats of dates, numbers and money, which follow the tenant store's locale.
+ * Saving the choice is the caller's job.
+ */
+export async function setLanguage(locale: string): Promise<void> {
+  await getI18n().changeLanguage(locale);
+  document.documentElement.lang = locale;
+  useTenantStore.getState().setLocale(locale);
 }

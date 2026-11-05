@@ -133,6 +133,28 @@ internal sealed class OperatorSessions(
     }
 }
 
+internal sealed class OperatorPreferences(TenancyCatalogDbContext db) : IOperatorPreferences
+{
+    public async Task<OperatorProfile> GetAsync(Guid operatorId, CancellationToken cancellationToken = default)
+    {
+        var op = await db.Operators.AsNoTracking().SingleOrDefaultAsync(o => o.Id == operatorId, cancellationToken)
+            ?? throw new NotFoundException(TenancyErrors.OperatorLoginFailed);
+        return new OperatorProfile(op.Id, op.Email, op.DisplayName, op.Locale);
+    }
+
+    public async Task<OperatorProfile> SetLocaleAsync(Guid operatorId, string? locale, CancellationToken cancellationToken = default)
+    {
+        var clean = string.IsNullOrWhiteSpace(locale) ? null : locale.Trim();
+        if (clean is not null && !PlatformInfo.DefaultLocales.Contains(clean))
+            throw new ValidationException([new FieldError("locale", "validation.unknownOption", ["locale"])]);
+        var op = await db.Operators.SingleOrDefaultAsync(o => o.Id == operatorId, cancellationToken)
+            ?? throw new NotFoundException(TenancyErrors.OperatorLoginFailed);
+        op.SetLocale(clean);
+        await db.SaveChangesAsync(cancellationToken);
+        return new OperatorProfile(op.Id, op.Email, op.DisplayName, op.Locale);
+    }
+}
+
 internal sealed class SupportAccess(
     TenancyCatalogDbContext db,
     CatalogDbContext catalog,

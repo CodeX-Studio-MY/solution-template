@@ -217,6 +217,169 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/tenancy/v1/operator/identity-providers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["IdentityProviderRow"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["IdentityProviderCreate"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["IdentityProviderRow"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/tenancy/v1/operator/identity-providers/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: {
+                    "If-Match"?: string;
+                };
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["IdentityProviderUpdate"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["IdentityProviderRow"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/tenancy/v1/operator/identity-providers/{id}/enabled": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: {
+                    "If-Match"?: string;
+                };
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["EnabledBody"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["IdentityProviderRow"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/tenancy/v1/operator/me": {
         parameters: {
             query?: never;
@@ -239,7 +402,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["OperatorIdentity"];
+                        "application/json": components["schemas"]["OperatorProfile"];
                     };
                 };
             };
@@ -247,6 +410,284 @@ export interface paths {
         put?: never;
         post?: never;
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/tenancy/v1/operator/me/preferences": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["PreferencesBody"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OperatorProfile"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/tenancy/v1/operator/modules": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ModuleRow"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/tenancy/v1/operator/plans": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PlanRow"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["PlanCreate"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PlanRow"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/tenancy/v1/operator/plans/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: {
+                    "If-Match"?: string;
+                };
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["PlanUpdate"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PlanRow"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/tenancy/v1/operator/plans/{id}/active": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: {
+                    "If-Match"?: string;
+                };
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ActiveBody"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PlanRow"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/tenancy/v1/operator/plans/{id}/modules/{moduleKey}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                    moduleKey: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PlanRow"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                    moduleKey: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PlanRow"];
+                    };
+                };
+            };
+        };
         options?: never;
         head?: never;
         patch?: never;
@@ -458,6 +899,42 @@ export interface paths {
         };
         post?: never;
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/tenancy/v1/operator/principals/{id}/providers/{linkId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                    linkId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
         options?: never;
         head?: never;
         patch?: never;
@@ -1719,6 +2196,9 @@ export interface components {
         };
         /** @enum {unknown} */
         DeviceType: "iot" | "lorawanGateway" | "gateway" | null;
+        EnabledBody: {
+            enabled: boolean;
+        };
         FeatureBody: {
             enabled: boolean | null;
         };
@@ -1734,19 +2214,73 @@ export interface components {
         GrantBody: {
             reason: string | null;
         };
+        /** @description What creates a set of settings. The kind and key never change afterwards. New settings start disabled. */
+        IdentityProviderCreate: {
+            appleKeyId?: string | null;
+            appleTeamId?: string | null;
+            authority?: string | null;
+            clientId?: string | null;
+            clientSecret?: string | null;
+            displayName: string;
+            providerKey: string;
+            providerType: components["schemas"]["LoginProvider"];
+        };
+        /**
+         * @description One set of provider settings as the operator console shows it. The secret is never here: bool IdentityProviderRow.HasSecret says whether one is stored.
+         *     string IdentityProviderRow.CallbackUrl is the address to give the provider.
+         */
+        IdentityProviderRow: {
+            appleKeyId: string | null;
+            appleTeamId: string | null;
+            authority: string | null;
+            callbackUrl: string;
+            clientId: string | null;
+            displayName: string;
+            eTag: string;
+            hasSecret: boolean;
+            /** Format: int16 */
+            identityProviderId: number | string;
+            isEnabled: boolean;
+            /** Format: int32 */
+            linkedAccounts: number | string;
+            providerKey: string;
+            providerType: components["schemas"]["LoginProvider"];
+        };
+        /** @description What replaces the settings. A blank ClientSecret keeps the stored one. */
+        IdentityProviderUpdate: {
+            appleKeyId?: string | null;
+            appleTeamId?: string | null;
+            authority?: string | null;
+            clientId?: string | null;
+            clientSecret?: string | null;
+            displayName: string;
+        };
         JsonObject: Record<string, never>;
+        /** @description An outside account linked to a user. PrincipalUserProviderId identifies the link, for unlinking it. */
         LinkedProvider: {
+            /** Format: int16 */
+            identityProviderId: number | string;
+            /** Format: date-time */
+            lastUsedOn: string | null;
             /** Format: date-time */
             linkedOn: string;
-            provider: components["schemas"]["LoginProvider"];
+            /** Format: int64 */
+            principalUserProviderId: number | string;
             providerEmail: string | null;
+            providerEmailVerified: boolean;
+            providerKey: string;
+            providerName: string;
+            providerType: components["schemas"]["LoginProvider"];
         };
         /** @enum {unknown} */
         LoginFailureReason: "wrongCredentials" | "lockedOut" | "unknownAccount" | "deactivated" | "noTenantAccess" | "noLinkedAccount" | null;
         /** @enum {unknown} */
-        LoginMethod: "password" | "passkey" | "clientCredentials" | "google" | "microsoft" | "apple";
-        /** @enum {unknown} */
-        LoginProvider: "google" | "microsoft" | "apple";
+        LoginMethod: "password" | "passkey" | "clientCredentials" | "google" | "microsoft" | "apple" | "facebook";
+        /**
+         * @description The kind of an identity provider (Google, Facebook, ...). One kind can have several sets of settings.
+         * @enum {unknown}
+         */
+        LoginProvider: "google" | "microsoft" | "apple" | "facebook";
         LoginRow: {
             failureReason: (null) | components["schemas"]["LoginFailureReason"];
             /** Format: int64 */
@@ -1770,6 +2304,10 @@ export interface components {
             entry: string;
             id: string;
         };
+        ModuleRow: {
+            displayName: string;
+            moduleKey: string;
+        };
         OnboardRequest: {
             adminEmail: string;
             adminName: string;
@@ -1786,11 +2324,13 @@ export interface components {
             /** Format: uuid */
             tenantId: string;
         };
-        OperatorIdentity: {
+        /** @description The signed-in operator, with the console language they chose (null: the browser's language). */
+        OperatorProfile: {
             displayName: string;
             email: string;
             /** Format: uuid */
             id: string;
+            locale: string | null;
         };
         /** @description The one response shape for lists. */
         PageOfAccessAuditRow: {
@@ -1860,8 +2400,49 @@ export interface components {
         PlanBody: {
             plan: string;
         };
+        /** @description What creates a plan. The key never changes afterwards. The currency defaults to the platform's, the sort order to last. */
+        PlanCreate: {
+            currency?: string | null;
+            description: string | null;
+            displayName: string;
+            /** Format: double */
+            monthlyPrice: (number | string | (null)) | null;
+            planKey: string;
+            /** Format: uint8 */
+            sortOrder?: (number | string | (null)) | null;
+        };
+        /** @description One plan as the operator console shows it. int PlanRow.TenantCount counts tenants on the plan that are not deleted. */
+        PlanRow: {
+            currency: string;
+            description: string | null;
+            displayName: string;
+            eTag: string;
+            isActive: boolean;
+            modules: string[];
+            /** Format: double */
+            monthlyPrice: (number | string | (null)) | null;
+            /** Format: int16 */
+            planId: number | string;
+            planKey: string;
+            /** Format: uint8 */
+            sortOrder: number | string;
+            /** Format: int32 */
+            tenantCount: number | string;
+        };
+        PlanUpdate: {
+            currency: string;
+            description: string | null;
+            displayName: string;
+            /** Format: double */
+            monthlyPrice: (number | string | (null)) | null;
+            /** Format: uint8 */
+            sortOrder: number | string;
+        };
         /** @enum {unknown} */
         PlatformPrincipalType: "user" | "device" | "application";
+        PreferencesBody: {
+            locale: string | null;
+        };
         PrincipalDetail: {
             contactEmail: string | null;
             deviceType: (null) | components["schemas"]["DeviceType"];
@@ -2030,6 +2611,7 @@ export interface components {
             locale: string;
             modules: string[];
             plan: string;
+            planName: string;
             requireSupportApproval: boolean;
             slug: string;
             status: components["schemas"]["TenantStatus"];

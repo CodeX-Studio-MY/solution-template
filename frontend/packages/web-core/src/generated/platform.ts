@@ -5,7 +5,7 @@ export const productName = "saaskit";
 export const roles = ["user", "manager", "admin"] as const;
 export type Role = (typeof roles)[number];
 
-export const plans = ["standard", "plus"] as const;
+export const plans = ["lite", "advanced", "complete"] as const;
 export type Plan = (typeof plans)[number];
 
 /** Access modules: what roles and plans apply to. */
@@ -14,9 +14,9 @@ export type ModuleKey = (typeof moduleKeys)[number];
 
 /** Each module's display name (the default; a module's own i18n may translate it) and the plans that include it. */
 export const modules: readonly { key: ModuleKey; name: string; plans: readonly Plan[] }[] = [
-  { key: "access-management", name: "Access Management", plans: ["standard", "plus"] },
-  { key: "tenant-settings", name: "Tenant Settings", plans: ["standard", "plus"] },
-  { key: "billing", name: "Billing", plans: ["standard", "plus"] },
+  { key: "access-management", name: "Access Management", plans: ["lite", "advanced", "complete"] },
+  { key: "tenant-settings", name: "Tenant Settings", plans: ["lite", "advanced", "complete"] },
+  { key: "billing", name: "Billing", plans: ["lite", "advanced", "complete"] },
 ];
 
 /** Backend services, routed at /api/{service-key}/*. */

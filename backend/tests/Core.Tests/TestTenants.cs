@@ -1,3 +1,4 @@
+using Saaskit.Core.Platform;
 using Saaskit.Core.Tenancy;
 
 namespace Saaskit.Core.Tests;
@@ -9,7 +10,7 @@ internal static class TestTenants
         slug,
         slug,
         status,
-        "standard",
+        Plans.All[0],
         "Asia/Kuala_Lumpur",
         "MYR",
         "en",

@@ -6,6 +6,7 @@
   "errors.identity.groupNotFound": "That group was not found.",
   "errors.identity.invitationNotPending": "There is no pending invitation for this user.",
   "errors.identity.moduleNotEntitled": "Your organisation's plan doesn't include that application.",
+  "errors.identity.preferencesNotForSupport": "A support session can't change the customer's preferences.",
   "errors.identity.principalNotFound": "That user or device was not found.",
   "errors.identity.servicePrincipalsHaveNoGroups": "Integrations can't be members of a group.",
   "errors.identity.unknownModule": "That application doesn't exist."

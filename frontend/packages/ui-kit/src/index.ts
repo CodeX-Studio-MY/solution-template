@@ -17,5 +17,6 @@ export { RoleSelect } from "./components/RoleSelect";
 export { SettingsForm, type SettingsView } from "./components/SettingsForm";
 export { commonStrings } from "./i18n/common";
 export { FormDialog } from "./components/FormDialog";
+export { LanguageMenu, languageName } from "./components/LanguageMenu";
 export { TenantProfileForm, type TenantProfile } from "./components/TenantProfileForm";
 export { ActivityTable, type ActivityRow } from "./components/ActivityTable";

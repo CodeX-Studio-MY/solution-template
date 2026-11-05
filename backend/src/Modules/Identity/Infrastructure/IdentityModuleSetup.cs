@@ -77,6 +77,7 @@ internal static class IdentityModuleSetup
         services.AddScoped<Application.IClientRegistry, ClientRegistry>();
         services.AddScoped<Application.IAccountService, AccountService>();
         services.AddScoped<Application.IAccessManagement, AccessManagement>();
+        services.AddScoped<Application.IUserPreferences, UserPreferences>();
         services.AddScoped<Application.ITenantSecurity, TenantSecurity>();
         services.AddScoped<Application.ISupportTokenIssuer, SupportTokenIssuer>();
         services.AddHostedService<PlatformClientSeeder>();

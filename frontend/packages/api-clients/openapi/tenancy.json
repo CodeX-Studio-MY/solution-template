@@ -408,7 +408,36 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/OperatorIdentity"
+                  "$ref": "#/components/schemas/OperatorProfile"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenancy/v1/operator/me/preferences": {
+      "put": {
+        "tags": [
+          "operator"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreferencesBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperatorProfile"
                 }
               }
             }
@@ -1124,6 +1153,449 @@
         }
       }
     },
+    "/api/tenancy/v1/operator/plans": {
+      "get": {
+        "tags": [
+          "operator"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PlanRow"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "operator"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlanCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanRow"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenancy/v1/operator/modules": {
+      "get": {
+        "tags": [
+          "operator"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ModuleRow"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenancy/v1/operator/plans/{id}": {
+      "put": {
+        "tags": [
+          "operator"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlanUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanRow"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenancy/v1/operator/plans/{id}/active": {
+      "put": {
+        "tags": [
+          "operator"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActiveBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanRow"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenancy/v1/operator/plans/{id}/modules/{moduleKey}": {
+      "put": {
+        "tags": [
+          "operator"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "moduleKey",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanRow"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "operator"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "moduleKey",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanRow"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenancy/v1/operator/identity-providers": {
+      "get": {
+        "tags": [
+          "operator"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/IdentityProviderRow"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "operator"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IdentityProviderCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityProviderRow"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenancy/v1/operator/identity-providers/{id}": {
+      "put": {
+        "tags": [
+          "operator"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IdentityProviderUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityProviderRow"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "operator"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/tenancy/v1/operator/identity-providers/{id}/enabled": {
+      "put": {
+        "tags": [
+          "operator"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnabledBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdentityProviderRow"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenancy/v1/operator/principals/{id}/providers/{linkId}": {
+      "delete": {
+        "tags": [
+          "operator"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "linkId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/tenancy/v1/operator/principals": {
       "get": {
         "tags": [
@@ -1828,6 +2300,17 @@
           null
         ]
       },
+      "EnabledBody": {
+        "required": [
+          "enabled"
+        ],
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          }
+        }
+      },
       "FeatureBody": {
         "required": [
           "enabled"
@@ -1885,29 +2368,228 @@
           }
         }
       },
+      "IdentityProviderCreate": {
+        "required": [
+          "providerType",
+          "providerKey",
+          "displayName"
+        ],
+        "type": "object",
+        "properties": {
+          "providerType": {
+            "$ref": "#/components/schemas/LoginProvider"
+          },
+          "providerKey": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "clientId": {
+            "type": "string",
+            "nullable": true
+          },
+          "clientSecret": {
+            "type": "string",
+            "nullable": true
+          },
+          "authority": {
+            "type": "string",
+            "nullable": true
+          },
+          "appleTeamId": {
+            "type": "string",
+            "nullable": true
+          },
+          "appleKeyId": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "description": "What creates a set of settings. The kind and key never change afterwards. New settings start disabled."
+      },
+      "IdentityProviderRow": {
+        "required": [
+          "identityProviderId",
+          "providerType",
+          "providerKey",
+          "displayName",
+          "isEnabled",
+          "clientId",
+          "hasSecret",
+          "authority",
+          "appleTeamId",
+          "appleKeyId",
+          "callbackUrl",
+          "linkedAccounts",
+          "eTag"
+        ],
+        "type": "object",
+        "properties": {
+          "identityProviderId": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "format": "int16"
+          },
+          "providerType": {
+            "$ref": "#/components/schemas/LoginProvider"
+          },
+          "providerKey": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "isEnabled": {
+            "type": "boolean"
+          },
+          "clientId": {
+            "type": "string",
+            "nullable": true
+          },
+          "hasSecret": {
+            "type": "boolean"
+          },
+          "authority": {
+            "type": "string",
+            "nullable": true
+          },
+          "appleTeamId": {
+            "type": "string",
+            "nullable": true
+          },
+          "appleKeyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "callbackUrl": {
+            "type": "string"
+          },
+          "linkedAccounts": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "format": "int32"
+          },
+          "eTag": {
+            "type": "string"
+          }
+        },
+        "description": "One set of provider settings as the operator console shows it. The secret is never here: bool IdentityProviderRow.HasSecret says whether one is stored.\nstring IdentityProviderRow.CallbackUrl is the address to give the provider."
+      },
+      "IdentityProviderUpdate": {
+        "required": [
+          "displayName"
+        ],
+        "type": "object",
+        "properties": {
+          "displayName": {
+            "type": "string"
+          },
+          "clientId": {
+            "type": "string",
+            "nullable": true
+          },
+          "clientSecret": {
+            "type": "string",
+            "nullable": true
+          },
+          "authority": {
+            "type": "string",
+            "nullable": true
+          },
+          "appleTeamId": {
+            "type": "string",
+            "nullable": true
+          },
+          "appleKeyId": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "description": "What replaces the settings. A blank ClientSecret keeps the stored one."
+      },
       "JsonObject": {
         "type": "object"
       },
       "LinkedProvider": {
         "required": [
-          "provider",
+          "principalUserProviderId",
+          "identityProviderId",
+          "providerType",
+          "providerKey",
+          "providerName",
           "providerEmail",
-          "linkedOn"
+          "providerEmailVerified",
+          "linkedOn",
+          "lastUsedOn"
         ],
         "type": "object",
         "properties": {
-          "provider": {
+          "principalUserProviderId": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "format": "int64"
+          },
+          "identityProviderId": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "format": "int16"
+          },
+          "providerType": {
             "$ref": "#/components/schemas/LoginProvider"
+          },
+          "providerKey": {
+            "type": "string"
+          },
+          "providerName": {
+            "type": "string"
           },
           "providerEmail": {
             "type": "string",
             "nullable": true
           },
+          "providerEmailVerified": {
+            "type": "boolean"
+          },
           "linkedOn": {
             "type": "string",
             "format": "date-time"
+          },
+          "lastUsedOn": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
           }
-        }
+        },
+        "description": "An outside account linked to a user. PrincipalUserProviderId identifies the link, for unlinking it."
       },
       "LoginFailureReason": {
         "enum": [
@@ -1927,15 +2609,18 @@
           "clientCredentials",
           "google",
           "microsoft",
-          "apple"
+          "apple",
+          "facebook"
         ]
       },
       "LoginProvider": {
         "enum": [
           "google",
           "microsoft",
-          "apple"
-        ]
+          "apple",
+          "facebook"
+        ],
+        "description": "The kind of an identity provider (Google, Facebook, ...). One kind can have several sets of settings."
       },
       "LoginRow": {
         "required": [
@@ -2049,6 +2734,21 @@
         },
         "description": "The frontend module manifest for the signed-in tenant: which remotes the shell registers."
       },
+      "ModuleRow": {
+        "required": [
+          "moduleKey",
+          "displayName"
+        ],
+        "type": "object",
+        "properties": {
+          "moduleKey": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          }
+        }
+      },
       "OnboardRequest": {
         "required": [
           "slug",
@@ -2103,11 +2803,12 @@
         },
         "description": "The outcome of onboarding. AdminInvitationUrl is the first admin\u0027s one-time link; null when onboarding resumed after it was already sent."
       },
-      "OperatorIdentity": {
+      "OperatorProfile": {
         "required": [
           "id",
           "email",
-          "displayName"
+          "displayName",
+          "locale"
         ],
         "type": "object",
         "properties": {
@@ -2120,8 +2821,13 @@
           },
           "displayName": {
             "type": "string"
+          },
+          "locale": {
+            "type": "string",
+            "nullable": true
           }
-        }
+        },
+        "description": "The signed-in operator, with the console language they chose (null: the browser\u0027s language)."
       },
       "PageOfAccessAuditRow": {
         "required": [
@@ -2479,12 +3185,240 @@
           }
         }
       },
+      "PlanCreate": {
+        "required": [
+          "planKey",
+          "displayName",
+          "description",
+          "monthlyPrice"
+        ],
+        "type": "object",
+        "properties": {
+          "planKey": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "monthlyPrice": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "enum": [
+                  null
+                ],
+                "nullable": true
+              }
+            ],
+            "format": "double",
+            "nullable": true
+          },
+          "currency": {
+            "type": "string",
+            "nullable": true
+          },
+          "sortOrder": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "enum": [
+                  null
+                ],
+                "nullable": true
+              }
+            ],
+            "format": "uint8",
+            "nullable": true
+          }
+        },
+        "description": "What creates a plan. The key never changes afterwards. The currency defaults to the platform\u0027s, the sort order to last."
+      },
+      "PlanRow": {
+        "required": [
+          "planId",
+          "planKey",
+          "displayName",
+          "description",
+          "monthlyPrice",
+          "currency",
+          "sortOrder",
+          "isActive",
+          "tenantCount",
+          "modules",
+          "eTag"
+        ],
+        "type": "object",
+        "properties": {
+          "planId": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "format": "int16"
+          },
+          "planKey": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "monthlyPrice": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "enum": [
+                  null
+                ],
+                "nullable": true
+              }
+            ],
+            "format": "double",
+            "nullable": true
+          },
+          "currency": {
+            "type": "string"
+          },
+          "sortOrder": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "format": "uint8"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "tenantCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "format": "int32"
+          },
+          "modules": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "eTag": {
+            "type": "string"
+          }
+        },
+        "description": "One plan as the operator console shows it. int PlanRow.TenantCount counts tenants on the plan that are not deleted."
+      },
+      "PlanUpdate": {
+        "required": [
+          "displayName",
+          "description",
+          "monthlyPrice",
+          "currency",
+          "sortOrder"
+        ],
+        "type": "object",
+        "properties": {
+          "displayName": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "monthlyPrice": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "enum": [
+                  null
+                ],
+                "nullable": true
+              }
+            ],
+            "format": "double",
+            "nullable": true
+          },
+          "currency": {
+            "type": "string"
+          },
+          "sortOrder": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "format": "uint8"
+          }
+        }
+      },
       "PlatformPrincipalType": {
         "enum": [
           "user",
           "device",
           "application"
         ]
+      },
+      "PreferencesBody": {
+        "required": [
+          "locale"
+        ],
+        "type": "object",
+        "properties": {
+          "locale": {
+            "type": "string",
+            "nullable": true
+          }
+        }
       },
       "PrincipalDetail": {
         "required": [
@@ -3107,6 +4041,7 @@
           "displayName",
           "status",
           "plan",
+          "planName",
           "modules",
           "deleteAfter",
           "requireSupportApproval",
@@ -3130,6 +4065,9 @@
             "$ref": "#/components/schemas/TenantStatus"
           },
           "plan": {
+            "type": "string"
+          },
+          "planName": {
             "type": "string"
           },
           "modules": {

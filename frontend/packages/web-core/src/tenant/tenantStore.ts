@@ -38,8 +38,12 @@ interface TenantState {
   status: "loading" | "ready";
   tenant: Tenant;
   settings: TenantSettings;
+  /** The language the person chose, once applied. Loading the tenant again must not take it back. */
+  chosenLocale?: string;
   load: () => Promise<void>;
   setSettings: (settings: Partial<TenantSettings>) => void;
+  /** Makes dates, numbers and money follow the language the person chose. */
+  setLocale: (locale: string) => void;
 }
 
 const fallbackTenant: Tenant = {
@@ -50,19 +54,23 @@ const fallbackTenant: Tenant = {
   locale: platformDefaults.locales[0],
 };
 
-export const useTenantStore = create<TenantState>((set) => ({
+export const useTenantStore = create<TenantState>((set, get) => ({
   status: "loading",
   tenant: fallbackTenant,
   settings: emptySettings,
   load: async () => {
     const config = await getJson<ConfigResponse>("/bff/config", { allowUnauthenticated: true });
-    const tenant = config?.tenant ? { ...config.tenant } : fallbackTenant;
+    const loaded = config?.tenant ? { ...config.tenant } : fallbackTenant;
+    // A language the person already chose stays: the tenant's is only the default.
+    const chosen = get().chosenLocale;
+    const tenant = chosen ? { ...loaded, locale: chosen } : loaded;
     set({ tenant });
     // The tenant's settings come from the tenancy service. Until a tenant has any (or the call fails) the defaults apply.
     const settings = await loadSettings();
     set({ status: "ready", settings });
   },
   setSettings: (settings) => set((state) => ({ settings: { ...state.settings, ...settings } })),
+  setLocale: (locale) => set((state) => ({ chosenLocale: locale, tenant: { ...state.tenant, locale } })),
 }));
 
 async function loadSettings(): Promise<TenantSettings> {

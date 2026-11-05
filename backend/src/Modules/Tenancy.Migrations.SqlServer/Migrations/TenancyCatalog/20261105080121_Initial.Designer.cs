@@ -12,7 +12,7 @@ using Saaskit.Tenancy.Infrastructure;
 namespace Saaskit.Tenancy.Migrations.SqlServer.Migrations.TenancyCatalog
 {
     [DbContext(typeof(TenancyCatalogDbContext))]
-    [Migration("20261105063842_Initial")]
+    [Migration("20261105080121_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -25,6 +25,131 @@ namespace Saaskit.Tenancy.Migrations.SqlServer.Migrations.TenancyCatalog
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("Saaskit.Tenancy.Domain.IdentityProvider", b =>
+                {
+                    b.Property<short>("IdentityProviderId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasColumnName("IdentityProviderId");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<short>("IdentityProviderId"));
+
+                    b.Property<string>("AppleKeyId")
+                        .HasMaxLength(10)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(10)");
+
+                    b.Property<string>("AppleTeamId")
+                        .HasMaxLength(10)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(10)");
+
+                    b.Property<string>("Authority")
+                        .HasMaxLength(64)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(64)");
+
+                    b.Property<string>("ClientId")
+                        .HasMaxLength(255)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("ClientSecretProtected")
+                        .HasMaxLength(4000)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(4000)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(50)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ProviderKey")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(30)");
+
+                    b.Property<byte>("ProviderType")
+                        .HasColumnType("tinyint");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(50)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("IdentityProviderId");
+
+                    b.HasIndex("ProviderKey")
+                        .IsUnique();
+
+                    b.ToTable("IdentityProviders", "tenancy", t =>
+                        {
+                            t.HasCheckConstraint("CK_IdentityProviders_ProviderKey", "REGEXP_LIKE([ProviderKey], '^[a-z][a-z0-9-]{1,29}$')");
+                        });
+
+                    b.HasData(
+                        new
+                        {
+                            IdentityProviderId = (short)1,
+                            CreatedBy = "system",
+                            CreatedOn = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DisplayName = "Google",
+                            IsEnabled = false,
+                            ProviderKey = "google",
+                            ProviderType = (byte)1
+                        },
+                        new
+                        {
+                            IdentityProviderId = (short)2,
+                            CreatedBy = "system",
+                            CreatedOn = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DisplayName = "Microsoft",
+                            IsEnabled = false,
+                            ProviderKey = "microsoft",
+                            ProviderType = (byte)2
+                        },
+                        new
+                        {
+                            IdentityProviderId = (short)3,
+                            CreatedBy = "system",
+                            CreatedOn = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DisplayName = "Apple",
+                            IsEnabled = false,
+                            ProviderKey = "apple",
+                            ProviderType = (byte)3
+                        },
+                        new
+                        {
+                            IdentityProviderId = (short)4,
+                            CreatedBy = "system",
+                            CreatedOn = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DisplayName = "Facebook",
+                            IsEnabled = false,
+                            ProviderKey = "facebook",
+                            ProviderType = (byte)4
+                        });
+                });
 
             modelBuilder.Entity("Saaskit.Tenancy.Domain.OnboardingRun", b =>
                 {
@@ -123,6 +248,11 @@ namespace Saaskit.Tenancy.Migrations.SqlServer.Migrations.TenancyCatalog
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
+
+                    b.Property<string>("Locale")
+                        .HasMaxLength(16)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(16)");
 
                     b.Property<DateTime?>("LockedUntil")
                         .HasColumnType("datetime2");
@@ -274,6 +404,9 @@ namespace Saaskit.Tenancy.Migrations.SqlServer.Migrations.TenancyCatalog
                         .IsUnicode(false)
                         .HasColumnType("varchar(254)");
 
+                    b.Property<DateTime?>("EmailVerifiedOn")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("PrincipalUserId");
 
                     b.HasIndex("Email")
@@ -291,19 +424,25 @@ namespace Saaskit.Tenancy.Migrations.SqlServer.Migrations.TenancyCatalog
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("PrincipalUserProviderId"));
 
+                    b.Property<short>("IdentityProviderId")
+                        .HasColumnType("smallint");
+
+                    b.Property<DateTime?>("LastUsedOn")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime>("LinkedOn")
                         .HasColumnType("datetime2");
 
                     b.Property<Guid>("PrincipalUserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<byte>("Provider")
-                        .HasColumnType("tinyint");
-
                     b.Property<string>("ProviderEmail")
                         .HasMaxLength(254)
                         .IsUnicode(false)
                         .HasColumnType("varchar(254)");
+
+                    b.Property<bool>("ProviderEmailVerified")
+                        .HasColumnType("bit");
 
                     b.Property<string>("ProviderSubject")
                         .IsRequired()
@@ -315,7 +454,7 @@ namespace Saaskit.Tenancy.Migrations.SqlServer.Migrations.TenancyCatalog
 
                     b.HasIndex("PrincipalUserId");
 
-                    b.HasIndex("Provider", "ProviderSubject")
+                    b.HasIndex("IdentityProviderId", "ProviderSubject")
                         .IsUnique();
 
                     b.ToTable("PrincipalUserProviders", "tenancy");
@@ -611,6 +750,12 @@ namespace Saaskit.Tenancy.Migrations.SqlServer.Migrations.TenancyCatalog
 
             modelBuilder.Entity("Saaskit.Tenancy.Domain.PrincipalUserProvider", b =>
                 {
+                    b.HasOne("Saaskit.Tenancy.Domain.IdentityProvider", null)
+                        .WithMany()
+                        .HasForeignKey("IdentityProviderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("Saaskit.Tenancy.Domain.PrincipalUser", null)
                         .WithMany()
                         .HasForeignKey("PrincipalUserId")

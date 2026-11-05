@@ -1,3 +1,4 @@
+using Saaskit.Core.Platform;
 using Saaskit.Contracts;
 using Saaskit.Core.Configuration;
 using Saaskit.Core.Data.PostgreSql;
@@ -46,7 +47,7 @@ public sealed class SchedulerTests(Databases databases)
     }
 
     private static TenantInfo Tenant(string slug, string zone, TenantStatus status = TenantStatus.Active) =>
-        new(Guid.NewGuid(), slug, slug, status, "standard", zone, "MYR", "en", new HashSet<string>(StringComparer.Ordinal), new TenantPlacement("fake", "default", $"t_{slug}", null));
+        new(Guid.NewGuid(), slug, slug, status, Plans.All[0], zone, "MYR", "en", new HashSet<string>(StringComparer.Ordinal), new TenantPlacement("fake", "default", $"t_{slug}", null));
 
     [Fact]
     public async Task Only_active_tenants_where_it_is_nine_get_the_day_started_event_with_a_stable_ID()

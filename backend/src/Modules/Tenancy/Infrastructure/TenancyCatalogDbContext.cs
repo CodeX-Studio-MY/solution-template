@@ -20,6 +20,8 @@ public sealed class TenancyCatalogDbContext(DbContextOptions<TenancyCatalogDbCon
 
     public DbSet<PrincipalUser> PrincipalUsers => Set<PrincipalUser>();
 
+    public DbSet<IdentityProvider> IdentityProviders => Set<IdentityProvider>();
+
     public DbSet<PrincipalUserProvider> PrincipalUserProviders => Set<PrincipalUserProvider>();
 
     public DbSet<PrincipalDevice> PrincipalDevices => Set<PrincipalDevice>();
@@ -59,6 +61,7 @@ public sealed class TenancyCatalogDbContext(DbContextOptions<TenancyCatalogDbCon
             op.Property(o => o.DisplayName).HasMaxLength(200);
             op.Property(o => o.PasswordHash).HasMaxLength(500);
             op.Property(o => o.TotpSecret).HasMaxLength(500);
+            op.Property(o => o.Locale).HasMaxLength(16).IsUnicode(false);
         });
 
         modelBuilder.Entity<SupportAccessGrant>(grant =>
@@ -85,7 +88,7 @@ public sealed class TenancyCatalogDbContext(DbContextOptions<TenancyCatalogDbCon
     }
 
     /// <summary>Primary keys are named after the table, code columns are one byte, and ASCII values aren't Unicode: these tables are built for low storage.</summary>
-    private static void ConfigurePrincipals(ModelBuilder modelBuilder)
+    private void ConfigurePrincipals(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<PlatformPrincipal>(principal =>
         {
@@ -105,15 +108,34 @@ public sealed class TenancyCatalogDbContext(DbContextOptions<TenancyCatalogDbCon
             user.HasOne<PlatformPrincipal>().WithOne().HasForeignKey<PrincipalUser>(u => u.PrincipalUserId).OnDelete(DeleteBehavior.Restrict);
         });
 
+        modelBuilder.Entity<IdentityProvider>(provider =>
+        {
+            provider.ToTable("IdentityProviders", t => t.HasCheckConstraint(
+                "CK_IdentityProviders_ProviderKey",
+                MatchesPatternSql(nameof(IdentityProvider.ProviderKey), KeyRules.PatternText)));
+            provider.HasKey(p => p.IdentityProviderId);
+            provider.Property(p => p.ProviderKey).HasMaxLength(30).IsUnicode(false);
+            provider.HasIndex(p => p.ProviderKey).IsUnique();
+            provider.Property(p => p.DisplayName).HasMaxLength(IdentityProvider.MaxDisplayNameLength);
+            provider.Property(p => p.ClientId).HasMaxLength(IdentityProvider.MaxClientIdLength).IsUnicode(false);
+            provider.Property(p => p.ClientSecretProtected).HasMaxLength(IdentityProvider.MaxProtectedSecretLength).IsUnicode(false);
+            provider.Property(p => p.Authority).HasMaxLength(IdentityProvider.MaxAuthorityLength).IsUnicode(false);
+            provider.Property(p => p.AppleTeamId).HasMaxLength(IdentityProvider.AppleIdLength).IsUnicode(false);
+            provider.Property(p => p.AppleKeyId).HasMaxLength(IdentityProvider.AppleIdLength).IsUnicode(false);
+            AuditColumns(provider);
+            SeedIdentityProviders(provider);
+        });
+
         modelBuilder.Entity<PrincipalUserProvider>(provider =>
         {
             provider.ToTable("PrincipalUserProviders");
             provider.HasKey(p => p.PrincipalUserProviderId);
             provider.Property(p => p.ProviderSubject).HasMaxLength(255).IsUnicode(false);
             provider.Property(p => p.ProviderEmail).HasMaxLength(PrincipalUser.MaxEmailLength).IsUnicode(false);
-            provider.HasIndex(p => new { p.Provider, p.ProviderSubject }).IsUnique();
+            provider.HasIndex(p => new { p.IdentityProviderId, p.ProviderSubject }).IsUnique();
             provider.HasIndex(p => p.PrincipalUserId);
             provider.HasOne<PrincipalUser>().WithMany().HasForeignKey(p => p.PrincipalUserId).OnDelete(DeleteBehavior.Restrict);
+            provider.HasOne<IdentityProvider>().WithMany().HasForeignKey(p => p.IdentityProviderId).OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<PrincipalDevice>(device =>
@@ -171,8 +193,30 @@ public sealed class TenancyCatalogDbContext(DbContextOptions<TenancyCatalogDbCon
         });
     }
 
+    /// <summary>One disabled settings row per kind of provider. The key column is the kind's number, so the rows never move.</summary>
+    private static void SeedIdentityProviders(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<IdentityProvider> provider)
+    {
+        var seededOn = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        provider.HasData(
+            Seed(LoginProvider.Google, "google", "Google"),
+            Seed(LoginProvider.Microsoft, "microsoft", "Microsoft"),
+            Seed(LoginProvider.Apple, "apple", "Apple"),
+            Seed(LoginProvider.Facebook, "facebook", "Facebook"));
+
+        object Seed(LoginProvider type, string key, string name) => new
+        {
+            IdentityProviderId = (short)type,
+            ProviderType = type,
+            ProviderKey = key,
+            DisplayName = name,
+            IsEnabled = false,
+            CreatedOn = seededOn,
+            CreatedBy = "system",
+        };
+    }
+
     private static void AuditColumns<T>(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<T> entity)
-        where T : BaseEntity
+        where T : AuditedEntity
     {
         entity.Property(e => e.CreatedBy).HasMaxLength(50).IsUnicode(false);
         entity.Property(e => e.UpdatedBy).HasMaxLength(50).IsUnicode(false);

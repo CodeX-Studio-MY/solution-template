@@ -46,8 +46,9 @@ internal sealed class CatalogTenantDirectory(
             .OrderBy(t => t.Slug)
             .ToListAsync(cancellationToken);
         var modules = await EnabledModulesAsync(db, tenants.Select(t => t.Id).ToList(), cancellationToken);
-        var limits = await db.PlanLimits.AsNoTracking().ToDictionaryAsync(l => l.Plan, cancellationToken);
-        return tenants.Select(t => ToInfo(t, modules, limits.GetValueOrDefault(t.Plan))).ToList();
+        var limits = await db.PlanLimits.AsNoTracking().ToDictionaryAsync(l => l.PlanId, cancellationToken);
+        var keys = await db.Plans.AsNoTracking().ToDictionaryAsync(p => p.PlanId, p => p.PlanKey, cancellationToken);
+        return tenants.Select(t => ToInfo(t, keys[t.PlanId], modules, limits.GetValueOrDefault(t.PlanId))).ToList();
     }
 
     public void Invalidate(Guid tenantId) => cache.Remove(IdKey(tenantId));
@@ -62,8 +63,9 @@ internal sealed class CatalogTenantDirectory(
         if (tenant is null)
             return null;
         var modules = await EnabledModulesAsync(db, [tenant.Id], cancellationToken);
-        var limit = await db.PlanLimits.AsNoTracking().SingleOrDefaultAsync(l => l.Plan == tenant.Plan, cancellationToken);
-        return ToInfo(tenant, modules, limit);
+        var limit = await db.PlanLimits.AsNoTracking().SingleOrDefaultAsync(l => l.PlanId == tenant.PlanId, cancellationToken);
+        var planKey = await db.Plans.AsNoTracking().Where(p => p.PlanId == tenant.PlanId).Select(p => p.PlanKey).SingleAsync(cancellationToken);
+        return ToInfo(tenant, planKey, modules, limit);
     }
 
     private static async Task<ILookup<Guid, string>> EnabledModulesAsync(
@@ -80,12 +82,12 @@ internal sealed class CatalogTenantDirectory(
         return rows.ToLookup(r => r.TenantId, r => r.ModuleKey);
     }
 
-    internal static TenantInfo ToInfo(CatalogTenant tenant, ILookup<Guid, string> modules, PlanLimit? limit) => new(
+    internal static TenantInfo ToInfo(CatalogTenant tenant, string planKey, ILookup<Guid, string> modules, PlanLimit? limit) => new(
         tenant.Id,
         tenant.Slug,
         tenant.DisplayName,
         tenant.Status,
-        tenant.Plan,
+        planKey,
         tenant.TimeZone,
         tenant.Currency,
         tenant.Locale,

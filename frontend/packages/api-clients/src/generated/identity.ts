@@ -989,6 +989,64 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/identity/v1/me/preferences": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["UserPreferencesDto"];
+                    };
+                };
+            };
+        };
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["PreferencesBody"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["UserPreferencesDto"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/identity/v1/platform/bff-redirect-uris": {
         parameters: {
             query?: never;
@@ -1934,6 +1992,9 @@ export interface components {
             /** Format: int32 */
             totalPages?: number | string;
         };
+        PreferencesBody: {
+            locale: string | null;
+        };
         /** @description A user, machine or service. `Email` is a user's sign-in address (while invited, where the invitation went); null for machines and services. */
         PrincipalDto: {
             clientId: string | null;
@@ -1986,6 +2047,10 @@ export interface components {
             accessToken: string;
             /** Format: date-time */
             expiresOn: string;
+        };
+        /** @description A signed-in user's preferences. Locale is null until they choose a language. */
+        UserPreferencesDto: {
+            locale: string | null;
         };
     };
     responses: never;

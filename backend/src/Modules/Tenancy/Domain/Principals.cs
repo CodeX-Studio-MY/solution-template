@@ -17,11 +17,13 @@ public enum DeviceType : byte
     Gateway = 3,
 }
 
+/// <summary>The kind of an identity provider (Google, Facebook, ...). One kind can have several sets of settings.</summary>
 public enum LoginProvider : byte
 {
     Google = 1,
     Microsoft = 2,
     Apple = 3,
+    Facebook = 4,
 }
 
 public enum TenantAccessStatus : byte
@@ -47,6 +49,7 @@ public enum LoginMethod : byte
     Google = 4,
     Microsoft = 5,
     Apple = 6,
+    Facebook = 7,
 }
 
 public enum LoginFailureReason : byte
@@ -109,22 +112,29 @@ public sealed class PrincipalUser
     /// <summary>Lowercase, so an exact match can use the unique index.</summary>
     public string Email { get; private set; } = "";
 
+    /// <summary>When the address was confirmed (by a link or a provider that vouches for it). Empty means not confirmed.</summary>
+    public DateTime? EmailVerifiedOn { get; private set; }
+
     public void Change(string email) => Email = email;
 }
 
-/// <summary>An outside account linked to a user. Matched by provider and subject, never by email.</summary>
+/// <summary>
+/// An outside account linked to a user. Matched by the provider settings used and the subject, never by email.
+/// A user can link any number of accounts, across kinds of provider and across settings rows.
+/// </summary>
 public sealed class PrincipalUserProvider
 {
     private PrincipalUserProvider()
     {
     }
 
-    public PrincipalUserProvider(Guid principalUserId, LoginProvider provider, string providerSubject, string? providerEmail, DateTime linkedOn)
+    public PrincipalUserProvider(Guid principalUserId, short identityProviderId, string providerSubject, string? providerEmail, bool providerEmailVerified, DateTime linkedOn)
     {
         PrincipalUserId = principalUserId;
-        Provider = provider;
+        IdentityProviderId = identityProviderId;
         ProviderSubject = providerSubject;
         ProviderEmail = providerEmail;
+        ProviderEmailVerified = providerEmailVerified;
         LinkedOn = linkedOn;
     }
 
@@ -132,14 +142,23 @@ public sealed class PrincipalUserProvider
 
     public Guid PrincipalUserId { get; private set; }
 
-    public LoginProvider Provider { get; private set; }
+    /// <summary>The settings row this account signs in through.</summary>
+    public short IdentityProviderId { get; private set; }
 
+    /// <summary>The provider's permanent ID. Some providers issue a different one per app, which is why it is unique with the settings row.</summary>
     public string ProviderSubject { get; private set; } = "";
 
-    /// <summary>For display only.</summary>
+    /// <summary>For display only. Facebook may not supply one.</summary>
     public string? ProviderEmail { get; private set; }
 
+    /// <summary>Whether the provider vouches for the email: the account-linking rule needs it.</summary>
+    public bool ProviderEmailVerified { get; private set; }
+
     public DateTime LinkedOn { get; private set; }
+
+    public DateTime? LastUsedOn { get; private set; }
+
+    public void RecordUse(DateTime utcNow) => LastUsedOn = utcNow;
 }
 
 /// <summary>A device's details. The key is the principal's ID.</summary>

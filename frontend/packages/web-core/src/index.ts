@@ -36,7 +36,7 @@ export {
   type FormatContext,
 } from "./format/formatters";
 
-export { initI18n, getI18n, addNamespace, type NamespaceResources } from "./i18n/i18n";
+export { initI18n, getI18n, addNamespace, setLanguage, type NamespaceResources } from "./i18n/i18n";
 export { useTranslation } from "react-i18next";
 
 export type { ModuleManifest, ModuleRoute, MenuItem, SettingsPage, ExtensionDefinition, SlotExtension } from "./module/contract";

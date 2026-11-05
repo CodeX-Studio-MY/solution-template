@@ -43,6 +43,7 @@ internal sealed partial class Onboarding(
         {
             if (await catalog.Tenants.AnyAsync(t => t.Slug == slug, cancellationToken))
                 throw new ConflictException(TenancyErrors.SlugInUse);
+            await RequireChoosablePlanAsync(request.Plan, cancellationToken);
             run = new OnboardingRun(slug, request.DisplayName, request.Plan, request.AdminEmail, request.AdminName, request.ServerPool ?? options.Value.DefaultServerPool);
             tenancy.OnboardingRuns.Add(run);
             await tenancy.SaveChangesAsync(cancellationToken);
@@ -78,10 +79,12 @@ internal sealed partial class Onboarding(
                 var tenant = await catalog.Tenants.SingleOrDefaultAsync(t => t.Slug == run.Slug, cancellationToken);
                 if (tenant is null)
                 {
+                    var planId = await catalog.Plans.AsNoTracking().Where(p => p.PlanKey == run.Plan).Select(p => (short?)p.PlanId).SingleOrDefaultAsync(cancellationToken)
+                        ?? throw new BusinessRuleException(TenancyErrors.UnknownPlan, run.Plan);
                     tenant = new CatalogTenant(
                         run.Slug,
                         run.DisplayName,
-                        run.Plan,
+                        planId,
                         PlatformInfo.DefaultTimeZone,
                         PlatformInfo.DefaultCurrency,
                         PlatformInfo.DefaultLocales[0],
@@ -116,8 +119,9 @@ internal sealed partial class Onboarding(
             {
                 var tenant = await TenantAsync(run, cancellationToken);
                 var existing = await catalog.TenantModules.Where(t => t.TenantId == tenant.Id).Select(t => t.ModuleId).ToListAsync(cancellationToken);
-                foreach (var module in Modules.All.Where(m => m.Plans.Contains(tenant.Plan) && !existing.Contains(m.Id)))
-                    catalog.TenantModules.Add(new TenantModule { TenantId = tenant.Id, ModuleId = module.Id });
+                var planModules = await catalog.PlanModuleAccess.AsNoTracking().Where(a => a.PlanId == tenant.PlanId).Select(a => a.ModuleId).ToListAsync(cancellationToken);
+                foreach (var moduleId in planModules.Where(id => !existing.Contains(id)))
+                    catalog.TenantModules.Add(new TenantModule { TenantId = tenant.Id, ModuleId = moduleId });
                 await catalog.SaveChangesAsync(cancellationToken);
                 await changes.PublishAsync(tenant.Id, cancellationToken);
                 return null;
@@ -141,7 +145,10 @@ internal sealed partial class Onboarding(
             case OnboardingStep.FirstAdminInvitation:
             {
                 var tenant = await TenantAsync(run, cancellationToken);
-                var modules = Modules.All.Where(m => m.Plans.Contains(tenant.Plan)).Select(m => m.Key);
+                var modules = await (from access in catalog.PlanModuleAccess.AsNoTracking()
+                                     join module in catalog.Modules.AsNoTracking() on access.ModuleId equals module.ModuleId
+                                     where access.PlanId == tenant.PlanId
+                                     select module.ModuleKey).ToListAsync(cancellationToken);
                 // No default passwords: the first admin gets an emailed, single-use invitation.
                 return await identity.InviteFirstAdminAsync(tenant.Id, run.AdminEmail, run.AdminName, modules, cancellationToken);
             }
@@ -156,6 +163,15 @@ internal sealed partial class Onboarding(
     /// <summary>The tenant's database name: product prefix plus slug, safe for both providers (letters, digits, underscores).</summary>
     internal static string DatabaseName(string slug) => $"{PlatformInfo.Product}_{slug.Replace('-', '_')}";
 
+    /// <summary>The plan must exist and not be retired: new tenants can't choose a retired plan.</summary>
+    private async Task RequireChoosablePlanAsync(string planKey, CancellationToken cancellationToken)
+    {
+        var plan = await catalog.Plans.AsNoTracking().SingleOrDefaultAsync(p => p.PlanKey == planKey, cancellationToken)
+            ?? throw new BusinessRuleException(TenancyErrors.UnknownPlan, planKey);
+        if (!plan.IsActive)
+            throw new BusinessRuleException(TenancyErrors.PlanRetired, planKey);
+    }
+
     private static void Validate(OnboardRequest request)
     {
         var slug = request.Slug.ToLowerInvariant();
@@ -163,8 +179,6 @@ internal sealed partial class Onboarding(
             throw new ValidationException(new Dictionary<string, string[]> { ["slug"] = [$"Use lowercase letters, digits and hyphens, starting with a letter (2–30 characters)."] }, TenancyErrors.SlugInvalid);
         if (KeyRules.ReservedTenantSlugs.Contains(slug))
             throw new BusinessRuleException(TenancyErrors.ReservedSlug, slug);
-        if (!Plans.All.Contains(request.Plan))
-            throw new BusinessRuleException(TenancyErrors.UnknownPlan, request.Plan);
     }
 
     [LoggerMessage(Level = LogLevel.Error, Message = "Onboarding of {Slug} failed at step {Step}; run it again to resume")]

@@ -26,4 +26,13 @@ public static class TenancyErrors
     public static readonly ErrorCode PrincipalInactive = new("tenant-settings.principal-inactive", 422, "errors.tenancy.principalInactive");
     public static readonly ErrorCode TenantAccessNotFound = new("tenant-settings.tenant-access-not-found", 404, "errors.tenancy.tenantAccessNotFound");
     public static readonly ErrorCode TenantAccessInvalid = new("tenant-settings.tenant-access-invalid", 422, "errors.tenancy.tenantAccessInvalid");
+    public static readonly ErrorCode PlanNotFound = new("tenant-settings.plan-not-found", 404, "errors.tenancy.planNotFound");
+    public static readonly ErrorCode ModuleNotFound = new("tenant-settings.module-not-found", 404, "errors.tenancy.moduleNotFound");
+    public static readonly ErrorCode PlanKeyInUse = new("tenant-settings.plan-key-in-use", 409, "errors.tenancy.planKeyInUse");
+    public static readonly ErrorCode PlanRetired = new("tenant-settings.plan-retired", 422, "errors.tenancy.planRetired");
+    public static readonly ErrorCode ProviderNotFound = new("tenant-settings.provider-not-found", 404, "errors.tenancy.providerNotFound");
+    public static readonly ErrorCode ProviderKeyInUse = new("tenant-settings.provider-key-in-use", 409, "errors.tenancy.providerKeyInUse");
+    public static readonly ErrorCode ProviderIncomplete = new("tenant-settings.provider-incomplete", 422, "errors.tenancy.providerIncomplete");
+    public static readonly ErrorCode ProviderHasAccounts = new("tenant-settings.provider-has-accounts", 409, "errors.tenancy.providerHasAccounts");
+    public static readonly ErrorCode LinkedAccountNotFound = new("tenant-settings.linked-account-not-found", 404, "errors.tenancy.linkedAccountNotFound");
 }

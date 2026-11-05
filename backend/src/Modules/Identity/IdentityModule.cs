@@ -25,6 +25,7 @@ public sealed class IdentityModule : IPlatformModule
     public static void MapEndpoints(IEndpointRouteBuilder api)
     {
         AccessManagementEndpoints.Map(api);
+        PreferencesEndpoints.Map(api);
         PlatformEndpoints.Map(api);
     }
 

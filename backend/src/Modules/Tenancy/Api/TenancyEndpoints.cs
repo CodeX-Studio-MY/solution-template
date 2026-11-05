@@ -86,7 +86,9 @@ internal static class TenancyEndpoints
             await sessions.SignInAsync(body.Email, body.Password, body.TotpCode, ct)).AllowAnonymous().WithMetadata(AuthRateLimited.Instance);
 
         var secured = op.MapGroup("").RequireAuthorization(OperatorAuthenticationHandler.Policy);
-        secured.MapGet("/me", (ClaimsPrincipal user) => Identity(user));
+        secured.MapGet("/me", (ClaimsPrincipal user, IOperatorPreferences preferences, CancellationToken ct) => preferences.GetAsync(ActorId(user), ct));
+        secured.MapPut("/me/preferences", (ClaimsPrincipal user, [FromBody] PreferencesBody body, IOperatorPreferences preferences, CancellationToken ct) =>
+            preferences.SetLocaleAsync(ActorId(user), body.Locale, ct));
         secured.MapGet("/tenants", (ITenantAdmin admin, CancellationToken ct) => admin.ListAsync(ct));
         secured.MapGet("/tenants/{id:guid}", (Guid id, ITenantAdmin admin, CancellationToken ct) => admin.GetAsync(id, ct));
         secured.MapPost("/tenants", async ([FromBody] OnboardRequest body, IOnboarding onboarding, CancellationToken ct) =>
@@ -123,8 +125,78 @@ internal static class TenancyEndpoints
         secured.MapPost("/support-access/{id:guid}/token", (Guid id, ClaimsPrincipal user, ISupportAccess access, CancellationToken ct) =>
             access.IssueTokenAsync(Identity(user), id, ct));
 
+        MapPlanEndpoints(secured);
+        MapIdentityProviderEndpoints(secured);
         MapPrincipalEndpoints(secured);
     }
+
+    /// <summary>The plans the platform sells and the modules in each. Changing a plan's modules changes every tenant on it.</summary>
+    private static void MapPlanEndpoints(RouteGroupBuilder secured)
+    {
+        secured.MapGet("/plans", (IPlanCatalog plans, CancellationToken ct) => plans.ListAsync(ct));
+        secured.MapGet("/modules", (IPlanCatalog plans, CancellationToken ct) => plans.ListModulesAsync(ct));
+        secured.MapPost("/plans", async ([FromBody] PlanCreate body, ClaimsPrincipal user, IPlanCatalog plans, HttpResponse response, CancellationToken ct) =>
+        {
+            var plan = await plans.CreateAsync(body, Actor(user), ct);
+            response.Headers.ETag = plan.ETag;
+            return TypedResults.Created($"{PlatformServices.Tenancy.RoutePrefix}/v1/operator/plans/{plan.PlanId}", plan);
+        });
+        secured.MapPut("/plans/{id:int}", async (int id, [FromBody] PlanUpdate body, [FromHeader(Name = "If-Match")] string? ifMatch, ClaimsPrincipal user, IPlanCatalog plans, HttpResponse response, CancellationToken ct) =>
+        {
+            var plan = await plans.UpdateAsync(PlanId(id), body, ifMatch, Actor(user), ct);
+            response.Headers.ETag = plan.ETag;
+            return plan;
+        });
+        secured.MapPut("/plans/{id:int}/active", async (int id, [FromBody] ActiveBody body, [FromHeader(Name = "If-Match")] string? ifMatch, ClaimsPrincipal user, IPlanCatalog plans, HttpResponse response, CancellationToken ct) =>
+        {
+            var plan = await plans.SetActiveAsync(PlanId(id), body.Active, ifMatch, Actor(user), ct);
+            response.Headers.ETag = plan.ETag;
+            return plan;
+        });
+        secured.MapPut("/plans/{id:int}/modules/{moduleKey}", (int id, string moduleKey, ClaimsPrincipal user, IPlanCatalog plans, CancellationToken ct) =>
+            plans.AddModuleAsync(PlanId(id), moduleKey, Actor(user), ct));
+        secured.MapDelete("/plans/{id:int}/modules/{moduleKey}", (int id, string moduleKey, ClaimsPrincipal user, IPlanCatalog plans, CancellationToken ct) =>
+            plans.RemoveModuleAsync(PlanId(id), moduleKey, Actor(user), ct));
+    }
+
+    /// <summary>An ID outside the range of a plan can't exist: it is a missing plan, not a bad request.</summary>
+    private static short PlanId(int id) => id is > 0 and <= short.MaxValue ? (short)id : throw new NotFoundException(TenancyErrors.PlanNotFound);
+
+    /// <summary>Settings for signing in with Google, Microsoft, Apple and Facebook (not connected to sign-in yet).</summary>
+    private static void MapIdentityProviderEndpoints(RouteGroupBuilder secured)
+    {
+        secured.MapGet("/identity-providers", (IIdentityProviderCatalog providers, CancellationToken ct) => providers.ListAsync(ct));
+        secured.MapPost("/identity-providers", async ([FromBody] IdentityProviderCreate body, ClaimsPrincipal user, IIdentityProviderCatalog providers, HttpResponse response, CancellationToken ct) =>
+        {
+            var provider = await providers.CreateAsync(body, ActorId(user), ct);
+            response.Headers.ETag = provider.ETag;
+            return TypedResults.Created($"{PlatformServices.Tenancy.RoutePrefix}/v1/operator/identity-providers/{provider.IdentityProviderId}", provider);
+        });
+        secured.MapPut("/identity-providers/{id:int}", async (int id, [FromBody] IdentityProviderUpdate body, [FromHeader(Name = "If-Match")] string? ifMatch, ClaimsPrincipal user, IIdentityProviderCatalog providers, HttpResponse response, CancellationToken ct) =>
+        {
+            var provider = await providers.UpdateAsync(ProviderId(id), body, ifMatch, ActorId(user), ct);
+            response.Headers.ETag = provider.ETag;
+            return provider;
+        });
+        secured.MapPut("/identity-providers/{id:int}/enabled", async (int id, [FromBody] EnabledBody body, [FromHeader(Name = "If-Match")] string? ifMatch, ClaimsPrincipal user, IIdentityProviderCatalog providers, HttpResponse response, CancellationToken ct) =>
+        {
+            var provider = await providers.SetEnabledAsync(ProviderId(id), body.Enabled, ifMatch, ActorId(user), ct);
+            response.Headers.ETag = provider.ETag;
+            return provider;
+        });
+        secured.MapDelete("/identity-providers/{id:int}", async (int id, ClaimsPrincipal user, IIdentityProviderCatalog providers, CancellationToken ct) =>
+        {
+            await providers.DeleteAsync(ProviderId(id), ActorId(user), ct);
+            return Results.NoContent();
+        });
+        secured.MapDelete("/principals/{id:guid}/providers/{linkId:long}", async (Guid id, long linkId, ClaimsPrincipal user, IPrincipalDirectory directory, CancellationToken ct) =>
+        {
+            await directory.UnlinkProviderAsync(id, linkId, ActorId(user), ct);
+            return Results.NoContent();
+        });
+    }
+
+    private static short ProviderId(int id) => id is > 0 and <= short.MaxValue ? (short)id : throw new NotFoundException(TenancyErrors.ProviderNotFound);
 
     /// <summary>The catalog's users, devices and applications, and which tenants each may access.</summary>
     private static void MapPrincipalEndpoints(RouteGroupBuilder secured)
@@ -190,6 +262,10 @@ internal static class TenancyEndpoints
     internal sealed record FeatureBody(bool? Enabled);
 
     internal sealed record ActiveBody(bool Active);
+
+    internal sealed record EnabledBody(bool Enabled);
+
+    internal sealed record PreferencesBody(string? Locale);
 
     internal sealed record GrantBody(string? Reason);
 

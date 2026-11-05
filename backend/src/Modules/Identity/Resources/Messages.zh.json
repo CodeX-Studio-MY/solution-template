@@ -6,6 +6,7 @@
   "errors.identity.groupNotFound": "未找到该用户组。",
   "errors.identity.invitationNotPending": "该用户没有待处理的邀请。",
   "errors.identity.moduleNotEntitled": "您组织的套餐不包含该应用。",
+  "errors.identity.preferencesNotForSupport": "支持会话不能更改客户的偏好设置。",
   "errors.identity.principalNotFound": "未找到该用户或设备。",
   "errors.identity.servicePrincipalsHaveNoGroups": "集成不能成为用户组成员。",
   "errors.identity.unknownModule": "该应用不存在。"

@@ -23,9 +23,9 @@ public static class Modules
 
     public static readonly IReadOnlyList<ModuleInfo> All =
     [
-        new(AccessManagement, "Access Management", new Guid("9a8337a5-3cd5-5963-9b61-886a163e630f"), ["standard", "plus"]),
-        new(TenantSettings, "Tenant Settings", new Guid("4b8bdd8f-2cd0-5914-9d29-e17f948aca9b"), ["standard", "plus"]),
-        new(Billing, "Billing", new Guid("d39d3a7b-c5dc-560a-b527-ce06d0158063"), ["standard", "plus"]),
+        new(AccessManagement, "Access Management", new Guid("9a8337a5-3cd5-5963-9b61-886a163e630f"), ["lite", "advanced", "complete"]),
+        new(TenantSettings, "Tenant Settings", new Guid("4b8bdd8f-2cd0-5914-9d29-e17f948aca9b"), ["lite", "advanced", "complete"]),
+        new(Billing, "Billing", new Guid("d39d3a7b-c5dc-560a-b527-ce06d0158063"), ["lite", "advanced", "complete"]),
     ];
 }
 
@@ -74,10 +74,11 @@ public static class Roles
 
 public static class Plans
 {
-    public const string Standard = "standard";
-    public const string Plus = "plus";
+    public const string Lite = "lite";
+    public const string Advanced = "advanced";
+    public const string Complete = "complete";
 
-    public static readonly IReadOnlyList<string> All = [Standard, Plus];
+    public static readonly IReadOnlyList<string> All = [Lite, Advanced, Complete];
 }
 
 /// <summary>Services: what runs and is routed at /api/{key}/*.</summary>

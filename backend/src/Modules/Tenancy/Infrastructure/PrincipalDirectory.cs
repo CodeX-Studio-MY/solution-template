@@ -212,6 +212,17 @@ internal sealed class PrincipalDirectory(
         return await AuditPageAsync(query, page, cancellationToken);
     }
 
+    public async Task UnlinkProviderAsync(Guid principalId, long principalUserProviderId, Guid actor, CancellationToken cancellationToken = default)
+    {
+        await FindAsync(principalId, cancellationToken);
+        var link = await db.PrincipalUserProviders.SingleOrDefaultAsync(p => p.PrincipalUserProviderId == principalUserProviderId && p.PrincipalUserId == principalId, cancellationToken)
+            ?? throw new NotFoundException(TenancyErrors.LinkedAccountNotFound);
+        var providerKey = await db.IdentityProviders.AsNoTracking().Where(p => p.IdentityProviderId == link.IdentityProviderId).Select(p => p.ProviderKey).SingleAsync(cancellationToken);
+        db.PrincipalUserProviders.Remove(link);
+        Log("principal-provider-unlinked", actor, new { principalId, providerKey });
+        await db.SaveChangesAsync(cancellationToken);
+    }
+
     public async Task<Page<LoginRow>> ListLoginsAsync(Guid tenantId, PageRequest page, CancellationToken cancellationToken = default)
     {
         await FindTenantAsync(tenantId, cancellationToken);
@@ -256,8 +267,12 @@ internal sealed class PrincipalDirectory(
         var access = await db.TenantPrincipalAccess.AsNoTracking().Where(a => a.PrincipalId == id).ToListAsync(cancellationToken);
         var tenantIds = access.Select(a => a.TenantId).ToList();
         var tenants = await catalog.Tenants.AsNoTracking().Where(t => tenantIds.Contains(t.Id)).ToDictionaryAsync(t => t.Id, cancellationToken);
-        var providers = await db.PrincipalUserProviders.AsNoTracking().Where(p => p.PrincipalUserId == id).OrderBy(p => p.Provider)
-            .Select(p => new LinkedProvider(p.Provider, p.ProviderEmail, p.LinkedOn)).ToListAsync(cancellationToken);
+        var providers = await (from link in db.PrincipalUserProviders.AsNoTracking()
+                               join settings in db.IdentityProviders.AsNoTracking() on link.IdentityProviderId equals settings.IdentityProviderId
+                               where link.PrincipalUserId == id
+                               orderby settings.ProviderType, settings.DisplayName, link.PrincipalUserProviderId
+                               select new LinkedProvider(link.PrincipalUserProviderId, settings.IdentityProviderId, settings.ProviderType, settings.ProviderKey, settings.DisplayName,
+                                   link.ProviderEmail, link.ProviderEmailVerified, link.LinkedOn, link.LastUsedOn)).ToListAsync(cancellationToken);
         return new PrincipalDetail(
             id, principal.Type, principal.DisplayName, principal.IsActive,
             user?.Email,

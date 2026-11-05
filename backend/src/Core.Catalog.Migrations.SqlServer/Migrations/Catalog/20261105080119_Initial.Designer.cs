@@ -13,7 +13,7 @@ using Saaskit.Core.Catalog;
 namespace Saaskit.Core.Catalog.Migrations.SqlServer.Migrations.Catalog
 {
     [DbContext(typeof(CatalogDbContext))]
-    [Migration("20261105063832_Initial")]
+    [Migration("20261105080119_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -107,10 +107,8 @@ namespace Saaskit.Core.Catalog.Migrations.SqlServer.Migrations.Catalog
                         .HasMaxLength(16)
                         .HasColumnType("nvarchar(16)");
 
-                    b.Property<string>("Plan")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                    b.Property<short>("PlanId")
+                        .HasColumnType("smallint");
 
                     b.Property<bool>("RequireSupportApproval")
                         .ValueGeneratedOnAdd()
@@ -169,17 +167,126 @@ namespace Saaskit.Core.Catalog.Migrations.SqlServer.Migrations.Catalog
 
                     b.HasKey("Id");
 
+                    b.HasIndex("PlanId");
+
                     b.HasIndex("Slug")
                         .IsUnique();
 
                     b.ToTable("Tenants", "catalog");
                 });
 
+            modelBuilder.Entity("Saaskit.Core.Catalog.Entities.Plan", b =>
+                {
+                    b.Property<short>("PlanId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasColumnName("PlanId");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<short>("PlanId"));
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(50)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .IsUnicode(false)
+                        .HasColumnType("char(3)")
+                        .IsFixedLength();
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<decimal?>("MonthlyPrice")
+                        .HasPrecision(19, 4)
+                        .HasColumnType("decimal(19,4)");
+
+                    b.Property<string>("PlanKey")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(30)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<byte>("SortOrder")
+                        .HasColumnType("tinyint");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(50)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("PlanId");
+
+                    b.HasIndex("PlanKey")
+                        .IsUnique();
+
+                    b.ToTable("Plans", "catalog", t =>
+                        {
+                            t.HasCheckConstraint("CK_Plans_PlanKey", "REGEXP_LIKE([PlanKey], '^[a-z][a-z0-9-]{1,29}$')");
+                        });
+
+                    b.HasData(
+                        new
+                        {
+                            PlanId = (short)1,
+                            CreatedBy = "system",
+                            CreatedOn = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Currency = "MYR",
+                            DisplayName = "Lite",
+                            IsActive = true,
+                            PlanKey = "lite",
+                            SortOrder = (byte)1
+                        },
+                        new
+                        {
+                            PlanId = (short)2,
+                            CreatedBy = "system",
+                            CreatedOn = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Currency = "MYR",
+                            DisplayName = "Advanced",
+                            IsActive = true,
+                            PlanKey = "advanced",
+                            SortOrder = (byte)2
+                        },
+                        new
+                        {
+                            PlanId = (short)3,
+                            CreatedBy = "system",
+                            CreatedOn = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Currency = "MYR",
+                            DisplayName = "Complete",
+                            IsActive = true,
+                            PlanKey = "complete",
+                            SortOrder = (byte)3
+                        });
+                });
+
             modelBuilder.Entity("Saaskit.Core.Catalog.Entities.PlanLimit", b =>
                 {
-                    b.Property<string>("Plan")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)")
+                    b.Property<short>("PlanId")
+                        .HasColumnType("smallint")
                         .HasColumnName("PlanLimitId");
 
                     b.Property<int>("PerPrincipalPerMinute")
@@ -188,55 +295,69 @@ namespace Saaskit.Core.Catalog.Migrations.SqlServer.Migrations.Catalog
                     b.Property<int>("PerTenantPerMinute")
                         .HasColumnType("int");
 
-                    b.HasKey("Plan");
+                    b.HasKey("PlanId");
 
                     b.ToTable("PlanLimits", "catalog");
                 });
 
-            modelBuilder.Entity("Saaskit.Core.Catalog.Entities.PlanModule", b =>
+            modelBuilder.Entity("Saaskit.Core.Catalog.Entities.PlanModuleAccess", b =>
                 {
-                    b.Property<string>("Plan")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                    b.Property<short>("PlanId")
+                        .HasColumnType("smallint");
 
                     b.Property<Guid>("ModuleId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("Plan", "ModuleId");
+                    b.HasKey("PlanId", "ModuleId");
 
                     b.HasIndex("ModuleId");
 
-                    b.ToTable("PlanModules", "catalog");
+                    b.ToTable("PlanModuleAccess", "catalog");
 
                     b.HasData(
                         new
                         {
-                            Plan = "standard",
+                            PlanId = (short)1,
                             ModuleId = new Guid("9a8337a5-3cd5-5963-9b61-886a163e630f")
                         },
                         new
                         {
-                            Plan = "plus",
+                            PlanId = (short)2,
                             ModuleId = new Guid("9a8337a5-3cd5-5963-9b61-886a163e630f")
                         },
                         new
                         {
-                            Plan = "standard",
+                            PlanId = (short)3,
+                            ModuleId = new Guid("9a8337a5-3cd5-5963-9b61-886a163e630f")
+                        },
+                        new
+                        {
+                            PlanId = (short)1,
                             ModuleId = new Guid("4b8bdd8f-2cd0-5914-9d29-e17f948aca9b")
                         },
                         new
                         {
-                            Plan = "plus",
+                            PlanId = (short)2,
                             ModuleId = new Guid("4b8bdd8f-2cd0-5914-9d29-e17f948aca9b")
                         },
                         new
                         {
-                            Plan = "standard",
+                            PlanId = (short)3,
+                            ModuleId = new Guid("4b8bdd8f-2cd0-5914-9d29-e17f948aca9b")
+                        },
+                        new
+                        {
+                            PlanId = (short)1,
                             ModuleId = new Guid("d39d3a7b-c5dc-560a-b527-ce06d0158063")
                         },
                         new
                         {
-                            Plan = "plus",
+                            PlanId = (short)2,
+                            ModuleId = new Guid("d39d3a7b-c5dc-560a-b527-ce06d0158063")
+                        },
+                        new
+                        {
+                            PlanId = (short)3,
                             ModuleId = new Guid("d39d3a7b-c5dc-560a-b527-ce06d0158063")
                         });
                 });
@@ -343,12 +464,36 @@ namespace Saaskit.Core.Catalog.Migrations.SqlServer.Migrations.Catalog
                     b.ToTable("TenantSettings", "catalog");
                 });
 
-            modelBuilder.Entity("Saaskit.Core.Catalog.Entities.PlanModule", b =>
+            modelBuilder.Entity("Saaskit.Core.Catalog.Entities.CatalogTenant", b =>
+                {
+                    b.HasOne("Saaskit.Core.Catalog.Entities.Plan", null)
+                        .WithMany()
+                        .HasForeignKey("PlanId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Saaskit.Core.Catalog.Entities.PlanLimit", b =>
+                {
+                    b.HasOne("Saaskit.Core.Catalog.Entities.Plan", null)
+                        .WithOne()
+                        .HasForeignKey("Saaskit.Core.Catalog.Entities.PlanLimit", "PlanId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Saaskit.Core.Catalog.Entities.PlanModuleAccess", b =>
                 {
                     b.HasOne("Saaskit.Core.Catalog.Entities.CatalogModule", null)
                         .WithMany()
                         .HasForeignKey("ModuleId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Saaskit.Core.Catalog.Entities.Plan", null)
+                        .WithMany()
+                        .HasForeignKey("PlanId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 

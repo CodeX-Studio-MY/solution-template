@@ -8,6 +8,18 @@ public sealed record NewOperator(Guid Id, string Email, string Password, string 
 
 public sealed record OperatorIdentity(Guid Id, string Email, string DisplayName);
 
+/// <summary>The signed-in operator, with the console language they chose (null: the browser's language).</summary>
+public sealed record OperatorProfile(Guid Id, string Email, string DisplayName, string? Locale);
+
+/// <summary>An operator's own preferences. Only the console language so far.</summary>
+public interface IOperatorPreferences
+{
+    Task<OperatorProfile> GetAsync(Guid operatorId, CancellationToken cancellationToken = default);
+
+    /// <summary>One of the platform's locales, or null to follow the browser.</summary>
+    Task<OperatorProfile> SetLocaleAsync(Guid operatorId, string? locale, CancellationToken cancellationToken = default);
+}
+
 public sealed record SessionDto(string Token, DateTime ExpiresOn);
 
 /// <summary>Creates platform operators. Run from the Migrator tool (bootstrap) or by an existing operator.</summary>

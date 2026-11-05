@@ -113,8 +113,8 @@ public sealed class ModuleTestHost : IAsyncDisposable
             await using (var scope = app.Services.CreateAsyncScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<CatalogDbContext>();
-                var plan = slug.Contains("plus", StringComparison.Ordinal) ? Plans.All[^1] : Plans.All[0];
-                var tenant = new CatalogTenant(slug, slug, plan, PlatformInfo.DefaultTimeZone, PlatformInfo.DefaultCurrency, "en",
+                var plan = slug.Contains("plus", StringComparison.Ordinal) ? Plans.All[^1] : Plans.All[0];   // a tenant named "...plus" gets the top plan
+                var tenant = new CatalogTenant(slug, slug, SeededPlans.IdOf(plan), PlatformInfo.DefaultTimeZone, PlatformInfo.DefaultCurrency, "en",
                     new TenantPlacementData { Provider = provider, ServerPool = "default", DatabaseName = Databases.UniqueName("tenant") });
                 tenant.ChangeStatus(TenantStatus.Active);
                 db.Tenants.Add(tenant);

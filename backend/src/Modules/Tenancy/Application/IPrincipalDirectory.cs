@@ -21,7 +21,17 @@ public sealed record PrincipalSummary(Guid PrincipalId, PlatformPrincipalType Ty
 
 public sealed record PrincipalTenantAccess(Guid TenantId, string TenantSlug, string TenantName, TenantAccessStatus Status, DateTime GrantedOn);
 
-public sealed record LinkedProvider(LoginProvider Provider, string? ProviderEmail, DateTime LinkedOn);
+/// <summary>An outside account linked to a user. <paramref name="PrincipalUserProviderId"/> identifies the link, for unlinking it.</summary>
+public sealed record LinkedProvider(
+    long PrincipalUserProviderId,
+    short IdentityProviderId,
+    LoginProvider ProviderType,
+    string ProviderKey,
+    string ProviderName,
+    string? ProviderEmail,
+    bool ProviderEmailVerified,
+    DateTime LinkedOn,
+    DateTime? LastUsedOn);
 
 public sealed record PrincipalDetail(
     Guid PrincipalId,
@@ -73,6 +83,9 @@ public interface IPrincipalDirectory
     Task<Page<AccessAuditRow>> ListAuditForTenantAsync(Guid tenantId, PageRequest page, CancellationToken cancellationToken = default);
 
     Task<Page<AccessAuditRow>> ListAuditForPrincipalAsync(Guid principalId, Guid? tenantId, PageRequest page, CancellationToken cancellationToken = default);
+
+    /// <summary>Removes one linked outside account from a user. The user can still sign in the other ways they have.</summary>
+    Task UnlinkProviderAsync(Guid principalId, long principalUserProviderId, Guid actor, CancellationToken cancellationToken = default);
 
     Task<Page<LoginRow>> ListLoginsAsync(Guid tenantId, PageRequest page, CancellationToken cancellationToken = default);
 }

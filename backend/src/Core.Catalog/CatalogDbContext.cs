@@ -16,7 +16,9 @@ public sealed class CatalogDbContext(DbContextOptions<CatalogDbContext> options)
 
     public DbSet<CatalogModule> Modules => Set<CatalogModule>();
 
-    public DbSet<PlanModule> PlanModules => Set<PlanModule>();
+    public DbSet<Plan> Plans => Set<Plan>();
+
+    public DbSet<PlanModuleAccess> PlanModuleAccess => Set<PlanModuleAccess>();
 
     public DbSet<TenantModule> TenantModules => Set<TenantModule>();
 
@@ -36,7 +38,8 @@ public sealed class CatalogDbContext(DbContextOptions<CatalogDbContext> options)
             tenant.Property(t => t.Slug).HasMaxLength(CatalogTenant.MaxSlugLength);
             tenant.HasIndex(t => t.Slug).IsUnique();
             tenant.Property(t => t.DisplayName).HasMaxLength(200);
-            tenant.Property(t => t.Plan).HasMaxLength(30);
+            tenant.HasOne<Plan>().WithMany().HasForeignKey(t => t.PlanId).OnDelete(DeleteBehavior.Restrict);
+            tenant.HasIndex(t => t.PlanId);
             tenant.Property(t => t.TimeZone).HasMaxLength(64);
             tenant.Property(t => t.Currency).HasMaxLength(3).IsFixedLength();
             tenant.Property(t => t.Locale).HasMaxLength(16);
@@ -63,11 +66,26 @@ public sealed class CatalogDbContext(DbContextOptions<CatalogDbContext> options)
             module.Property(m => m.DisplayName).HasMaxLength(200);
         });
 
-        modelBuilder.Entity<PlanModule>(planModule =>
+        modelBuilder.Entity<Plan>(plan =>
         {
-            planModule.ToTable("PlanModules");
-            planModule.HasKey(p => new { p.Plan, p.ModuleId });
-            planModule.Property(p => p.Plan).HasMaxLength(30);
+            plan.ToTable("Plans", t => t.HasCheckConstraint(
+                "CK_Plans_PlanKey",
+                MatchesPatternSql(nameof(Plan.PlanKey), ModuleKeyPattern)));
+            plan.HasKey(p => p.PlanId);
+            plan.Property(p => p.PlanKey).HasMaxLength(CatalogModule.MaxKeyLength).IsUnicode(false);
+            plan.HasIndex(p => p.PlanKey).IsUnique();
+            plan.Property(p => p.DisplayName).HasMaxLength(Plan.MaxDisplayNameLength);
+            plan.Property(p => p.Description).HasMaxLength(Plan.MaxDescriptionLength);
+            plan.Property(p => p.Currency).HasMaxLength(3).IsUnicode(false).IsFixedLength();
+            plan.Property(p => p.CreatedBy).HasMaxLength(50).IsUnicode(false);
+            plan.Property(p => p.UpdatedBy).HasMaxLength(50).IsUnicode(false);
+        });
+
+        modelBuilder.Entity<PlanModuleAccess>(planModule =>
+        {
+            planModule.ToTable("PlanModuleAccess");
+            planModule.HasKey(p => new { p.PlanId, p.ModuleId });
+            planModule.HasOne<Plan>().WithMany().HasForeignKey(p => p.PlanId).OnDelete(DeleteBehavior.Restrict);
             planModule.HasOne<CatalogModule>().WithMany().HasForeignKey(p => p.ModuleId);
         });
 
@@ -93,8 +111,9 @@ public sealed class CatalogDbContext(DbContextOptions<CatalogDbContext> options)
         modelBuilder.Entity<PlanLimit>(limit =>
         {
             limit.ToTable("PlanLimits");
-            limit.HasKey(l => l.Plan);
-            limit.Property(l => l.Plan).HasMaxLength(30);
+            limit.HasKey(l => l.PlanId);
+            limit.Property(l => l.PlanId).ValueGeneratedNever();
+            limit.HasOne<Plan>().WithOne().HasForeignKey<PlanLimit>(l => l.PlanId).OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<TenantSetting>(setting =>
@@ -119,20 +138,48 @@ public sealed class CatalogDbContext(DbContextOptions<CatalogDbContext> options)
         SeedPlatformData(modelBuilder);
     }
 
-    /// <summary>Modules and plan contents, from the constants generated from platform.yaml. Reference data only.</summary>
+    /// <summary>
+    /// The first plans and modules, from the constants generated from platform.yaml. Reference data seeded once: after that the
+    /// operator console owns the plans (names, prices, modules), so a changed platform.yaml never rewrites them.
+    /// </summary>
     private static void SeedPlatformData(ModelBuilder modelBuilder)
     {
         var modules = global::Saaskit.Core.Platform.Modules.All;
+        var plans = global::Saaskit.Core.Platform.Plans.All;
         modelBuilder.Entity<CatalogModule>().HasData(modules.Select(m => new CatalogModule
         {
             ModuleId = m.Id,
             ModuleKey = m.Key,
             DisplayName = m.DisplayName,
         }));
-        modelBuilder.Entity<PlanModule>().HasData(modules.SelectMany(m => m.Plans.Select(plan => new PlanModule
+        var seededOn = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        modelBuilder.Entity<Plan>().HasData(plans.Select((key, index) => new
         {
-            Plan = plan,
+            PlanId = (short)(index + 1),
+            PlanKey = key,
+            DisplayName = TitleCase(key),
+            Currency = global::Saaskit.Core.Platform.PlatformInfo.DefaultCurrency,
+            SortOrder = (byte)(index + 1),
+            IsActive = true,
+            CreatedOn = seededOn,
+            CreatedBy = "system",
+        }));
+        modelBuilder.Entity<PlanModuleAccess>().HasData(modules.SelectMany(m => m.Plans.Select(plan => new PlanModuleAccess
+        {
+            PlanId = (short)(IndexOf(plans, plan) + 1),
             ModuleId = m.Id,
         })));
     }
+
+    private static int IndexOf(IReadOnlyList<string> plans, string plan)
+    {
+        for (var i = 0; i < plans.Count; i++)
+            if (plans[i] == plan)
+                return i;
+        throw new InvalidOperationException($"Plan '{plan}' is not in platform.yaml.");
+    }
+
+    /// <summary>"lite" is "Lite", "pay-as-you-go" is "Pay As You Go".</summary>
+    private static string TitleCase(string key) =>
+        string.Join(' ', key.Split('-', StringSplitOptions.RemoveEmptyEntries).Select(w => char.ToUpperInvariant(w[0]) + w[1..]));
 }

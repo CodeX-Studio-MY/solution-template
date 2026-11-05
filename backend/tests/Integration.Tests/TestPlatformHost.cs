@@ -134,7 +134,7 @@ internal sealed class TestPlatformHost : IAsyncDisposable
     /// <summary>Adds a tenant with the modules of its plan, except <paramref name="without"/> (to see entitlement at work).</summary>
     internal static async Task AddTenantAsync(CatalogDbContext db, string slug, string plan, TenantStatus status, string? databaseName = null, string? without = null)
     {
-        var tenant = new CatalogTenant(slug, slug, plan, PlatformInfo.DefaultTimeZone, PlatformInfo.DefaultCurrency, "en",
+        var tenant = new CatalogTenant(slug, slug, SeededPlans.IdOf(plan), PlatformInfo.DefaultTimeZone, PlatformInfo.DefaultCurrency, "en",
             new TenantPlacementData { Provider = Databases.DefaultProvider, ServerPool = "default", DatabaseName = databaseName ?? slug });
         tenant.ChangeStatus(status);
         db.Tenants.Add(tenant);

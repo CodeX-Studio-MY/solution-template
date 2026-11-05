@@ -33,11 +33,11 @@ public sealed class MigratorTests(Databases databases)
         {
             var catalog = scope.ServiceProvider.GetRequiredService<CatalogDbContext>();
             (await catalog.Modules.CountAsync(Ct)).ShouldBe(Modules.All.Count);
-            (await catalog.PlanModules.CountAsync(Ct)).ShouldBe(Modules.All.Sum(m => m.Plans.Count));
+            (await catalog.PlanModuleAccess.CountAsync(Ct)).ShouldBe(Modules.All.Sum(m => m.Plans.Count));
 
             foreach (var slug in new[] { "alpha", "beta" })
             {
-                var tenant = new CatalogTenant(slug, slug, Plans.All[0], PlatformInfo.DefaultTimeZone, PlatformInfo.DefaultCurrency, "en",
+                var tenant = new CatalogTenant(slug, slug, SeededPlans.IdOf(Plans.All[0]), PlatformInfo.DefaultTimeZone, PlatformInfo.DefaultCurrency, "en",
                     new TenantPlacementData { Provider = provider, ServerPool = "default", DatabaseName = Databases.UniqueName(slug) });
                 catalog.Tenants.Add(tenant);
                 await catalog.SaveChangesAsync(Ct);
@@ -82,7 +82,7 @@ public sealed class MigratorTests(Databases databases)
         await using (var scope = services.CreateAsyncScope())
         {
             var catalog = scope.ServiceProvider.GetRequiredService<CatalogDbContext>();
-            catalog.Tenants.Add(new CatalogTenant("broken", "Broken", Plans.All[0], PlatformInfo.DefaultTimeZone, PlatformInfo.DefaultCurrency, "en",
+            catalog.Tenants.Add(new CatalogTenant("broken", "Broken", SeededPlans.IdOf(Plans.All[0]), PlatformInfo.DefaultTimeZone, PlatformInfo.DefaultCurrency, "en",
                 new TenantPlacementData { Provider = provider, ServerPool = "missing-pool", DatabaseName = "x" }));
             await catalog.SaveChangesAsync(Ct);
         }

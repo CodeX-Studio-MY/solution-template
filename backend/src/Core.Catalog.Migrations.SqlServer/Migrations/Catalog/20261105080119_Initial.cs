@@ -32,17 +32,77 @@ namespace Saaskit.Core.Catalog.Migrations.SqlServer.Migrations.Catalog
                 });
 
             migrationBuilder.CreateTable(
+                name: "Plans",
+                schema: "catalog",
+                columns: table => new
+                {
+                    PlanId = table.Column<short>(type: "smallint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    PlanKey = table.Column<string>(type: "varchar(30)", unicode: false, maxLength: 30, nullable: false),
+                    DisplayName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    MonthlyPrice = table.Column<decimal>(type: "decimal(19,4)", precision: 19, scale: 4, nullable: true),
+                    Currency = table.Column<string>(type: "char(3)", unicode: false, fixedLength: true, maxLength: 3, nullable: false),
+                    SortOrder = table.Column<byte>(type: "tinyint", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: true),
+                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Plans", x => x.PlanId);
+                    table.CheckConstraint("CK_Plans_PlanKey", "REGEXP_LIKE([PlanKey], '^[a-z][a-z0-9-]{1,29}$')");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "PlanLimits",
                 schema: "catalog",
                 columns: table => new
                 {
-                    PlanLimitId = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    PlanLimitId = table.Column<short>(type: "smallint", nullable: false),
                     PerTenantPerMinute = table.Column<int>(type: "int", nullable: false),
                     PerPrincipalPerMinute = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_PlanLimits", x => x.PlanLimitId);
+                    table.ForeignKey(
+                        name: "FK_PlanLimits_Plans_PlanLimitId",
+                        column: x => x.PlanLimitId,
+                        principalSchema: "catalog",
+                        principalTable: "Plans",
+                        principalColumn: "PlanId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PlanModuleAccess",
+                schema: "catalog",
+                columns: table => new
+                {
+                    PlanId = table.Column<short>(type: "smallint", nullable: false),
+                    ModuleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PlanModuleAccess", x => new { x.PlanId, x.ModuleId });
+                    table.ForeignKey(
+                        name: "FK_PlanModuleAccess_Modules_ModuleId",
+                        column: x => x.ModuleId,
+                        principalSchema: "catalog",
+                        principalTable: "Modules",
+                        principalColumn: "ModuleId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_PlanModuleAccess_Plans_PlanId",
+                        column: x => x.PlanId,
+                        principalSchema: "catalog",
+                        principalTable: "Plans",
+                        principalColumn: "PlanId",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -54,7 +114,7 @@ namespace Saaskit.Core.Catalog.Migrations.SqlServer.Migrations.Catalog
                     Slug = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
                     DisplayName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     Status = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    Plan = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    PlanId = table.Column<short>(type: "smallint", nullable: false),
                     TimeZone = table.Column<string>(type: "nvarchar(64)", maxLength: 64, nullable: false),
                     Currency = table.Column<string>(type: "nchar(3)", fixedLength: true, maxLength: 3, nullable: false),
                     Locale = table.Column<string>(type: "nvarchar(16)", maxLength: 16, nullable: false),
@@ -73,26 +133,13 @@ namespace Saaskit.Core.Catalog.Migrations.SqlServer.Migrations.Catalog
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Tenants", x => x.TenantId);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "PlanModules",
-                schema: "catalog",
-                columns: table => new
-                {
-                    Plan = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
-                    ModuleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PlanModules", x => new { x.Plan, x.ModuleId });
                     table.ForeignKey(
-                        name: "FK_PlanModules_Modules_ModuleId",
-                        column: x => x.ModuleId,
+                        name: "FK_Tenants_Plans_PlanId",
+                        column: x => x.PlanId,
                         principalSchema: "catalog",
-                        principalTable: "Modules",
-                        principalColumn: "ModuleId",
-                        onDelete: ReferentialAction.Cascade);
+                        principalTable: "Plans",
+                        principalColumn: "PlanId",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -206,16 +253,30 @@ namespace Saaskit.Core.Catalog.Migrations.SqlServer.Migrations.Catalog
 
             migrationBuilder.InsertData(
                 schema: "catalog",
-                table: "PlanModules",
-                columns: new[] { "ModuleId", "Plan" },
+                table: "Plans",
+                columns: new[] { "PlanId", "CreatedBy", "CreatedOn", "Currency", "Description", "DisplayName", "IsActive", "MonthlyPrice", "PlanKey", "SortOrder", "UpdatedBy", "UpdatedOn" },
                 values: new object[,]
                 {
-                    { new Guid("4b8bdd8f-2cd0-5914-9d29-e17f948aca9b"), "plus" },
-                    { new Guid("9a8337a5-3cd5-5963-9b61-886a163e630f"), "plus" },
-                    { new Guid("d39d3a7b-c5dc-560a-b527-ce06d0158063"), "plus" },
-                    { new Guid("4b8bdd8f-2cd0-5914-9d29-e17f948aca9b"), "standard" },
-                    { new Guid("9a8337a5-3cd5-5963-9b61-886a163e630f"), "standard" },
-                    { new Guid("d39d3a7b-c5dc-560a-b527-ce06d0158063"), "standard" }
+                    { (short)1, "system", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "MYR", null, "Lite", true, null, "lite", (byte)1, null, null },
+                    { (short)2, "system", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "MYR", null, "Advanced", true, null, "advanced", (byte)2, null, null },
+                    { (short)3, "system", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "MYR", null, "Complete", true, null, "complete", (byte)3, null, null }
+                });
+
+            migrationBuilder.InsertData(
+                schema: "catalog",
+                table: "PlanModuleAccess",
+                columns: new[] { "ModuleId", "PlanId" },
+                values: new object[,]
+                {
+                    { new Guid("4b8bdd8f-2cd0-5914-9d29-e17f948aca9b"), (short)1 },
+                    { new Guid("9a8337a5-3cd5-5963-9b61-886a163e630f"), (short)1 },
+                    { new Guid("d39d3a7b-c5dc-560a-b527-ce06d0158063"), (short)1 },
+                    { new Guid("4b8bdd8f-2cd0-5914-9d29-e17f948aca9b"), (short)2 },
+                    { new Guid("9a8337a5-3cd5-5963-9b61-886a163e630f"), (short)2 },
+                    { new Guid("d39d3a7b-c5dc-560a-b527-ce06d0158063"), (short)2 },
+                    { new Guid("4b8bdd8f-2cd0-5914-9d29-e17f948aca9b"), (short)3 },
+                    { new Guid("9a8337a5-3cd5-5963-9b61-886a163e630f"), (short)3 },
+                    { new Guid("d39d3a7b-c5dc-560a-b527-ce06d0158063"), (short)3 }
                 });
 
             migrationBuilder.CreateIndex(
@@ -226,16 +287,29 @@ namespace Saaskit.Core.Catalog.Migrations.SqlServer.Migrations.Catalog
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_PlanModules_ModuleId",
+                name: "IX_PlanModuleAccess_ModuleId",
                 schema: "catalog",
-                table: "PlanModules",
+                table: "PlanModuleAccess",
                 column: "ModuleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Plans_PlanKey",
+                schema: "catalog",
+                table: "Plans",
+                column: "PlanKey",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_TenantModules_ModuleId",
                 schema: "catalog",
                 table: "TenantModules",
                 column: "ModuleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Tenants_PlanId",
+                schema: "catalog",
+                table: "Tenants",
+                column: "PlanId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Tenants_Slug",
@@ -253,7 +327,7 @@ namespace Saaskit.Core.Catalog.Migrations.SqlServer.Migrations.Catalog
                 schema: "catalog");
 
             migrationBuilder.DropTable(
-                name: "PlanModules",
+                name: "PlanModuleAccess",
                 schema: "catalog");
 
             migrationBuilder.DropTable(
@@ -278,6 +352,10 @@ namespace Saaskit.Core.Catalog.Migrations.SqlServer.Migrations.Catalog
 
             migrationBuilder.DropTable(
                 name: "Tenants",
+                schema: "catalog");
+
+            migrationBuilder.DropTable(
+                name: "Plans",
                 schema: "catalog");
         }
     }

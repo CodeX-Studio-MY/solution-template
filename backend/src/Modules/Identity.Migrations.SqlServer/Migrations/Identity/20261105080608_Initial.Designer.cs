@@ -12,7 +12,7 @@ using Saaskit.Identity.Infrastructure;
 namespace Saaskit.Identity.Migrations.SqlServer.Migrations.Identity
 {
     [DbContext(typeof(IdentityDbContext))]
-    [Migration("20261105063834_Initial")]
+    [Migration("20261105080608_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -682,6 +682,22 @@ namespace Saaskit.Identity.Migrations.SqlServer.Migrations.Identity
                     b.ToTable("Principals", "identity");
                 });
 
+            modelBuilder.Entity("Saaskit.Identity.Domain.UserPreference", b =>
+                {
+                    b.Property<Guid>("UserPreferenceId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("UserPreferenceId");
+
+                    b.Property<string>("Locale")
+                        .HasMaxLength(16)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(16)");
+
+                    b.HasKey("UserPreferenceId");
+
+                    b.ToTable("UserPreferences", "identity");
+                });
+
             modelBuilder.Entity("Saaskit.Identity.Infrastructure.OpenIddict.OidcAuthorization", b =>
                 {
                     b.Property<Guid>("Id")
@@ -981,6 +997,15 @@ namespace Saaskit.Identity.Migrations.SqlServer.Migrations.Identity
                     b.HasOne("Saaskit.Identity.Domain.Principal", null)
                         .WithMany()
                         .HasForeignKey("PrincipalId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Saaskit.Identity.Domain.UserPreference", b =>
+                {
+                    b.HasOne("Saaskit.Identity.Domain.Principal", null)
+                        .WithOne()
+                        .HasForeignKey("Saaskit.Identity.Domain.UserPreference", "UserPreferenceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

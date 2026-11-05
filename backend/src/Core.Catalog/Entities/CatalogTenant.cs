@@ -13,11 +13,11 @@ public sealed class CatalogTenant : BaseEntity, IAggregateRoot
     {
     }
 
-    public CatalogTenant(string slug, string displayName, string plan, string timeZone, string currency, string locale, TenantPlacementData placement)
+    public CatalogTenant(string slug, string displayName, short planId, string timeZone, string currency, string locale, TenantPlacementData placement)
     {
         Slug = slug.ToLowerInvariant();
         DisplayName = displayName;
-        Plan = plan;
+        PlanId = planId;
         TimeZone = timeZone;
         Currency = currency;
         Locale = locale;
@@ -31,7 +31,7 @@ public sealed class CatalogTenant : BaseEntity, IAggregateRoot
 
     public TenantStatus Status { get; private set; }
 
-    public string Plan { get; private set; } = "";
+    public short PlanId { get; private set; }
 
     public string TimeZone { get; private set; } = "";
 
@@ -55,7 +55,7 @@ public sealed class CatalogTenant : BaseEntity, IAggregateRoot
 
     public void ChangePlacement(TenantPlacementData placement) => Placement = placement;
 
-    public void ChangePlan(string plan) => Plan = plan;
+    public void ChangePlan(short planId) => PlanId = planId;
 
     public void ChangeProfile(string displayName, string timeZone, string currency, string locale)
     {

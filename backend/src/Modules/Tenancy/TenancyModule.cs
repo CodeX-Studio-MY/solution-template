@@ -40,7 +40,10 @@ public sealed class TenancyModule : IPlatformModule
         services.AddScoped<ITenantCustomization, TenantCustomization>();
         services.AddScoped<IOperatorAccounts, OperatorAccounts>();
         services.AddScoped<IOperatorSessions, OperatorSessions>();
+        services.AddScoped<IOperatorPreferences, OperatorPreferences>();
         services.AddScoped<ISupportAccess, SupportAccess>();
+        services.AddScoped<IPlanCatalog, PlanCatalog>();
+        services.AddScoped<IIdentityProviderCatalog, IdentityProviderCatalog>();
         services.AddScoped<IPrincipalDirectory, PrincipalDirectory>();
         services.AddPlatformServiceClient<IIdentityClient, IdentityClient>(PlatformServices.Identity);
 

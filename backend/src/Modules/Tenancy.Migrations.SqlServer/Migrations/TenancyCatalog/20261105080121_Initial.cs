@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace Saaskit.Tenancy.Migrations.SqlServer.Migrations.TenancyCatalog
 {
     /// <inheritdoc />
@@ -30,6 +32,34 @@ namespace Saaskit.Tenancy.Migrations.SqlServer.Migrations.TenancyCatalog
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AuditLog", x => x.AuditLogId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "IdentityProviders",
+                schema: "tenancy",
+                columns: table => new
+                {
+                    IdentityProviderId = table.Column<short>(type: "smallint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ProviderType = table.Column<byte>(type: "tinyint", nullable: false),
+                    ProviderKey = table.Column<string>(type: "varchar(30)", unicode: false, maxLength: 30, nullable: false),
+                    DisplayName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    IsEnabled = table.Column<bool>(type: "bit", nullable: false),
+                    ClientId = table.Column<string>(type: "varchar(255)", unicode: false, maxLength: 255, nullable: true),
+                    ClientSecretProtected = table.Column<string>(type: "varchar(4000)", unicode: false, maxLength: 4000, nullable: true),
+                    Authority = table.Column<string>(type: "varchar(64)", unicode: false, maxLength: 64, nullable: true),
+                    AppleTeamId = table.Column<string>(type: "varchar(10)", unicode: false, maxLength: 10, nullable: true),
+                    AppleKeyId = table.Column<string>(type: "varchar(10)", unicode: false, maxLength: 10, nullable: true),
+                    RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: true),
+                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_IdentityProviders", x => x.IdentityProviderId);
+                    table.CheckConstraint("CK_IdentityProviders_ProviderKey", "REGEXP_LIKE([ProviderKey], '^[a-z][a-z0-9-]{1,29}$')");
                 });
 
             migrationBuilder.CreateTable(
@@ -69,6 +99,7 @@ namespace Saaskit.Tenancy.Migrations.SqlServer.Migrations.TenancyCatalog
                     PasswordHash = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
                     TotpSecret = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    Locale = table.Column<string>(type: "varchar(16)", unicode: false, maxLength: 16, nullable: true),
                     FailedAttempts = table.Column<int>(type: "int", nullable: false),
                     LockedUntil = table.Column<DateTime>(type: "datetime2", nullable: true),
                     RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true),
@@ -224,7 +255,8 @@ namespace Saaskit.Tenancy.Migrations.SqlServer.Migrations.TenancyCatalog
                 columns: table => new
                 {
                     PrincipalUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Email = table.Column<string>(type: "varchar(254)", unicode: false, maxLength: 254, nullable: false)
+                    Email = table.Column<string>(type: "varchar(254)", unicode: false, maxLength: 254, nullable: false),
+                    EmailVerifiedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -275,14 +307,23 @@ namespace Saaskit.Tenancy.Migrations.SqlServer.Migrations.TenancyCatalog
                     PrincipalUserProviderId = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     PrincipalUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Provider = table.Column<byte>(type: "tinyint", nullable: false),
+                    IdentityProviderId = table.Column<short>(type: "smallint", nullable: false),
                     ProviderSubject = table.Column<string>(type: "varchar(255)", unicode: false, maxLength: 255, nullable: false),
                     ProviderEmail = table.Column<string>(type: "varchar(254)", unicode: false, maxLength: 254, nullable: true),
-                    LinkedOn = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    ProviderEmailVerified = table.Column<bool>(type: "bit", nullable: false),
+                    LinkedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastUsedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_PrincipalUserProviders", x => x.PrincipalUserProviderId);
+                    table.ForeignKey(
+                        name: "FK_PrincipalUserProviders_IdentityProviders_IdentityProviderId",
+                        column: x => x.IdentityProviderId,
+                        principalSchema: "tenancy",
+                        principalTable: "IdentityProviders",
+                        principalColumn: "IdentityProviderId",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_PrincipalUserProviders_PrincipalUsers_PrincipalUserId",
                         column: x => x.PrincipalUserId,
@@ -292,11 +333,30 @@ namespace Saaskit.Tenancy.Migrations.SqlServer.Migrations.TenancyCatalog
                         onDelete: ReferentialAction.Restrict);
                 });
 
+            migrationBuilder.InsertData(
+                schema: "tenancy",
+                table: "IdentityProviders",
+                columns: new[] { "IdentityProviderId", "AppleKeyId", "AppleTeamId", "Authority", "ClientId", "ClientSecretProtected", "CreatedBy", "CreatedOn", "DisplayName", "IsEnabled", "ProviderKey", "ProviderType", "UpdatedBy", "UpdatedOn" },
+                values: new object[,]
+                {
+                    { (short)1, null, null, null, null, null, "system", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Google", false, "google", (byte)1, null, null },
+                    { (short)2, null, null, null, null, null, "system", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Microsoft", false, "microsoft", (byte)2, null, null },
+                    { (short)3, null, null, null, null, null, "system", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Apple", false, "apple", (byte)3, null, null },
+                    { (short)4, null, null, null, null, null, "system", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Facebook", false, "facebook", (byte)4, null, null }
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AuditLog_TenantId_OccurredOn",
                 schema: "tenancy",
                 table: "AuditLog",
                 columns: new[] { "TenantId", "OccurredOn" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_IdentityProviders_ProviderKey",
+                schema: "tenancy",
+                table: "IdentityProviders",
+                column: "ProviderKey",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_OnboardingRuns_Slug",
@@ -326,17 +386,17 @@ namespace Saaskit.Tenancy.Migrations.SqlServer.Migrations.TenancyCatalog
                 columns: new[] { "Type", "DisplayName" });
 
             migrationBuilder.CreateIndex(
+                name: "IX_PrincipalUserProviders_IdentityProviderId_ProviderSubject",
+                schema: "tenancy",
+                table: "PrincipalUserProviders",
+                columns: new[] { "IdentityProviderId", "ProviderSubject" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_PrincipalUserProviders_PrincipalUserId",
                 schema: "tenancy",
                 table: "PrincipalUserProviders",
                 column: "PrincipalUserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_PrincipalUserProviders_Provider_ProviderSubject",
-                schema: "tenancy",
-                table: "PrincipalUserProviders",
-                columns: new[] { "Provider", "ProviderSubject" },
-                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_PrincipalUsers_Email",
@@ -436,6 +496,10 @@ namespace Saaskit.Tenancy.Migrations.SqlServer.Migrations.TenancyCatalog
 
             migrationBuilder.DropTable(
                 name: "TenantPrincipalLogins",
+                schema: "tenancy");
+
+            migrationBuilder.DropTable(
+                name: "IdentityProviders",
                 schema: "tenancy");
 
             migrationBuilder.DropTable(

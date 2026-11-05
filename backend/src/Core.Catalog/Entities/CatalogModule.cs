@@ -12,10 +12,10 @@ public sealed class CatalogModule
     public string DisplayName { get; init; } = "";
 }
 
-/// <summary>A module included in a plan. Seeded from platform.yaml.</summary>
-public sealed class PlanModule
+/// <summary>A module included in a plan. Seeded from platform.yaml once; afterwards the operator console owns it.</summary>
+public sealed class PlanModuleAccess
 {
-    public string Plan { get; init; } = "";
+    public short PlanId { get; init; }
 
     public Guid ModuleId { get; init; }
 }
@@ -57,7 +57,8 @@ public sealed class TenantMigrationState
 /// <summary>Rate limits for a plan. Plans without a row use the RateLimit configuration defaults.</summary>
 public sealed class PlanLimit
 {
-    public string Plan { get; init; } = "";
+    /// <summary>The plan's ID, which is also this row's key (stored as <c>PlanLimitId</c>).</summary>
+    public short PlanId { get; init; }
 
     public int PerTenantPerMinute { get; set; }
 

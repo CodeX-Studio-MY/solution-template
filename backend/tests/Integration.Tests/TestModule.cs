@@ -1,3 +1,4 @@
+using Saaskit.Core.Platform;
 using System.Security.Claims;
 using Saaskit.Core;
 using Saaskit.Core.Data;
@@ -102,7 +103,7 @@ internal sealed class TestModuleHost : IAsyncDisposable
         Provider.AddServices(services, connectionString);
         _services = services.BuildServiceProvider();
 
-        Tenant = new TenantInfo(Guid.NewGuid(), "test", "Test", status, "standard", "Asia/Kuala_Lumpur", "MYR", "en",
+        Tenant = new TenantInfo(Guid.NewGuid(), "test", "Test", status, Plans.All[0], "Asia/Kuala_Lumpur", "MYR", "en",
             new HashSet<string>(), new TenantPlacement(provider, "default", "test", null));
     }
 

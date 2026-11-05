@@ -10,6 +10,7 @@ public sealed record TenantSummary(
     string DisplayName,
     TenantStatus Status,
     string Plan,
+    string PlanName,
     IReadOnlyList<string> Modules,
     DateTime? DeleteAfter,
     bool RequireSupportApproval,
