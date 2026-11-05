@@ -9,7 +9,7 @@ export const plans = ["lite", "advanced", "complete"] as const;
 export type Plan = (typeof plans)[number];
 
 /** Access modules: what roles and plans apply to. */
-export const moduleKeys = ["access-management", "tenant-settings", "billing"] as const;
+export const moduleKeys = ["access-management", "tenant-settings", "billing", "base"] as const;
 export type ModuleKey = (typeof moduleKeys)[number];
 
 /** Each module's display name (the default; a module's own i18n may translate it) and the plans that include it. */
@@ -17,10 +17,11 @@ export const modules: readonly { key: ModuleKey; name: string; plans: readonly P
   { key: "access-management", name: "Access Management", plans: ["lite", "advanced", "complete"] },
   { key: "tenant-settings", name: "Tenant Settings", plans: ["lite", "advanced", "complete"] },
   { key: "billing", name: "Billing", plans: ["lite", "advanced", "complete"] },
+  { key: "base", name: "Base", plans: ["lite", "advanced", "complete"] },
 ];
 
 /** Backend services, routed at /api/{service-key}/*. */
-export const serviceKeys = ["identity", "tenancy", "notification"] as const;
+export const serviceKeys = ["identity", "tenancy", "notification", "base"] as const;
 export type ServiceKey = (typeof serviceKeys)[number];
 
 export const platformDefaults = {

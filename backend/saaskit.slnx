@@ -17,11 +17,14 @@
   </Folder>
   <Folder Name="/src/Hosts/">
     <Project Path="src/Hosts/AllInOne.Host/AllInOne.Host.csproj" />
+    <Project Path="src/Hosts/Base.Host/Base.Host.csproj" />
     <Project Path="src/Hosts/Identity.Host/Identity.Host.csproj" />
     <Project Path="src/Hosts/Notification.Host/Notification.Host.csproj" />
     <Project Path="src/Hosts/Tenancy.Host/Tenancy.Host.csproj" />
   </Folder>
   <Folder Name="/src/Modules/">
+    <Project Path="src/Modules/Base.Migrations.SqlServer/Base.Migrations.SqlServer.csproj" />
+    <Project Path="src/Modules/Base/Base.csproj" />
     <Project Path="src/Modules/Identity.Migrations.SqlServer/Identity.Migrations.SqlServer.csproj" />
     <Project Path="src/Modules/Identity/Identity.csproj" />
     <Project Path="src/Modules/Notification.Migrations.SqlServer/Notification.Migrations.SqlServer.csproj" />
@@ -31,6 +34,7 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Architecture.Tests/Architecture.Tests.csproj" />
+    <Project Path="tests/Base.Tests/Base.Tests.csproj" />
     <Project Path="tests/Core.Tests/Core.Tests.csproj" />
     <Project Path="tests/Generator.Tests/Generator.Tests.csproj" />
     <Project Path="tests/Identity.Tests/Identity.Tests.csproj" />

@@ -173,8 +173,6 @@ internal sealed class AccessManagement(
     {
         await FindGroupAsync(groupId, cancellationToken);
         var principal = await FindPrincipalAsync(principalId, cancellationToken);
-        if (principal.Type == PrincipalType.Service)
-            throw new BusinessRuleException(IdentityErrors.ServicePrincipalsHaveNoGroups);
 
         var membership = await db.GroupMemberships.SingleOrDefaultAsync(m => m.GroupId == groupId && m.PrincipalId == principalId, cancellationToken);
         if (membership is null)

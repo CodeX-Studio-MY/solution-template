@@ -34,7 +34,7 @@ export function Component() {
           <Paper variant="outlined" sx={{ p: 2 }}>
             <Stack direction={{ xs: "column", sm: "row" }} spacing={3}>
               <Fact label={t("profile.address")} value={data.slug} />
-              <Fact label={t("profile.plan")} value={data.plan} />
+              <Fact label={t("profile.plan")} value={data.planName} />
               <div>
                 <Typography variant="body2" color="text.secondary">
                   {t("profile.status")}

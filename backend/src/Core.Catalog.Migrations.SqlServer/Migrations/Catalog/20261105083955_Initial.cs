@@ -248,6 +248,7 @@ namespace Saaskit.Core.Catalog.Migrations.SqlServer.Migrations.Catalog
                 {
                     { new Guid("4b8bdd8f-2cd0-5914-9d29-e17f948aca9b"), "Tenant Settings", "tenant-settings" },
                     { new Guid("9a8337a5-3cd5-5963-9b61-886a163e630f"), "Access Management", "access-management" },
+                    { new Guid("b094255b-e3fd-50c6-9d04-7eb2721d16c0"), "Base", "base" },
                     { new Guid("d39d3a7b-c5dc-560a-b527-ce06d0158063"), "Billing", "billing" }
                 });
 
@@ -270,12 +271,15 @@ namespace Saaskit.Core.Catalog.Migrations.SqlServer.Migrations.Catalog
                 {
                     { new Guid("4b8bdd8f-2cd0-5914-9d29-e17f948aca9b"), (short)1 },
                     { new Guid("9a8337a5-3cd5-5963-9b61-886a163e630f"), (short)1 },
+                    { new Guid("b094255b-e3fd-50c6-9d04-7eb2721d16c0"), (short)1 },
                     { new Guid("d39d3a7b-c5dc-560a-b527-ce06d0158063"), (short)1 },
                     { new Guid("4b8bdd8f-2cd0-5914-9d29-e17f948aca9b"), (short)2 },
                     { new Guid("9a8337a5-3cd5-5963-9b61-886a163e630f"), (short)2 },
+                    { new Guid("b094255b-e3fd-50c6-9d04-7eb2721d16c0"), (short)2 },
                     { new Guid("d39d3a7b-c5dc-560a-b527-ce06d0158063"), (short)2 },
                     { new Guid("4b8bdd8f-2cd0-5914-9d29-e17f948aca9b"), (short)3 },
                     { new Guid("9a8337a5-3cd5-5963-9b61-886a163e630f"), (short)3 },
+                    { new Guid("b094255b-e3fd-50c6-9d04-7eb2721d16c0"), (short)3 },
                     { new Guid("d39d3a7b-c5dc-560a-b527-ce06d0158063"), (short)3 }
                 });
 

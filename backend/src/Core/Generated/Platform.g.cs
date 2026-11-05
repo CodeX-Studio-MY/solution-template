@@ -20,12 +20,14 @@ public static class Modules
     public const string AccessManagement = "access-management";
     public const string TenantSettings = "tenant-settings";
     public const string Billing = "billing";
+    public const string Base = "base";
 
     public static readonly IReadOnlyList<ModuleInfo> All =
     [
         new(AccessManagement, "Access Management", new Guid("9a8337a5-3cd5-5963-9b61-886a163e630f"), ["lite", "advanced", "complete"]),
         new(TenantSettings, "Tenant Settings", new Guid("4b8bdd8f-2cd0-5914-9d29-e17f948aca9b"), ["lite", "advanced", "complete"]),
         new(Billing, "Billing", new Guid("d39d3a7b-c5dc-560a-b527-ce06d0158063"), ["lite", "advanced", "complete"]),
+        new(Base, "Base", new Guid("b094255b-e3fd-50c6-9d04-7eb2721d16c0"), ["lite", "advanced", "complete"]),
     ];
 }
 
@@ -87,6 +89,7 @@ public static class PlatformServices
     public static readonly PlatformService Identity = new("identity", 5001, "saaskit:identity", [Modules.AccessManagement], UsesTenantDatabase: true, UsesCatalogDatabase: true);
     public static readonly PlatformService Tenancy = new("tenancy", 5002, "saaskit:tenancy", [Modules.TenantSettings, Modules.Billing], UsesTenantDatabase: false, UsesCatalogDatabase: true);
     public static readonly PlatformService Notification = new("notification", 5003, "saaskit:notification", [], UsesTenantDatabase: true, UsesCatalogDatabase: false);
+    public static readonly PlatformService Base = new("base", 5101, "saaskit:base", [Modules.Base], UsesTenantDatabase: true, UsesCatalogDatabase: false);
 
-    public static readonly IReadOnlyList<PlatformService> All = [Identity, Tenancy, Notification];
+    public static readonly IReadOnlyList<PlatformService> All = [Identity, Tenancy, Notification, Base];
 }

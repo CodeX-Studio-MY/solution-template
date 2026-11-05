@@ -1,11 +1,12 @@
 import { useState, type FormEvent } from "react";
+import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { useTranslation } from "react-i18next";
-import { ProblemAlert } from "@saaskit/ui-kit";
+import { LanguageMenu, ProblemAlert } from "@saaskit/ui-kit";
 import { signIn } from "../session";
 
 /** Email, password and a TOTP code: operators always use two factors. */
@@ -30,7 +31,11 @@ export function SignIn() {
   }
 
   return (
-    <Stack component="main" sx={{ minHeight: "100vh", alignItems: "center", justifyContent: "center", p: 2 }}>
+    <Stack component="main" sx={{ minHeight: "100vh", alignItems: "center", justifyContent: "center", p: 2, position: "relative" }}>
+      {/* Changes the language of this screen only: nobody is signed in, so there is nothing to save it to. */}
+      <Box sx={{ position: "absolute", top: 8, insetInlineEnd: 8 }}>
+        <LanguageMenu />
+      </Box>
       <Paper variant="outlined" sx={{ p: 4, width: "100%", maxWidth: 400 }}>
         <form onSubmit={submit} noValidate>
           <Stack spacing={2.5}>

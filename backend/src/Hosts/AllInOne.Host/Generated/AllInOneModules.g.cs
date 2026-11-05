@@ -9,10 +9,11 @@ internal static class AllInOneModules
     /// <summary>Runs every service from platform.yaml in this process.</summary>
     public static global::Microsoft.AspNetCore.Builder.WebApplicationBuilder AddEveryModule(this global::Microsoft.AspNetCore.Builder.WebApplicationBuilder builder)
     {
-        builder.AddPlatform(global::Saaskit.Core.Platform.PlatformServices.Identity, global::Saaskit.Core.Platform.PlatformServices.Tenancy, global::Saaskit.Core.Platform.PlatformServices.Notification);
+        builder.AddPlatform(global::Saaskit.Core.Platform.PlatformServices.Identity, global::Saaskit.Core.Platform.PlatformServices.Tenancy, global::Saaskit.Core.Platform.PlatformServices.Notification, global::Saaskit.Core.Platform.PlatformServices.Base);
         builder.AddModule<global::Saaskit.Identity.IdentityModule>();
         builder.AddModule<global::Saaskit.Tenancy.TenancyModule>();
         builder.AddModule<global::Saaskit.Notification.NotificationModule>();
+        builder.AddModule<global::Saaskit.Base.BaseModule>();
         return builder;
     }
 }

@@ -1,9 +1,9 @@
 {
   "title": "平台设置",
-  "subtitle": "管理您的组织、谁可以使用它，以及每个应用的行为方式。",
+  "subtitle": "管理您的组织、谁可以使用它，以及每个模块的行为方式。",
   "nav": "设置分区",
   "groups": {
-    "subtitle": "一次为多人授予相同的访问权限。",
+    "subtitle": "一次为多个用户、设备或应用授予相同的访问权限。",
     "create": "新建用户组",
     "name": "名称",
     "members": "成员",
@@ -31,7 +31,8 @@
     "support": "支持访问",
     "users": "用户",
     "groups": "用户组",
-    "machines": "设备与集成",
+    "devices": "设备",
+    "applications": "应用",
     "audit": "安全日志",
     "activity": "组织活动"
   },
@@ -41,7 +42,7 @@
     "plan": "套餐",
     "address": "地址",
     "status": "状态",
-    "modules": "您的套餐包含的应用"
+    "modules": "您的套餐包含的模块"
   },
   "branding": {
     "subtitle": "您组织中每个人看到的颜色和标志。",
@@ -56,21 +57,21 @@
     "preview": "标志预览"
   },
   "modules": {
-    "subtitle": "平台自身服务（例如计费）的设置。各应用的设置位于应用内菜单中的“设置”。",
+    "subtitle": "平台自身服务（例如计费）的设置。各模块的设置位于模块内菜单中的“设置”。",
     "empty": "平台服务都没有设置。",
     "saved": "设置已保存。"
   },
   "features": {
     "subtitle": "可选功能及其是否已为您的组织开启。如需更改，请联系服务提供方。",
     "feature": "功能",
-    "module": "应用",
+    "module": "模块",
     "state": "状态",
     "empty": "没有可选功能。"
   },
   "support": {
     "subtitle": "服务提供方支持团队查看您数据的请求。未经您的批准，不会共享任何内容。",
     "operator": "申请人",
-    "module": "应用",
+    "module": "模块",
     "role": "权限",
     "reason": "原因",
     "expires": "截止",
@@ -94,7 +95,7 @@
     }
   },
   "users": {
-    "subtitle": "可以登录的人员，以及他们在每个应用中可以执行的操作。",
+    "subtitle": "可以登录的人员，以及他们在每个模块中可以执行的操作。",
     "invite": "邀请用户",
     "name": "姓名",
     "email": "电子邮件",
@@ -108,7 +109,7 @@
     "inviteText": "对方将收到一封电子邮件，其中包含设置密码的链接。",
     "invited": "邀请已发送至 {{email}}。",
     "roles": "访问权限",
-    "rolesHint": "他们在每个应用中可以执行的操作。用户组可能会授予更多权限。",
+    "rolesHint": "他们在每个模块中可以执行的操作。用户组可能会授予更多权限。",
     "edit": "编辑用户",
     "saved": "已保存。",
     "deactivate": "停用",
@@ -124,26 +125,31 @@
     "noAccess": "尚无访问权限。",
     "roleSaved": "访问权限已更新。"
   },
-  "machines": {
-    "subtitle": "共享设备（例如仓库平板电脑）以及调用 API 的外部系统。",
-    "add": "添加设备",
+  "principals": {
     "name": "名称",
-    "type": "类型",
     "clientId": "客户端 ID",
     "status": "状态",
-    "empty": "还没有设备或集成。",
     "types": {
+      "user": "用户",
       "machine": "设备",
-      "service": "集成"
-    },
+      "service": "应用"
+    }
+  },
+  "devices": {
+    "subtitle": "共享设备（例如仓库平板电脑）。每台设备都可以直接或通过用户组获得模块访问权限。",
+    "add": "添加设备",
+    "empty": "还没有设备。",
     "addTitle": "添加设备",
     "codeTitle": "{{name}} 的注册码",
     "codeText": "请在 15 分钟内（{{expires}} 之前）在设备上输入此代码。它只显示一次：{{code}}",
-    "newCode": "新的注册码",
-    "copied": "已复制。",
-    "addIntegration": "添加集成",
-    "integrationTitle": "添加集成",
-    "integrationText": "用于通过客户端凭据流程调用 API 的外部系统（ERP、合作伙伴）。",
+    "newCode": "新的注册码"
+  },
+  "applications": {
+    "subtitle": "调用 API 的外部系统（例如 ERP 或合作伙伴）。每个应用都可以直接或通过用户组获得模块访问权限。",
+    "add": "添加应用",
+    "empty": "还没有应用。",
+    "addTitle": "添加应用",
+    "addText": "用于通过客户端凭据流程调用 API 的外部系统（ERP、合作伙伴）。",
     "secretTitle": "{{name}} 的凭据",
     "secretText": "客户端 ID：{{clientId}} · 密钥：{{secret}} — 请立即复制密钥，它不会再次显示。"
   },
@@ -158,6 +164,6 @@
     "subtitle": "登录、权限变更，以及支持人员使用支持访问所做的一切。永久保存，不可更改。"
   },
   "activity": {
-    "subtitle": "您的管理员和服务提供方对组织套餐、应用、设置和支持策略所做的更改。"
+    "subtitle": "您的管理员和服务提供方对组织套餐、模块、设置和支持策略所做的更改。"
   }
 }

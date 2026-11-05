@@ -130,6 +130,8 @@ public sealed class InitTests : IDisposable
     public void A_module_declared_in_platform_yaml_by_hand_is_found_until_it_is_scaffolded()
     {
         var platform = Template();
+        // The template's own business module, Base, is committed on disk, so only the one added by hand is unscaffolded.
+        Directory.CreateDirectory(Path.Combine(_root, "backend", "src", "Modules", "Base"));
         platform.Services.Add(new ServiceDefinition { Key = "purchase", Port = 5004, Owns = ["purchase"] });
         platform.Modules.Add(new ModuleDefinition { Key = "purchase", Name = "Purchase", Plans = [.. platform.Plans] });
 

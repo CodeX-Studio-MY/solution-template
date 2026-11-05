@@ -236,39 +236,6 @@ namespace Saaskit.Identity.Migrations.SqlServer.Migrations.Identity
                 });
 
             migrationBuilder.CreateTable(
-                name: "AccessAssignments",
-                schema: "identity",
-                columns: table => new
-                {
-                    AccessAssignmentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    PrincipalId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    GroupId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    ModuleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Role = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    UpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AccessAssignments", x => x.AccessAssignmentId);
-                    table.CheckConstraint("CK_AccessAssignments_PrincipalOrGroup", "([PrincipalId] IS NULL AND [GroupId] IS NOT NULL) OR ([PrincipalId] IS NOT NULL AND [GroupId] IS NULL)");
-                    table.ForeignKey(
-                        name: "FK_AccessAssignments_Groups_GroupId",
-                        column: x => x.GroupId,
-                        principalSchema: "identity",
-                        principalTable: "Groups",
-                        principalColumn: "GroupId");
-                    table.ForeignKey(
-                        name: "FK_AccessAssignments_Principals_PrincipalId",
-                        column: x => x.PrincipalId,
-                        principalSchema: "identity",
-                        principalTable: "Principals",
-                        principalColumn: "PrincipalId");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "DataScopeAssignments",
                 schema: "identity",
                 columns: table => new
@@ -359,6 +326,39 @@ namespace Saaskit.Identity.Migrations.SqlServer.Migrations.Identity
                         principalTable: "Principals",
                         principalColumn: "PrincipalId",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ModuleAccess",
+                schema: "identity",
+                columns: table => new
+                {
+                    ModuleAccessId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    PrincipalId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    GroupId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    ModuleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Role = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ModuleAccess", x => x.ModuleAccessId);
+                    table.CheckConstraint("CK_ModuleAccess_PrincipalOrGroup", "([PrincipalId] IS NULL AND [GroupId] IS NOT NULL) OR ([PrincipalId] IS NOT NULL AND [GroupId] IS NULL)");
+                    table.ForeignKey(
+                        name: "FK_ModuleAccess_Groups_GroupId",
+                        column: x => x.GroupId,
+                        principalSchema: "identity",
+                        principalTable: "Groups",
+                        principalColumn: "GroupId");
+                    table.ForeignKey(
+                        name: "FK_ModuleAccess_Principals_PrincipalId",
+                        column: x => x.PrincipalId,
+                        principalSchema: "identity",
+                        principalTable: "Principals",
+                        principalColumn: "PrincipalId");
                 });
 
             migrationBuilder.CreateTable(
@@ -504,22 +504,6 @@ namespace Saaskit.Identity.Migrations.SqlServer.Migrations.Identity
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_AccessAssignments_GroupId_ModuleId",
-                schema: "identity",
-                table: "AccessAssignments",
-                columns: new[] { "GroupId", "ModuleId" },
-                unique: true,
-                filter: "[GroupId] IS NOT NULL");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AccessAssignments_PrincipalId_ModuleId",
-                schema: "identity",
-                table: "AccessAssignments",
-                columns: new[] { "PrincipalId", "ModuleId" },
-                unique: true,
-                filter: "[PrincipalId] IS NOT NULL");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_AuditLog_ActorId",
                 schema: "identity",
                 table: "AuditLog",
@@ -595,6 +579,22 @@ namespace Saaskit.Identity.Migrations.SqlServer.Migrations.Identity
                 schema: "identity",
                 table: "MachineEnrollments",
                 column: "PrincipalId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ModuleAccess_GroupId_ModuleId",
+                schema: "identity",
+                table: "ModuleAccess",
+                columns: new[] { "GroupId", "ModuleId" },
+                unique: true,
+                filter: "[GroupId] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ModuleAccess_PrincipalId_ModuleId",
+                schema: "identity",
+                table: "ModuleAccess",
+                columns: new[] { "PrincipalId", "ModuleId" },
+                unique: true,
+                filter: "[PrincipalId] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_OidcAuthorizations_ApplicationId_Status_Subject_Type",
@@ -687,10 +687,6 @@ namespace Saaskit.Identity.Migrations.SqlServer.Migrations.Identity
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "AccessAssignments",
-                schema: "identity");
-
-            migrationBuilder.DropTable(
                 name: "AuditLog",
                 schema: "identity");
 
@@ -716,6 +712,10 @@ namespace Saaskit.Identity.Migrations.SqlServer.Migrations.Identity
 
             migrationBuilder.DropTable(
                 name: "MachineEnrollments",
+                schema: "identity");
+
+            migrationBuilder.DropTable(
+                name: "ModuleAccess",
                 schema: "identity");
 
             migrationBuilder.DropTable(

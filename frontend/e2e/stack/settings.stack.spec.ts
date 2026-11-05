@@ -32,7 +32,10 @@ test("the demo admin invites a user, makes a group with a member, and changes th
   await panel.getByRole("button", { name: "Add" }).click();
   await expect(page.getByText("Member added.")).toBeVisible();
   await expect(panel.getByText(`user-${run}@demo.example`)).toBeVisible();
+  // The Add button disables itself, which can take the focus with it; Escape only closes the panel from inside it.
+  await panel.getByRole("heading", { name: `Team ${run}` }).click();
   await page.keyboard.press("Escape");
+  await expect(panel).toBeHidden();
 
   // The security log has the invitation, naming who it was for.
   await nav.getByRole("link", { name: "Security log" }).click();
@@ -40,15 +43,15 @@ test("the demo admin invites a user, makes a group with a member, and changes th
     page.getByRole("table", { name: "Security log" }).getByRole("row", { name: new RegExp(`Invitation sent.*User ${run}`) }),
   ).toBeVisible();
 
-  // An integration gets a client ID and a secret that is shown once.
-  await nav.getByRole("link", { name: "Devices & integrations" }).click();
-  await page.getByRole("button", { name: "Add integration" }).click();
-  await page.getByRole("dialog", { name: "Add an integration" }).getByLabel("Name").fill(`ERP ${run}`);
-  await page.getByRole("dialog", { name: "Add an integration" }).getByRole("button", { name: "Create" }).click();
+  // An application gets a client ID and a secret that is shown once.
+  await nav.getByRole("link", { name: "Applications" }).click();
+  await page.getByRole("button", { name: "Add application" }).click();
+  await page.getByRole("dialog", { name: "Add an application" }).getByLabel("Name").fill(`ERP ${run}`);
+  await page.getByRole("dialog", { name: "Add an application" }).getByRole("button", { name: "Create" }).click();
   const credentials = page.getByRole("dialog", { name: `Credentials for ERP ${run}` });
   await expect(credentials).toContainText("Client ID: demo-service-");
   await credentials.getByRole("button", { name: "Close" }).click();
-  await expect(page.getByRole("row", { name: new RegExp(`ERP ${run}.*Integration`) })).toBeVisible();
+  await expect(page.getByRole("row", { name: new RegExp(`ERP ${run}`) })).toBeVisible();
 
   await nav.getByRole("link", { name: "Branding" }).click();
   // A colour of its own per run, so an earlier run's saved value never makes this a no-op.

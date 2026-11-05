@@ -16,5 +16,8 @@ internal static partial class PlatformResources
         infrastructure.ConfigureService(builder
             .AddProject("notification", "../Hosts/Notification.Host/Notification.Host.csproj")
             .WithHttpEndpoint(port: 5003, name: "http")),
+        infrastructure.ConfigureService(builder
+            .AddProject("base", "../Hosts/Base.Host/Base.Host.csproj")
+            .WithHttpEndpoint(port: 5101, name: "http")),
     ];
 }

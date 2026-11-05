@@ -5,8 +5,8 @@ It follows `SAAS_TEMPLATE_PROMPT.md`; differences are recorded in [docs/deviatio
 
 A reusable starting point for a multi-tenant SaaS product: one database per tenant (SQL Server 2025; PostgreSQL 18 is supported and added back with `scripts/add-postgresql`), a module per
 business capability (backend and frontend with the same key), per-tenant plans and customization, a BFF with no tokens in the browser,
-and tests that enforce the architecture. It ships **no business module**: you add yours with `scripts/new-module`, from clean templates
-that show every pattern.
+and tests that enforce the architecture. It ships one empty business module, **Base**, where a product keeps its master data (`MsFarm`, `MsCrop`, ...); you add the others
+with `scripts/new-module`, from clean templates that show every pattern.
 
 <!-- BEGIN TEMPLATE ONLY -->
 ## Start a product from this template
@@ -29,7 +29,7 @@ that show every pattern.
    | `--product` | asked | The product key: lowercase letters and digits (`farm360`). It becomes the C# root namespace (`Farm360.Core`), the npm scope (`@farm360/ui-kit`), token audiences and container names. |
    | `--org` | `CodeX Studio` | The organization, for package metadata. |
    | `--timezone`, `--currency`, `--locales` | `Asia/Kuala_Lumpur`, `MYR`, `en,ms,zh` | Defaults for new tenants. |
-   | `--plans` | `standard,plus` | The plans you sell, lowest first. |
+   | `--plans` | `standard,plus` | The plans you sell, lowest first. `platform.yaml` seeds the first plans; the operator console manages them afterwards. |
    | `--cloud` | `azure` | `azure` or `aws`. |
    | `--modules` | none | The first business modules, as keys (`crop-planning,livestock`). Add more later with `scripts/new-module`. |
    | `--yes` | | Ask nothing; use the defaults for what isn't passed (`--product` is still required). |
@@ -88,12 +88,14 @@ flowchart LR
 | `identity` | `/api/identity/*` | 5001 | `access-management` | tenant, catalog |
 | `tenancy` | `/api/tenancy/*` | 5002 | `tenant-settings`, `billing` | catalog |
 | `notification` | `/api/notification/*` | 5003 | — | tenant |
+| `base` | `/api/base/*` | 5101 | `base` | tenant |
 
 | Module | Name | Plans |
 |---|---|---|
 | `access-management` | Access Management | lite, advanced, complete |
 | `tenant-settings` | Tenant Settings | lite, advanced, complete |
 | `billing` | Billing | lite, advanced, complete |
+| `base` | Base | lite, advanced, complete |
 <!-- END GENERATED: modules -->
 
 ## Quick start
@@ -257,7 +259,7 @@ docs/                         guides, ADRs, runbooks, the generated configuratio
 
 ## Guides
 
-- [Adding a module](docs/adding-a-module.md) · [Onboarding a tenant](docs/onboarding-a-tenant.md) · [Tenant customization](docs/tenant-customization.md)
+- [Adding a module](docs/adding-a-module.md) · [Adding a master entity](docs/adding-a-master-entity.md) · [Onboarding a tenant](docs/onboarding-a-tenant.md) · [Tenant customization](docs/tenant-customization.md)
 - [Architecture decisions](docs/adr/README.md) · [Runbooks](docs/runbooks/README.md) · [SLOs](docs/runbooks/slos.md)
 - [Deviations from the specification](docs/deviations.md)
 

@@ -1,14 +1,14 @@
 {
   "title": "Platform settings",
-  "subtitle": "Manage your organisation, who can use it, and how each application behaves.",
+  "subtitle": "Manage your organisation, who can use it, and how each module behaves.",
   "nav": "Settings sections",
   "groups": {
-    "subtitle": "Give the same access to several people at once.",
+    "subtitle": "Give the same access to several users, devices or applications at once.",
     "create": "New group",
     "name": "Name",
     "members": "Members",
     "empty": "No groups yet.",
-    "emptyHint": "Create a group, then add people and give it access.",
+    "emptyHint": "Create a group, then add members and give it access.",
     "createTitle": "New group",
     "renameTitle": "Rename group",
     "created": "Group created.",
@@ -31,7 +31,8 @@
     "support": "Support access",
     "users": "Users",
     "groups": "Groups",
-    "machines": "Devices & integrations",
+    "devices": "Devices",
+    "applications": "Applications",
     "audit": "Security log",
     "activity": "Organisation activity"
   },
@@ -41,7 +42,7 @@
     "plan": "Plan",
     "address": "Address",
     "status": "Status",
-    "modules": "Applications in your plan"
+    "modules": "Modules in your plan"
   },
   "branding": {
     "subtitle": "The colour and logo everyone in your organisation sees.",
@@ -56,21 +57,21 @@
     "preview": "Logo preview"
   },
   "modules": {
-    "subtitle": "Settings of the platform's own services, such as billing. Each application's settings are in the application itself, under Settings in its menu.",
+    "subtitle": "Settings of the platform's own services, such as billing. Each module's settings are in the module itself, under Settings in its menu.",
     "empty": "None of the platform's services has settings.",
     "saved": "Settings saved."
   },
   "features": {
     "subtitle": "Optional features and whether they are on for your organisation. Ask your provider to change them.",
     "feature": "Feature",
-    "module": "Application",
+    "module": "Module",
     "state": "State",
     "empty": "No optional features."
   },
   "support": {
     "subtitle": "Requests from your provider's support team to look at your data. Nothing is shared without your approval.",
     "operator": "Requested by",
-    "module": "Application",
+    "module": "Module",
     "role": "Access",
     "reason": "Reason",
     "expires": "Until",
@@ -94,7 +95,7 @@
     }
   },
   "users": {
-    "subtitle": "People who can sign in, and what they can do in each application.",
+    "subtitle": "People who can sign in, and what they can do in each module.",
     "invite": "Invite user",
     "name": "Name",
     "email": "Email",
@@ -108,7 +109,7 @@
     "inviteText": "They'll get an email with a link to choose a password.",
     "invited": "Invitation sent to {{email}}.",
     "roles": "Access",
-    "rolesHint": "What they can do in each application. Groups may give more.",
+    "rolesHint": "What they can do in each module. Groups may give more.",
     "edit": "Edit user",
     "saved": "Saved.",
     "deactivate": "Deactivate",
@@ -124,26 +125,31 @@
     "noAccess": "No access yet.",
     "roleSaved": "Access updated."
   },
-  "machines": {
-    "subtitle": "Shared devices (such as a warehouse tablet) and external systems that call the API.",
-    "add": "Add device",
+  "principals": {
     "name": "Name",
-    "type": "Kind",
     "clientId": "Client ID",
     "status": "Status",
-    "empty": "No devices or integrations yet.",
     "types": {
+      "user": "User",
       "machine": "Device",
-      "service": "Integration"
-    },
+      "service": "Application"
+    }
+  },
+  "devices": {
+    "subtitle": "Shared devices, such as a warehouse tablet. Each can hold access to modules, directly or through groups.",
+    "add": "Add device",
+    "empty": "No devices yet.",
     "addTitle": "Add a device",
     "codeTitle": "Enrollment code for {{name}}",
     "codeText": "Enter this code on the device within 15 minutes (until {{expires}}). It is shown only once: {{code}}",
-    "newCode": "New enrollment code",
-    "copied": "Copied.",
-    "addIntegration": "Add integration",
-    "integrationTitle": "Add an integration",
-    "integrationText": "For an external system (an ERP, a partner) that calls the API with the client-credentials flow.",
+    "newCode": "New enrollment code"
+  },
+  "applications": {
+    "subtitle": "External systems, such as an ERP or a partner, that call the API. Each can hold access to modules, directly or through groups.",
+    "add": "Add application",
+    "empty": "No applications yet.",
+    "addTitle": "Add an application",
+    "addText": "For an external system (an ERP, a partner) that calls the API with the client-credentials flow.",
     "secretTitle": "Credentials for {{name}}",
     "secretText": "Client ID: {{clientId}} · Secret: {{secret}} — copy the secret now; it is not shown again."
   },
@@ -158,6 +164,6 @@
     "subtitle": "Sign-ins, access changes and everything support staff did with support access. Kept for good; nothing can be changed."
   },
   "activity": {
-    "subtitle": "Changes to your organisation's plan, applications, settings and support policy, by your admins and your provider."
+    "subtitle": "Changes to your organisation's plan, modules, settings and support policy, by your admins and your provider."
   }
 }

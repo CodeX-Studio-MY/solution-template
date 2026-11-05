@@ -18,7 +18,7 @@ import Tabs from "@mui/material/Tabs";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { useTranslation } from "react-i18next";
-import { ApiError, modules, plans, unwrap, useApiMutation, useApiQuery, useDialog, type Role } from "@saaskit/web-core";
+import { ApiError, modules, unwrap, useApiMutation, useApiQuery, useDialog, type Role } from "@saaskit/web-core";
 import {
   ActivityTable,
   PageHeader,
@@ -30,7 +30,7 @@ import {
   type SettingsView,
   type TenantProfile,
 } from "@saaskit/ui-kit";
-import { tenancy, tenantsKey, type TenantSummary } from "../api";
+import { plansKey, tenancy, tenantsKey, useModules, usePlans, type TenantSummary } from "../api";
 import { statusTone } from "./statusTone";
 import { TenantAccess, TenantLogins } from "./TenantAccess";
 
@@ -98,6 +98,10 @@ function Overview({ tenant }: { tenant: TenantSummary }) {
   const id = tenant.id;
   const path = { params: { path: { id } } };
   const refresh = { invalidate: [tenantsKey] };
+  // The plans and modules come from the database, so a plan added in Subscriptions is here at once.
+  const plans = usePlans();
+  const moduleList = useModules();
+  const currentPlan = plans.data?.find((plan) => plan.planKey === tenant.plan);
 
   const profile = useMemo<TenantProfile>(
     () => ({ displayName: tenant.displayName, timeZone: tenant.timeZone, currency: tenant.currency, locale: tenant.locale }),
@@ -113,7 +117,7 @@ function Overview({ tenant }: { tenant: TenantSummary }) {
   const changePlan = useApiMutation(
     (plan: string) => unwrap(tenancy.PUT("/api/tenancy/v1/operator/tenants/{id}/plan", { ...path, body: { plan } })),
     {
-      ...refresh,
+      invalidate: [tenantsKey, plansKey],
       success: t("tenant.planSaved"),
     },
   );
@@ -133,8 +137,13 @@ function Overview({ tenant }: { tenant: TenantSummary }) {
 
   async function askPlan(plan: string) {
     if (plan === tenant.plan) return;
+    const name = plans.data?.find((p) => p.planKey === plan)?.displayName ?? plan;
     if (
-      await dialog.confirm({ title: t("tenant.planTitle", { name: tenant.displayName, plan }), text: t("tenant.planText"), tone: "danger" })
+      await dialog.confirm({
+        title: t("tenant.planTitle", { name: tenant.displayName, plan: name }),
+        text: t("tenant.planText"),
+        tone: "danger",
+      })
     )
       changePlan.mutate(plan);
   }
@@ -154,32 +163,35 @@ function Overview({ tenant }: { tenant: TenantSummary }) {
           select
           size="small"
           label={t("tenant.plan")}
-          value={tenant.plan}
+          value={plans.data ? tenant.plan : ""}
           onChange={(e) => void askPlan(e.target.value)}
           sx={{ minWidth: 200 }}
         >
-          {plans.map((plan) => (
-            <MenuItem key={plan} value={plan}>
-              {plan}
-            </MenuItem>
-          ))}
+          {/* A retired plan is offered only to the tenant already on it. */}
+          {(plans.data ?? [])
+            .filter((plan) => plan.isActive || plan.planKey === tenant.plan)
+            .map((plan) => (
+              <MenuItem key={plan.planKey} value={plan.planKey}>
+                {plan.displayName}
+              </MenuItem>
+            ))}
         </TextField>
       </Section>
       <Section title={t("tenant.modules")} hint={t("tenant.modulesHint")}>
         <Stack>
-          {modules.map((module) => {
-            const inPlan = (module.plans as readonly string[]).includes(tenant.plan);
+          {(moduleList.data ?? []).map((module) => {
+            const inPlan = currentPlan?.modules.includes(module.moduleKey) ?? false;
             return (
               <FormControlLabel
-                key={module.key}
+                key={module.moduleKey}
                 control={
                   <Checkbox
-                    checked={inPlan || tenant.modules.includes(module.key)}
+                    checked={inPlan || tenant.modules.includes(module.moduleKey)}
                     disabled={inPlan || setModule.isPending}
-                    onChange={(e) => setModule.mutate({ module: module.key, on: e.target.checked })}
+                    onChange={(e) => setModule.mutate({ module: module.moduleKey, on: e.target.checked })}
                   />
                 }
-                label={inPlan ? `${module.name} (${t("tenant.inPlan")})` : module.name}
+                label={inPlan ? `${module.displayName} (${t("tenant.inPlan")})` : module.displayName}
               />
             );
           })}

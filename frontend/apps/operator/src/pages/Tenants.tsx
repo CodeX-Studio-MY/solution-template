@@ -11,9 +11,9 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import TextField from "@mui/material/TextField";
 import { useTranslation } from "react-i18next";
-import { ApiError, plans, unwrap, useApiMutation, useApiQuery, useDialog } from "@saaskit/web-core";
+import { ApiError, unwrap, useApiMutation, useApiQuery, useDialog } from "@saaskit/web-core";
 import { EmptyState, FormDialog, PageHeader, ProblemAlert, StatusChip } from "@saaskit/ui-kit";
-import { tenancy, tenantsKey } from "../api";
+import { plansKey, tenancy, tenantsKey, usePlans } from "../api";
 import { statusTone } from "./statusTone";
 
 /** Every tenant, and onboarding a new one. */
@@ -76,7 +76,7 @@ export function Component() {
                       </Button>
                     </TableCell>
                     <TableCell sx={{ fontFamily: "monospace" }}>{tenant.slug}</TableCell>
-                    <TableCell>{tenant.plan}</TableCell>
+                    <TableCell>{tenant.planName}</TableCell>
                     <TableCell>
                       <StatusChip label={t(`statuses.${tenant.status}`)} tone={statusTone[tenant.status]} />
                     </TableCell>
@@ -96,24 +96,30 @@ export function Component() {
 function OnboardDialog({ onClose }: { onClose: () => void }) {
   const { t } = useTranslation("operator");
   const dialog = useDialog();
-  const [form, setForm] = useState({ slug: "", displayName: "", plan: plans[0] as string, adminEmail: "", adminName: "" });
+  // Plans come from the database; a retired plan can't be chosen for a new tenant.
+  const plans = usePlans();
+  const choices = (plans.data ?? []).filter((plan) => plan.isActive);
+  const [form, setForm] = useState({ slug: "", displayName: "", plan: "", adminEmail: "", adminName: "" });
   const set = (name: keyof typeof form) => (value: string) => setForm((f) => ({ ...f, [name]: value }));
-  const onboard = useApiMutation(() => unwrap(tenancy.POST("/api/tenancy/v1/operator/tenants", { body: form })), {
-    invalidate: [tenantsKey],
-    onSuccess: async (result) => {
-      onClose();
-      await dialog.alert({
-        title: t("onboard.doneTitle", { name: form.displayName }),
-        text: result.adminInvitationUrl ? t("onboard.doneText", { url: result.adminInvitationUrl }) : t("onboard.doneResumed"),
-        confirmLabel: t("common:actions.close"),
-      });
+  const onboard = useApiMutation(
+    () => unwrap(tenancy.POST("/api/tenancy/v1/operator/tenants", { body: { ...form, plan: form.plan || (choices[0]?.planKey ?? "") } })),
+    {
+      invalidate: [tenantsKey, plansKey],
+      onSuccess: async (result) => {
+        onClose();
+        await dialog.alert({
+          title: t("onboard.doneTitle", { name: form.displayName }),
+          text: result.adminInvitationUrl ? t("onboard.doneText", { url: result.adminInvitationUrl }) : t("onboard.doneResumed"),
+          confirmLabel: t("common:actions.close"),
+        });
+      },
     },
-  });
+  );
   const fieldError = (name: string) => (onboard.error instanceof ApiError ? onboard.error.forField(name)?.message : undefined);
   const field = (name: keyof typeof form, extra: { type?: string; helperText?: string } = {}) => ({
     label: t(`onboard.${name}`),
     required: true,
-    value: form[name],
+    value: name === "plan" && form.plan === "" ? (choices[0]?.planKey ?? "") : form[name],
     onChange: (e: { target: { value: string } }) => set(name)(e.target.value),
     error: Boolean(fieldError(name)),
     helperText: fieldError(name) ?? extra.helperText,
@@ -134,9 +140,9 @@ function OnboardDialog({ onClose }: { onClose: () => void }) {
       <TextField {...field("displayName")} autoFocus />
       <TextField {...field("slug", { helperText: t("onboard.slugHelp") })} />
       <TextField {...field("plan")} select>
-        {plans.map((plan) => (
-          <MenuItem key={plan} value={plan}>
-            {plan}
+        {choices.map((plan) => (
+          <MenuItem key={plan.planKey} value={plan.planKey}>
+            {plan.displayName}
           </MenuItem>
         ))}
       </TextField>

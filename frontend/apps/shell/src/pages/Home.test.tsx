@@ -74,6 +74,6 @@ describe("Home", () => {
   it("says so when the person has no application", () => {
     signInForTest([]);
     renderHome([orders]);
-    expect(screen.getByText("No applications are available for your account.")).toBeInTheDocument();
+    expect(screen.getByText("No modules are available for your account.")).toBeInTheDocument();
   });
 });

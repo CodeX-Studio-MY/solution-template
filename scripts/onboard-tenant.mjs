@@ -1,7 +1,7 @@
 // Creates a fully isolated tenant in the stack that scripts/dev-up started: its own database (created and migrated), its modules
 // for the plan, and a first-admin invitation. It signs in as the development operator (credentials saved by dev-up in .dev/operator.json).
 //
-//   scripts/onboard-tenant <slug> [--plan standard|plus] [--name "Display Name"] [--admin-email you@example.com] [--url http://localhost:5002]
+//   scripts/onboard-tenant <slug> [--plan <plan key>] [--name "Display Name"] [--admin-email you@example.com] [--url http://localhost:5002]
 //
 // Local development only: in production, operators use the operator console, which is out of scope for this template.
 import { createHmac } from "node:crypto";
@@ -14,7 +14,7 @@ const args = process.argv.slice(2);
 const slug = args.find((a) => !a.startsWith("--"));
 const option = (name) => (args.includes(name) ? args[args.indexOf(name) + 1] : undefined);
 if (!slug) {
-  console.error('Usage: scripts/onboard-tenant <slug> [--plan standard|plus] [--name "Display Name"] [--admin-email you@example.com] [--url http://localhost:5002]');
+  console.error('Usage: scripts/onboard-tenant <slug> [--plan <plan key>] [--name "Display Name"] [--admin-email you@example.com] [--url http://localhost:5002]');
   process.exit(2);
 }
 
@@ -60,7 +60,14 @@ if (!session.ok) {
 }
 const { token } = await session.json();
 
-const plan = option("--plan") ?? "standard";
+// Plans live in the database: without --plan, the lowest plan that can still be chosen.
+const plan =
+  option("--plan") ??
+  (await (await fetch(`${base}/plans`, { headers: { Authorization: `Operator ${token}` } })).json()).find((p) => p.isActive)?.planKey;
+if (!plan) {
+  console.error("There is no plan to onboard onto. Add one in the operator console (Subscriptions), or pass --plan.");
+  process.exit(1);
+}
 const displayName = option("--name") ?? slug.replace(/(^|-)([a-z])/g, (_, s, c) => (s ? " " : "") + c.toUpperCase());
 const adminEmail = option("--admin-email") ?? `admin@${slug}.example`;
 const response = await fetch(`${base}/tenants`, {

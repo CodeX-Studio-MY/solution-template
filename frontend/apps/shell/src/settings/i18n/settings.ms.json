@@ -1,14 +1,14 @@
 {
   "title": "Tetapan platform",
-  "subtitle": "Urus organisasi anda, siapa yang boleh menggunakannya, dan cara setiap aplikasi berfungsi.",
+  "subtitle": "Urus organisasi anda, siapa yang boleh menggunakannya, dan cara setiap modul berfungsi.",
   "nav": "Bahagian tetapan",
   "groups": {
-    "subtitle": "Beri akses yang sama kepada beberapa orang sekaligus.",
+    "subtitle": "Beri akses yang sama kepada beberapa pengguna, peranti atau aplikasi sekaligus.",
     "create": "Kumpulan baharu",
     "name": "Nama",
     "members": "Ahli",
     "empty": "Belum ada kumpulan.",
-    "emptyHint": "Cipta kumpulan, kemudian tambah orang dan beri akses.",
+    "emptyHint": "Cipta kumpulan, kemudian tambah ahli dan beri akses.",
     "createTitle": "Kumpulan baharu",
     "renameTitle": "Namakan semula kumpulan",
     "created": "Kumpulan dicipta.",
@@ -31,7 +31,8 @@
     "support": "Akses sokongan",
     "users": "Pengguna",
     "groups": "Kumpulan",
-    "machines": "Peranti & integrasi",
+    "devices": "Peranti",
+    "applications": "Aplikasi",
     "audit": "Log keselamatan",
     "activity": "Aktiviti organisasi"
   },
@@ -41,7 +42,7 @@
     "plan": "Pelan",
     "address": "Alamat",
     "status": "Status",
-    "modules": "Aplikasi dalam pelan anda"
+    "modules": "Modul dalam pelan anda"
   },
   "branding": {
     "subtitle": "Warna dan logo yang dilihat oleh semua orang dalam organisasi anda.",
@@ -56,21 +57,21 @@
     "preview": "Pratonton logo"
   },
   "modules": {
-    "subtitle": "Tetapan perkhidmatan platform sendiri, seperti pengebilan. Tetapan setiap aplikasi ada dalam aplikasi itu, di bawah Tetapan dalam menunya.",
+    "subtitle": "Tetapan perkhidmatan platform sendiri, seperti pengebilan. Tetapan setiap modul ada dalam modul itu, di bawah Tetapan dalam menunya.",
     "empty": "Tiada perkhidmatan platform yang mempunyai tetapan.",
     "saved": "Tetapan disimpan."
   },
   "features": {
     "subtitle": "Ciri pilihan dan sama ada ia dihidupkan untuk organisasi anda. Minta pembekal anda untuk mengubahnya.",
     "feature": "Ciri",
-    "module": "Aplikasi",
+    "module": "Modul",
     "state": "Keadaan",
     "empty": "Tiada ciri pilihan."
   },
   "support": {
     "subtitle": "Permintaan daripada pasukan sokongan pembekal anda untuk melihat data anda. Tiada apa dikongsi tanpa kelulusan anda.",
     "operator": "Diminta oleh",
-    "module": "Aplikasi",
+    "module": "Modul",
     "role": "Akses",
     "reason": "Sebab",
     "expires": "Sehingga",
@@ -94,7 +95,7 @@
     }
   },
   "users": {
-    "subtitle": "Orang yang boleh log masuk, dan apa yang boleh mereka lakukan dalam setiap aplikasi.",
+    "subtitle": "Orang yang boleh log masuk, dan apa yang boleh mereka lakukan dalam setiap modul.",
     "invite": "Jemput pengguna",
     "name": "Nama",
     "email": "E-mel",
@@ -108,7 +109,7 @@
     "inviteText": "Mereka akan menerima e-mel dengan pautan untuk memilih kata laluan.",
     "invited": "Jemputan dihantar kepada {{email}}.",
     "roles": "Akses",
-    "rolesHint": "Apa yang boleh mereka lakukan dalam setiap aplikasi. Kumpulan mungkin memberi lebih.",
+    "rolesHint": "Apa yang boleh mereka lakukan dalam setiap modul. Kumpulan mungkin memberi lebih.",
     "edit": "Sunting pengguna",
     "saved": "Disimpan.",
     "deactivate": "Nyahaktifkan",
@@ -124,26 +125,31 @@
     "noAccess": "Belum ada akses.",
     "roleSaved": "Akses dikemas kini."
   },
-  "machines": {
-    "subtitle": "Peranti dikongsi (seperti tablet gudang) dan sistem luar yang memanggil API.",
-    "add": "Tambah peranti",
+  "principals": {
     "name": "Nama",
-    "type": "Jenis",
     "clientId": "ID klien",
     "status": "Status",
-    "empty": "Belum ada peranti atau integrasi.",
     "types": {
+      "user": "Pengguna",
       "machine": "Peranti",
-      "service": "Integrasi"
-    },
+      "service": "Aplikasi"
+    }
+  },
+  "devices": {
+    "subtitle": "Peranti dikongsi, seperti tablet gudang. Setiap satu boleh memegang akses kepada modul, secara langsung atau melalui kumpulan.",
+    "add": "Tambah peranti",
+    "empty": "Belum ada peranti.",
     "addTitle": "Tambah peranti",
     "codeTitle": "Kod pendaftaran untuk {{name}}",
     "codeText": "Masukkan kod ini pada peranti dalam masa 15 minit (sehingga {{expires}}). Ia dipaparkan sekali sahaja: {{code}}",
-    "newCode": "Kod pendaftaran baharu",
-    "copied": "Disalin.",
-    "addIntegration": "Tambah integrasi",
-    "integrationTitle": "Tambah integrasi",
-    "integrationText": "Untuk sistem luar (ERP, rakan kongsi) yang memanggil API dengan aliran kelayakan klien.",
+    "newCode": "Kod pendaftaran baharu"
+  },
+  "applications": {
+    "subtitle": "Sistem luar, seperti ERP atau rakan kongsi, yang memanggil API. Setiap satu boleh memegang akses kepada modul, secara langsung atau melalui kumpulan.",
+    "add": "Tambah aplikasi",
+    "empty": "Belum ada aplikasi.",
+    "addTitle": "Tambah aplikasi",
+    "addText": "Untuk sistem luar (ERP, rakan kongsi) yang memanggil API dengan aliran kelayakan klien.",
     "secretTitle": "Kelayakan untuk {{name}}",
     "secretText": "ID klien: {{clientId}} · Rahsia: {{secret}} — salin rahsia sekarang; ia tidak dipaparkan lagi."
   },
@@ -158,6 +164,6 @@
     "subtitle": "Log masuk, perubahan akses dan segala yang dilakukan kakitangan sokongan dengan akses sokongan. Disimpan selamanya; tiada apa boleh diubah."
   },
   "activity": {
-    "subtitle": "Perubahan pada pelan, aplikasi, tetapan dan dasar sokongan organisasi anda, oleh pentadbir anda dan pembekal anda."
+    "subtitle": "Perubahan pada pelan, modul, tetapan dan dasar sokongan organisasi anda, oleh pentadbir anda dan pembekal anda."
   }
 }

@@ -97,7 +97,7 @@ public abstract class PlatformDbContext : DbContext
 
     /// <summary>
     /// A table's single-column primary key is always named <c>&lt;SingularTable&gt;Id</c> (Principals gives PrincipalId,
-    /// AuditLog gives AuditLogId), whatever the C# property is called. Composite keys are left alone.
+    /// AuditLog gives AuditLogId, MsFarm gives MsFarmId), whatever the C# property is called. Composite keys are left alone.
     /// </summary>
     private static void NameSinglePrimaryKeyAfterTable(Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType entityType)
     {
@@ -106,10 +106,22 @@ public abstract class PlatformDbContext : DbContext
         if (table is null || entityType.BaseType is not null || key is not { Properties.Count: 1 })
             return;
 
-        var singular = table.EndsWith("ies", StringComparison.Ordinal) ? table[..^3] + "y"
+        key.Properties[0].SetColumnName(PrimaryKeyColumnName(table));
+    }
+
+    /// <summary>
+    /// The primary key column of <paramref name="table"/>: the table's singular name plus <c>Id</c>. A master table (<c>Ms</c> followed
+    /// by an uppercase letter: <c>MsFarm</c>, <c>MsStatus</c>) already has its singular name, so it is never singularized:
+    /// <c>MsStatus</c> gives <c>MsStatusId</c>, not <c>MsStatuId</c>.
+    /// </summary>
+    internal static string PrimaryKeyColumnName(string table)
+    {
+        var master = table.Length > 2 && table.StartsWith("Ms", StringComparison.Ordinal) && char.IsUpper(table[2]);
+        var singular = master ? table
+            : table.EndsWith("ies", StringComparison.Ordinal) ? table[..^3] + "y"
             : table.EndsWith('s') && !table.EndsWith("ss", StringComparison.Ordinal) ? table[..^1]
             : table;
-        key.Properties[0].SetColumnName(singular + "Id");
+        return singular + "Id";
     }
 }
 

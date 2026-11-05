@@ -146,7 +146,7 @@ public sealed class AccessManagementTests(Databases databases)
     }
 
     [Fact]
-    public async Task Readers_and_writers_need_the_right_role_and_services_cannot_join_groups()
+    public async Task Readers_and_writers_need_the_right_role_and_services_can_join_groups()
     {
         await using var host = await IdentityTestHost.StartAsync(databases, "demo");
         var user = host.ApiClient("demo", (Modules.AccessManagement, Role.User));
@@ -163,8 +163,14 @@ public sealed class AccessManagementTests(Databases databases)
         using var key = ECDsa.Create(ECCurve.NamedCurves.nistP256);
         var jwk = JsonSerializer.Serialize(JsonWebKeyConverter.ConvertFromECDsaSecurityKey(new ECDsaSecurityKey(key) { KeyId = "k1" }) is { } k ? WithoutPrivate(k) : null);
         var service = await Read<JsonElement>(await admin.PostAsJsonAsync($"{Api}/services", new { displayName = "erp", publicKeyJwk = jwk }, Ct));
-        var rejected = await admin.PutAsync($"{Api}/groups/{group}/members/{service.GetProperty("id").GetGuid()}", null, Ct);
-        rejected.StatusCode.ShouldBe(HttpStatusCode.UnprocessableEntity);
+        var serviceId = service.GetProperty("id").GetGuid();
+        var before = (await VersionsAsync(host, [serviceId]))[serviceId];
+        (await admin.PutAsync($"{Api}/groups/{group}/members/{serviceId}", null, Ct)).StatusCode.ShouldBe(HttpStatusCode.NoContent);
+
+        // The application is a member like any other: it is listed, and its access version rises so older tokens stop working.
+        var members = await Read<JsonElement>(await admin.GetAsync($"{Api}/groups/{group}/members", Ct));
+        members.EnumerateArray().Select(m => m.GetProperty("id").GetGuid()).ShouldBe([serviceId]);
+        (await VersionsAsync(host, [serviceId]))[serviceId].ShouldBeGreaterThan(before);
     }
 
     [Fact]
@@ -315,5 +321,126 @@ public sealed class AccessManagementTests(Databases databases)
 
         System.Text.Encoding.UTF8.GetByteCount(token).ShouldBeLessThan(4096);
         new JsonWebTokenHandler().ReadJsonWebToken(token).Claims.Count(c => c.Type == "roles").ShouldBe(Modules.All.Count);
+    }
+
+    // ---- The roles in a real access token: direct and group roles combined, the highest per module, limited to the plan ----------
+
+    private static async Task<Guid> NewGroupAsync(HttpClient admin, string name, params (string Module, string Role)[] roles)
+    {
+        var group = (await Read<JsonElement>(await admin.PostAsJsonAsync($"{Api}/groups", new { displayName = name }, Ct))).GetProperty("id").GetGuid();
+        foreach (var (module, role) in roles)
+            (await admin.PutAsJsonAsync($"{Api}/groups/{group}/assignments/{module}", new { role }, Ct)).EnsureSuccessStatusCode();
+        return group;
+    }
+
+    /// <summary>The <c>roles</c> claims AccessPrincipalFactory puts in the token of a user (the same factory the token endpoint uses for every principal type).</summary>
+    private static async Task<string[]> RolesInTokenAsync(IdentityTestHost host, string slug, Guid principalId) =>
+        await host.InTenantAsync(slug, async sp =>
+        {
+            var principal = await sp.GetRequiredService<IdentityDbContext>().Principals.SingleAsync(p => p.Id == principalId, Ct);
+            var claims = await sp.GetRequiredService<AccessPrincipalFactory>().CreateAsync(principal, "Bearer", [], Ct);
+            return claims.FindAll(PlatformClaims.Roles).Select(c => c.Value).Order(StringComparer.Ordinal).ToArray();
+        });
+
+    /// <summary>Signs a device or an application in at the token endpoint, as it would, and returns its access token.</summary>
+    private static async Task<Microsoft.IdentityModel.JsonWebTokens.JsonWebToken> TokenForAsync(IdentityTestHost host, string slug, string clientId, ECDsa key)
+    {
+        var kid = await OnlyKidAsync(host, clientId, slug);
+        var response = await host.Client().PostAsync("/connect/token", new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["grant_type"] = "client_credentials", ["client_id"] = clientId, ["resource"] = PlatformServices.Tenancy.Audience,
+            ["client_assertion_type"] = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+            ["client_assertion"] = IdentityTestHost.ClientAssertion(clientId, key, kid),
+        }), Ct);
+        response.StatusCode.ShouldBe(HttpStatusCode.OK, await response.Content.ReadAsStringAsync(Ct));
+        return new JsonWebTokenHandler().ReadJsonWebToken((await response.Content.ReadFromJsonAsync<JsonElement>(Ct)).GetProperty("access_token").GetString());
+    }
+
+    private static string[] RoleClaims(Microsoft.IdentityModel.JsonWebTokens.JsonWebToken token) =>
+        [.. token.Claims.Where(c => c.Type == PlatformClaims.Roles).Select(c => c.Value).Order(StringComparer.Ordinal)];
+
+    [Fact]
+    public async Task A_user_with_admin_on_base_directly_and_user_through_a_group_has_base_admin_in_the_token()
+    {
+        await using var host = await IdentityTestHost.StartAsync(databases, "demo");
+        var admin = host.ApiClient("demo", Admin);
+        var ali = await NewUserAsync(host, "ali");
+        (await admin.PutAsJsonAsync($"{Api}/principals/{ali}/assignments/{Modules.Base}", new { role = "admin" }, Ct)).EnsureSuccessStatusCode();
+        var group = await NewGroupAsync(admin, "Base users", (Modules.Base, "user"));
+        (await admin.PutAsync($"{Api}/groups/{group}/members/{ali}", null, Ct)).EnsureSuccessStatusCode();
+
+        (await RolesInTokenAsync(host, "demo", ali)).ShouldBe([$"{Modules.Base}:admin"]);
+    }
+
+    [Fact]
+    public async Task A_user_with_a_role_only_through_a_group_has_it_in_the_token_and_loses_it_when_removed()
+    {
+        await using var host = await IdentityTestHost.StartAsync(databases, "demo");
+        var admin = host.ApiClient("demo", Admin);
+        var bea = await NewUserAsync(host, "bea");
+        var group = await NewGroupAsync(admin, "Base managers", (Modules.Base, "manager"));
+        (await admin.PutAsync($"{Api}/groups/{group}/members/{bea}", null, Ct)).EnsureSuccessStatusCode();
+        (await RolesInTokenAsync(host, "demo", bea)).ShouldBe([$"{Modules.Base}:manager"]);
+
+        (await admin.DeleteAsync($"{Api}/groups/{group}/members/{bea}", Ct)).EnsureSuccessStatusCode();
+        (await RolesInTokenAsync(host, "demo", bea)).ShouldBeEmpty();
+    }
+
+    [Fact]
+    public async Task A_device_combines_its_own_role_and_its_groups_in_the_token_the_token_endpoint_issues()
+    {
+        await using var host = await IdentityTestHost.StartAsync(databases, "demo");
+        var admin = host.ApiClient("demo", Admin);
+        var key = await host.RegisterMachineAsync("demo", "tablet-1", PrincipalType.Machine, [(Modules.Base, Role.User)]);
+        var machine = await host.InTenantAsync("demo", async sp => (await sp.GetRequiredService<IdentityDbContext>().Principals.SingleAsync(p => p.ClientId == "tablet-1", Ct)).Id);
+        var group = await NewGroupAsync(admin, "Packing", (Modules.Base, "manager"), (Modules.TenantSettings, "user"));
+        (await admin.PutAsync($"{Api}/groups/{group}/members/{machine}", null, Ct)).EnsureSuccessStatusCode();
+
+        var token = await TokenForAsync(host, "demo", "tablet-1", key);
+
+        token.GetClaim(PlatformClaims.PrincipalType).Value.ShouldBe("machine");
+        RoleClaims(token).ShouldBe([$"{Modules.Base}:manager", $"{Modules.TenantSettings}:user"]);
+    }
+
+    [Fact]
+    public async Task An_application_in_a_group_gets_the_groups_roles_and_its_own_highest_role_in_the_token()
+    {
+        await using var host = await IdentityTestHost.StartAsync(databases, "demo");
+        var admin = host.ApiClient("demo", Admin);
+        var groupOnly = await host.RegisterMachineAsync("demo", "erp", PrincipalType.Service);
+        var both = await host.RegisterMachineAsync("demo", "partner", PrincipalType.Service, [(Modules.Base, Role.Admin)]);
+        var ids = await host.InTenantAsync("demo", async sp =>
+            await sp.GetRequiredService<IdentityDbContext>().Principals.Where(p => p.ClientId == "erp" || p.ClientId == "partner").ToDictionaryAsync(p => p.ClientId!, p => p.Id, Ct));
+        var group = await NewGroupAsync(admin, "Integrations", (Modules.Base, "user"));
+        foreach (var id in ids.Values)
+            (await admin.PutAsync($"{Api}/groups/{group}/members/{id}", null, Ct)).StatusCode.ShouldBe(HttpStatusCode.NoContent);
+
+        var erp = await TokenForAsync(host, "demo", "erp", groupOnly);
+        erp.GetClaim(PlatformClaims.PrincipalType).Value.ShouldBe("service");
+        RoleClaims(erp).ShouldBe([$"{Modules.Base}:user"]);
+        RoleClaims(await TokenForAsync(host, "demo", "partner", both)).ShouldBe([$"{Modules.Base}:admin"]);
+    }
+
+    [Fact]
+    public async Task A_module_outside_the_tenants_plan_is_left_out_of_the_token_however_it_was_granted()
+    {
+        await using var host = await IdentityTestHost.StartAsync(databases, "demo");   // "demo" has every module except the fixture's optional one
+        var admin = host.ApiClient("demo", Admin);
+        var key = await host.RegisterMachineAsync("demo", "gate", PrincipalType.Service, [(Modules.Base, Role.User)]);
+        var (user, service) = (await NewUserAsync(host, "cy"), await host.InTenantAsync("demo", async sp => (await sp.GetRequiredService<IdentityDbContext>().Principals.SingleAsync(p => p.ClientId == "gate", Ct)).Id));
+        var optional = Modules.All.Single(m => m.Key == Fixture.Optional).Id;
+        var group = await NewGroupAsync(admin, "Everything", (Modules.Base, "user"));
+        await host.InTenantAsync("demo", async sp =>
+        {
+            var db = sp.GetRequiredService<IdentityDbContext>();
+            db.AccessAssignments.Add(AccessAssignment.ForPrincipal(user, optional, Role.Admin));   // granted around the API, which would refuse it
+            db.AccessAssignments.Add(AccessAssignment.ForGroup(group, optional, Role.Admin));
+            await db.SaveChangesAsync(Ct);
+        });
+        (await admin.PutAsync($"{Api}/groups/{group}/members/{user}", null, Ct)).EnsureSuccessStatusCode();
+        (await admin.PutAsync($"{Api}/groups/{group}/members/{service}", null, Ct)).EnsureSuccessStatusCode();
+
+        (await RolesInTokenAsync(host, "demo", user)).ShouldBe([$"{Modules.Base}:user"]);
+        RoleClaims(await TokenForAsync(host, "demo", "gate", key)).ShouldBe([$"{Modules.Base}:user"]);
     }
 }

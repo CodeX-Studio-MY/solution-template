@@ -10,7 +10,6 @@ export const errorCodes = {
   "access-management.module-not-entitled": { status: 422, messageKey: "errors.identity.moduleNotEntitled" },
   "access-management.preferences-not-for-support": { status: 403, messageKey: "errors.identity.preferencesNotForSupport" },
   "access-management.principal-not-found": { status: 404, messageKey: "errors.identity.principalNotFound" },
-  "access-management.service-principals-have-no-groups": { status: 422, messageKey: "errors.identity.servicePrincipalsHaveNoGroups" },
   "access-management.unknown-module": { status: 422, messageKey: "errors.identity.unknownModule" },
   "platform.access-changed": { status: 401, messageKey: "errors.platform.accessChanged" },
   "platform.access-check-unavailable": { status: 503, messageKey: "errors.platform.accessCheckUnavailable" },

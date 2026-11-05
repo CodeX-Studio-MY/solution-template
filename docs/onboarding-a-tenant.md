@@ -45,6 +45,7 @@ Each step is recorded in the catalog; a failed run **resumes where it stopped** 
 ## After onboarding
 
 - Change the plan: `PUT /api/tenancy/v1/operator/tenants/{id}/plan` (modules are reconciled; the change reaches every service within seconds).
+- The plans themselves (names, prices, which modules each includes, retiring one) are data: `platform.yaml` seeds the first ones, and the operator console's Subscriptions page manages them afterwards ([ADR 0027](adr/0027-plans-and-sign-in-providers-in-the-database.md)). New tenants can't choose a retired plan.
 - Settings and flags: see [tenant-customization.md](tenant-customization.md).
 - Suspend (read-only), reactivate, or offboard: see [runbooks/offboarding.md](runbooks/offboarding.md).
 - Move to another server: [runbooks/moving-a-tenant.md](runbooks/moving-a-tenant.md).

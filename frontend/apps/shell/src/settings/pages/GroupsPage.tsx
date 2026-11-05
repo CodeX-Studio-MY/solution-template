@@ -144,10 +144,12 @@ function GroupPanel({
   const assignments = useApiQuery(["identity", "groups", id, "assignments"], (signal) =>
     unwrap(identity.GET("/api/identity/v1/groups/{id}/assignments", { params: { path: { id } }, signal })),
   );
-  // The people to choose from: master data, shared with any other picker of users in the app.
-  const users = useMaster("identity", "/api/identity/v1/principals", { query: { type: "user" } });
+  // Who to choose from: users, devices and applications, each labelled with its type. Master data, shared with any other picker.
+  const principals = useMaster("identity", "/api/identity/v1/principals", {
+    toOption: (p) => ({ value: p.id, label: `${p.displayName} (${t(`principals.types.${p.type}`)})` }),
+  });
   const memberIds = new Set((members.data ?? []).map((m) => m.id));
-  const candidates = { ...users, options: users.options.filter((o) => !memberIds.has(o.value)) };
+  const candidates = { ...principals, options: principals.options.filter((o) => !memberIds.has(o.value)) };
 
   const addMember = useApiMutation(
     (principalId: string) =>
@@ -237,7 +239,10 @@ function GroupPanel({
                 ) : null
               }
             >
-              <ListItemText primary={member.displayName} secondary={member.email} />
+              <ListItemText
+                primary={member.displayName}
+                secondary={[t(`principals.types.${member.type}`), member.email].filter(Boolean).join(" · ")}
+              />
             </ListItem>
           ))}
         </List>

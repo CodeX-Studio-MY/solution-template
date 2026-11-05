@@ -46,7 +46,7 @@ public sealed class Group : BaseEntity, IAggregateRoot, ISoftDeletable
     }
 }
 
-/// <summary>A principal's membership of a group. Service principals are never put in groups.</summary>
+/// <summary>A principal's membership of a group. Users, devices and applications (service principals) can all be members.</summary>
 public sealed class GroupMembership : BaseEntity
 {
     private GroupMembership()

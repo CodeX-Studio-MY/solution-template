@@ -12,9 +12,9 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
 import { useTranslation } from "react-i18next";
-import { unwrap, useApiMutation, useApiQuery, useDialog, useFormatters } from "@saaskit/web-core";
+import { toNumber, unwrap, unwrapEmpty, useApiMutation, useApiQuery, useDialog, useFormatters } from "@saaskit/web-core";
 import { EmptyState, PageHeader, ProblemAlert, StatusChip } from "@saaskit/ui-kit";
-import { principalsKey, tenancy, tenantsKey, type PrincipalDetail } from "../api";
+import { principalsKey, providersKey, tenancy, tenantsKey, type LinkedProvider, type PrincipalDetail } from "../api";
 import { AccessTrail } from "../components/AccessTrail";
 import { DirectoryNotice, Identifier, PrincipalFormDialog, usePrincipalKind } from "../components/principals";
 import { accessTone } from "./statusTone";
@@ -204,6 +204,32 @@ function Trail({ principalId, tenantId, tenantName }: { principalId: string; ten
 function Providers({ principal }: { principal: PrincipalDetail }) {
   const { t } = useTranslation("operator");
   const format = useFormatters();
+  const dialog = useDialog();
+  const unlink = useApiMutation(
+    (link: LinkedProvider) =>
+      unwrapEmpty(
+        tenancy.DELETE("/api/tenancy/v1/operator/principals/{id}/providers/{linkId}", {
+          params: { path: { id: principal.principalId, linkId: toNumber(link.principalUserProviderId) } },
+        }),
+      ),
+    {
+      invalidate: [principalsKey, providersKey],
+      success: (_, link) => t("principals.unlinked", { provider: link.providerName, name: principal.displayName }),
+    },
+  );
+
+  async function askUnlink(link: LinkedProvider) {
+    if (
+      await dialog.confirm({
+        title: t("principals.unlinkTitle", { provider: link.providerName, name: principal.displayName }),
+        text: t("principals.unlinkText"),
+        confirmLabel: t("principals.unlink"),
+        tone: "danger",
+      })
+    )
+      unlink.mutate(link);
+  }
+
   return (
     <section aria-labelledby="linked-accounts">
       <Typography id="linked-accounts" variant="h3" component="h2" sx={{ mb: 1.5 }}>
@@ -220,17 +246,34 @@ function Providers({ principal }: { principal: PrincipalDetail }) {
               <TableRow>
                 <TableCell>{t("principals.provider")}</TableCell>
                 <TableCell>{t("principals.fields.email")}</TableCell>
+                <TableCell>{t("principals.emailVerified")}</TableCell>
                 <TableCell>{t("principals.linkedOn")}</TableCell>
+                <TableCell>{t("principals.lastUsed")}</TableCell>
+                <TableCell />
               </TableRow>
             </TableHead>
             <TableBody>
               {principal.providers.map((row) => (
-                <TableRow key={row.provider}>
-                  <TableCell>{t(`logins.methods.${row.provider}`)}</TableCell>
+                <TableRow key={row.principalUserProviderId}>
+                  <TableCell>{row.providerName}</TableCell>
                   <TableCell>
                     <Identifier>{row.providerEmail}</Identifier>
                   </TableCell>
+                  <TableCell>{t(row.providerEmailVerified ? "principals.verified" : "principals.unverified")}</TableCell>
                   <TableCell>{format.dateTime(row.linkedOn)}</TableCell>
+                  <TableCell>{row.lastUsedOn ? format.dateTime(row.lastUsedOn) : t("principals.neverUsed")}</TableCell>
+                  <TableCell align="right">
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      color="error"
+                      disabled={unlink.isPending}
+                      aria-label={t("principals.unlinkNamed", { provider: row.providerName })}
+                      onClick={() => void askUnlink(row)}
+                    >
+                      {t("principals.unlink")}
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

@@ -280,7 +280,7 @@ function Sidebar({ groups, collapsed, onNavigate }: { groups: ModuleGroup[]; col
         subheader={
           collapsed ? undefined : (
             <ListSubheader disableSticky sx={{ bgcolor: "transparent", lineHeight: "32px" }}>
-              {t("common:nav.applications")}
+              {t("common:nav.modules")}
             </ListSubheader>
           )
         }

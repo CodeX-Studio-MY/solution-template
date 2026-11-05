@@ -16,13 +16,7 @@ const json = (route: Route, body: unknown, status = 200) =>
   route.fulfill({ status, contentType: "application/json", body: JSON.stringify(body) });
 
 export async function mockApp(page: Page, scenario: Scenario = {}) {
-  const {
-    roles = [],
-    modules = [],
-    features = {},
-    branding = {},
-    signedIn = true,
-  } = scenario;
+  const { roles = [], modules = [], features = {}, branding = {}, signedIn = true } = scenario;
   const handlers: Record<string, (route: Route) => Promise<void> | void> = {
     "GET /bff/user": (route) =>
       signedIn
@@ -35,6 +29,8 @@ export async function mockApp(page: Page, scenario: Scenario = {}) {
         modules: { baseUrl: "/mfe" },
         apiPrefix: "/api",
       }),
+    // No saved language unless a test says so: the tenant's applies.
+    "GET /api/identity/v1/me/preferences": (route) => json(route, { locale: null }),
     "GET /api/tenancy/v1/me/modules": (route) => json(route, { modules }),
     "GET /api/tenancy/v1/me/settings": (route) => json(route, { branding, features, values: {} }),
     // Which modules the person may configure (the sidebar's Settings entries): none unless a test says so.
@@ -46,7 +42,8 @@ export async function mockApp(page: Page, scenario: Scenario = {}) {
         slug: "demo",
         displayName: "Demo Co",
         status: "active",
-        plan: "standard",
+        plan: "lite",
+        planName: "Lite",
         modules: [],
         deleteAfter: null,
         requireSupportApproval: true,
@@ -78,5 +75,7 @@ export function watchProblems(page: Page): string[] {
 /** WCAG 2.2 AA automated checks (axe); manual review is still needed for the rest. */
 export async function expectAccessible(page: Page) {
   const results = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"]).analyze();
-  expect(results.violations.map((v) => `${v.id}: ${v.help} (${v.nodes.length})`)).toEqual([]);
+  expect(
+    results.violations.map((v) => `${v.id}: ${v.help} (${v.nodes.length}) ${v.nodes.map((n) => n.target.join(" ")).join(", ")}`),
+  ).toEqual([]);
 }

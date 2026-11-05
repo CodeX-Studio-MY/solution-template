@@ -69,6 +69,12 @@ namespace Saaskit.Core.Catalog.Migrations.SqlServer.Migrations.Catalog
                             ModuleId = new Guid("d39d3a7b-c5dc-560a-b527-ce06d0158063"),
                             DisplayName = "Billing",
                             ModuleKey = "billing"
+                        },
+                        new
+                        {
+                            ModuleId = new Guid("b094255b-e3fd-50c6-9d04-7eb2721d16c0"),
+                            DisplayName = "Base",
+                            ModuleKey = "base"
                         });
                 });
 
@@ -356,6 +362,21 @@ namespace Saaskit.Core.Catalog.Migrations.SqlServer.Migrations.Catalog
                         {
                             PlanId = (short)3,
                             ModuleId = new Guid("d39d3a7b-c5dc-560a-b527-ce06d0158063")
+                        },
+                        new
+                        {
+                            PlanId = (short)1,
+                            ModuleId = new Guid("b094255b-e3fd-50c6-9d04-7eb2721d16c0")
+                        },
+                        new
+                        {
+                            PlanId = (short)2,
+                            ModuleId = new Guid("b094255b-e3fd-50c6-9d04-7eb2721d16c0")
+                        },
+                        new
+                        {
+                            PlanId = (short)3,
+                            ModuleId = new Guid("b094255b-e3fd-50c6-9d04-7eb2721d16c0")
                         });
                 });
 

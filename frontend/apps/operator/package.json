@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "The operator console (operator.{BaseDomain}): tenants, plans, modules, settings, flags and the tenant lifecycle.",
+  "description": "The operator console (operator.{BaseDomain}): tenants, subscriptions (plans and their modules), sign-in providers, principals, settings, flags and the tenant lifecycle.",
   "scripts": {
     "dev": "rsbuild dev",
     "build": "rsbuild build",

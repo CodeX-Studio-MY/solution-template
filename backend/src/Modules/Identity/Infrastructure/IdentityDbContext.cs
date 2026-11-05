@@ -78,8 +78,8 @@ public sealed class IdentityDbContext(DbContextOptions<IdentityDbContext> option
 
         modelBuilder.Entity<AccessAssignment>(assignment =>
         {
-            assignment.ToTable("AccessAssignments", t => t.HasCheckConstraint(
-                "CK_AccessAssignments_PrincipalOrGroup",
+            assignment.ToTable("ModuleAccess", t => t.HasCheckConstraint(
+                "CK_ModuleAccess_PrincipalOrGroup",
                 ExactlyOneSetSql(nameof(AccessAssignment.PrincipalId), nameof(AccessAssignment.GroupId))));
             assignment.Property(a => a.Role).HasConversion(r => Roles.Name(r), name => RoleNames.Parse(name)).HasMaxLength(20);
             // One role per module per assignee. Filtered, so NULLs are not treated as duplicates.

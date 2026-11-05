@@ -36,7 +36,8 @@ export function LanguageMenu({
     try {
       await onChange(locale);
     } catch {
-      snackbar.warning(t("common:language.notSaved"));
+      // i18n.t, not t: the closure's t is the language before the switch, and the message belongs to the one just chosen.
+      snackbar.warning(i18n.t("common:language.notSaved"));
     }
   }
 

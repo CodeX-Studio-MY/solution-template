@@ -15,8 +15,8 @@ using RabbitMQ.Client;
 namespace Saaskit.Integration.Tests;
 
 /// <summary>
-/// The test-only fixture the platform tests use in place of a business module. The template ships no business module, so the
-/// tests borrow the keys of platform modules: <see cref="Entitled"/> is in every plan, and <see cref="Optional"/> is the module a test
+/// The test-only fixture the platform tests use in place of a business module. The template's own business module, Base, ships empty (no tables or
+/// endpoints), so the tests borrow the keys of platform modules: <see cref="Entitled"/> is in every plan, and <see cref="Optional"/> is the module a test
 /// takes away from a tenant to see entitlement at work. Consumers run inside the Notification service, which every product has.
 /// </summary>
 internal static class Fixture

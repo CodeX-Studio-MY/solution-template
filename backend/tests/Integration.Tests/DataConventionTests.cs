@@ -205,7 +205,10 @@ public sealed class DataConventionTests(Databases databases)
             if (key is not { Properties.Count: 1 })
                 continue;
             var table = entity.GetTableName()!;
-            var singular = table.EndsWith("ies", StringComparison.Ordinal) ? table[..^3] + "y"
+            // Master tables (Ms + a singular name: MsFarm, MsStatus) are never singularized.
+            var master = table.Length > 2 && table.StartsWith("Ms", StringComparison.Ordinal) && char.IsUpper(table[2]);
+            var singular = master ? table
+                : table.EndsWith("ies", StringComparison.Ordinal) ? table[..^3] + "y"
                 : table.EndsWith('s') && !table.EndsWith("ss", StringComparison.Ordinal) ? table[..^1]
                 : table;
             var column = key.Properties[0].GetColumnName(StoreObjectIdentifier.Table(table, entity.GetSchema()));

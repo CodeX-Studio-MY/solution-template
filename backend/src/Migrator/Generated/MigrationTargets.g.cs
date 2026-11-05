@@ -24,5 +24,7 @@ internal static partial class MigrationTargets
             global::Saaskit.Core.Data.DbContextRegistration.Create<global::Saaskit.Identity.Infrastructure.IdentityDbContext>(null, provider, connectionString, global::Saaskit.Core.Platform.PlatformServices.Identity.Schema)),
         new("notification", (provider, connectionString) =>
             global::Saaskit.Core.Data.DbContextRegistration.Create<global::Saaskit.Notification.Infrastructure.NotificationDbContext>(null, provider, connectionString, global::Saaskit.Core.Platform.PlatformServices.Notification.Schema)),
+        new("base", (provider, connectionString) =>
+            global::Saaskit.Core.Data.DbContextRegistration.Create<global::Saaskit.Base.Infrastructure.BaseDbContext>(null, provider, connectionString, global::Saaskit.Core.Platform.PlatformServices.Base.Schema)),
     ];
 }

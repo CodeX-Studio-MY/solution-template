@@ -1,0 +1,8 @@
+{
+  "menu": "Asas",
+  "home": {
+    "title": "Asas",
+    "empty": "Belum ada data induk",
+    "emptyHint": "Data induk produk anda, seperti ladang, tanaman dan status, diurus di sini selepas ia ditambah."
+  }
+}

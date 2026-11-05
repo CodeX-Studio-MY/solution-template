@@ -1,0 +1,8 @@
+{
+  "menu": "Base",
+  "home": {
+    "title": "Base",
+    "empty": "No master data yet",
+    "emptyHint": "Your product's master data, such as farms, crops and statuses, is managed here once it has been added."
+  }
+}

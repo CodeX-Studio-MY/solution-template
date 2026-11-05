@@ -288,7 +288,7 @@ namespace Saaskit.Identity.Migrations.SqlServer.Migrations.Identity
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier")
-                        .HasColumnName("AccessAssignmentId");
+                        .HasColumnName("ModuleAccessId");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
@@ -328,9 +328,9 @@ namespace Saaskit.Identity.Migrations.SqlServer.Migrations.Identity
                         .HasFilter("[PrincipalId] IS NOT NULL")
                         .HasAnnotation("Platform:WhereNotNull", "PrincipalId");
 
-                    b.ToTable("AccessAssignments", "identity", t =>
+                    b.ToTable("ModuleAccess", "identity", t =>
                         {
-                            t.HasCheckConstraint("CK_AccessAssignments_PrincipalOrGroup", "([PrincipalId] IS NULL AND [GroupId] IS NOT NULL) OR ([PrincipalId] IS NOT NULL AND [GroupId] IS NULL)");
+                            t.HasCheckConstraint("CK_ModuleAccess_PrincipalOrGroup", "([PrincipalId] IS NULL AND [GroupId] IS NOT NULL) OR ([PrincipalId] IS NOT NULL AND [GroupId] IS NULL)");
                         });
                 });
 

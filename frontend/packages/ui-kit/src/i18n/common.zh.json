@@ -26,11 +26,11 @@
   },
   "errors": {
     "generic": "出了点问题，请重试。",
-    "moduleFailed": "应用的这一部分无法加载。",
+    "moduleFailed": "模块的这一部分无法加载。",
     "moduleFailedHint": "其他部分仍可使用。请重试，如果问题持续请联系支持人员。",
     "notFound": "找不到该页面。",
     "notFoundHint": "请检查地址，或使用菜单查找所需内容。",
-    "noModules": "您的账户没有可用的应用。"
+    "noModules": "您的账户没有可用的模块。"
   },
   "customFields": {
     "title": "附加信息",
@@ -42,7 +42,7 @@
     "menu": "主导航",
     "openMenu": "打开导航",
     "workspace": "工作区",
-    "applications": "应用",
+    "modules": "模块",
     "collapse": "收起菜单",
     "expand": "展开菜单",
     "breadcrumbs": "面包屑导航",
@@ -51,8 +51,8 @@
   },
   "home": {
     "welcome": "欢迎",
-    "intro": "请从菜单中选择一个应用。",
-    "yourApps": "您的应用",
+    "intro": "请从菜单中选择一个模块。",
+    "yourApps": "您的模块",
     "subtitle": "以下是 {{name}} 需要您关注的事项。",
     "today": "概览",
     "open": "打开"
@@ -129,8 +129,8 @@
       "password-reset": "密码已重置",
       "support-access": "支持人员操作",
       "plan-changed": "套餐已更改",
-      "module-granted": "已添加应用",
-      "module-revoked": "已移除应用",
+      "module-granted": "已添加模块",
+      "module-revoked": "已移除模块",
       "settings-changed": "设置已更改",
       "feature-changed": "功能已更改",
       "profile-changed": "资料已更改",

@@ -30,7 +30,7 @@
     "moduleFailedHint": "The rest of the app still works. Try again, or contact support if it keeps happening.",
     "notFound": "We couldn't find that page.",
     "notFoundHint": "Check the address, or use the menu to find what you need.",
-    "noModules": "No applications are available for your account."
+    "noModules": "No modules are available for your account."
   },
   "customFields": {
     "title": "Additional information",
@@ -42,7 +42,7 @@
     "menu": "Main navigation",
     "openMenu": "Open navigation",
     "workspace": "Workspace",
-    "applications": "Applications",
+    "modules": "Modules",
     "collapse": "Collapse menu",
     "expand": "Expand menu",
     "breadcrumbs": "Breadcrumb",
@@ -51,8 +51,8 @@
   },
   "home": {
     "welcome": "Welcome",
-    "intro": "Choose an application from the menu.",
-    "yourApps": "Your applications",
+    "intro": "Choose a module from the menu.",
+    "yourApps": "Your modules",
     "subtitle": "Here is what needs your attention at {{name}}.",
     "today": "At a glance",
     "open": "Open"
@@ -129,8 +129,8 @@
       "password-reset": "Password reset",
       "support-access": "Support staff action",
       "plan-changed": "Plan changed",
-      "module-granted": "Application added",
-      "module-revoked": "Application removed",
+      "module-granted": "Module added",
+      "module-revoked": "Module removed",
       "settings-changed": "Settings changed",
       "feature-changed": "Feature changed",
       "profile-changed": "Profile changed",

@@ -37,7 +37,7 @@ export const settingsSections: readonly SettingsSection[] = [
     lazy: () => import("./pages/BrandingPage"),
   },
   {
-    path: "applications",
+    path: "modules",
     group: "organization",
     label: "sections.modules",
     ns: "settings",
@@ -93,11 +93,20 @@ export const settingsSections: readonly SettingsSection[] = [
   {
     path: "devices",
     group: "access",
-    label: "sections.machines",
+    label: "sections.devices",
     ns: "settings",
     module: "access-management",
     role: "manager",
-    lazy: () => import("./pages/MachinesPage"),
+    lazy: () => import("./pages/DevicesPage"),
+  },
+  {
+    path: "applications",
+    group: "access",
+    label: "sections.applications",
+    ns: "settings",
+    module: "access-management",
+    role: "manager",
+    lazy: () => import("./pages/ApplicationsPage"),
   },
   {
     path: "audit",

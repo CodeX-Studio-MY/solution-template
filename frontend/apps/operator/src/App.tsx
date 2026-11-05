@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { createBrowserRouter, Link as RouterLink, NavLink, Outlet, RouterProvider } from "react-router";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -9,8 +10,8 @@ import Typography from "@mui/material/Typography";
 import { ThemeProvider } from "@mui/material/styles";
 import { CacheProvider } from "@emotion/react";
 import { useTranslation } from "react-i18next";
-import { PlatformQueryProvider, unwrap, useApiQuery } from "@saaskit/web-core";
-import { createTenantTheme, FeedbackHost, ProblemAlert, tokens } from "@saaskit/ui-kit";
+import { getI18n, PlatformQueryProvider, setLanguage, unwrap, useApiQuery } from "@saaskit/web-core";
+import { createTenantTheme, FeedbackHost, LanguageMenu, ProblemAlert, tokens } from "@saaskit/ui-kit";
 import { emotionCache } from "./emotionCache";
 import { tenancy } from "./api";
 import { signOut, useOperatorSession } from "./session";
@@ -31,6 +32,8 @@ const router = createBrowserRouter([
       { path: "tenants/:id", lazy: () => import("./pages/Tenant") },
       { path: "principals", lazy: () => import("./pages/Principals") },
       { path: "principals/:id", lazy: () => import("./pages/Principal") },
+      { path: "subscriptions", lazy: () => import("./pages/Subscriptions") },
+      { path: "sign-in-providers", lazy: () => import("./pages/SignInProviders") },
     ],
   },
 ]);
@@ -55,10 +58,24 @@ function Gate() {
   const me = useApiQuery(["tenancy", "operator", "me"], (signal) => unwrap(tenancy.GET("/api/tenancy/v1/operator/me", { signal })), {
     enabled: status !== "signedOut",
   });
+  // The operator's saved language replaces the browser's, once, when the session is known.
+  const applied = useRef(false);
+  useEffect(() => {
+    if (status === "signedOut") applied.current = false;
+    else if (me.data && !applied.current) {
+      applied.current = true;
+      if (me.data.locale && me.data.locale !== getI18n().language) void setLanguage(me.data.locale);
+    }
+  }, [status, me.data]);
   if (status === "signedOut") return <SignIn />;
   if (me.error) return <ProblemAlert error={me.error} />;
   if (status === "unknown" && !me.data) return <CircularProgress aria-label="Loading" sx={{ m: 4 }} />;
   return <RouterProvider router={router} />;
+}
+
+/** Saves the operator's language. A failure keeps the language for this session and the menu says it was not saved. */
+async function saveLanguage(locale: string): Promise<void> {
+  await unwrap(tenancy.PUT("/api/tenancy/v1/operator/me/preferences", { body: { locale } }));
 }
 
 function Layout() {
@@ -76,6 +93,8 @@ function Layout() {
               [
                 ["/", "nav.tenants"],
                 ["/principals", "nav.principals"],
+                ["/subscriptions", "nav.subscriptions"],
+                ["/sign-in-providers", "nav.signInProviders"],
               ] as const
             ).map(([to, label]) => (
               <Button
@@ -96,6 +115,7 @@ function Layout() {
               </Button>
             ))}
           </Box>
+          <LanguageMenu onChange={saveLanguage} />
           {me.data ? <Typography variant="body2">{me.data.displayName}</Typography> : null}
           <Button color="inherit" onClick={() => void signOut()}>
             {t("signOut")}

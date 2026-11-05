@@ -26,11 +26,11 @@
   },
   "errors": {
     "generic": "Sesuatu telah berlaku. Sila cuba lagi.",
-    "moduleFailed": "Bahagian aplikasi ini tidak dapat dimuatkan.",
+    "moduleFailed": "Bahagian modul ini tidak dapat dimuatkan.",
     "moduleFailedHint": "Bahagian lain masih berfungsi. Cuba lagi, atau hubungi sokongan jika ia berterusan.",
     "notFound": "Kami tidak menjumpai halaman itu.",
     "notFoundHint": "Semak alamat, atau gunakan menu untuk mencari apa yang anda perlukan.",
-    "noModules": "Tiada aplikasi tersedia untuk akaun anda."
+    "noModules": "Tiada modul tersedia untuk akaun anda."
   },
   "customFields": {
     "title": "Maklumat tambahan",
@@ -42,7 +42,7 @@
     "menu": "Navigasi utama",
     "openMenu": "Buka navigasi",
     "workspace": "Ruang kerja",
-    "applications": "Aplikasi",
+    "modules": "Modul",
     "collapse": "Kecilkan menu",
     "expand": "Besarkan menu",
     "breadcrumbs": "Jejak navigasi",
@@ -51,8 +51,8 @@
   },
   "home": {
     "welcome": "Selamat datang",
-    "intro": "Pilih aplikasi daripada menu.",
-    "yourApps": "Aplikasi anda",
+    "intro": "Pilih modul daripada menu.",
+    "yourApps": "Modul anda",
     "subtitle": "Inilah yang memerlukan perhatian anda di {{name}}.",
     "today": "Sekilas pandang",
     "open": "Buka"
@@ -129,8 +129,8 @@
       "password-reset": "Kata laluan ditetapkan semula",
       "support-access": "Tindakan kakitangan sokongan",
       "plan-changed": "Pelan ditukar",
-      "module-granted": "Aplikasi ditambah",
-      "module-revoked": "Aplikasi dibuang",
+      "module-granted": "Modul ditambah",
+      "module-revoked": "Modul dibuang",
       "settings-changed": "Tetapan diubah",
       "feature-changed": "Ciri diubah",
       "profile-changed": "Profil diubah",

@@ -82,7 +82,7 @@ describe("Settings", () => {
     const links = within(nav)
       .getAllByRole("link")
       .map((link) => link.textContent);
-    expect(links).toEqual(["Profile", "Users", "Groups", "Devices & integrations"]);
+    expect(links).toEqual(["Profile", "Users", "Groups", "Devices", "Applications"]);
     expect(await screen.findByRole("heading", { level: 1, name: "Users" })).toBeInTheDocument();
     // A manager sees people but can't invite them (inviting needs admin, as in the API).
     expect(screen.queryByRole("button", { name: "Invite user" })).not.toBeInTheDocument();
