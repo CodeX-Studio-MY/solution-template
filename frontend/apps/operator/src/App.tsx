@@ -1,4 +1,4 @@
-import { createBrowserRouter, Link as RouterLink, Outlet, RouterProvider } from "react-router";
+import { createBrowserRouter, Link as RouterLink, NavLink, Outlet, RouterProvider } from "react-router";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -16,7 +16,11 @@ import { tenancy } from "./api";
 import { signOut, useOperatorSession } from "./session";
 import { SignIn } from "./pages/SignIn";
 
-const theme = createTenantTheme({});
+const { operator } = tokens;
+const theme = createTenantTheme(
+  { primaryColor: operator.primary },
+  { background: operator.background, text: operator.text, divider: operator.divider, fontFamily: operator.fontFamily },
+);
 
 const router = createBrowserRouter([
   {
@@ -25,6 +29,8 @@ const router = createBrowserRouter([
     children: [
       { index: true, lazy: () => import("./pages/Tenants") },
       { path: "tenants/:id", lazy: () => import("./pages/Tenant") },
+      { path: "principals", lazy: () => import("./pages/Principals") },
+      { path: "principals/:id", lazy: () => import("./pages/Principal") },
     ],
   },
 ]);
@@ -60,11 +66,36 @@ function Layout() {
   const me = useApiQuery(["tenancy", "operator", "me"], (signal) => unwrap(tenancy.GET("/api/tenancy/v1/operator/me", { signal })));
   return (
     <Box sx={{ minHeight: "100vh" }}>
-      <AppBar position="static">
-        <Toolbar sx={{ gap: 2, minHeight: tokens.layout.appBarHeight }}>
-          <Typography variant="h6" component={RouterLink} to="/" sx={{ flexGrow: 1, color: "inherit", textDecoration: "none" }}>
+      <AppBar position="static" sx={{ bgcolor: operator.bar, color: operator.onBar }}>
+        <Toolbar sx={{ gap: 2, flexWrap: "wrap", minHeight: tokens.layout.appBarHeight }}>
+          <Typography variant="h6" component={RouterLink} to="/" sx={{ color: "inherit", textDecoration: "none" }}>
             {t("title")}
           </Typography>
+          <Box component="nav" aria-label={t("nav.label")} sx={{ display: "flex", gap: 0.5, flexGrow: 1 }}>
+            {(
+              [
+                ["/", "nav.tenants"],
+                ["/principals", "nav.principals"],
+              ] as const
+            ).map(([to, label]) => (
+              <Button
+                key={to}
+                component={NavLink}
+                to={to}
+                end={to === "/"}
+                color="inherit"
+                sx={{
+                  textTransform: "none",
+                  borderRadius: 0,
+                  borderBottom: 2,
+                  borderColor: "transparent",
+                  "&.active": { borderColor: operator.onBar },
+                }}
+              >
+                {t(label)}
+              </Button>
+            ))}
+          </Box>
           {me.data ? <Typography variant="body2">{me.data.displayName}</Typography> : null}
           <Button color="inherit" onClick={() => void signOut()}>
             {t("signOut")}

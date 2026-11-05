@@ -54,6 +54,17 @@ export const tokens = {
   density: { rowCompact: 40, rowComfortable: 52 },
   /** Layout measures in px. */
   layout: { sidebarWidth: 248, sidebarCollapsedWidth: 64, appBarHeight: 56, contentMaxWidth: 1200, pageGutter: 24 },
+  /** The operator console's own look, so support staff can always tell the back office from the customer app. */
+  operator: {
+    bar: "#12343b",
+    onBar: "#ffffff",
+    primary: "#0b7a75",
+    background: "#f2f5f4",
+    text: "#172226",
+    divider: "#cbd6d3",
+    fontFamily: '"IBM Plex Sans", "Helvetica Neue", Arial, sans-serif',
+    fontMono: '"IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace',
+  },
 } as const;
 
 export type Tokens = typeof tokens;

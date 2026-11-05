@@ -195,6 +195,11 @@ internal sealed class TenantManagement(
 
         tenant.ChangeStatus(TenantStatus.Deleted);
         catalog.TenantModules.RemoveRange(catalog.TenantModules.Where(t => t.TenantId == tenantId));
+        // These live in the catalog, so dropping the database doesn't remove them. Execute* is the deliberate exception to append-only:
+        // personal data goes, the history of who changed access stays. Principals stay too: they may have access to other tenants.
+        await tenancy.TenantPrincipalAccess.Where(a => a.TenantId == tenantId).ExecuteDeleteAsync(cancellationToken);
+        await tenancy.TenantPrincipalLogins.Where(l => l.TenantId == tenantId).ExecuteDeleteAsync(cancellationToken);
+        await tenancy.TenantPrincipalAccessAudit.Where(a => a.TenantId == tenantId).ExecuteUpdateAsync(s => s.SetProperty(a => a.RemoteAddress, (string?)null), cancellationToken);
         await AuditAsync(tenantId, "tenant-deleted", actor, null);
         await SaveAndPublishAsync(tenantId, cancellationToken);
         return await GetAsync(tenantId, cancellationToken);

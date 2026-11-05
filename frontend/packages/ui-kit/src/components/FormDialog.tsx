@@ -18,10 +18,23 @@ interface FormDialogProps {
   onClose: () => void;
   children: ReactNode;
   maxWidth?: "xs" | "sm" | "md";
+  /** `danger` for a form that takes something away. */
+  tone?: "default" | "danger";
 }
 
 /** A small form in a dialog (create, rename, invite). Enter submits; the fields are the children. */
-export function FormDialog({ open, title, text, submitLabel, busy, onSubmit, onClose, children, maxWidth = "xs" }: FormDialogProps) {
+export function FormDialog({
+  open,
+  title,
+  text,
+  submitLabel,
+  busy,
+  onSubmit,
+  onClose,
+  children,
+  maxWidth = "xs",
+  tone = "default",
+}: FormDialogProps) {
   const { t } = useTranslation();
   const titleId = useId();
   async function submit(event: FormEvent) {
@@ -40,7 +53,7 @@ export function FormDialog({ open, title, text, submitLabel, busy, onSubmit, onC
         </DialogContent>
         <DialogActions>
           <Button onClick={onClose}>{t("common:actions.cancel")}</Button>
-          <Button type="submit" variant="contained" disabled={busy}>
+          <Button type="submit" variant="contained" color={tone === "danger" ? "error" : "primary"} disabled={busy}>
             {submitLabel ?? t("common:actions.save")}
           </Button>
         </DialogActions>

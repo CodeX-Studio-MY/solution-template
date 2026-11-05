@@ -78,6 +78,8 @@ public abstract class PlatformDbContext : DbContext
             if (typeof(IAggregateRoot).IsAssignableFrom(clrType) && entityType.BaseType is null)
                 Provider.ConfigureConcurrencyToken(entity);
 
+            NameSinglePrimaryKeyAfterTable(entityType);
+
             foreach (var index in entityType.GetIndexes())
             {
                 var filters = new List<string>();
@@ -91,6 +93,23 @@ public abstract class PlatformDbContext : DbContext
         }
 
         Provider.ConfigureModel(modelBuilder);
+    }
+
+    /// <summary>
+    /// A table's single-column primary key is always named <c>&lt;SingularTable&gt;Id</c> (Principals gives PrincipalId,
+    /// AuditLog gives AuditLogId), whatever the C# property is called. Composite keys are left alone.
+    /// </summary>
+    private static void NameSinglePrimaryKeyAfterTable(Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType entityType)
+    {
+        var table = entityType.GetTableName();
+        var key = entityType.FindPrimaryKey();
+        if (table is null || entityType.BaseType is not null || key is not { Properties.Count: 1 })
+            return;
+
+        var singular = table.EndsWith("ies", StringComparison.Ordinal) ? table[..^3] + "y"
+            : table.EndsWith('s') && !table.EndsWith("ss", StringComparison.Ordinal) ? table[..^1]
+            : table;
+        key.Properties[0].SetColumnName(singular + "Id");
     }
 }
 

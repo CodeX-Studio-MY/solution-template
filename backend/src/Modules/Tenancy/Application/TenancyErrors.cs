@@ -21,4 +21,9 @@ public static class TenancyErrors
     public static readonly ErrorCode UnknownSettings = new("tenant-settings.unknown-settings", 404, "errors.tenancy.unknownSettings");
     public static readonly ErrorCode UnknownFeature = new("tenant-settings.unknown-feature", 404, "errors.tenancy.unknownFeature");
     public static readonly ErrorCode ReservedSlug = new("tenant-settings.reserved-slug", 400, "errors.tenancy.reservedSlug");
+    public static readonly ErrorCode PrincipalNotFound = new("tenant-settings.principal-not-found", 404, "errors.tenancy.principalNotFound");
+    public static readonly ErrorCode PrincipalExists = new("tenant-settings.principal-exists", 409, "errors.tenancy.principalExists");
+    public static readonly ErrorCode PrincipalInactive = new("tenant-settings.principal-inactive", 422, "errors.tenancy.principalInactive");
+    public static readonly ErrorCode TenantAccessNotFound = new("tenant-settings.tenant-access-not-found", 404, "errors.tenancy.tenantAccessNotFound");
+    public static readonly ErrorCode TenantAccessInvalid = new("tenant-settings.tenant-access-invalid", 422, "errors.tenancy.tenantAccessInvalid");
 }

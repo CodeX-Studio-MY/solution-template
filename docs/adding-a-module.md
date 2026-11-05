@@ -56,6 +56,8 @@ its shape:
 
 ## Changing the data model
 
+A table's single-column primary key is always named `<SingularTable>Id` in the database (`Suppliers` gets `SupplierId`), whatever the C# property is called: `PlatformDbContext` applies this to every table, so don't set the column name yourself.
+
 `scripts/new-module` creates the first migration only. After you change an entity or the `DbContext`, add a migration for **every**
 provider in `platform.yaml` (`MigrationsConsistencyTests` fails otherwise). From `backend/`:
 

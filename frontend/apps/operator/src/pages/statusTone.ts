@@ -1,5 +1,5 @@
 import type { Tone } from "@saaskit/ui-kit";
-import type { TenantStatus } from "../api";
+import type { AccessStatus, TenantStatus } from "../api";
 
 export const statusTone: Record<TenantStatus, Tone> = {
   provisioning: "info",
@@ -7,4 +7,10 @@ export const statusTone: Record<TenantStatus, Tone> = {
   suspended: "warning",
   pendingDeletion: "error",
   deleted: "default",
+};
+
+export const accessTone: Record<AccessStatus, Tone> = {
+  active: "success",
+  suspended: "warning",
+  revoked: "error",
 };

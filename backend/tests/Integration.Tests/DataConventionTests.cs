@@ -2,6 +2,9 @@ using Saaskit.Core.Data;
 using Saaskit.Core.Errors;
 using Saaskit.Core.Tenancy;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Saaskit.Migrator;
 
 namespace Saaskit.Integration.Tests;
 
@@ -185,6 +188,32 @@ public sealed class DataConventionTests(Databases databases)
             await using var next = await second.Database.BeginTransactionAsync(Ct);
             await locks.AcquireAsync(second, "job:reminders", Ct);
         }
+    }
+
+    /// <summary>Every single-column primary key is named after its table (Principals gives PrincipalId); composite keys have no such column. No database needed.</summary>
+    [Theory]
+    [MemberData(nameof(MigrationsConsistencyTests.Targets), MemberType = typeof(MigrationsConsistencyTests))]
+    public void Single_column_primary_keys_are_named_after_their_table(string provider, string targetName)
+    {
+        var target = MigrationTargets.Catalog.Concat(MigrationTargets.Tenant).First(t => t.Name == targetName);
+        using var db = target.Create(Databases.Provider(provider), Databases.ModelOnlyConnectionString(provider));
+
+        var wrong = new List<string>();
+        foreach (var entity in db.GetService<IDesignTimeModel>().Model.GetEntityTypes().Where(e => e.GetTableName() is not null && e.BaseType is null))
+        {
+            var key = entity.FindPrimaryKey();
+            if (key is not { Properties.Count: 1 })
+                continue;
+            var table = entity.GetTableName()!;
+            var singular = table.EndsWith("ies", StringComparison.Ordinal) ? table[..^3] + "y"
+                : table.EndsWith('s') && !table.EndsWith("ss", StringComparison.Ordinal) ? table[..^1]
+                : table;
+            var column = key.Properties[0].GetColumnName(StoreObjectIdentifier.Table(table, entity.GetSchema()));
+            if (column != singular + "Id")
+                wrong.Add($"{table}.{column} (expected {singular}Id)");
+        }
+
+        wrong.ShouldBeEmpty($"{targetName} on {provider}");
     }
 
     private async Task<TestModuleHost> CreateAsync(string provider)

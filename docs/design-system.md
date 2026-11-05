@@ -104,3 +104,16 @@ A lint rule fails the build on a colour literal anywhere else, and `scripts/gene
 | `layout.appBarHeight` | `56` |
 | `layout.contentMaxWidth` | `1200` |
 | `layout.pageGutter` | `24` |
+
+## Operator
+
+| Token | Value |
+|---|---|
+| `operator.bar` | `#12343b` |
+| `operator.onBar` | `#ffffff` |
+| `operator.primary` | `#0b7a75` |
+| `operator.background` | `#f2f5f4` |
+| `operator.text` | `#172226` |
+| `operator.divider` | `#cbd6d3` |
+| `operator.fontFamily` | `"IBM Plex Sans", "Helvetica Neue", Arial, sans-serif` |
+| `operator.fontMono` | `"IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace` |

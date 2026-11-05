@@ -36,13 +36,13 @@ namespace Saaskit.Core.Catalog.Migrations.SqlServer.Migrations.Catalog
                 schema: "catalog",
                 columns: table => new
                 {
-                    Plan = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    PlanLimitId = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
                     PerTenantPerMinute = table.Column<int>(type: "int", nullable: false),
                     PerPrincipalPerMinute = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PlanLimits", x => x.Plan);
+                    table.PrimaryKey("PK_PlanLimits", x => x.PlanLimitId);
                 });
 
             migrationBuilder.CreateTable(
@@ -50,7 +50,7 @@ namespace Saaskit.Core.Catalog.Migrations.SqlServer.Migrations.Catalog
                 schema: "catalog",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Slug = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
                     DisplayName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     Status = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
@@ -72,7 +72,7 @@ namespace Saaskit.Core.Catalog.Migrations.SqlServer.Migrations.Catalog
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Tenants", x => x.Id);
+                    table.PrimaryKey("PK_Tenants", x => x.TenantId);
                 });
 
             migrationBuilder.CreateTable(
@@ -114,7 +114,7 @@ namespace Saaskit.Core.Catalog.Migrations.SqlServer.Migrations.Catalog
                         column: x => x.TenantId,
                         principalSchema: "catalog",
                         principalTable: "Tenants",
-                        principalColumn: "Id",
+                        principalColumn: "TenantId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -138,7 +138,7 @@ namespace Saaskit.Core.Catalog.Migrations.SqlServer.Migrations.Catalog
                         column: x => x.TenantId,
                         principalSchema: "catalog",
                         principalTable: "Tenants",
-                        principalColumn: "Id",
+                        principalColumn: "TenantId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -166,7 +166,7 @@ namespace Saaskit.Core.Catalog.Migrations.SqlServer.Migrations.Catalog
                         column: x => x.TenantId,
                         principalSchema: "catalog",
                         principalTable: "Tenants",
-                        principalColumn: "Id",
+                        principalColumn: "TenantId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -189,7 +189,7 @@ namespace Saaskit.Core.Catalog.Migrations.SqlServer.Migrations.Catalog
                         column: x => x.TenantId,
                         principalSchema: "catalog",
                         principalTable: "Tenants",
-                        principalColumn: "Id",
+                        principalColumn: "TenantId",
                         onDelete: ReferentialAction.Cascade);
                 });
 

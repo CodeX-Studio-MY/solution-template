@@ -5,6 +5,14 @@ export interface TenantBranding {
   primaryColor?: string;
 }
 
+/** What an app with its own look (the operator console) changes on the light scheme. Tenants never set these. */
+export interface ThemeSurface {
+  background: string;
+  text: string;
+  divider: string;
+  fontFamily: string;
+}
+
 const hex = /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i;
 
 /** Whether a tenant-supplied colour is safe to use (a plain hex colour). Anything else is ignored. */
@@ -16,7 +24,7 @@ export function isValidColor(value: string | undefined): value is string {
  * The MUI theme: CSS variables on (so the tenant's colour changes without re-rendering), light and dark schemes from the
  * tokens, and the tenant's primary colour on top. Components use theme tokens only, never colours.
  */
-export function createTenantTheme(branding: TenantBranding = {}): Theme {
+export function createTenantTheme(branding: TenantBranding = {}, surface?: ThemeSurface): Theme {
   const primary = isValidColor(branding.primaryColor) ? branding.primaryColor : tokens.color.primary;
   const { color, font, radius, motion, density } = tokens;
 
@@ -36,9 +44,9 @@ export function createTenantTheme(branding: TenantBranding = {}): Theme {
           warning: { main: color.warning },
           error: { main: color.error },
           info: { main: color.info },
-          background: { default: color.background.light, paper: color.background.paperLight },
-          text: { primary: color.text.light, secondary: color.text.secondaryLight },
-          divider: color.divider.light,
+          background: { default: surface?.background ?? color.background.light, paper: color.background.paperLight },
+          text: { primary: surface?.text ?? color.text.light, secondary: color.text.secondaryLight },
+          divider: surface?.divider ?? color.divider.light,
         },
       },
       dark: {
@@ -61,7 +69,7 @@ export function createTenantTheme(branding: TenantBranding = {}): Theme {
       easing: { easeInOut: motion.easing, easeOut: motion.easing },
     },
     typography: {
-      fontFamily: font.family,
+      fontFamily: surface?.fontFamily ?? font.family,
       fontSize: font.size.base,
       h1: { fontSize: font.size.h1, fontWeight: font.weight.semibold, lineHeight: font.lineHeight.heading },
       h2: { fontSize: font.size.h2, fontWeight: font.weight.semibold, lineHeight: font.lineHeight.heading },

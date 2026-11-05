@@ -57,4 +57,12 @@ public static class DesignTokens
     public const int LayoutAppBarHeight = 56;
     public const int LayoutContentMaxWidth = 1200;
     public const int LayoutPageGutter = 24;
+    public const string OperatorBar = "#12343b";
+    public const string OperatorOnBar = "#ffffff";
+    public const string OperatorPrimary = "#0b7a75";
+    public const string OperatorBackground = "#f2f5f4";
+    public const string OperatorText = "#172226";
+    public const string OperatorDivider = "#cbd6d3";
+    public const string OperatorFontFamily = "\"IBM Plex Sans\", \"Helvetica Neue\", Arial, sans-serif";
+    public const string OperatorFontMono = "\"IBM Plex Mono\", ui-monospace, Menlo, Consolas, monospace";
 }

@@ -31,7 +31,8 @@ internal sealed class OperatorAuthenticationHandler(
         if (identity is null)
             return AuthenticateResult.Fail("The operator session is not valid.");
 
-        var claims = new[] { new Claim(OperatorIdClaim, identity.Id.ToString()), new Claim(ClaimTypes.Name, identity.DisplayName), new Claim(ClaimTypes.Email, identity.Email) };
+        // The subject claim is what fills CreatedBy and UpdatedBy on the rows this operator changes.
+        var claims = new[] { new Claim(OperatorIdClaim, identity.Id.ToString()), new Claim(Core.Security.PlatformClaims.Subject, identity.Id.ToString()), new Claim(ClaimTypes.Name, identity.DisplayName), new Claim(ClaimTypes.Email, identity.Email) };
         return AuthenticateResult.Success(new AuthenticationTicket(new ClaimsPrincipal(new ClaimsIdentity(claims, SchemeName)), SchemeName));
     }
 }

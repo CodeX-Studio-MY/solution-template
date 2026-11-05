@@ -252,6 +252,217 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/tenancy/v1/operator/principals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    Page?: number | string;
+                    PageSize?: number | string;
+                    search?: string;
+                    type?: components["schemas"]["PlatformPrincipalType"];
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PageOfPrincipalSummary"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["PrincipalInput"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PrincipalDetail"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/tenancy/v1/operator/principals/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PrincipalDetail"];
+                    };
+                };
+            };
+        };
+        put: {
+            parameters: {
+                query?: never;
+                header?: {
+                    "If-Match"?: string;
+                };
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["PrincipalInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PrincipalDetail"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/tenancy/v1/operator/principals/{id}/access-audit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    Page?: number | string;
+                    PageSize?: number | string;
+                    tenantId?: string;
+                };
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PageOfAccessAuditRow"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/tenancy/v1/operator/principals/{id}/active": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: {
+                    "If-Match"?: string;
+                };
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ActiveBody"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PrincipalDetail"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/tenancy/v1/operator/sessions": {
         parameters: {
             query?: never;
@@ -793,6 +1004,210 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/tenancy/v1/operator/tenants/{id}/principal-access-audit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    Page?: number | string;
+                    PageSize?: number | string;
+                };
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PageOfAccessAuditRow"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/tenancy/v1/operator/tenants/{id}/principal-logins": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    Page?: number | string;
+                    PageSize?: number | string;
+                };
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PageOfLoginRow"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/tenancy/v1/operator/tenants/{id}/principals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    Page?: number | string;
+                    PageSize?: number | string;
+                };
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PageOfTenantPrincipalRow"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/tenancy/v1/operator/tenants/{id}/principals/{principalId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                    principalId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["GrantBody"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TenantPrincipalRow"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/tenancy/v1/operator/tenants/{id}/principals/{principalId}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                    principalId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AccessStatusBody"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TenantPrincipalRow"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/tenancy/v1/operator/tenants/{id}/profile": {
         parameters: {
             query?: never;
@@ -1275,6 +1690,35 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        AccessAuditRow: {
+            action: components["schemas"]["TenantAccessAction"];
+            /** Format: uuid */
+            actorId: string;
+            actorName: string | null;
+            fromStatus: (null) | components["schemas"]["TenantAccessStatus"];
+            /** Format: int64 */
+            id: number | string;
+            /** Format: date-time */
+            occurredOn: string;
+            /** Format: uuid */
+            principalId: string;
+            principalName: string | null;
+            reason: string | null;
+            remoteAddress: string | null;
+            /** Format: uuid */
+            tenantId: string;
+            tenantName: string | null;
+            toStatus: components["schemas"]["TenantAccessStatus"];
+        };
+        AccessStatusBody: {
+            reason: string;
+            status: components["schemas"]["TenantAccessStatus"];
+        };
+        ActiveBody: {
+            active: boolean;
+        };
+        /** @enum {unknown} */
+        DeviceType: "iot" | "lorawanGateway" | "gateway" | null;
         FeatureBody: {
             enabled: boolean | null;
         };
@@ -1287,7 +1731,37 @@ export interface components {
             moduleKey: string;
             override: boolean | null;
         };
+        GrantBody: {
+            reason: string | null;
+        };
         JsonObject: Record<string, never>;
+        LinkedProvider: {
+            /** Format: date-time */
+            linkedOn: string;
+            provider: components["schemas"]["LoginProvider"];
+            providerEmail: string | null;
+        };
+        /** @enum {unknown} */
+        LoginFailureReason: "wrongCredentials" | "lockedOut" | "unknownAccount" | "deactivated" | "noTenantAccess" | "noLinkedAccount" | null;
+        /** @enum {unknown} */
+        LoginMethod: "password" | "passkey" | "clientCredentials" | "google" | "microsoft" | "apple";
+        /** @enum {unknown} */
+        LoginProvider: "google" | "microsoft" | "apple";
+        LoginRow: {
+            failureReason: (null) | components["schemas"]["LoginFailureReason"];
+            /** Format: int64 */
+            id: number | string;
+            method: components["schemas"]["LoginMethod"];
+            /** Format: date-time */
+            occurredOn: string;
+            /** Format: uuid */
+            principalId: string | null;
+            principalName: string | null;
+            principalType: (null) | components["schemas"]["PlatformPrincipalType"];
+            remoteAddress: string | null;
+            succeeded: boolean;
+            userAgent: string | null;
+        };
         ModuleManifest: {
             modules: components["schemas"]["ModuleManifestEntry"][];
         };
@@ -1319,6 +1793,45 @@ export interface components {
             id: string;
         };
         /** @description The one response shape for lists. */
+        PageOfAccessAuditRow: {
+            hasNext?: boolean;
+            items: components["schemas"]["AccessAuditRow"][];
+            /** Format: int32 */
+            pageNumber: number | string;
+            /** Format: int32 */
+            pageSize: number | string;
+            /** Format: int32 */
+            totalCount: number | string;
+            /** Format: int32 */
+            totalPages?: number | string;
+        };
+        /** @description The one response shape for lists. */
+        PageOfLoginRow: {
+            hasNext?: boolean;
+            items: components["schemas"]["LoginRow"][];
+            /** Format: int32 */
+            pageNumber: number | string;
+            /** Format: int32 */
+            pageSize: number | string;
+            /** Format: int32 */
+            totalCount: number | string;
+            /** Format: int32 */
+            totalPages?: number | string;
+        };
+        /** @description The one response shape for lists. */
+        PageOfPrincipalSummary: {
+            hasNext?: boolean;
+            items: components["schemas"]["PrincipalSummary"][];
+            /** Format: int32 */
+            pageNumber: number | string;
+            /** Format: int32 */
+            pageSize: number | string;
+            /** Format: int32 */
+            totalCount: number | string;
+            /** Format: int32 */
+            totalPages?: number | string;
+        };
+        /** @description The one response shape for lists. */
         PageOfTenantActivity: {
             hasNext?: boolean;
             items: components["schemas"]["TenantActivity"][];
@@ -1331,8 +1844,76 @@ export interface components {
             /** Format: int32 */
             totalPages?: number | string;
         };
+        /** @description The one response shape for lists. */
+        PageOfTenantPrincipalRow: {
+            hasNext?: boolean;
+            items: components["schemas"]["TenantPrincipalRow"][];
+            /** Format: int32 */
+            pageNumber: number | string;
+            /** Format: int32 */
+            pageSize: number | string;
+            /** Format: int32 */
+            totalCount: number | string;
+            /** Format: int32 */
+            totalPages?: number | string;
+        };
         PlanBody: {
             plan: string;
+        };
+        /** @enum {unknown} */
+        PlatformPrincipalType: "user" | "device" | "application";
+        PrincipalDetail: {
+            contactEmail: string | null;
+            deviceType: (null) | components["schemas"]["DeviceType"];
+            displayName: string;
+            email: string | null;
+            eTag: string;
+            identifier: string | null;
+            isActive: boolean;
+            isExternal: boolean | null;
+            manufacturer: string | null;
+            model: string | null;
+            ownerName: string | null;
+            /** Format: uuid */
+            principalId: string;
+            providers: components["schemas"]["LinkedProvider"][];
+            tenants: components["schemas"]["PrincipalTenantAccess"][];
+            type: components["schemas"]["PlatformPrincipalType"];
+        };
+        /** @description What creates or changes a principal. Only the fields of its PlatformPrincipalType PrincipalInput.Type are used. */
+        PrincipalInput: {
+            contactEmail?: string | null;
+            deviceType?: (null) | components["schemas"]["DeviceType"];
+            displayName: string;
+            email?: string | null;
+            identifier?: string | null;
+            isExternal?: boolean | null;
+            manufacturer?: string | null;
+            model?: string | null;
+            ownerName?: string | null;
+            type: components["schemas"]["PlatformPrincipalType"];
+        };
+        /** @description One row of the principal list. string? PrincipalSummary.Identifier is the email, the device's identifier or the application's owner. */
+        PrincipalSummary: {
+            deviceType: (null) | components["schemas"]["DeviceType"];
+            displayName: string;
+            identifier: string | null;
+            isActive: boolean;
+            isExternal: boolean | null;
+            /** Format: uuid */
+            principalId: string;
+            /** Format: int32 */
+            tenantCount: number | string;
+            type: components["schemas"]["PlatformPrincipalType"];
+        };
+        PrincipalTenantAccess: {
+            /** Format: date-time */
+            grantedOn: string;
+            status: components["schemas"]["TenantAccessStatus"];
+            /** Format: uuid */
+            tenantId: string;
+            tenantName: string;
+            tenantSlug: string;
         };
         RequiredBody: {
             required: boolean;
@@ -1397,6 +1978,10 @@ export interface components {
             /** Format: date-time */
             expiresOn: string;
         };
+        /** @enum {unknown} */
+        TenantAccessAction: "granted" | "suspended" | "resumed" | "revoked";
+        /** @enum {unknown} */
+        TenantAccessStatus: "active" | "suspended" | "revoked";
         /** @description One change to a tenant (plan, modules, settings, lifecycle, support access), and who made it. */
         TenantActivity: {
             actor: string | null;
@@ -1407,6 +1992,21 @@ export interface components {
             kind: string;
             /** Format: date-time */
             occurredOn: string;
+        };
+        /** @description One principal's access to a tenant, as the tenant's page lists it. */
+        TenantPrincipalRow: {
+            deviceType: (null) | components["schemas"]["DeviceType"];
+            displayName: string;
+            grantedByName: string | null;
+            /** Format: date-time */
+            grantedOn: string;
+            identifier: string | null;
+            isActive: boolean;
+            isExternal: boolean | null;
+            /** Format: uuid */
+            principalId: string;
+            status: components["schemas"]["TenantAccessStatus"];
+            type: components["schemas"]["PlatformPrincipalType"];
         };
         /** @description What a tenant is called and how it formats time and money. A tenant admin and an operator may change it. */
         TenantProfile: {

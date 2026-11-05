@@ -122,6 +122,52 @@ internal static class TenancyEndpoints
             access.RequestAsync(Identity(user), body, ct));
         secured.MapPost("/support-access/{id:guid}/token", (Guid id, ClaimsPrincipal user, ISupportAccess access, CancellationToken ct) =>
             access.IssueTokenAsync(Identity(user), id, ct));
+
+        MapPrincipalEndpoints(secured);
+    }
+
+    /// <summary>The catalog's users, devices and applications, and which tenants each may access.</summary>
+    private static void MapPrincipalEndpoints(RouteGroupBuilder secured)
+    {
+        secured.MapGet("/principals", (PlatformPrincipalType? type, string? search, [AsParameters] PageRequest page, IPrincipalDirectory directory, CancellationToken ct) =>
+            directory.ListAsync(type, search, page, ct));
+        secured.MapPost("/principals", async ([FromBody] PrincipalInput body, ClaimsPrincipal user, IPrincipalDirectory directory, HttpResponse response, CancellationToken ct) =>
+        {
+            var principal = await directory.CreateAsync(body, ActorId(user), ct);
+            response.Headers.ETag = principal.ETag;
+            return TypedResults.Created($"{PlatformServices.Tenancy.RoutePrefix}/v1/operator/principals/{principal.PrincipalId}", principal);
+        });
+        secured.MapGet("/principals/{id:guid}", async (Guid id, IPrincipalDirectory directory, HttpResponse response, CancellationToken ct) =>
+        {
+            var principal = await directory.GetAsync(id, ct);
+            response.Headers.ETag = principal.ETag;
+            return principal;
+        });
+        secured.MapPut("/principals/{id:guid}", async (Guid id, [FromBody] PrincipalInput body, [FromHeader(Name = "If-Match")] string? ifMatch, ClaimsPrincipal user, IPrincipalDirectory directory, HttpResponse response, CancellationToken ct) =>
+        {
+            var principal = await directory.UpdateAsync(id, body, ifMatch, ActorId(user), ct);
+            response.Headers.ETag = principal.ETag;
+            return principal;
+        });
+        secured.MapPut("/principals/{id:guid}/active", async (Guid id, [FromBody] ActiveBody body, [FromHeader(Name = "If-Match")] string? ifMatch, ClaimsPrincipal user, IPrincipalDirectory directory, HttpResponse response, CancellationToken ct) =>
+        {
+            var principal = await directory.SetActiveAsync(id, body.Active, ifMatch, ActorId(user), ct);
+            response.Headers.ETag = principal.ETag;
+            return principal;
+        });
+        secured.MapGet("/principals/{id:guid}/access-audit", (Guid id, Guid? tenantId, [AsParameters] PageRequest page, IPrincipalDirectory directory, CancellationToken ct) =>
+            directory.ListAuditForPrincipalAsync(id, tenantId, page, ct));
+
+        secured.MapGet("/tenants/{id:guid}/principals", (Guid id, [AsParameters] PageRequest page, IPrincipalDirectory directory, CancellationToken ct) =>
+            directory.ListForTenantAsync(id, page, ct));
+        secured.MapPut("/tenants/{id:guid}/principals/{principalId:guid}", (Guid id, Guid principalId, [FromBody] GrantBody body, ClaimsPrincipal user, IPrincipalDirectory directory, CancellationToken ct) =>
+            directory.GrantAsync(id, principalId, body.Reason, ActorId(user), ct));
+        secured.MapPut("/tenants/{id:guid}/principals/{principalId:guid}/status", (Guid id, Guid principalId, [FromBody] AccessStatusBody body, ClaimsPrincipal user, IPrincipalDirectory directory, CancellationToken ct) =>
+            directory.SetStatusAsync(id, principalId, body.Status, body.Reason, ActorId(user), ct));
+        secured.MapGet("/tenants/{id:guid}/principal-access-audit", (Guid id, [AsParameters] PageRequest page, IPrincipalDirectory directory, CancellationToken ct) =>
+            directory.ListAuditForTenantAsync(id, page, ct));
+        secured.MapGet("/tenants/{id:guid}/principal-logins", (Guid id, [AsParameters] PageRequest page, IPrincipalDirectory directory, CancellationToken ct) =>
+            directory.ListLoginsAsync(id, page, ct));
     }
 
     /// <summary>At least <paramref name="role"/> in the module itself, or admin in tenant-settings (who configures every module).</summary>
@@ -129,6 +175,8 @@ internal static class TenancyEndpoints
         access.HasRole(moduleKey, role) || access.HasRole(Modules.TenantSettings, Role.Admin);
 
     private static string Actor(ClaimsPrincipal user) => user.FindFirstValue(OperatorAuthenticationHandler.OperatorIdClaim) ?? "unknown";
+
+    private static Guid ActorId(ClaimsPrincipal user) => Guid.Parse(Actor(user));
 
     private static OperatorIdentity Identity(ClaimsPrincipal user) =>
         new(Guid.Parse(Actor(user)), user.FindFirstValue(ClaimTypes.Email) ?? "", user.FindFirstValue(ClaimTypes.Name) ?? "");
@@ -140,4 +188,10 @@ internal static class TenancyEndpoints
     internal sealed record RequiredBody(bool Required);
 
     internal sealed record FeatureBody(bool? Enabled);
+
+    internal sealed record ActiveBody(bool Active);
+
+    internal sealed record GrantBody(string? Reason);
+
+    internal sealed record AccessStatusBody(TenantAccessStatus Status, string Reason);
 }

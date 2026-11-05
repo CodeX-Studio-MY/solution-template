@@ -32,8 +32,9 @@ import {
 } from "@saaskit/ui-kit";
 import { tenancy, tenantsKey, type TenantSummary } from "../api";
 import { statusTone } from "./statusTone";
+import { TenantAccess, TenantLogins } from "./TenantAccess";
 
-type TabName = "overview" | "settings" | "features" | "activity";
+type TabName = "overview" | "settings" | "features" | "activity" | "access" | "logins";
 
 /** One tenant: profile, plan and add-ons, support policy, lifecycle, and (as an operator) every setting and flag. */
 export function Component() {
@@ -58,8 +59,8 @@ export function Component() {
             subtitle={data.slug}
             actions={<StatusChip label={t(`statuses.${data.status}`)} tone={statusTone[data.status]} />}
           />
-          <Tabs value={tab} onChange={(_, next: TabName) => setTab(next)} sx={{ mb: 3 }}>
-            {(["overview", "settings", "features", "activity"] as const).map((name) => (
+          <Tabs value={tab} onChange={(_, next: TabName) => setTab(next)} variant="scrollable" allowScrollButtonsMobile sx={{ mb: 3 }}>
+            {(["overview", "settings", "features", "activity", "access", "logins"] as const).map((name) => (
               <Tab key={name} value={name} label={t(`tenant.tabs.${name}`)} />
             ))}
           </Tabs>
@@ -67,6 +68,8 @@ export function Component() {
           {tab === "settings" ? <Settings tenantId={data.id} /> : null}
           {tab === "features" ? <Features tenantId={data.id} /> : null}
           {tab === "activity" ? <Activity tenantId={data.id} /> : null}
+          {tab === "access" ? <TenantAccess tenantId={data.id} /> : null}
+          {tab === "logins" ? <TenantLogins tenantId={data.id} /> : null}
         </>
       ) : null}
     </>

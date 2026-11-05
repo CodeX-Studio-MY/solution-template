@@ -19,7 +19,7 @@ namespace Saaskit.Identity.Migrations.SqlServer.Migrations.IdentityCatalog
                 schema: "identity",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    OidcApplicationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     ClientId = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     ClientSecret = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -39,7 +39,7 @@ namespace Saaskit.Identity.Migrations.SqlServer.Migrations.IdentityCatalog
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_OidcApplications", x => x.Id);
+                    table.PrimaryKey("PK_OidcApplications", x => x.OidcApplicationId);
                 });
 
             migrationBuilder.CreateTable(
@@ -47,7 +47,7 @@ namespace Saaskit.Identity.Migrations.SqlServer.Migrations.IdentityCatalog
                 schema: "identity",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    OidcAuthorizationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ApplicationId = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     Subject = table.Column<string>(type: "nvarchar(400)", maxLength: 400, nullable: true),
                     Status = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
@@ -59,7 +59,7 @@ namespace Saaskit.Identity.Migrations.SqlServer.Migrations.IdentityCatalog
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_OidcAuthorizations", x => x.Id);
+                    table.PrimaryKey("PK_OidcAuthorizations", x => x.OidcAuthorizationId);
                 });
 
             migrationBuilder.CreateTable(
@@ -67,7 +67,7 @@ namespace Saaskit.Identity.Migrations.SqlServer.Migrations.IdentityCatalog
                 schema: "identity",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    OidcTokenId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ApplicationId = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     AuthorizationId = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     Subject = table.Column<string>(type: "nvarchar(400)", maxLength: 400, nullable: true),
@@ -83,7 +83,7 @@ namespace Saaskit.Identity.Migrations.SqlServer.Migrations.IdentityCatalog
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_OidcTokens", x => x.Id);
+                    table.PrimaryKey("PK_OidcTokens", x => x.OidcTokenId);
                 });
 
             migrationBuilder.CreateIndex(

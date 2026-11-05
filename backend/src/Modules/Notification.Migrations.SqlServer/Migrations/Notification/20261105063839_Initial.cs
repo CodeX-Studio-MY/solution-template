@@ -52,7 +52,7 @@ namespace Saaskit.Notification.Migrations.SqlServer.Migrations.Notification
                 schema: "notification",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    NotificationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     RecipientId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Kind = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
@@ -66,7 +66,7 @@ namespace Saaskit.Notification.Migrations.SqlServer.Migrations.Notification
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Notifications", x => x.Id);
+                    table.PrimaryKey("PK_Notifications", x => x.NotificationId);
                 });
 
             migrationBuilder.CreateTable(
@@ -74,7 +74,7 @@ namespace Saaskit.Notification.Migrations.SqlServer.Migrations.Notification
                 schema: "notification",
                 columns: table => new
                 {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
+                    OutboxId = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     EventId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
@@ -86,7 +86,7 @@ namespace Saaskit.Notification.Migrations.SqlServer.Migrations.Notification
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Outbox", x => x.Id);
+                    table.PrimaryKey("PK_Outbox", x => x.OutboxId);
                 });
 
             migrationBuilder.CreateTable(
@@ -94,12 +94,12 @@ namespace Saaskit.Notification.Migrations.SqlServer.Migrations.Notification
                 schema: "notification",
                 columns: table => new
                 {
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    SequenceCounterId = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Value = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SequenceCounters", x => x.Name);
+                    table.PrimaryKey("PK_SequenceCounters", x => x.SequenceCounterId);
                 });
 
             migrationBuilder.CreateTable(
@@ -107,7 +107,7 @@ namespace Saaskit.Notification.Migrations.SqlServer.Migrations.Notification
                 schema: "notification",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    StoredFileId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Key = table.Column<string>(type: "nvarchar(400)", maxLength: 400, nullable: false),
                     ContentType = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Length = table.Column<long>(type: "bigint", nullable: false),
@@ -121,7 +121,7 @@ namespace Saaskit.Notification.Migrations.SqlServer.Migrations.Notification
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_StoredFiles", x => x.Id);
+                    table.PrimaryKey("PK_StoredFiles", x => x.StoredFileId);
                 });
 
             migrationBuilder.CreateIndex(

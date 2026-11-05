@@ -19,7 +19,7 @@ namespace Saaskit.Identity.Migrations.SqlServer.Migrations.Identity
                 schema: "identity",
                 columns: table => new
                 {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
+                    AuditLogId = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     OccurredOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Kind = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
@@ -33,7 +33,7 @@ namespace Saaskit.Identity.Migrations.SqlServer.Migrations.Identity
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AuditLog", x => x.Id);
+                    table.PrimaryKey("PK_AuditLog", x => x.AuditLogId);
                 });
 
             migrationBuilder.CreateTable(
@@ -41,7 +41,7 @@ namespace Saaskit.Identity.Migrations.SqlServer.Migrations.Identity
                 schema: "identity",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    GroupId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     NormalizedName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
@@ -55,7 +55,7 @@ namespace Saaskit.Identity.Migrations.SqlServer.Migrations.Identity
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Groups", x => x.Id);
+                    table.PrimaryKey("PK_Groups", x => x.GroupId);
                 });
 
             migrationBuilder.CreateTable(
@@ -96,7 +96,7 @@ namespace Saaskit.Identity.Migrations.SqlServer.Migrations.Identity
                 schema: "identity",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    InvitationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
                     NormalizedEmail = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
                     TokenHash = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
@@ -110,7 +110,7 @@ namespace Saaskit.Identity.Migrations.SqlServer.Migrations.Identity
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Invitations", x => x.Id);
+                    table.PrimaryKey("PK_Invitations", x => x.InvitationId);
                 });
 
             migrationBuilder.CreateTable(
@@ -118,7 +118,7 @@ namespace Saaskit.Identity.Migrations.SqlServer.Migrations.Identity
                 schema: "identity",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    OidcAuthorizationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ApplicationId = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     Subject = table.Column<string>(type: "nvarchar(400)", maxLength: 400, nullable: true),
                     Status = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
@@ -130,7 +130,7 @@ namespace Saaskit.Identity.Migrations.SqlServer.Migrations.Identity
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_OidcAuthorizations", x => x.Id);
+                    table.PrimaryKey("PK_OidcAuthorizations", x => x.OidcAuthorizationId);
                 });
 
             migrationBuilder.CreateTable(
@@ -138,7 +138,7 @@ namespace Saaskit.Identity.Migrations.SqlServer.Migrations.Identity
                 schema: "identity",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    OidcTokenId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ApplicationId = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     AuthorizationId = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     Subject = table.Column<string>(type: "nvarchar(400)", maxLength: 400, nullable: true),
@@ -154,7 +154,7 @@ namespace Saaskit.Identity.Migrations.SqlServer.Migrations.Identity
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_OidcTokens", x => x.Id);
+                    table.PrimaryKey("PK_OidcTokens", x => x.OidcTokenId);
                 });
 
             migrationBuilder.CreateTable(
@@ -162,7 +162,7 @@ namespace Saaskit.Identity.Migrations.SqlServer.Migrations.Identity
                 schema: "identity",
                 columns: table => new
                 {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
+                    OutboxId = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     EventId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
@@ -174,7 +174,7 @@ namespace Saaskit.Identity.Migrations.SqlServer.Migrations.Identity
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Outbox", x => x.Id);
+                    table.PrimaryKey("PK_Outbox", x => x.OutboxId);
                 });
 
             migrationBuilder.CreateTable(
@@ -182,7 +182,7 @@ namespace Saaskit.Identity.Migrations.SqlServer.Migrations.Identity
                 schema: "identity",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    PrincipalId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Type = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     DisplayName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
@@ -197,7 +197,7 @@ namespace Saaskit.Identity.Migrations.SqlServer.Migrations.Identity
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Principals", x => x.Id);
+                    table.PrimaryKey("PK_Principals", x => x.PrincipalId);
                 });
 
             migrationBuilder.CreateTable(
@@ -205,12 +205,12 @@ namespace Saaskit.Identity.Migrations.SqlServer.Migrations.Identity
                 schema: "identity",
                 columns: table => new
                 {
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    SequenceCounterId = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Value = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SequenceCounters", x => x.Name);
+                    table.PrimaryKey("PK_SequenceCounters", x => x.SequenceCounterId);
                 });
 
             migrationBuilder.CreateTable(
@@ -218,7 +218,7 @@ namespace Saaskit.Identity.Migrations.SqlServer.Migrations.Identity
                 schema: "identity",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    StoredFileId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Key = table.Column<string>(type: "nvarchar(400)", maxLength: 400, nullable: false),
                     ContentType = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Length = table.Column<long>(type: "bigint", nullable: false),
@@ -232,7 +232,7 @@ namespace Saaskit.Identity.Migrations.SqlServer.Migrations.Identity
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_StoredFiles", x => x.Id);
+                    table.PrimaryKey("PK_StoredFiles", x => x.StoredFileId);
                 });
 
             migrationBuilder.CreateTable(
@@ -240,7 +240,7 @@ namespace Saaskit.Identity.Migrations.SqlServer.Migrations.Identity
                 schema: "identity",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    AccessAssignmentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     PrincipalId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     GroupId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     ModuleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -252,20 +252,20 @@ namespace Saaskit.Identity.Migrations.SqlServer.Migrations.Identity
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AccessAssignments", x => x.Id);
+                    table.PrimaryKey("PK_AccessAssignments", x => x.AccessAssignmentId);
                     table.CheckConstraint("CK_AccessAssignments_PrincipalOrGroup", "([PrincipalId] IS NULL AND [GroupId] IS NOT NULL) OR ([PrincipalId] IS NOT NULL AND [GroupId] IS NULL)");
                     table.ForeignKey(
                         name: "FK_AccessAssignments_Groups_GroupId",
                         column: x => x.GroupId,
                         principalSchema: "identity",
                         principalTable: "Groups",
-                        principalColumn: "Id");
+                        principalColumn: "GroupId");
                     table.ForeignKey(
                         name: "FK_AccessAssignments_Principals_PrincipalId",
                         column: x => x.PrincipalId,
                         principalSchema: "identity",
                         principalTable: "Principals",
-                        principalColumn: "Id");
+                        principalColumn: "PrincipalId");
                 });
 
             migrationBuilder.CreateTable(
@@ -273,7 +273,7 @@ namespace Saaskit.Identity.Migrations.SqlServer.Migrations.Identity
                 schema: "identity",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    DataScopeAssignmentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     PrincipalId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     GroupId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Scope = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
@@ -285,20 +285,20 @@ namespace Saaskit.Identity.Migrations.SqlServer.Migrations.Identity
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_DataScopeAssignments", x => x.Id);
+                    table.PrimaryKey("PK_DataScopeAssignments", x => x.DataScopeAssignmentId);
                     table.CheckConstraint("CK_DataScopeAssignments_PrincipalOrGroup", "([PrincipalId] IS NULL AND [GroupId] IS NOT NULL) OR ([PrincipalId] IS NOT NULL AND [GroupId] IS NULL)");
                     table.ForeignKey(
                         name: "FK_DataScopeAssignments_Groups_GroupId",
                         column: x => x.GroupId,
                         principalSchema: "identity",
                         principalTable: "Groups",
-                        principalColumn: "Id");
+                        principalColumn: "GroupId");
                     table.ForeignKey(
                         name: "FK_DataScopeAssignments_Principals_PrincipalId",
                         column: x => x.PrincipalId,
                         principalSchema: "identity",
                         principalTable: "Principals",
-                        principalColumn: "Id");
+                        principalColumn: "PrincipalId");
                 });
 
             migrationBuilder.CreateTable(
@@ -306,7 +306,7 @@ namespace Saaskit.Identity.Migrations.SqlServer.Migrations.Identity
                 schema: "identity",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    GroupMembershipId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     GroupId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     PrincipalId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
@@ -317,20 +317,20 @@ namespace Saaskit.Identity.Migrations.SqlServer.Migrations.Identity
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_GroupMemberships", x => x.Id);
+                    table.PrimaryKey("PK_GroupMemberships", x => x.GroupMembershipId);
                     table.ForeignKey(
                         name: "FK_GroupMemberships_Groups_GroupId",
                         column: x => x.GroupId,
                         principalSchema: "identity",
                         principalTable: "Groups",
-                        principalColumn: "Id",
+                        principalColumn: "GroupId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_GroupMemberships_Principals_PrincipalId",
                         column: x => x.PrincipalId,
                         principalSchema: "identity",
                         principalTable: "Principals",
-                        principalColumn: "Id",
+                        principalColumn: "PrincipalId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -339,7 +339,7 @@ namespace Saaskit.Identity.Migrations.SqlServer.Migrations.Identity
                 schema: "identity",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    MachineEnrollmentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     PrincipalId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CodeHash = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     ExpiresOn = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -351,13 +351,13 @@ namespace Saaskit.Identity.Migrations.SqlServer.Migrations.Identity
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_MachineEnrollments", x => x.Id);
+                    table.PrimaryKey("PK_MachineEnrollments", x => x.MachineEnrollmentId);
                     table.ForeignKey(
                         name: "FK_MachineEnrollments_Principals_PrincipalId",
                         column: x => x.PrincipalId,
                         principalSchema: "identity",
                         principalTable: "Principals",
-                        principalColumn: "Id",
+                        principalColumn: "PrincipalId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -366,7 +366,7 @@ namespace Saaskit.Identity.Migrations.SqlServer.Migrations.Identity
                 schema: "identity",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ConsecutiveLockouts = table.Column<int>(type: "int", nullable: false),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -385,13 +385,13 @@ namespace Saaskit.Identity.Migrations.SqlServer.Migrations.Identity
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Users", x => x.Id);
+                    table.PrimaryKey("PK_Users", x => x.UserId);
                     table.ForeignKey(
-                        name: "FK_Users_Principals_Id",
-                        column: x => x.Id,
+                        name: "FK_Users_Principals_UserId",
+                        column: x => x.UserId,
                         principalSchema: "identity",
                         principalTable: "Principals",
-                        principalColumn: "Id",
+                        principalColumn: "PrincipalId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -400,7 +400,7 @@ namespace Saaskit.Identity.Migrations.SqlServer.Migrations.Identity
                 schema: "identity",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
+                    UserClaimId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ClaimType = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -408,13 +408,13 @@ namespace Saaskit.Identity.Migrations.SqlServer.Migrations.Identity
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserClaims", x => x.Id);
+                    table.PrimaryKey("PK_UserClaims", x => x.UserClaimId);
                     table.ForeignKey(
                         name: "FK_UserClaims_Users_UserId",
                         column: x => x.UserId,
                         principalSchema: "identity",
                         principalTable: "Users",
-                        principalColumn: "Id",
+                        principalColumn: "UserId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -436,7 +436,7 @@ namespace Saaskit.Identity.Migrations.SqlServer.Migrations.Identity
                         column: x => x.UserId,
                         principalSchema: "identity",
                         principalTable: "Users",
-                        principalColumn: "Id",
+                        principalColumn: "UserId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -445,19 +445,19 @@ namespace Saaskit.Identity.Migrations.SqlServer.Migrations.Identity
                 schema: "identity",
                 columns: table => new
                 {
-                    CredentialId = table.Column<byte[]>(type: "varbinary(1024)", maxLength: 1024, nullable: false),
+                    UserPasskeyId = table.Column<byte[]>(type: "varbinary(1024)", maxLength: 1024, nullable: false),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Data = table.Column<string>(type: "json", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserPasskeys", x => x.CredentialId);
+                    table.PrimaryKey("PK_UserPasskeys", x => x.UserPasskeyId);
                     table.ForeignKey(
                         name: "FK_UserPasskeys_Users_UserId",
                         column: x => x.UserId,
                         principalSchema: "identity",
                         principalTable: "Users",
-                        principalColumn: "Id",
+                        principalColumn: "UserId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -479,7 +479,7 @@ namespace Saaskit.Identity.Migrations.SqlServer.Migrations.Identity
                         column: x => x.UserId,
                         principalSchema: "identity",
                         principalTable: "Users",
-                        principalColumn: "Id",
+                        principalColumn: "UserId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
