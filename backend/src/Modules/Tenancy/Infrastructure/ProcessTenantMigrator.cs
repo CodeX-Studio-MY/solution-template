@@ -30,7 +30,7 @@ internal sealed class ProcessTenantMigrator(IOptions<OnboardingOptions> options)
     }
 }
 
-/// <summary>The default export: nothing to export until modules hold data (milestone 3 replaces this with the per-module export).</summary>
+/// <summary>The default export: nothing is exported. A product registers an exporter per module that holds customer data (see docs/runbooks/offboarding.md).</summary>
 internal sealed class NoExportYet : ITenantExporter
 {
     public Task ExportAsync(Saaskit.Core.Tenancy.TenantInfo tenant, CancellationToken cancellationToken = default) => Task.CompletedTask;

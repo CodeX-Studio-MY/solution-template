@@ -4,7 +4,7 @@
 
 | Data | Where | How it is protected |
 |---|---|---|
-| Each tenant's data | One database per tenant, on a server pool | The cloud's automated backups with point-in-time restore (Azure SQL / Azure Database for PostgreSQL, or Amazon RDS) |
+| Each tenant's data | One database per tenant, on a server pool | The cloud's automated backups with point-in-time restore (Azure SQL, or Amazon RDS for SQL Server) |
 | The catalog | One database | The same, with the same retention |
 | Files | Object storage, keys start with `{tenantId}/` | Versioning and soft delete on the container or bucket |
 | Valkey (sessions, caches, rate limits) | Not backed up | Disposable: a loss signs people out and refills caches. The Data Protection key ring in it is wrapped by `DataProtection:KeyEncryptionKey` (keep that in the secret store) |
@@ -35,8 +35,7 @@ Because every tenant has its own database, a restore never involves the other te
 7. **Verify**: sign in as the tenant's admin, open the latest records, check `Migrator` reports the tenant migrated.
 8. **Keep the old database** for the retention period you agreed, then drop it.
 
-Files are not part of the database: restore deleted objects from the container's versions if needed. A file row without its object
-(or the reverse) is harmless to the app and is reconciled by the file service.
+Files are not part of the database: restore deleted objects from the container's versions if needed. 
 
 ## Restoring the catalog
 

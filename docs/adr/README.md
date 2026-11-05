@@ -31,6 +31,8 @@ Each page states a decision, why, and the alternative that was rejected. Add one
 | 0025 | [TanStack Query as the shared data layer](0025-tanstack-query-data-layer.md) |
 | 0026 | [Principals and tenant access in the catalog](0026-principals-and-tenant-access-in-the-catalog.md) |
 | 0027 | [Plans, sign-in providers and language preferences in the database](0027-plans-and-sign-in-providers-in-the-database.md) |
+| 0028 | [Token server and Gateway choices that follow from the libraries](0028-token-server-and-gateway-choices.md) |
+| 0029 | [Defaults for messaging, files and data that a product must know about](0029-messaging-files-and-data-defaults.md) |
 
 ## Writing one
 

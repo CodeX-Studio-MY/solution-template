@@ -44,13 +44,9 @@ describe("frontend lint rules", () => {
   });
 
   it("rejects /api/ literals, except as the path of a typed client call", async () => {
-    expect(await messages('export const u = "/api/goods-receipt/v1/requests";', moduleFile)).toEqual([
-      expect.stringContaining("apiPath"),
-    ]);
+    expect(await messages('export const u = "/api/goods-receipt/v1/requests";', moduleFile)).toEqual([expect.stringContaining("apiPath")]);
     expect(await messages("export const u = `/api/x/${1}`;", moduleFile)).toEqual([expect.stringContaining("apiPath")]);
-    expect(await messages('declare const c: { GET(p: string): void }; c.GET("/api/goods-receipt/v1/requests");', moduleFile)).toEqual(
-      [],
-    );
+    expect(await messages('declare const c: { GET(p: string): void }; c.GET("/api/goods-receipt/v1/requests");', moduleFile)).toEqual([]);
     // The typed master-data helpers take the same OpenAPI path.
     expect(
       await messages(
@@ -69,9 +65,9 @@ describe("frontend lint rules", () => {
   });
 
   it("rejects branching on tenant identity", async () => {
-    expect(await messages('declare const tenant: { slug: string }; export const a = tenant.slug === "demo-plus";', moduleFile)).toEqual([
-      expect.stringContaining("tenant identity"),
-    ]);
+    expect(await messages('declare const tenant: { slug: string }; export const a = tenant.slug === "demo-complete";', moduleFile)).toEqual(
+      [expect.stringContaining("tenant identity")],
+    );
   });
 
   it("rejects `any`", async () => {

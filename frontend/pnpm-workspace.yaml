@@ -71,9 +71,14 @@ minimumReleaseAgeExclude:
   - "@mui/types@9.5.0"
   - "@mui/utils@9.5.0"
 
-# Two build-time dependencies of eslint-plugin-boundaries had advisories (see docs/deviations.md, entry 66).
+# Patched versions of build, test and lint dependencies that have advisories (none ships in the browser bundle or runs in a service).
 overrides:
   handlebars: ">=4.7.10"
+  undici@7: ^7.30.1
+  undici@8: ^8.12.2
+  fast-uri@3: ^3.1.9
+  zod@4: ^4.6.6
+  minimatch@10: ^11.0.1
 
 auditConfig:
   ignoreGhsas:

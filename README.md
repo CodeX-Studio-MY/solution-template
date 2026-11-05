@@ -1,50 +1,263 @@
 # Multi-tenant SaaS template
 
-The starting point for every new product: a secure, multi-tenant, observable platform that runs from day one.
-It follows `SAAS_TEMPLATE_PROMPT.md`; differences are recorded in [docs/deviations.md](docs/deviations.md).
+A starting point for a multi-tenant SaaS product. Each tenant has its own database, each business capability is a module (backend and
+frontend share one key), and the browser never holds a token. Tests enforce the architecture.
 
-A reusable starting point for a multi-tenant SaaS product: one database per tenant (SQL Server 2025; PostgreSQL 18 is supported and added back with `scripts/add-postgresql`), a module per
-business capability (backend and frontend with the same key), per-tenant plans and customization, a BFF with no tokens in the browser,
-and tests that enforce the architecture. It ships one empty business module, **Base**, where a product keeps its master data (`MsFarm`, `MsCrop`, ...); you add the others
-with `scripts/new-module`, from clean templates that show every pattern.
+**What you get**
+
+- A platform that runs from day one: Gateway (BFF), Identity (OpenIddict token server), Tenancy, Notification and Scheduler services.
+- One empty business module, **Base**, for your master data (`MsFarm`, `MsCrop`, ...). You add the others with `scripts/new-module.sh`.
+- A customer app: sign-in, users, groups, devices, applications, module roles, branding and languages (English, Malay, Chinese).
+- An operator console: onboard tenants, manage plans, modules, principals, sign-in provider settings, support requests and tenant lifecycle.
+- Per-tenant plans and customization (settings, feature flags, custom fields, slots), without forks or `if (tenant == ...)`.
+- Generators: `platform.yaml` is the single source for structure; `scripts/generate.sh` writes the code, routes, compose file, CI and docs from it.
+- Runbooks, ADRs and a list of [known limitations](docs/known-limitations.md). Read that list before you rely on a feature.
+
+SQL Server 2025 is the supported database. PostgreSQL is not supported in this release ([ADR 0011](docs/adr/0011-sql-server-and-postgresql.md)).
+
+## Prerequisites
+
+`scripts/dev-up.sh` and `scripts/dev-up.ps1` check for these tools and stop with a message if one is missing.
+
+| Tool | Version | Why | Windows (winget) |
+|---|---|---|---|
+| [.NET SDK](https://dotnet.microsoft.com/download) | 10 (`global.json` pins 10.0.102 or a later 10.0 feature band) | builds and runs the backend and the Aspire AppHost | `winget install Microsoft.DotNet.SDK.10` |
+| [Docker Desktop](https://www.docker.com/products/docker-desktop/) | current, **running**, Linux containers | SQL Server, RabbitMQ, Valkey, Mailpit and Azurite run as containers | `winget install Docker.DockerDesktop` |
+| [Node.js](https://nodejs.org/) | **24 or later** (`frontend/package.json` requires it) | frontend build; the generator also reads the TypeScript design tokens with it | `winget install OpenJS.NodeJS.LTS` |
+| pnpm | 12.x (pinned by `packageManager`) | frontend workspace | `npm install -g pnpm` |
+| [mkcert](https://github.com/FiloSottile/mkcert) | any | a locally trusted HTTPS certificate for `localhost` and `*.localhost` | `winget install FiloSottile.mkcert` |
+| Git | any | clone and update the repository | `winget install Git.Git` |
+
+Optional: the Aspire CLI (`aspire`). The generator needs it to publish `deploy/docker-compose.yml`. Without it, add `--skip-compose`
+to the generate commands.
+
+After installing, once:
+
+```sh
+npm install -g pnpm     # works on every Node version and needs no administrator rights
+mkcert -install         # trusts the local certificate authority, so browsers accept https://*.localhost
+```
+
+On Windows, if PowerShell refuses the scripts: `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`.
+
+> **Restart your terminal, and VS Code, after installing.** A program reads `PATH` once, when it starts, so a terminal that was open
+> during the install says a tool "is not recognized". In VS Code, a new terminal tab is not enough, and neither is "Developer: Reload
+> Window". Quit VS Code completely (File > Exit) and open it again. Without restarting, refresh the current PowerShell window with:
+>
+> ```powershell
+> $env:Path = [Environment]::GetEnvironmentVariable('Path','Machine') + ';' + [Environment]::GetEnvironmentVariable('Path','User')
+> ```
+
+Check the tools:
+
+```sh
+dotnet --version     # 10.0.x
+docker info          # prints server details, so Docker Desktop is running
+node --version       # v24 or later
+pnpm --version       # 12.x
+mkcert -version      # v1.4.x
+```
+
+**Resources and ports**
+
+- SQL Server needs 2 GB of memory in Docker. Give Docker Desktop 6 GB or more, and keep several GB of disk free for the images.
+  On Apple Silicon, enable Rosetta emulation in Docker Desktop (SQL Server requires it).
+- The first start pulls images and builds the frontend. It can take several minutes; the script waits up to 20.
+- These ports must be free: `7443` (Gateway, HTTPS), `15100` (Aspire dashboard), `8025` (Mailpit), and the service ports in `platform.yaml`
+  (`5001`-`5003`, `5101`).
+- `*.localhost` names (such as `demo.localhost`) resolve to your own machine in Chrome and Edge. No hosts-file entry is needed.
 
 <!-- BEGIN TEMPLATE ONLY -->
-## Start a product from this template
+## Create your product
 
 1. Make a copy: **Use this template** on GitHub, or `git clone` it into a folder named after your product.
-2. Install the [prerequisites](#prerequisites) once.
-3. Run the generator. On a fresh copy it scaffolds the product; it asks for anything you don't pass:
+2. Install the [prerequisites](#prerequisites).
+3. Run the generator. It scaffolds the product and asks for anything you don't pass:
 
-   ```powershell
-   scripts/generate.ps1 --product farm360 --org "CodeX Studio" --modules crop-planning,livestock
+   ```sh
+   scripts/generate.sh --product farm360 --org "CodeX Studio" --modules crop-planning,livestock      # macOS and Linux
+   scripts/generate.ps1 --product farm360 --org "CodeX Studio" --modules crop-planning,livestock     # Windows
    ```
 
-   (`scripts/generate.sh` on macOS and Linux.) It writes your answers into `platform.yaml`, renames the template's placeholder
-   (`saaskit`, `Saaskit`, `@saaskit/*`) to your product everywhere, adds the first business modules (backend, frontend, migrations, CI), generates
-   everything, installs, builds and checks, removes what only the template needs, and makes the first commit. If a step fails, fix it
-   and run the same command again: it continues where it stopped.
+   It writes your answers into `platform.yaml`, renames the template's placeholder (`saaskit`, `Saaskit`, `@saaskit/*`) to your product
+   everywhere, adds the first business modules (backend, frontend, migrations, CI), generates everything, installs, builds and checks,
+   removes what only the template needs, and makes the first commit. If a step fails, fix it and run the same command again: it continues
+   where it stopped.
 
    | Option | Default | Meaning |
    |---|---|---|
    | `--product` | asked | The product key: lowercase letters and digits (`farm360`). It becomes the C# root namespace (`Farm360.Core`), the npm scope (`@farm360/ui-kit`), token audiences and container names. |
    | `--org` | `CodeX Studio` | The organization, for package metadata. |
    | `--timezone`, `--currency`, `--locales` | `Asia/Kuala_Lumpur`, `MYR`, `en,ms,zh` | Defaults for new tenants. |
-   | `--plans` | `standard,plus` | The plans you sell, lowest first. `platform.yaml` seeds the first plans; the operator console manages them afterwards. |
+   | `--plans` | `lite,advanced,complete` | The plans you sell, lowest first (the template's own). `platform.yaml` seeds the first plans; the operator console manages them afterwards. |
    | `--cloud` | `azure` | `azure` or `aws`. |
-   | `--modules` | none | The first business modules, as keys (`crop-planning,livestock`). Add more later with `scripts/new-module`. |
+   | `--modules` | none | The first business modules, as keys (`crop-planning,livestock`). Add more later with `scripts/new-module.sh`. |
    | `--yes` | | Ask nothing; use the defaults for what isn't passed (`--product` is still required). |
    | `--skip-checks`, `--no-git` | | Skip the build and checks; don't commit. |
 
-4. `scripts/dev-up.ps1` starts it all; sign in at `https://demo.localhost:7443/` (see [First sign-in](#first-sign-in)).
+4. [Run it locally](#run-it-locally).
 
-Maintaining the template itself: `scripts/generate.ps1 --template` regenerates it without scaffolding, and `--check` never scaffolds.
+Maintaining the template itself: `scripts/generate.sh --template` regenerates it without scaffolding, and `--check` never scaffolds.
 <!-- END TEMPLATE ONLY -->
 
-> **Single source of truth.** Every fact is defined once. The application's structure lives in
-> [`platform.yaml`](platform.yaml); runtime configuration in the typed options records in `backend/src/Core/Configuration`.
-> Edit the source, then run `scripts/generate.sh` (or `scripts/generate.ps1`). `scripts/generate --check` fails if generated files drift.
+## Run it locally
 
-## Architecture
+```sh
+scripts/dev-up.sh       # macOS and Linux
+scripts/dev-up.ps1      # Windows (Windows PowerShell 5.1 and PowerShell 7 both work)
+```
+
+It makes the certificate, builds the frontend, starts the whole stack, applies the migrations and creates the `demo` tenant. At the end it
+prints the tenant's address and its first admin's invitation link. The invitation is also saved in `.dev/invitations.json` (git-ignored).
+
+| Option | macOS and Linux | Windows |
+|---|---|---|
+| Every module in one process | `--all-in-one` | `-AllInOne` |
+| Skip the frontend build | `--no-build` | `-NoBuild` |
+
+| What | Address |
+|---|---|
+| Customer app (demo tenant) | `https://demo.localhost:7443/` |
+| Operator console | `https://operator.localhost:7443/` |
+| Aspire dashboard (logs, traces, metrics) | `http://localhost:15100` |
+| Mailpit | `http://localhost:8025` |
+
+**What can go wrong**
+
+| Symptom | Cause and fix |
+|---|---|
+| `... is not recognized` for `mkcert`, `pnpm`, `node`, `docker` | The terminal started before the install. Restart it and VS Code (see above). |
+| `EPERM: operation not permitted` from `corepack enable pnpm` | Node lives under `C:\Program Files`. Use `npm install -g pnpm` instead. |
+| A "Windows Security" dialog about a certificate | That is `mkcert -install` adding your local CA to the trusted roots. Click **Yes**. |
+| The browser warns about `https://demo.localhost:7443` | The local CA is not trusted yet: run `mkcert -install` and restart the browser. |
+| The script waits a long time at "Waiting for the Gateway" | The first start pulls several images and restores packages (up to 20 minutes). Watch `.dev/apphost.log` and the containers in Docker Desktop. If nothing starts, check that Docker Desktop is running. |
+| A Windows Firewall prompt for `dotnet` | Allow it on private networks; the services listen on localhost. |
+| A port is already in use | Stop what uses it (`netstat -ano \| findstr :7443` on Windows, `lsof -i :7443` elsewhere), or stop a previous run of this stack with `scripts/dev-down.sh` (`scripts/dev-down.ps1`). |
+| SQL Server container exits at once | Docker has too little memory (it needs 2 GB). Raise it in Docker Desktop, Settings, Resources. |
+| The migrator fails with "There is already an object named ..." | The local databases come from an earlier copy of this product. Start clean: `scripts/dev-down.sh --reset` (`scripts/dev-down.ps1 -Reset`). This deletes the local data. |
+
+## First sign-in
+
+**Customer admin.** The `demo` tenant has one seeded user, `admin@demo.example`. There are no default passwords.
+
+1. Open the invitation link that `scripts/dev-up.sh` printed (`https://login.localhost:7443/account/invitation?tenant=demo&token=...`).
+   It is single-use and short-lived.
+2. Choose a password and press **Save password**. It needs at least 15 characters (8 once the account has a second factor), no required
+   digits or symbols, and must not appear in a known data breach. A passphrase of four or five words works well. The breach check calls
+   the public Have I Been Pwned range API; offline, only the length rule applies.
+3. Sign in with `admin@demo.example` and your password. You land on `https://demo.localhost:7443/`. To sign in later, open that address.
+
+No email is sent in this release. Invitation and password-reset links are written to the Identity service's log: open the Aspire
+dashboard (`http://localhost:15100`), choose the `identity` resource, open its console logs and search for `Account link`. An
+invitation that "is not valid any more" was used or has expired: run `scripts/dev-down.sh --reset` (`scripts/dev-down.ps1 -Reset`) and
+`dev-up` again for new links. The `.example` addresses are not real mailboxes.
+
+**Operator.** `dev-up` creates a development operator, `dev-operator@example.com`, and saves its password and authenticator key in
+`.dev/operator.json` (git-ignored). Open `https://operator.localhost:7443/`, add the key to an authenticator app, and sign in with the
+email, the password and the 6-digit code. Never reuse these details outside development.
+
+## Everyday commands
+
+| Task | macOS and Linux | Windows |
+|---|---|---|
+| Start the stack | `scripts/dev-up.sh` | `scripts/dev-up.ps1` |
+| Stop it | `scripts/dev-down.sh` | `scripts/dev-down.ps1` |
+| Stop it and delete the local data | `scripts/dev-down.sh --reset` | `scripts/dev-down.ps1 -Reset` |
+| Add a tenant to the running stack | `scripts/onboard-tenant.sh north-co --plan advanced` | `scripts/onboard-tenant.ps1 north-co --plan advanced` |
+| Add a business module | `scripts/new-module.sh <key>` | `scripts/new-module.ps1 <key>` |
+| Regenerate what `platform.yaml` drives | `scripts/generate.sh` | `scripts/generate.ps1` |
+| Check nothing generated has drifted | `scripts/generate.sh --check` | `scripts/generate.ps1 --check` |
+| Check the license policy | `scripts/check-licenses.sh` | `scripts/check-licenses.ps1` |
+
+`scripts/onboard-tenant` also takes `--name "Display Name"` and `--admin-email you@example.com`. The `--plan` value is a plan key
+(`lite`, `advanced` or `complete` in the template). The generate scripts also take `--skip-compose` (leave `deploy/docker-compose.yml`
+alone) and `--skip-api` (skip the OpenAPI export and typed clients).
+
+## Build features
+
+- [Add a module](docs/adding-a-module.md): one command creates the backend, host, migrations, tests and frontend, and wires them in.
+- [Add a master entity](docs/adding-a-master-entity.md): `MsFarm` in Base, from the table to the screen.
+- [Onboard a tenant](docs/onboarding-a-tenant.md): what the pipeline does, and how isolation is checked.
+- [Customize per tenant](docs/tenant-customization.md): settings, flags, strategies, custom fields, events, slots and add-on modules.
+
+## Test
+
+```sh
+dotnet test --solution backend/saaskit.slnx     # unit, architecture and integration tests (Docker required)
+cd frontend
+pnpm install
+pnpm --filter @saaskit/e2e exec playwright install chromium    # once, for the browser tests
+pnpm typecheck && pnpm lint && pnpm build
+pnpm test                                        # unit tests, and Playwright against the built app with the API mocked (needs the build)
+pnpm e2e                                         # only the mocked Playwright tests
+pnpm e2e:stack                                   # Playwright against the running stack (run scripts/dev-up.sh first)
+```
+
+The same commands work in PowerShell.
+
+## Deploy
+
+`deploy/docker-compose.yml` is published from the AppHost by `scripts/generate.sh`. It runs the whole stack on one machine from container
+images. It is not a cloud deployment: the cloud setup is left to each product.
+
+1. **Stop the local stack and clear its data** (`scripts/dev-down.sh --reset`). The compose file uses the same volume names.
+2. **Build the images** from the repository root, one per service. The service image takes the project and the assembly name
+   (`{Product}.{Host}.dll`):
+
+   ```sh
+   docker build -f deploy/docker/service.Dockerfile \
+     --build-arg PROJECT=backend/src/Hosts/Identity.Host/Identity.Host.csproj \
+     --build-arg ASSEMBLY=Saaskit.Identity.Host.dll -t saaskit-identity .
+   docker build -f deploy/docker/gateway.Dockerfile -t saaskit-gateway .
+   ```
+
+   Do the same for every service in the table below (`Tenancy.Host`, `Notification.Host`, `Base.Host`, and any module you add), for
+   `backend/src/Scheduler/Scheduler.csproj` (`Saaskit.Scheduler.dll`) and for `backend/src/Migrator/Migrator.csproj` (`Saaskit.Migrator.dll`).
+3. **Fill in the variables.** Copy `deploy/compose.env.example` to `deploy/.env` and give every variable a value: the `*_IMAGE` names from
+   step 2, `*_PORT` as `8080` (`8443` for `GATEWAY_PORT`), long random passwords and secrets, `openssl rand -base64 32` for
+   `DATA_PROTECTION_KEY` and `TOKEN_ENCRYPTION_KEY`, and a P-256 key for `TOKEN_SIGNING_KEY` (`openssl ecparam -name prime256v1 -genkey -noout`,
+   in double quotes with `\n` for each line break). Never commit the file.
+4. **Give the Gateway a certificate.** It serves HTTPS and the compose file supplies none, so it exits at start without one. Add a
+   `deploy/docker-compose.override.yml` that mounts a certificate and key (for `*.localhost`, mkcert's from `.dev/certs` works) and sets
+   `Kestrel__Certificates__Default__Path` and `Kestrel__Certificates__Default__KeyPath` for the `gateway` service.
+5. **Start it:** `docker compose -f deploy/docker-compose.yml -f deploy/docker-compose.override.yml up -d`. The Gateway is on `https://localhost:7443/`.
+6. **Create the first operator.** The migrator needs the Valkey and Data Protection settings for this:
+
+   ```sh
+   docker compose -f deploy/docker-compose.yml run --rm \
+     -e "Redis__ConnectionString=valkey:6379,password=<VALKEY_PASSWORD>" -e "DataProtection__KeyEncryptionKey=<DATA_PROTECTION_KEY>" \
+     migrator --create-operator you@example.com "Your Name"
+   ```
+
+   It prints a password and an authenticator key once. Then sign in at `https://operator.localhost:7443/` and onboard a tenant.
+
+Configuration keys are in [docs/configuration.md](docs/configuration.md) (generated). Operations are in the [runbooks](docs/runbooks/README.md).
+
+## Release
+
+`.github/workflows/ci.yml` (generated from `platform.yaml`) is the only workflow. It runs on pushes to `main`, on pull requests and by
+hand (`workflow_dispatch`). The backend job builds `backend/saaskit.slnx` in Release with warnings as errors. The frontend job installs
+with `--frozen-lockfile`, then runs `typecheck`, `lint` and `build`.
+
+CI does not run on tags and does not run the tests, `scripts/generate.sh --check` or `scripts/check-licenses.sh`. It publishes no images and
+no packages. A release is therefore a manual step:
+
+1. Run the [tests](#test), `scripts/generate.sh --check` and `scripts/check-licenses.sh` yourself.
+2. Merge to `main` and wait for CI to pass.
+3. Tag the commit (`git tag -a v0.1.0 -m "v0.1.0"`, then `git push origin v0.1.0`) and create the GitHub release from the matching
+   section of [CHANGELOG.md](CHANGELOG.md).
+4. Build and push your images ([Deploy](#deploy), step 2) if you deploy from a registry.
+
+## Known limitations
+
+Several features are not connected yet: the Google, Microsoft, Apple and Facebook buttons, billing, operator roles, using support
+access from the console, and sending email. The full, checked list is in [docs/known-limitations.md](docs/known-limitations.md).
+
+## Reference
+
+> **Single source of truth.** Every fact is defined once. The application's structure lives in [`platform.yaml`](platform.yaml); runtime
+> configuration in the typed options records in `backend/src/Core/Configuration`. Edit the source, then run `scripts/generate.sh`
+> (`scripts/generate.ps1`). `scripts/generate.sh --check` fails if generated files drift.
 
 ```mermaid
 flowchart LR
@@ -56,7 +269,7 @@ flowchart LR
     id["identity<br/>OpenIddict token server"]
     tn["tenancy<br/>catalog, lifecycle, settings"]
     nt["notification<br/>SignalR + email"]
-    bm["your business modules<br/>(scripts/new-module)"]
+    bm["your business modules<br/>(scripts/new-module.sh)"]
     sc["scheduler<br/>Quartz, clustered"]
   end
   gw -- "access token per service audience" --> id & tn & nt & bm
@@ -77,10 +290,10 @@ flowchart LR
 - **Hosting is a deployment choice.** Each module runs as its own service by default; `AllInOne.Host` runs them all in one process.
 - **The browser holds no tokens.** The Gateway is the OAuth client; the browser gets an `HttpOnly` session cookie, and the Gateway gets a
   token per downstream service audience.
-- **Everything about structure is generated.** `platform.yaml` lists the services and modules; `scripts/generate` writes constants,
-  routes, the AppHost, the compose file, the CI workflow, API clients and docs, and `scripts/generate --check` fails if they drift.
+- **Everything about structure is generated.** `platform.yaml` lists the services and modules; the generator writes constants, routes, the
+  AppHost, the compose file, the CI workflow, API clients and docs.
 
-## Services and modules
+### Services and modules
 
 <!-- BEGIN GENERATED: modules (<auto-generated> Edit platform.yaml instead and run scripts/generate.) -->
 | Service | Route | Local port | Owns modules | Databases |
@@ -98,172 +311,31 @@ flowchart LR
 | `base` | Base | lite, advanced, complete |
 <!-- END GENERATED: modules -->
 
-## Quick start
-
-### Prerequisites
-
-`scripts/dev-up` checks for the tools below and stops with a message if one is missing. Install them once.
-
-| Tool | Version | Why | Windows (winget) |
-|---|---|---|---|
-| [.NET SDK](https://dotnet.microsoft.com/download) | 10 (`global.json` pins 10.0.102 or a later 10.0 feature band) | builds and runs the backend and the Aspire AppHost | `winget install Microsoft.DotNet.SDK.10` |
-| [Docker Desktop](https://www.docker.com/products/docker-desktop/) | current, **running**, Linux containers | SQL Server, RabbitMQ, Valkey, Mailpit and Azurite run as containers | `winget install Docker.DockerDesktop` |
-| [Node.js](https://nodejs.org/) | **24 or later** (`frontend/package.json` requires it) | frontend build; the generator also reads the TypeScript design tokens with it | `winget install OpenJS.NodeJS.LTS` |
-| pnpm | 12.x (pinned by `packageManager`) | frontend workspace | `npm install -g pnpm` (see below) |
-| [mkcert](https://github.com/FiloSottile/mkcert) | any | a locally trusted HTTPS certificate for `localhost` and `*.localhost` | `winget install FiloSottile.mkcert` |
-| Git | any | clone and update the repository | `winget install Git.Git` |
-
-Optional: the Aspire CLI (`aspire`), only for `scripts/generate` without `--skip-compose` (it publishes
-`deploy/docker-compose.yml`). Without it, run `scripts/generate --skip-compose`.
-
-**One-time setup after installing**
-
-```powershell
-# pnpm. This works on every Node version and needs no administrator rights.
-npm install -g pnpm
-
-# Alternative: corepack. Node 25 and later no longer include it ("npm install -g corepack" first), and a Node installed under
-# C:\Program Files needs an administrator terminal, otherwise it fails with "EPERM: operation not permitted".
-# corepack enable pnpm
-
-# Trust the local certificate authority, so browsers accept https://*.localhost. Run once.
-mkcert -install
-
-# Windows blocks unsigned scripts by default. If dev-up.ps1 is refused:
-Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
-```
-
-> **Restart your terminal, and VS Code, after installing.** A program reads `PATH` once, when it starts, so a terminal that was open
-> during the install says a tool "is not recognized" even though it is installed. In VS Code, a new terminal tab is **not**
-> enough, and neither is "Developer: Reload Window": VS Code's terminals inherit the environment VS Code itself started with. Quit
-> VS Code completely (File > Exit, so every window closes) and open it again. Without restarting, refresh the current
-> PowerShell window with:
->
-> ```powershell
-> $env:Path = [Environment]::GetEnvironmentVariable('Path','Machine') + ';' + [Environment]::GetEnvironmentVariable('Path','User')
-> ```
-
-Then check:
-
-```powershell
-dotnet --version     # 10.0.x
-docker info          # prints server details, so Docker Desktop is running
-node --version       # v24 or later
-pnpm --version       # 12.x
-mkcert -version      # v1.4.x
-```
-
-**Resources and ports**
-
-- SQL Server alone needs 2 GB of memory in Docker; we recommend giving Docker Desktop 6 GB or more and keeping several GB of free
-  disk for the images. The first start pulls the images and builds the frontend, so it can take several minutes (the script waits up
-  to 20).
-- These ports must be free: `7443` (Gateway, HTTPS), `15100` (Aspire dashboard), `8025` (Mailpit), and the service ports in
-  `platform.yaml` (`5001`-`5003`, `5101`-`5102`).
-- `*.localhost` names (such as `demo.localhost`) resolve to your own machine in Chrome and Edge; no hosts-file entry is needed.
-- On macOS and Linux use `scripts/dev-up` (the shell script). It installs mkcert with Homebrew when it can and runs `mkcert -install`
-  for you. On Apple Silicon, Docker Desktop needs Rosetta emulation enabled, which SQL Server requires.
-
-### Start the stack
-
-```sh
-scripts/dev-up                # certificate, frontend build, the whole stack, migrations, the demo tenant
-```
-
-On Windows run `scripts/dev-up.ps1` from PowerShell (Windows PowerShell 5.1 and PowerShell 7 both work).
-
-**What can go wrong**
-
-| Symptom | Cause and fix |
-|---|---|
-| `... is not recognized` for `mkcert`, `pnpm`, `node`, `docker` | The terminal started before the install. Restart it and VS Code (see above). |
-| `EPERM: operation not permitted` from `corepack enable pnpm` | Node lives under `C:\Program Files`. Use `npm install -g pnpm` instead. |
-| A "Windows Security" dialog about a certificate | That is `mkcert -install` adding your local CA to the trusted roots. Click **Yes**. |
-| The browser warns about `https://demo.localhost:7443` | The local CA is not trusted yet: run `mkcert -install` and restart the browser. |
-| The script waits a long time at "Waiting for the Gateway" | The first start pulls several images and restores packages (up to 20 minutes). Watch `.dev/apphost.log` and the Docker Desktop containers. If nothing starts, check that Docker Desktop is running. |
-| A Windows Firewall prompt for `dotnet` | Allow it on private networks; the services listen on localhost. |
-| A port is already in use (`7443`, `15100`, `8025`, `5001`-`5003`, `5101`-`5102`) | Stop what uses it (`netstat -ano \| findstr :7443`), or run `scripts/dev-down.ps1` if it is a previous run of this stack. |
-| SQL Server container exits at once | Docker has too little memory (it needs 2 GB). Raise it in Docker Desktop, Settings, Resources. |
-
-It prints the demo tenant and its admin invitation link. There are no default passwords: you choose one from the link.
-
-### First sign-in
-
-| Tenant | Address | Plan | Admin account (the only seeded user) |
-|---|---|---|---|
-| `demo` (Demo Co) | `https://demo.localhost:7443/` | The first plan in `platform.yaml` | `admin@demo.example` |
-
-Every tenant has its own database and its own accounts. The `.example` addresses are not real mailboxes. Add more tenants with
-`scripts/onboard-tenant <slug> --plan <plan>`.
-
-1. **Copy the invitation link** that `dev-up` printed. It is also saved in `.dev/invitations.json` (git-ignored). It looks like
-   `https://login.localhost:7443/account/invitation?tenant=demo&token=...`, and it is single-use and short-lived.
-2. **Open it in your browser.** You see "Choose a password" for that tenant.
-3. **Type a new password and press "Save password".** Rules: at least **15 characters** (8 once the account has a second factor),
-   no required digits or symbols, and it must not appear in a known data breach. A passphrase of four or five words works well.
-   The breach check calls the public Have I Been Pwned range API; offline, only the length rule applies.
-4. **Sign in.** After saving, you are taken to the sign-in page (on `login.localhost`). Enter the admin email and your new
-   password; you are then sent to your tenant's address (`https://demo.localhost:7443/`) and land on its home page. To sign in
-   later, open the tenant address directly. The link works once.
-
-Things to know:
-
-- **No email is sent in development.** Invitation and password-reset links are written to the Identity service's log, not to
-  Mailpit. If you lose a link, or use "Forgot password" on the sign-in page, open the Aspire dashboard
-  (`http://localhost:15100`), choose the `identity` resource, open its console logs and search for `Account link`.
-- **"This invitation is not valid any more"** means the link was used or expired. For a clean local start run
-  `scripts/dev-down.ps1 -Reset` and then `scripts/dev-up.ps1`, which seeds the tenants again with new links.
-- **Platform operator (no screen yet).** `dev-up` also creates a development operator, `dev-operator@example.com`, and saves
-  its password and TOTP key in `.dev/operator.json`. It is for the operator API (onboarding and managing tenants), not for the
-  tenant sign-in pages above. Never reuse it outside development.
-- **Other users and roles.** Roles are `user`, `manager` and `admin`, per module.
-  There is no screen for managing users yet: the seeded admin invites and assigns roles through the Identity access-management
-  API (`/api/identity/v1/principals`; the OpenAPI document is `frontend/packages/api-clients/openapi/identity.json`).
-
-```sh
-scripts/add-postgresql                   # once: restores the PostgreSQL migrations (platform.yaml then lists both providers)
-scripts/dev-up --provider postgresql     # the same stack on PostgreSQL 18 (one configuration value: Database:Provider)
-scripts/dev-up --all-in-one              # every module in one process
-scripts/onboard-tenant saaskit-co --plan plus   # another isolated tenant in the running stack
-scripts/dev-down [--reset]               # stop (and, with --reset, delete the local data)
-```
-
-Run the checks:
-
-```sh
-dotnet test --solution backend/saaskit.slnx     # unit, architecture and integration tests on every database provider in platform.yaml (Docker required)
-cd frontend && pnpm install && pnpm typecheck lint test build && pnpm e2e    # Playwright against the built app (mocked API)
-cd frontend && pnpm e2e:stack                # sign-in against the running stack (after scripts/dev-up)
-scripts/generate.sh --check                  # nothing generated has drifted from its source
-scripts/check-licenses.sh                    # the license policy
-```
-
-Without Aspire, `deploy/docker-compose.yml` (published from the AppHost) runs the same stack; its variables are listed in
-`deploy/compose.env.example`. Configuration keys are in [docs/configuration.md](docs/configuration.md) (generated).
-
-## Where things are
+### Where things are
 
 ```
 platform.yaml                 the single source for structure
-backend/src/Core*             the shared kernel: tenancy, data (SQL Server and PostgreSQL providers), messaging, security, files, observability
+backend/src/Core*             the shared kernel: tenancy, data (SQL Server provider), messaging, security, files, observability
 backend/src/Contracts         versioned events and the settings / flag declarations modules share
 backend/src/Modules/*         one class library per module: Domain, Application, Infrastructure, Api
 backend/src/Hosts/*           a thin host per module, and AllInOne.Host
 backend/src/{Gateway,Scheduler,Migrator,AppHost,DevSeed}
-backend/tests/*               architecture, core, identity, integration (Testcontainers) and the shared TestSupport
-frontend/apps/shell           the host app; frontend/modules/* federated modules; frontend/packages/{ui-kit,web-core,api-clients}
-templates/                    the clean module templates scripts/new-module instantiates
-deploy/                       compose (generated), Dockerfiles, cloud placeholder
-docs/                         guides, ADRs, runbooks, the generated configuration, event and design-system references, deviations
+backend/tests/*               architecture, core, identity, integration (Testcontainers), generator, and the shared TestSupport
+backend/tools/*               the generator and the OpenAPI exporter
+frontend/apps/*               the shell (the host app) and the operator console
+frontend/modules/*            federated modules; frontend/packages/{ui-kit,web-core,api-clients} are shared
+templates/                    the clean module templates scripts/new-module.sh instantiates
+deploy/                       the generated compose file and its variables, and the Dockerfiles
+docs/                         guides, ADRs, runbooks and the generated references (index: docs/README.md)
 ```
 
-## Guides
+### Guides
 
-- [Adding a module](docs/adding-a-module.md) · [Adding a master entity](docs/adding-a-master-entity.md) · [Onboarding a tenant](docs/onboarding-a-tenant.md) · [Tenant customization](docs/tenant-customization.md)
-- [Architecture decisions](docs/adr/README.md) · [Runbooks](docs/runbooks/README.md) · [SLOs](docs/runbooks/slos.md)
-- [Deviations from the specification](docs/deviations.md)
+[docs/README.md](docs/README.md) lists every guide in reading order: the four feature guides above, [known limitations](docs/known-limitations.md),
+[architecture decisions](docs/adr/README.md), [runbooks](docs/runbooks/README.md) and the generated references. The frontend has its own
+[README](frontend/README.md). Changes by release are in [CHANGELOG.md](CHANGELOG.md).
 
-## Extracting a module into its own repository
+### Extracting a module into its own repository
 
 Nothing in a module depends on its neighbours, so it can move without code changes:
 
@@ -277,4 +349,5 @@ Nothing in a module depends on its neighbours, so it can move without code chang
 
 ## License
 
-Apache License 2.0 (see `LICENSE`). Dependencies follow the license policy in `SAAS_TEMPLATE_PROMPT.md` section 1; `scripts/check-licenses` enforces it.
+Apache License 2.0 (see `LICENSE`). Dependencies follow the policy in [ADR 0023](docs/adr/0023-license-policy.md); `scripts/check-licenses.sh`
+(`scripts/check-licenses.ps1`) enforces it.

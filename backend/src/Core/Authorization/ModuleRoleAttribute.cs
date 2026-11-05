@@ -36,7 +36,7 @@ public sealed record PrincipalTypeRequirement(IReadOnlyList<PrincipalType> Types
 /// A finer rule declared in the owning module's code as a permission-to-minimum-role map
 /// (for example <c>Approve => Role.Manager</c>). Permissions never go in the token.
 /// </summary>
-[System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1711", Justification = "\"Permission\" is the domain term (section 4.5); this is not a code-access-security permission.")]
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1711", Justification = "\"Permission\" is the domain term; this is not a code-access-security permission.")]
 public sealed record ModulePermission(string Module, string Name, Role MinimumRole) : IAuthorizationRequirement
 {
     public override string ToString() => $"{Module}.{Name}";

@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
-# Stops the stack started by scripts/dev-up: the AppHost, the service hosts and the stack's containers.
-#   scripts/dev-down [--reset]    --reset also deletes the data volumes and the saved invitation links, for a clean start
+# Stops the stack started by scripts/dev-up.sh: the AppHost, the service hosts and the stack's containers.
+#   scripts/dev-down.sh [--reset]    --reset also deletes the data volumes and the saved invitation links, for a clean start
 set -eu
 cd "$(dirname "$0")/.."
 if [ -f .dev/apphost.pid ]; then

@@ -117,10 +117,10 @@ internal sealed class IdentityTestHost : IAsyncDisposable
         foreach (var slug in tenantSlugs)
         {
             await using var scope = app.Services.CreateAsyncScope();
-            // Like TestPlatformHost: "demo-plus" has every module, the others lack the fixture's optional one.
-            var plus = slug.Contains("plus", StringComparison.Ordinal);
+            // Like TestPlatformHost: "demo-complete" has every module, the others lack the fixture's optional one.
+            var top = slug.Contains("complete", StringComparison.Ordinal);
             await TestPlatformHost.AddTenantAsync(scope.ServiceProvider.GetRequiredService<CatalogDbContext>(), slug,
-                plus ? Fixture.TopPlan : Fixture.BasePlan, TenantStatus.Active, databaseName: Databases.UniqueName("tenant"), without: plus ? null : Fixture.Optional);
+                top ? Fixture.TopPlan : Fixture.BasePlan, TenantStatus.Active, databaseName: Databases.UniqueName("tenant"), without: top ? null : Fixture.Optional);
             var tenant = (await scope.ServiceProvider.GetRequiredService<ITenantDirectory>().FindBySlugAsync(slug))!;
             var connection = scope.ServiceProvider.GetRequiredService<ITenantConnectionResolver>().ResolveForMaintenance(tenant);
             await using var tenantDb = DbContextRegistration.Create<IdentityDbContext>(null, provider, connection, PlatformServices.Identity.Schema);

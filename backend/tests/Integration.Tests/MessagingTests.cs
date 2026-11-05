@@ -164,16 +164,16 @@ public sealed class MessagingTests(Databases databases)
         ActivitySource.AddActivityListener(listener);
 
         await using var host = await StartAsync(provider, builder =>
-            builder.Services.AddEventConsumer<TenantDayStarted.V1, TraceConsumer, NotificationDbContext>(Fixture.Service, Fixture.Entitled), "demo", "demo-plus");
+            builder.Services.AddEventConsumer<TenantDayStarted.V1, TraceConsumer, NotificationDbContext>(Fixture.Service, Fixture.Entitled), "demo", "demo-complete");
 
         var traceId = ActivityTraceId.CreateRandom();
         var traceParent = $"00-{traceId}-{ActivitySpanId.CreateRandom()}-01";
-        await SendAsync(host.Tenants["demo-plus"].Id, Guid.NewGuid(), traceParent);
+        await SendAsync(host.Tenants["demo-complete"].Id, Guid.NewGuid(), traceParent);
 
         for (var i = 0; i < 60 && TraceConsumer.Seen is null; i++)
             await Task.Delay(500, Ct);
         TraceConsumer.Seen.ShouldNotBeNull();
-        TraceConsumer.Seen.Value.Tenant.ShouldBe(host.Tenants["demo-plus"].Id);
+        TraceConsumer.Seen.Value.Tenant.ShouldBe(host.Tenants["demo-complete"].Id);
         TraceConsumer.Seen.Value.TraceId.ShouldBe(traceId.ToString());
     }
 

@@ -103,9 +103,18 @@ internal static class NewModuleCommand
     /// <summary>The backend (module, host, tests), from the dotnet new template.</summary>
     private static void CreateBackend(string repoRoot, PlatformDefinition platform, string key, string pascal)
     {
-        Run("dotnet", repoRoot, "new", "install", Path.Combine(repoRoot, "templates", "backend-module"), "--force");
-        Run("dotnet", repoRoot, "new", $"{platform.Product}-module", "--name", pascal, "--key", key, "--camel", Naming.Camel(key), "--product", platform.ProductPascal,
-            "--output", Path.Combine(repoRoot, "backend"), "--force");
+        var template = Path.Combine(repoRoot, "templates", "backend-module");
+        Run("dotnet", repoRoot, "new", "install", template, "--force");
+        try
+        {
+            Run("dotnet", repoRoot, "new", $"{platform.Product}-module", "--name", pascal, "--key", key, "--camel", Naming.Camel(key), "--product", platform.ProductPascal,
+                "--output", Path.Combine(repoRoot, "backend"), "--force");
+        }
+        finally
+        {
+            // The install is machine-wide; leave nothing behind that points at this folder after it moves or is deleted.
+            Processes.Exec("dotnet", repoRoot, "new", "uninstall", template);
+        }
     }
 
     /// <summary>

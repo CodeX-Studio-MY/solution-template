@@ -4,7 +4,7 @@ import reactHooks from "eslint-plugin-react-hooks";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 
-/** The selectors below are the frontend's "make the wrong thing impossible or obvious" rules (SAAS_TEMPLATE_PROMPT 11). */
+/** The selectors below are the frontend's "make the wrong thing impossible or obvious" rules. */
 const colourLiteral = {
   selector: "Literal[value=/^#(?:[0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/], Literal[value=/\\b(?:rgb|rgba|hsl|hsla)\\(/]",
   message: "Colours live in packages/ui-kit/src/theme/tokens.ts only. Use a theme token (theme.palette / sx colour names).",

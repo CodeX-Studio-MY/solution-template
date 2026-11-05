@@ -3,7 +3,7 @@ namespace Saaskit.Generator.Emitters;
 /// <summary>
 /// .github/workflows/ci.yml: one build-only workflow, so a fresh clone gets a green check with no secrets or org setup. The backend
 /// builds with warnings as errors (analyzers, nullable, banned APIs); the frontend typechecks, lints and builds. Tests, the drift
-/// check, security scans and image publishing are left to each product (docs/deviations.md).
+/// check, security scans and image publishing are left to each product (see docs/known-limitations.md).
 /// </summary>
 internal static class CiEmitter
 {

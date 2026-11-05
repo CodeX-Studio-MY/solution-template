@@ -1,5 +1,5 @@
-// The license policy (SAAS_TEMPLATE_PROMPT section 1): nothing in the dependency tree may need a paid commercial license unless
-// docs/license-exceptions.json records the decision (and docs/deviations.md explains it). It checks, for the .NET and the npm
+// The license policy (ADR 0023): nothing in the dependency tree may need a paid commercial license unless
+// docs/license-exceptions.json records the decision (with the reason). It checks, for the .NET and the npm
 // dependencies (direct and transitive): (1) a deny-list of libraries that are commercial, and (2) every license against an allow-list.
 // Anything unknown fails until someone decides.
 import { execFileSync } from "node:child_process";
@@ -92,7 +92,7 @@ if (existsSync(join(root, "frontend", "node_modules"))) {
 
 if (problems.length > 0) {
   console.error(`License policy: ${problems.length} problem(s)\n` + [...new Set(problems)].sort().map((p) => `  - ${p}`).join("\n"));
-  console.error("\nIf a library is acceptable, record the decision in docs/license-exceptions.json and docs/deviations.md.");
+  console.error("\nIf a library is acceptable, record the decision, with the reason, in docs/license-exceptions.json.");
   process.exit(1);
 }
 console.log(`License policy: ${seen.size} NuGet packages and the npm tree are within the policy.`);

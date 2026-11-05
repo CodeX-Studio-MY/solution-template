@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Http;
 namespace Saaskit.Core.ServiceCalls;
 
 /// <summary>
-/// Attaches the right token to a call to another service (4.10). Acting for a user: the user's token is exchanged
+/// Attaches the right token to a call to another service. Acting for a user: the user's token is exchanged
 /// for the target's audience. Otherwise (background or system work): this service's own token, plus <c>X-Tenant</c>.
 /// </summary>
 public sealed class PlatformTokenHandler(

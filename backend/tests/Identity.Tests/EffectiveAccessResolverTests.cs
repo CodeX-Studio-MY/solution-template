@@ -29,7 +29,7 @@ public sealed class EffectiveAccessResolverTests
         access.Roles.ShouldBe(new Dictionary<string, Role> { [Modules.Billing] = Role.User });
     }
 
-    /// <summary>The Ali example (section 4.5): the highest role always wins, whether direct or from a group.</summary>
+    /// <summary>The Ali example: the highest role always wins, whether direct or from a group.</summary>
     [Fact]
     public void Direct_and_group_the_highest_wins()
     {

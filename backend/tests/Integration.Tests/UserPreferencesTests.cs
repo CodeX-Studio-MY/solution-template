@@ -34,7 +34,7 @@ public sealed class UserPreferencesTests(Databases databases)
     [Fact]
     public async Task A_language_is_saved_per_user_and_only_supported_locales_are_accepted()
     {
-        await using var host = await IdentityTestHost.StartAsync(databases, "demo", "demo-plus");
+        await using var host = await IdentityTestHost.StartAsync(databases, "demo", "demo-complete");
         var (aisha, _) = await UserAsync(host, "aisha@example.com");
         var (budi, _) = await UserAsync(host, "budi@example.com");
 
@@ -57,9 +57,9 @@ public sealed class UserPreferencesTests(Databases databases)
         (await Read(await aisha.PutAsJsonAsync(Url, new { locale = first }, Ct))).GetProperty("locale").GetString().ShouldBe(first);
         (await Read(await aisha.PutAsJsonAsync(Url, new { locale = (string?)null }, Ct))).GetProperty("locale").ValueKind.ShouldBe(JsonValueKind.Null);
 
-        // Each tenant has its own people: a user of "demo" is no user of "demo-plus".
-        var elsewhere = host.Client("demo-plus.localhost");
-        elsewhere.DefaultRequestHeaders.Authorization = IdentityTestHost.Bearer(host.Callers.Create(host.Tenants["demo-plus"].Id, PrincipalType.User, roles: [], audience: PlatformServices.Identity.Audience, subject: Guid.NewGuid().ToString()));
+        // Each tenant has its own people: a user of "demo" is no user of "demo-complete".
+        var elsewhere = host.Client("demo-complete.localhost");
+        elsewhere.DefaultRequestHeaders.Authorization = IdentityTestHost.Bearer(host.Callers.Create(host.Tenants["demo-complete"].Id, PrincipalType.User, roles: [], audience: PlatformServices.Identity.Audience, subject: Guid.NewGuid().ToString()));
         (await elsewhere.PutAsJsonAsync(Url, new { locale = other }, Ct)).StatusCode.ShouldBe(HttpStatusCode.NotFound);
         (await Read(await elsewhere.GetAsync(Url, Ct))).GetProperty("locale").ValueKind.ShouldBe(JsonValueKind.Null);
     }

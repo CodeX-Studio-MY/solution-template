@@ -112,7 +112,7 @@ public sealed class GatewayTests(Databases databases)
         // Headers a browser tries to set for the platform never reach the service: its own token is ignored and replaced.
         var spoof = Api(HttpMethod.Get, "/api/identity/v1/groups");
         spoof.Headers.TryAddWithoutValidation("Authorization", "Bearer forged.token.value");
-        spoof.Headers.TryAddWithoutValidation("X-Tenant", "demo-plus");
+        spoof.Headers.TryAddWithoutValidation("X-Tenant", "demo-complete");
         (await browser.SendAsync(spoof)).StatusCode.ShouldBe(HttpStatusCode.OK);
 
         // A manager can't write; the service says so (403), proving the user's real roles travelled.
@@ -184,13 +184,13 @@ public sealed class GatewayTests(Databases databases)
     [Fact]
     public async Task A_session_belongs_to_one_tenant_and_unknown_hosts_are_refused()
     {
-        await using var host = await GatewayTestHost.StartAsync(databases, "demo", "demo-plus");
+        await using var host = await GatewayTestHost.StartAsync(databases, "demo", "demo-complete");
         await CreateUserAsync(host, "ong@example.com");
         using var browser = await SignInAsync(host, "ong@example.com");
         var cookie = browser.CookieNamed("__Host-bff");
 
         // The same cookie value presented on another tenant's host is not a session there.
-        using var other = host.Browser("demo-plus.localhost");
+        using var other = host.Browser("demo-complete.localhost");
         other.SetCookie("__Host-bff", cookie);
         (await other.GetAsync("/bff/user")).StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
 

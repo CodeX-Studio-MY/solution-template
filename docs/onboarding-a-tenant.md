@@ -5,21 +5,23 @@ A tenant is a customer: its own database, its own users, its own plan. Onboardin
 ## Locally
 
 ```sh
-scripts/dev-up                                   # once: the stack, and two demo tenants
-scripts/onboard-tenant saaskit-co --plan plus --name "Saaskit Co" --admin-email boss@saaskit-co.example
+scripts/dev-up.sh                                # once: the stack and the demo tenant (scripts/dev-up.ps1 on Windows)
+scripts/onboard-tenant.sh north-co --plan advanced --name "North Co" --admin-email boss@north-co.example   # onboard-tenant.ps1 on Windows
 ```
 
-The command prints the tenant's address (`https://saaskit-co.localhost:7443/`; the local certificate covers `*.localhost`, so no new
+`--plan` is one of the plan keys (`lite`, `advanced` or `complete` in the template; the operator console's Subscriptions page lists them).
+The command prints the tenant's address (`https://north-co.localhost:7443/`; the local certificate covers `*.localhost`, so no new
 certificate is needed) and the first admin's one-time invitation link. Open it, choose a password, sign in.
 
-`scripts/onboard-tenant` signs in as the development operator that `scripts/dev-up` creates (credentials in `.dev/operator.json`,
+`scripts/onboard-tenant.sh` signs in as the development operator that `scripts/dev-up.sh` creates (credentials in `.dev/operator.json`,
 git-ignored) and calls the Tenancy service's operator API. It exists for local development only. Operators otherwise use the operator
 console, `https://operator.localhost:7443/` locally (the same `.dev/operator.json` credentials) and `operator.{BaseDomain}` elsewhere, or
 call the same API.
 
 Operators are created with `Migrator --create-operator <email> "<name>"`. One who lost their password or authenticator gets new ones
-with `Migrator --reset-operator <email>` (the old ones stop working). Both print the details once. Locally, `scripts/dev-up` checks
-`.dev/operator.json` against the database and issues new details when they no longer match, so a reset volume never leaves a stale file.
+with `Migrator --reset-operator <email>` (the old ones stop working). Both print the details once. Locally, the development seed that
+`scripts/dev-up.sh` starts checks `.dev/operator.json` against the database and issues new details when they no longer match, so a reset
+volume never leaves a stale file.
 
 ## What the pipeline does
 
@@ -32,7 +34,8 @@ Each step is recorded in the catalog; a failed run **resumes where it stopped** 
 4. **Reference data**: modules create their own on first use; customer data is never seeded.
 5. **Entitlements**: the plan's modules are enabled.
 6. **Activation**: the tenant becomes `Active` (services refuse a tenant that is still `Provisioning`).
-7. **First admin invitation**: an emailed, single-use link. There are no default passwords anywhere.
+7. **First admin invitation**: a single-use link. The operator console and the API answer show it once, and Identity writes it to its log.
+   Nothing is emailed in this release (see [known limitations](known-limitations.md)). There are no default passwords anywhere.
 
 ## Isolation, and how to check it
 

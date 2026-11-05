@@ -45,7 +45,7 @@ internal sealed class ProbeModule : IPlatformModule
 
 /// <summary>
 /// The fixture's host with a migrated catalog, Valkey, a test token signer and three tenants: <c>demo</c> on the first plan without
-/// <see cref="Fixture.Optional"/>, <c>demo-plus</c> on the last plan with every module, and <c>paused</c>, suspended.
+/// <see cref="Fixture.Optional"/>, <c>demo-complete</c> on the last plan with every module, and <c>paused</c>, suspended.
 /// </summary>
 internal sealed class TestPlatformHost : IAsyncDisposable
 {
@@ -97,7 +97,7 @@ internal sealed class TestPlatformHost : IAsyncDisposable
         {
             var catalogDb = scope.ServiceProvider.GetRequiredService<CatalogDbContext>();
             await AddTenantAsync(catalogDb, "demo", Fixture.BasePlan, TenantStatus.Active, without: Fixture.Optional);
-            await AddTenantAsync(catalogDb, "demo-plus", Fixture.TopPlan, TenantStatus.Active);
+            await AddTenantAsync(catalogDb, "demo-complete", Fixture.TopPlan, TenantStatus.Active);
             await AddTenantAsync(catalogDb, "paused", Fixture.BasePlan, TenantStatus.Suspended);
             if (limit is not null)
             {
@@ -108,7 +108,7 @@ internal sealed class TestPlatformHost : IAsyncDisposable
 
         var directory = app.Services.GetRequiredService<ITenantDirectory>();
         var tenants = new Dictionary<string, TenantInfo>();
-        foreach (var slug in new[] { "demo", "demo-plus", "paused" })
+        foreach (var slug in new[] { "demo", "demo-complete", "paused" })
             tenants[slug] = (await directory.FindBySlugAsync(slug))!;
         return new TestPlatformHost(app, tokens, tenants);
     }

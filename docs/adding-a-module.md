@@ -5,19 +5,20 @@ backend (a class library, a thin host, migrations for every database provider, t
 browser. One command creates all of it from the clean templates in `templates/`:
 
 ```sh
-scripts/new-module goods-receipt --name "Goods Receipt"
+scripts/new-module.sh goods-receipt --name "Goods Receipt"       # macOS and Linux
+scripts/new-module.ps1 goods-receipt --name "Goods Receipt"      # Windows
 ```
 
-(`scripts/new-module.ps1` on Windows.) It needs Docker only to run the tests afterwards. What it does, in order:
+The other options are `--no-frontend` (backend only) and `--skip-compose` (leave `deploy/docker-compose.yml` as it is). It needs Docker only to run the tests afterwards. What it does, in order:
 
 1. Adds the service and the module to `platform.yaml` (the only file you would otherwise edit by hand), with the next free port.
 2. Creates the backend with `dotnet new saaskit-module`: `backend/src/Modules/GoodsReceipt` (Domain, Application, Infrastructure, Api),
    `backend/src/Hosts/GoodsReceipt.Host` and `backend/tests/GoodsReceipt.Tests`.
 3. Creates `frontend/modules/goods-receipt` from `templates/frontend-module`.
-4. Runs `scripts/generate`: the constants (`Modules.GoodsReceipt`, `PlatformServices.GoodsReceipt`), the Gateway route, the AppHost
+4. Runs the generator (`scripts/generate.sh`, `scripts/generate.ps1` on Windows): the constants (`Modules.GoodsReceipt`, `PlatformServices.GoodsReceipt`), the Gateway route, the AppHost
    resource, the compose file, the migrations projects,
    `AllInOne.Host`'s registration, the OpenAPI document, the typed API client and the TypeScript types.
-5. Creates the module's first migration for **every** provider, and the catalog migration (the catalog seeds the list of modules and
+5. Creates the module's first migration for every provider in `platform.yaml` (SQL Server), and the catalog migration (the catalog seeds the list of modules and
    plans, which just changed).
 6. Installs the frontend dependencies.
 
@@ -26,7 +27,7 @@ Nothing else needs a manual edit. Then:
 ```sh
 dotnet test --project backend/tests/GoodsReceipt.Tests      # every provider in platform.yaml; creates, lists, renames, deletes, isolates tenants
 cd frontend && pnpm exec turbo run typecheck lint test build --filter=@saaskit/mfe-goods-receipt...
-scripts/dev-up                                              # the module appears in the stack, in the menu of tenants that have it
+scripts/dev-up.sh                                           # the module appears in the stack, in the menu of tenants that have it (dev-up.ps1 on Windows)
 ```
 
 ## What you get, and what to replace
@@ -56,25 +57,21 @@ its shape:
 
 ## Changing the data model
 
-A table's single-column primary key is always named `<SingularTable>Id` in the database (`Suppliers` gets `SupplierId`), whatever the C# property is called: `PlatformDbContext` applies this to every table, so don't set the column name yourself.
+A table's single-column primary key is always named after its table plus `Id` (`Suppliers` gets `SupplierId`), whatever the C# property is called: `PlatformDbContext` applies this to every table, so don't set the column name yourself.
 
-`scripts/new-module` creates the first migration only. After you change an entity or the `DbContext`, add a migration for **every**
-provider in `platform.yaml` (`MigrationsConsistencyTests` fails otherwise). From `backend/`:
+`scripts/new-module.sh` creates the first migration only. After you change an entity or the `DbContext`, add a migration
+(`MigrationsConsistencyTests` fails otherwise). From `backend/`:
 
 ```sh
 dotnet tool restore
 dotnet ef migrations add AddSupplier -p src/Modules/GoodsReceipt.Migrations.SqlServer -s src/Modules/GoodsReceipt.Migrations.SqlServer -c GoodsReceiptDbContext -o Migrations/GoodsReceipt
 ```
 
-By default `platform.yaml` lists only `sqlserver`, so that is the only migration to add. After `scripts/add-postgresql` it lists both, and
-each change needs the same command for the PostgreSQL project too:
-
-```sh
-dotnet ef migrations add AddSupplier -p src/Modules/GoodsReceipt.Migrations.PostgreSql -s src/Modules/GoodsReceipt.Migrations.PostgreSql -c GoodsReceiptDbContext -o Migrations/GoodsReceipt
-```
+`platform.yaml` lists only `sqlserver` (PostgreSQL is not supported in this release, see [ADR 0011](adr/0011-sql-server-and-postgresql.md)), so
+that is the only migration to add. Never write or edit a migration by hand.
 
 Migrations are expand-only: add columns and tables, never rename or drop in the same release. The Migrator applies them to every tenant
-database (`scripts/dev-up` runs it for you).
+database (`scripts/dev-up.sh` runs it for you).
 
 ## Storing locations (spatial)
 
@@ -85,8 +82,7 @@ location only adds the type library to its `.csproj`, with no version: the versi
 <PackageReference Include="NetTopologySuite" />
 ```
 
-The column is `geography` on both providers. PostgreSQL stores a `Point` as `geography (point, 4326)`, and its migration enables PostGIS
-for you. Distances and `IsWithinDistance` are in metres. The rules:
+The column is `geography` on SQL Server. Distances and `IsWithinDistance` are in metres. The rules:
 
 - **Create points as `new Point(longitude, latitude) { SRID = 4326 }`.** X is the longitude, so the order is longitude first.
 - **Never put `Point` (or any `Geometry`) in a request or response.** It serializes with circular properties, which breaks the OpenAPI
@@ -94,9 +90,6 @@ for you. Distances and `IsWithinDistance` are in metres. The rules:
   may use `Point`.
 - **Validate the numbers:** latitude in [-90, 90], longitude in [-180, 180]. Reject anything else with a validation error before you build
   the point.
-
-On a managed PostgreSQL server, the PostGIS extension may have to be allowed first. On Azure Database for PostgreSQL (Flexible Server),
-add `postgis` to the `azure.extensions` server parameter.
 
 ## The frontend module's toolkit
 
@@ -116,10 +109,10 @@ query cache, the snackbar and the dialog host, so a module only calls the hooks.
 In tests, wrap components that use these hooks in `TestProviders` from `@saaskit/web-core/testing`. The template's `ItemList` shows a
 list, an add and a confirm-then-delete.
 
-## Which parts of the specification you will want next
+## What to look at next
 
 - **Plans and entitlement**: `platform.yaml` lists the plans that include the module (the default is all of them). A module only some
-  plans have is an *add-on*: list only those plans (`plans: [plus]`).
+  plans have is an *add-on*: list only those plans (`plans: [advanced, complete]`).
 - **Events**: declare them in `backend/src/Contracts` with `[IntegrationEvent("{module-key}.{what-happened}", 1)]`, publish with
   `IEventPublisher` inside your transaction, consume with `AddEventConsumer`. `docs/events.md` is generated.
 - **Per-tenant variation**: see [tenant-customization.md](tenant-customization.md). Start with a setting; do not branch on the tenant.
@@ -128,4 +121,4 @@ list, an add and a confirm-then-delete.
 ## Taking a module out again
 
 Remove its lines from `platform.yaml`, delete its folders (and the catalog migration that added it is kept: migrations are
-expand-only), and run `scripts/generate`.
+expand-only), and run `scripts/generate.sh`.

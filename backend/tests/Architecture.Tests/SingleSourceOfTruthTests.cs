@@ -3,7 +3,7 @@ using Saaskit.Core.Platform;
 
 namespace Saaskit.Architecture.Tests;
 
-/// <summary>Facts from platform.yaml are never typed by hand outside generated code (section 2.1).</summary>
+/// <summary>Facts from platform.yaml are never typed by hand outside generated code.</summary>
 public sealed partial class SingleSourceOfTruthTests
 {
     /// <summary>The one declaration of the route convention.</summary>
@@ -38,7 +38,7 @@ public sealed partial class SingleSourceOfTruthTests
         offenders.ShouldBeEmpty();
     }
 
-    /// <summary>Only Core, Tenancy, Identity, the Gateway and the Migrator may compare tenant IDs or slugs (section 7.2).</summary>
+    /// <summary>Only Core, Tenancy, Identity, the Gateway and the Migrator may compare tenant IDs or slugs.</summary>
     [Fact]
     public void Business_modules_never_branch_on_tenant_identity()
     {
@@ -77,7 +77,7 @@ public sealed partial class SingleSourceOfTruthTests
             .ToList();
 
     [Theory]
-    [InlineData("if (tenant.TenantSlug == \"demo-plus\")")]
+    [InlineData("if (tenant.TenantSlug == \"demo-complete\")")]
     [InlineData("if (context.TenantId != expected)")]
     [InlineData("if (expected == context.TenantId)")]
     [InlineData("if (tenants.Tenant.Slug == slug)")]

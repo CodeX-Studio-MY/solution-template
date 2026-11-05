@@ -1,11 +1,11 @@
 #!/usr/bin/env sh
 # Starts the whole stack locally with the Aspire AppHost, onboards the demo tenant and prints how to sign in.
 #
-#   scripts/dev-up [--provider sqlserver|postgresql] [--all-in-one] [--no-build]
+#   scripts/dev-up.sh [--all-in-one] [--no-build]   (--provider postgresql is refused: not supported in this release)
 #
 # It: makes a locally trusted HTTPS certificate for localhost and *.localhost (mkcert), builds the frontend, starts the AppHost
 # (database, Valkey, RabbitMQ, Azurite, Mailpit, every service, the Gateway, the Scheduler), runs the migrations, onboards `demo`
-# (the first plan in platform.yaml, no data), and prints its admin invitation link. Run scripts/dev-down to stop. Everything it writes is in .dev/ (git-ignored).
+# (the first plan in platform.yaml, no data), and prints its admin invitation link. Run scripts/dev-down.sh to stop. Everything it writes is in .dev/ (git-ignored).
 set -eu
 cd "$(dirname "$0")/.."
 
@@ -23,7 +23,7 @@ while [ $# -gt 0 ]; do
 done
 case "$provider" in sqlserver|postgresql) ;; *) echo "--provider must be sqlserver or postgresql" >&2; exit 2 ;; esac
 if [ "$provider" = postgresql ] && ! grep -Eq '^[[:space:]]*providers:.*postgresql' "$(dirname "$0")/../platform.yaml"; then
-  echo "PostgreSQL migrations are not in this build (platform.yaml lists only sqlserver). Run scripts/add-postgresql first." >&2; exit 2
+  echo "PostgreSQL is not supported in this release (platform.yaml lists only sqlserver; see docs/adr/0011-sql-server-and-postgresql.md)." >&2; exit 2
 fi
 
 need() { command -v "$1" >/dev/null 2>&1 || { echo "$1 is required. $2" >&2; exit 1; }; }
@@ -77,8 +77,8 @@ until curl -sk -m 5 -f -o /dev/null https://localhost:7443/health/ready; do
   n=$((n + 1)); [ $n -gt 240 ] && {
     echo "The stack did not become ready. Open the Aspire dashboard (http://localhost:15100) and look at the resource that failed:" >&2
     echo "  - migrator failed with \"There is already an object named ...\": the local databases are from an earlier copy of this" >&2
-    echo "    product. Start clean with scripts/dev-down --reset, then scripts/dev-up (this deletes the local data)." >&2
-    echo "  - a service failed: its console log in the dashboard says why. Stop it with scripts/dev-down." >&2
+    echo "    product. Start clean with scripts/dev-down.sh --reset, then scripts/dev-up.sh (this deletes the local data)." >&2
+    echo "  - a service failed: its console log in the dashboard says why. Stop it with scripts/dev-down.sh." >&2
     exit 1
   }
   sleep 5
@@ -95,7 +95,7 @@ cat <<'DONE'
 The stack is up.
 
   demo       https://demo.localhost:7443/
-  More tenants: scripts/onboard-tenant <slug> [--plan <plan>]
+  More tenants: scripts/onboard-tenant.sh <slug> [--plan <plan>]
 
 DONE
 if [ -f .dev/invitations.json ]; then
@@ -108,5 +108,5 @@ cat <<'DONE'
 
   Aspire dashboard (logs, traces, metrics)         http://localhost:15100
   Mailpit (every email the stack sends)            http://localhost:8025
-  Stop everything                                  scripts/dev-down
+  Stop everything                                  scripts/dev-down.sh
 DONE

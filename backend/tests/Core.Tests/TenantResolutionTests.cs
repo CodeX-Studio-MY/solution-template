@@ -13,7 +13,7 @@ namespace Saaskit.Core.Tests;
 public sealed class TenantResolutionTests
 {
     private readonly TenantInfo _demo = TestTenants.Create("demo");
-    private readonly TenantInfo _other = TestTenants.Create("demo-plus");
+    private readonly TenantInfo _other = TestTenants.Create("demo-complete");
     private readonly ITenantDirectory _directory = Substitute.For<ITenantDirectory>();
 
     public TenantResolutionTests()
@@ -21,7 +21,7 @@ public sealed class TenantResolutionTests
         _directory.FindByIdAsync(_demo.Id, Arg.Any<CancellationToken>()).Returns(_demo);
         _directory.FindBySlugAsync("demo", Arg.Any<CancellationToken>()).Returns(_demo);
         _directory.FindByIdAsync(_other.Id, Arg.Any<CancellationToken>()).Returns(_other);
-        _directory.FindBySlugAsync("demo-plus", Arg.Any<CancellationToken>()).Returns(_other);
+        _directory.FindBySlugAsync("demo-complete", Arg.Any<CancellationToken>()).Returns(_other);
     }
 
     [Theory]
@@ -45,21 +45,21 @@ public sealed class TenantResolutionTests
     [Fact]
     public async Task A_subdomain_naming_another_tenant_is_forbidden()
     {
-        var ex = await Should.ThrowAsync<ForbiddenException>(() => ResolveAsync("demo-plus.localhost", User(_demo.Id)));
+        var ex = await Should.ThrowAsync<ForbiddenException>(() => ResolveAsync("demo-complete.localhost", User(_demo.Id)));
         ex.Error.ShouldBe(PlatformErrors.TenantMismatch);
     }
 
     [Fact]
     public async Task X_Tenant_with_a_tenant_token_is_forbidden()
     {
-        var ex = await Should.ThrowAsync<ForbiddenException>(() => ResolveAsync("localhost", User(_demo.Id), xTenant: "demo-plus"));
+        var ex = await Should.ThrowAsync<ForbiddenException>(() => ResolveAsync("localhost", User(_demo.Id), xTenant: "demo-complete"));
         ex.Error.ShouldBe(PlatformErrors.TenantHeaderNotAllowed);
     }
 
     [Fact]
     public async Task Platform_service_principals_name_the_tenant_with_X_Tenant()
     {
-        var resolved = await ResolveAsync("localhost", Principal(PrincipalType.Service, tenantId: null, PlatformPermissions.TenantAny), xTenant: "demo-plus");
+        var resolved = await ResolveAsync("localhost", Principal(PrincipalType.Service, tenantId: null, PlatformPermissions.TenantAny), xTenant: "demo-complete");
         resolved.ShouldBe(_other);
     }
 
@@ -79,7 +79,7 @@ public sealed class TenantResolutionTests
     [Fact]
     public async Task Anonymous_requests_use_the_subdomain()
     {
-        var resolved = await ResolveAsync("demo-plus.localhost", new ClaimsPrincipal(new ClaimsIdentity()));
+        var resolved = await ResolveAsync("demo-complete.localhost", new ClaimsPrincipal(new ClaimsIdentity()));
         resolved.ShouldBe(_other);
     }
 

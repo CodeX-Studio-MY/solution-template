@@ -6,7 +6,7 @@ import { CustomFieldsSection, type CustomFieldDefinition } from "./CustomFieldsS
 
 const definitions: CustomFieldDefinition[] = [
   { key: "reference", label: "Reference", type: "text", required: false, displayOrder: 2 },
-  { key: "cost-center", label: "Cost center", type: "list", required: true, options: ["CC-100", "CC-200"], displayOrder: 1 },
+  { key: "warehouse", label: "Warehouse", type: "list", required: true, options: ["WH-1", "WH-2"], displayOrder: 1 },
 ];
 
 describe("CustomFieldsSection", () => {
@@ -39,9 +39,9 @@ describe("CustomFieldsSection", () => {
     );
     const fields = await screen.findAllByRole("combobox");
     expect(fields).toHaveLength(1);
-    expect(screen.getByLabelText(/Cost center/)).toBeRequired();
-    const labels = screen.getAllByText(/Cost center|Reference/).map((e) => e.textContent);
-    expect(labels.findIndex((l) => l?.includes("Cost center"))).toBeLessThan(labels.findIndex((l) => l?.includes("Reference")));
+    expect(screen.getByLabelText(/Warehouse/)).toBeRequired();
+    const labels = screen.getAllByText(/Warehouse|Reference/).map((e) => e.textContent);
+    expect(labels.findIndex((l) => l?.includes("Warehouse"))).toBeLessThan(labels.findIndex((l) => l?.includes("Reference")));
   });
 
   it("reports changes as values keyed by the field", async () => {

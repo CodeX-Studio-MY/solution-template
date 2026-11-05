@@ -131,7 +131,7 @@ internal sealed class PlatformInfrastructure
                 throw new InvalidOperationException($"Unknown cloud '{cloud}'.");
         }
 
-        var mailpit = builder.AddMailPit("mailpit")
+        var mailpit = builder.AddMailPit("mailpit", httpPort: MailpitUiHostPort)
             .PublishAsDockerComposeService((_, service) => service.Ports.Add($"{MailpitUiHostPort}:8025"));
         Action<IResourceBuilder<ProjectResource>> configureMail = project => project
             .WithEnvironment(ConfigKeys.Smtp.Host, mailpit.Resource.Host)

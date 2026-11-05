@@ -198,7 +198,7 @@ internal sealed class TenantManagement(
         var info = await directory.FindByIdAsync(tenantId, cancellationToken) ?? throw new NotFoundException(TenancyErrors.TenantNotFound);
         var provider = providers.ForName(info.Placement.Provider);
         var pool = database.Value.Servers[info.Placement.ServerPool];
-        await provider.DropDatabaseAsync(pool, info.Placement.DatabaseName, cancellationToken);   // the tenant's file prefix is deleted with its module data (M3)
+        await provider.DropDatabaseAsync(pool, info.Placement.DatabaseName, cancellationToken);   // the tenant's files in object storage are not deleted here: see docs/runbooks/offboarding.md
 
         tenant.ChangeStatus(TenantStatus.Deleted);
         catalog.TenantModules.RemoveRange(catalog.TenantModules.Where(t => t.TenantId == tenantId));

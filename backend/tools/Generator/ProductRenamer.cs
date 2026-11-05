@@ -5,7 +5,7 @@ namespace Saaskit.Generator;
 /// <summary>
 /// The one-time codemod that names the product: every <c>saaskit</c>, <c>Saaskit</c> and <c>SAASKIT</c> in the repository's text files and
 /// paths becomes the new name in the same casing. C# namespaces and npm package scopes can't be read from platform.yaml, so they
-/// are renamed once, when a product is scaffolded from the template (see deviations 4 and 42).
+/// are renamed once, when a product is scaffolded from the template (ADR 0010).
 /// It checks that every file it will change can be opened before it changes any, so a file another program holds (an IDE with the
 /// solution open) stops it before it starts rather than half-way. Running it again on a renamed tree changes nothing, and on a
 /// half-renamed one finishes the job.

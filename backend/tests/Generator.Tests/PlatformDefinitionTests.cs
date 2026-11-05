@@ -10,13 +10,13 @@ public sealed class PlatformDefinitionTests
         Cloud = "azure",
         Database = new DatabaseDefinition { Providers = ["sqlserver", "postgresql"] },
         Roles = ["user", "manager", "admin"],
-        Plans = ["standard", "plus"],
+        Plans = ["lite", "complete"],
         Services =
         [
             new ServiceDefinition { Key = "goods-receipt", Port = 5101, Owns = ["goods-receipt"] },
             new ServiceDefinition { Key = "notification", Port = 5003 },
         ],
-        Modules = [new ModuleDefinition { Key = "goods-receipt", Name = "Goods Receipts", Plans = ["standard"] }],
+        Modules = [new ModuleDefinition { Key = "goods-receipt", Name = "Goods Receipts", Plans = ["lite"] }],
     };
 
     [Fact]
@@ -61,7 +61,7 @@ public sealed class PlatformDefinitionTests
     public void Duplicate_module_keys_are_rejected()
     {
         var definition = Valid();
-        definition.Modules.Add(new ModuleDefinition { Key = "goods-receipt", Name = "Again", Plans = ["standard"] });
+        definition.Modules.Add(new ModuleDefinition { Key = "goods-receipt", Name = "Again", Plans = ["lite"] });
         Should.Throw<PlatformDefinitionException>(definition.Validate).Message.ShouldContain("more than once");
     }
 
