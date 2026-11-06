@@ -185,13 +185,13 @@ public sealed class InitTests : IDisposable
     {
         Write(InitCommand.Marker, "This repository is the solution template.\n");
 
-        InitCommand.RememberModules(_root, ["crop-planning", "livestock"]);
-        InitCommand.RememberedModules(_root).ShouldBe(["crop-planning", "livestock"]);
+        InitCommand.RememberModules(_root, [new("crop-planning"), new("livestock", "advanced")]);
+        InitCommand.RememberedModules(_root).ShouldBe([new("crop-planning"), new("livestock", "advanced")]);
         File.ReadAllText(Path.Combine(_root, InitCommand.Marker)).ShouldStartWith("This repository is the solution template.");
 
         // A repeated run with no options adds them; --modules on it adds more.
         var resumed = InitAnswers.From(Template(), InitOptions.Parse(["--modules", "orchards"]), InitCommand.RememberedModules(_root));
-        resumed.Modules.ShouldBe(["crop-planning", "livestock", "orchards"]);
+        resumed.Modules.ShouldBe([new("crop-planning"), new("livestock", "advanced"), new("orchards")]);
     }
 
     [Fact]
@@ -205,7 +205,7 @@ public sealed class InitTests : IDisposable
     }
 
     private static InitAnswers Answers(string product = Target, string[]? modules = null, string[]? plans = null) =>
-        new(product, "Orchard Co", "Asia/Kuala_Lumpur", "MYR", ["en", "ms"], plans ?? ["basic", "pro"], "azure", modules ?? ["crop-planning"]);
+        new(product, "Orchard Co", "Asia/Kuala_Lumpur", "MYR", ["en", "ms"], plans ?? ["basic", "pro"], "azure", ModuleChoice.ParseList(string.Join(',', modules ?? ["crop-planning"])));
 
     private static PlatformDefinition Template() => PlatformDefinition.Load(Path.Combine(RepoRoot.Find(), "platform.yaml"));
 
@@ -232,6 +232,67 @@ public sealed class InitTests : IDisposable
     [InlineData("tenant-settings")]
     public void Module_keys_follow_the_key_rules_and_are_new(string module) =>
         Should.Throw<PlatformDefinitionException>(() => Answers(modules: [module]).Validate(Template()));
+
+    [Fact]
+    public void A_module_can_name_its_lowest_plan_and_the_plan_must_exist()
+    {
+        Should.NotThrow(() => Answers(modules: ["crop-planning:pro", "livestock"]).Validate(Template()));
+        Should.Throw<PlatformDefinitionException>(() => Answers(modules: ["crop-planning:gold"]).Validate(Template())).Message.ShouldContain("'gold' is not one of the plans (basic, pro)");
+    }
+
+    [Fact]
+    public void The_modules_option_reads_key_and_plan_pairs()
+    {
+        var parsed = ModuleChoice.ParseList("patients, appointments:advanced ,pharmacy:complete");
+
+        parsed.ShouldBe([new("patients"), new("appointments", "advanced"), new("pharmacy", "complete")]);
+        parsed.Select(m => m.ToString()).ShouldBe(["patients", "appointments:advanced", "pharmacy:complete"]);
+    }
+
+    [Theory]
+    [InlineData(null, new[] { "lite", "advanced", "complete" })]
+    [InlineData("lite", new[] { "lite", "advanced", "complete" })]
+    [InlineData("advanced", new[] { "advanced", "complete" })]
+    [InlineData("complete", new[] { "complete" })]
+    public void A_module_is_in_its_lowest_plan_and_every_plan_above_it(string? fromPlan, string[] expected) =>
+        NewModuleCommand.PlansFrom(["lite", "advanced", "complete"], fromPlan).ShouldBe(expected);
+
+    [Fact]
+    public void An_unknown_lowest_plan_is_refused() =>
+        Should.Throw<PlatformDefinitionException>(() => NewModuleCommand.PlansFrom(["lite", "advanced"], "gold")).Message.ShouldContain("not one of the plans");
+
+    [Fact]
+    public void A_new_module_is_written_into_platform_yaml_with_its_plans()
+    {
+        var path = Path.Combine(_root, "platform.yaml");
+        File.Copy(Path.Combine(RepoRoot.Find(), "platform.yaml"), path);
+
+        NewModuleCommand.AddToPlatformYaml(path, "pharmacy", "Pharmacy", 5102, NewModuleCommand.PlansFrom(["lite", "advanced", "complete"], "complete"));
+
+        var written = PlatformDefinition.Load(path);
+        written.Modules.Single(m => m.Key == "pharmacy").Plans.ShouldBe(["complete"]);
+        written.Modules.Single(m => m.Key == "base").Plans.ShouldBe(["lite", "advanced", "complete"]);
+    }
+
+    [Fact]
+    public void A_platform_module_must_be_in_every_plan()
+    {
+        var platform = Template();
+        platform.Modules.Single(m => m.Key == "billing").Plans = ["advanced", "complete"];
+
+        Should.Throw<PlatformDefinitionException>(platform.RequirePlatformParts).Message.ShouldContain("'billing' is part of the platform and must be in every plan (missing: lite)");
+    }
+
+    [Fact]
+    public void The_base_module_is_a_platform_module()
+    {
+        PlatformDefinition.IsPlatformModule("base").ShouldBeTrue();
+        PlatformDefinition.IsPlatformModule("patients").ShouldBeFalse();
+        var platform = Template();
+        platform.Modules.Single(m => m.Key == "base").Plans = ["complete"];
+
+        Should.Throw<PlatformDefinitionException>(platform.RequirePlatformParts).Message.ShouldContain("'base'");
+    }
 
     [Fact]
     public void Invalid_defaults_are_refused_before_anything_changes() =>

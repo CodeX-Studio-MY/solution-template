@@ -91,6 +91,7 @@ const gatewayTrail = [
 const modules = [
   { moduleKey: "access-management", displayName: "Access Management" },
   { moduleKey: "billing", displayName: "Billing" },
+  { moduleKey: "crop-planning", displayName: "Crop Planning" },
   { moduleKey: "tenant-settings", displayName: "Tenant Settings" },
 ];
 
@@ -137,14 +138,29 @@ async function mockOperator(page: Page, calls: string[]) {
   let signedIn = false;
   let tenant = { ...demo };
   let operatorLocale: string | null = null;
+  let grants: unknown[] = [
+    {
+      id: "77777777-7777-7777-7777-777777777771",
+      tenantId: demo.id,
+      tenantSlug: demo.slug,
+      operatorId: "o1",
+      operatorName: "Ops One",
+      reason: "Investigating ticket 42",
+      role: "manager",
+      module: "billing",
+      expiresOn: "2026-09-03T10:00:00Z",
+      status: "approved",
+      decidedByName: "Dana Admin",
+    },
+  ];
   let accounts = [
     linked(11, "google", "google", "Google", "aisha@gmail.com", true),
     linked(12, "microsoft-acme", "microsoft", "Microsoft (Acme)", null, false),
   ];
   let plans = [
-    plan(1, "lite", "Lite", ["access-management", "tenant-settings"], 12, 99),
-    plan(2, "advanced", "Advanced", ["access-management", "tenant-settings", "billing"], 4, 299),
-    plan(3, "complete", "Complete", ["access-management", "tenant-settings", "billing"], 1, null),
+    plan(1, "lite", "Lite", ["access-management", "tenant-settings", "billing"], 12, 99),
+    plan(2, "advanced", "Advanced", ["access-management", "tenant-settings", "billing", "crop-planning"], 4, 299),
+    plan(3, "complete", "Complete", ["access-management", "tenant-settings", "billing", "crop-planning"], 1, null),
   ];
   let providers = [
     provider(1, "google", "google", "Google", {
@@ -239,6 +255,25 @@ async function mockOperator(page: Page, calls: string[]) {
     }
     if (key === `GET /api/tenancy/v1/operator/principals/${gateway.principalId}`) return json(route, gatewayDetail);
     if (key === `GET /api/tenancy/v1/operator/principals/${gateway.principalId}/access-audit`) return json(route, page_(gatewayTrail));
+    if (key === `GET /api/tenancy/v1/operator/tenants/${demo.id}/support-access`) return json(route, grants);
+    if (key === "POST /api/tenancy/v1/operator/support-access") {
+      const body = request.postDataJSON() as { module: string; role: string; reason: string };
+      const pending = {
+        id: "77777777-7777-7777-7777-777777777772",
+        tenantId: demo.id,
+        tenantSlug: demo.slug,
+        operatorId: "o1",
+        operatorName: "Ops One",
+        reason: body.reason,
+        role: body.role,
+        module: body.module,
+        expiresOn: "2026-09-03T11:00:00Z",
+        status: "pending",
+        decidedByName: null,
+      };
+      grants = [pending, ...grants];
+      return json(route, pending);
+    }
     if (key === `POST /api/tenancy/v1/operator/tenants/${demo.id}/suspend`) {
       tenant = { ...tenant, status: "suspended" };
       return json(route, tenant);
@@ -270,6 +305,26 @@ test("an operator signs in, opens a tenant and suspends it after confirming", as
   await expect(page.getByText("Demo Co: Suspended.")).toBeVisible();
   await expect(page.getByRole("button", { name: "Resume" })).toBeVisible();
   expect(calls).toContain(`POST /api/tenancy/v1/operator/tenants/${demo.id}/suspend`);
+  expect(problems.filter((p) => !p.includes("401"))).toEqual([]);
+});
+
+test("an operator sees the support requests of a tenant and who decided, and a new request appears at once", async ({ page, baseURL }) => {
+  const problems = watchProblems(page);
+  await mockOperator(page, []);
+  await page.goto(baseURL!.replace("//localhost", "//operator.localhost"));
+  await page.getByLabel("Email").fill("ops@example.com");
+  await page.getByLabel("Password").fill("secret");
+  await page.getByLabel("Authenticator code").fill("123456");
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await page.getByRole("button", { name: "Demo Co" }).click();
+
+  const list = page.getByRole("table", { name: "Support access" });
+  await expect(list.getByRole("row", { name: /Investigating ticket 42.*Approved.*Dana Admin/ })).toBeVisible();
+
+  await page.getByLabel("Reason").fill("Looking at a failed import");
+  await page.getByRole("button", { name: "Request" }).click();
+  await expect(list.getByRole("row", { name: /Looking at a failed import.*Waiting/ })).toBeVisible();
+  await expectAccessible(page);
   expect(problems.filter((p) => !p.includes("401"))).toEqual([]);
 });
 
@@ -319,36 +374,42 @@ test("an operator sees the plans against the modules, changes a module after a c
   const table = page.getByRole("table", { name: "Modules included in each plan" });
   await expect(table.getByRole("columnheader", { name: /Lite/ })).toContainText("12 tenants");
   await expect(table.getByRole("columnheader", { name: /Complete/ })).toContainText("No price set");
-  await expect(page.getByRole("checkbox", { name: "Billing in Lite" })).not.toBeChecked();
-  await expect(page.getByRole("checkbox", { name: "Billing in Advanced" })).toBeChecked();
+  await expect(page.getByRole("checkbox", { name: "Crop Planning in Lite" })).not.toBeChecked();
+  await expect(page.getByRole("checkbox", { name: "Crop Planning in Advanced" })).toBeChecked();
+  // The platform's own modules are locked ticks: in every plan, and not offered for removal.
+  await expect(page.getByRole("checkbox", { name: "Billing in Lite" })).toBeChecked();
+  await expect(page.getByRole("checkbox", { name: "Billing in Lite" })).toBeDisabled();
+  await expect(page.getByRole("checkbox", { name: "Tenant Settings in Advanced" })).toBeDisabled();
   await expectAccessible(page);
 
-  await page.getByRole("checkbox", { name: "Billing in Lite" }).click();
-  const confirm = page.getByRole("dialog", { name: "Add Billing to Lite?" });
-  await expect(confirm).toContainText("12 tenants on Lite get Billing straight away.");
+  await page.getByRole("checkbox", { name: "Crop Planning in Lite" }).click();
+  const confirm = page.getByRole("dialog", { name: "Add Crop Planning to Lite?" });
+  await expect(confirm).toContainText("12 tenants on Lite get Crop Planning straight away.");
   await settled(page);
   await expectAccessible(page);
   await confirm.getByRole("button", { name: "Add module" }).click();
-  await expect(page.getByText("Billing added to Lite.")).toBeVisible();
-  await expect(page.getByRole("checkbox", { name: "Billing in Lite" })).toBeChecked();
-  expect(calls).toContain("PUT /api/tenancy/v1/operator/plans/1/modules/billing");
+  await expect(page.getByText("Crop Planning added to Lite.")).toBeVisible();
+  await expect(page.getByRole("checkbox", { name: "Crop Planning in Lite" })).toBeChecked();
+  expect(calls).toContain("PUT /api/tenancy/v1/operator/plans/1/modules/crop-planning");
 
-  // Taking away what tenant admins use to manage their people needs a stronger warning.
-  await page.getByRole("checkbox", { name: "Tenant Settings in Advanced" }).click();
-  await expect(page.getByRole("dialog", { name: "Remove Tenant Settings from Advanced?" })).toContainText("they lose those screens");
+  // Taking a product module away is confirmed too, and cancelling changes nothing.
+  await page.getByRole("checkbox", { name: "Crop Planning in Advanced" }).click();
+  await expect(page.getByRole("dialog", { name: "Remove Crop Planning from Advanced?" })).toBeVisible();
   await page.getByRole("dialog").getByRole("button", { name: "Cancel" }).click();
-  expect(calls).not.toContain("DELETE /api/tenancy/v1/operator/plans/2/modules/tenant-settings");
+  expect(calls).not.toContain("DELETE /api/tenancy/v1/operator/plans/2/modules/crop-planning");
 
   await page.getByRole("button", { name: "Add plan" }).first().click();
   const form = page.getByRole("dialog", { name: "Add plan" });
   await form.getByLabel("Key").fill("starter");
   await form.getByLabel("Name").fill("Starter");
   await form.getByLabel("Monthly price").fill("49");
+  await settled(page);
   await expectAccessible(page);
   await form.getByRole("button", { name: "Add plan" }).click();
   await expect(page.getByText("Starter added.")).toBeVisible();
   await expect(table.getByRole("columnheader", { name: /Starter/ })).toContainText("0 tenants");
   await expect(page.getByRole("checkbox", { name: "Billing in Starter" })).not.toBeChecked();
+  await expect(page.getByRole("checkbox", { name: "Billing in Starter" })).toBeEnabled();
   expect(problems.filter((p) => !p.includes("401"))).toEqual([]);
 });
 
@@ -401,6 +462,7 @@ test("an operator sees every sign-in provider, edits one without ever seeing its
   await expect(dialog.getByText("No secret is stored yet.")).toBeVisible();
   await dialog.getByLabel("Client ID").fill("app-1");
   await dialog.getByLabel("Client secret").fill("never-shown-again");
+  await settled(page);
   await expectAccessible(page);
   await dialog.getByRole("button", { name: "Save settings" }).click();
   await expect(page.getByText("Microsoft saved.")).toBeVisible();

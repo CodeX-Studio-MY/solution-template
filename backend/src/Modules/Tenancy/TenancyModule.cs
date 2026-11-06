@@ -42,6 +42,7 @@ public sealed class TenancyModule : IPlatformModule
         services.AddScoped<IOperatorSessions, OperatorSessions>();
         services.AddScoped<IOperatorPreferences, OperatorPreferences>();
         services.AddScoped<ISupportAccess, SupportAccess>();
+        services.AddSingleton(LockedPlanModules.FromPlatform());
         services.AddScoped<IPlanCatalog, PlanCatalog>();
         services.AddScoped<IIdentityProviderCatalog, IdentityProviderCatalog>();
         services.AddScoped<IPrincipalDirectory, PrincipalDirectory>();

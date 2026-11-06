@@ -5,6 +5,7 @@ export const tenancy = api("tenancy");
 
 export type TenantSummary = TenancySchemas["schemas"]["TenantSummary"];
 export type TenantStatus = TenancySchemas["schemas"]["TenantStatus"];
+export type SupportAccess = TenancySchemas["schemas"]["SupportAccessDto"];
 export type PrincipalType = TenancySchemas["schemas"]["PlatformPrincipalType"];
 export type PrincipalSummary = TenancySchemas["schemas"]["PrincipalSummary"];
 export type PrincipalDetail = TenancySchemas["schemas"]["PrincipalDetail"];

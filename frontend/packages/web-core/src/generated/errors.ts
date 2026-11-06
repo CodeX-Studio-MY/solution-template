@@ -37,6 +37,7 @@ export const errorCodes = {
   "tenant-settings.invalid-transition": { status: 422, messageKey: "errors.tenancy.invalidTransition" },
   "tenant-settings.linked-account-not-found": { status: 404, messageKey: "errors.tenancy.linkedAccountNotFound" },
   "tenant-settings.module-not-found": { status: 404, messageKey: "errors.tenancy.moduleNotFound" },
+  "tenant-settings.module-required-in-plan": { status: 422, messageKey: "errors.tenancy.moduleRequiredInPlan" },
   "tenant-settings.onboarding-failed": { status: 500, messageKey: "errors.tenancy.onboardingFailed" },
   "tenant-settings.operator-exists": { status: 409, messageKey: "errors.tenancy.operatorExists" },
   "tenant-settings.operator-login-failed": { status: 401, messageKey: "errors.tenancy.operatorLoginFailed" },

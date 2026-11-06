@@ -26,8 +26,14 @@ public sealed record TenantProfile(string DisplayName, string TimeZone, string C
 
 public sealed record OnboardRequest(string Slug, string DisplayName, string Plan, string AdminEmail, string AdminName, string? ServerPool = null);
 
-/// <summary>The outcome of onboarding. <paramref name="AdminInvitationUrl"/> is the first admin's one-time link; null when onboarding resumed after it was already sent.</summary>
-public sealed record OnboardResult(Guid TenantId, string Slug, Uri? AdminInvitationUrl);
+/// <summary>The first admin's invitation: the one-time link, and whether Identity could also email it.</summary>
+public sealed record FirstAdminInvitation(Uri Url, bool EmailSent);
+
+/// <summary>
+/// The outcome of onboarding. <paramref name="AdminInvitationUrl"/> is the first admin's one-time link and <paramref name="AdminEmailSent"/>
+/// says whether it was also emailed; the link is null when onboarding resumed after it was already sent.
+/// </summary>
+public sealed record OnboardResult(Guid TenantId, string Slug, Uri? AdminInvitationUrl, bool AdminEmailSent = false);
 
 /// <summary>Reads and changes tenants: plan, add-on modules, support-access policy.</summary>
 public interface ITenantAdmin
@@ -105,14 +111,23 @@ public sealed record BillingStatus(bool InGoodStanding, string? Note);
 /// <summary>Calls to the Identity module's platform endpoints, with this service's token.</summary>
 public interface IIdentityClient
 {
-    Task<Uri?> InviteFirstAdminAsync(Guid tenantId, string email, string displayName, IEnumerable<string> modules, CancellationToken cancellationToken = default);
+    Task<FirstAdminInvitation?> InviteFirstAdminAsync(Guid tenantId, string email, string displayName, IEnumerable<string> modules, CancellationToken cancellationToken = default);
 
     Task SetBffRedirectUrisAsync(Guid tenantId, IReadOnlyCollection<string> add, IReadOnlyCollection<string> remove, CancellationToken cancellationToken = default);
 
     Task RevokeAllTokensAsync(Guid tenantId, CancellationToken cancellationToken = default);
 
     Task<SupportTokenDto> IssueSupportTokenAsync(Guid tenantId, SupportTokenCall request, CancellationToken cancellationToken = default);
+
+    /// <summary>Writes one step of a support-access request to the tenant's own security log.</summary>
+    Task RecordSupportAccessAsync(Guid tenantId, SupportAccessEvent entry, CancellationToken cancellationToken = default);
+
+    /// <summary>The display name of one of the tenant's people, or null if there is none.</summary>
+    Task<string?> GetPrincipalNameAsync(Guid tenantId, Guid principalId, CancellationToken cancellationToken = default);
 }
+
+/// <summary>A step of a support-access request as the tenant's security log records it. <paramref name="ActorType"/> is <c>operator</c> or <c>user</c>.</summary>
+public sealed record SupportAccessEvent(string Stage, Guid GrantId, string ActorId, string ActorType, string Operator, string Module, Role Role, string Reason);
 
 public sealed record SupportTokenCall(Guid GrantId, string OperatorId, string OperatorName, string Module, Role Role, string Audience, string Reason);
 

@@ -1096,6 +1096,28 @@
         }
       }
     },
+    "/api/identity/v1/platform/support-access-events": {
+      "post": {
+        "tags": [
+          "platform"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SupportAccessEventBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/identity/v1/platform/invitations": {
       "post": {
         "tags": [
@@ -1117,7 +1139,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AnonymousTypeOfGuidAndDateTimeAndUri"
+                  "$ref": "#/components/schemas/AnonymousTypeOfGuidAndDateTimeAndUriAndboolean"
                 }
               }
             }
@@ -1448,11 +1470,12 @@
           }
         }
       },
-      "AnonymousTypeOfGuidAndDateTimeAndUri": {
+      "AnonymousTypeOfGuidAndDateTimeAndUriAndboolean": {
         "required": [
           "principalId",
           "expiresOn",
-          "url"
+          "url",
+          "emailSent"
         ],
         "type": "object",
         "properties": {
@@ -1468,6 +1491,9 @@
             "type": "string",
             "format": "uri",
             "nullable": true
+          },
+          "emailSent": {
+            "type": "boolean"
           }
         }
       },
@@ -1701,7 +1727,8 @@
       "InvitationSent": {
         "required": [
           "principalId",
-          "expiresOn"
+          "expiresOn",
+          "emailSent"
         ],
         "type": "object",
         "properties": {
@@ -1712,6 +1739,9 @@
           "expiresOn": {
             "type": "string",
             "format": "date-time"
+          },
+          "emailSent": {
+            "type": "boolean"
           }
         }
       },
@@ -2017,6 +2047,46 @@
           "secret": {
             "type": "string",
             "nullable": true
+          }
+        }
+      },
+      "SupportAccessEventBody": {
+        "required": [
+          "stage",
+          "grantId",
+          "actorId",
+          "actorType",
+          "operator",
+          "module",
+          "role",
+          "reason"
+        ],
+        "type": "object",
+        "properties": {
+          "stage": {
+            "type": "string"
+          },
+          "grantId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "actorId": {
+            "type": "string"
+          },
+          "actorType": {
+            "type": "string"
+          },
+          "operator": {
+            "type": "string"
+          },
+          "module": {
+            "type": "string"
+          },
+          "role": {
+            "$ref": "#/components/schemas/Role"
+          },
+          "reason": {
+            "type": "string"
           }
         }
       },

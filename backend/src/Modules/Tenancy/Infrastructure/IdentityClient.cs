@@ -10,14 +10,14 @@ internal sealed class IdentityClient(HttpClient http) : IIdentityClient
 {
     private static readonly string Platform = $"{PlatformServices.Identity.RoutePrefix}/v1/platform";
 
-    public async Task<Uri?> InviteFirstAdminAsync(Guid tenantId, string email, string displayName, IEnumerable<string> modules, CancellationToken cancellationToken = default)
+    public async Task<FirstAdminInvitation?> InviteFirstAdminAsync(Guid tenantId, string email, string displayName, IEnumerable<string> modules, CancellationToken cancellationToken = default)
     {
         using var response = await SendAsync(HttpMethod.Post, $"{Platform}/invitations", tenantId, new { email, displayName, modules }, cancellationToken);
         if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
             return null;   // already invited: onboarding resumed
         await EnsureAsync(response, cancellationToken);
         var body = await response.Content.ReadFromJsonAsync<InvitationBody>(cancellationToken);
-        return body?.Url;
+        return body?.Url is { } url ? new FirstAdminInvitation(url, body.EmailSent) : null;
     }
 
     public async Task SetBffRedirectUrisAsync(Guid tenantId, IReadOnlyCollection<string> add, IReadOnlyCollection<string> remove, CancellationToken cancellationToken = default)
@@ -39,6 +39,21 @@ internal sealed class IdentityClient(HttpClient http) : IIdentityClient
         return (await response.Content.ReadFromJsonAsync<SupportTokenDto>(cancellationToken))!;
     }
 
+    public async Task RecordSupportAccessAsync(Guid tenantId, SupportAccessEvent entry, CancellationToken cancellationToken = default)
+    {
+        using var response = await SendAsync(HttpMethod.Post, $"{Platform}/support-access-events", tenantId, entry, cancellationToken);
+        await EnsureAsync(response, cancellationToken);
+    }
+
+    public async Task<string?> GetPrincipalNameAsync(Guid tenantId, Guid principalId, CancellationToken cancellationToken = default)
+    {
+        using var response = await SendAsync(HttpMethod.Get, $"{Platform}/principals/{principalId}/contact", tenantId, null, cancellationToken);
+        if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            return null;
+        await EnsureAsync(response, cancellationToken);
+        return (await response.Content.ReadFromJsonAsync<ContactBody>(cancellationToken))?.DisplayName;
+    }
+
     /// <summary>Like EnsureSuccessStatusCode, but keeps the problem details Identity answered with.</summary>
     private static async Task EnsureAsync(HttpResponseMessage response, CancellationToken cancellationToken)
     {
@@ -57,5 +72,7 @@ internal sealed class IdentityClient(HttpClient http) : IIdentityClient
         return await http.SendAsync(request, cancellationToken);
     }
 
-    private sealed record InvitationBody(Uri? Url);
+    private sealed record ContactBody(string? DisplayName);
+
+    private sealed record InvitationBody(Uri? Url, bool EmailSent);
 }

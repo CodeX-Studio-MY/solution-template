@@ -26,7 +26,7 @@ test("an admin opens Settings from the gear, invites a user, and sees it confirm
       "GET /api/identity/v1/principals": (route) => json(route, [siti]),
       "POST /api/identity/v1/users/invitations": async (route) => {
         invited = route.request().postDataJSON();
-        await json(route, { principalId: "22222222-2222-2222-2222-222222222222", expiresOn: "2026-10-30T00:00:00Z" }, 201);
+        await json(route, { principalId: "22222222-2222-2222-2222-222222222222", expiresOn: "2026-10-30T00:00:00Z", emailSent: true }, 201);
       },
     },
   });
@@ -48,6 +48,26 @@ test("an admin opens Settings from the gear, invites a user, and sees it confirm
   await expect(page.getByText("Invitation sent to lee@example.com.")).toBeVisible();
   expect(invited).toEqual({ email: "lee@example.com", displayName: "Lee", roles: [{ module: "billing", role: "manager" }] });
   expect(problems).toEqual([]);
+});
+
+test("an invitation whose email could not be sent says so, and points to Resend invitation", async ({ page }) => {
+  await mockApp(page, {
+    roles: admin,
+    routes: {
+      "GET /api/identity/v1/principals": (route) => json(route, [siti]),
+      "POST /api/identity/v1/users/invitations": (route) =>
+        json(route, { principalId: "22222222-2222-2222-2222-222222222222", expiresOn: "2026-10-30T00:00:00Z", emailSent: false }, 201),
+    },
+  });
+  await page.goto("/settings/users");
+  await page.getByRole("button", { name: "Invite user" }).click();
+  const dialog = page.getByRole("dialog", { name: "Invite a user" });
+  await dialog.getByLabel("Email").fill("lee@example.com");
+  await dialog.getByLabel("Name").fill("Lee");
+  await dialog.getByRole("button", { name: "Invite user" }).click();
+
+  await expect(page.getByText("The invitation was created, but the email could not be sent. Use Resend invitation.")).toBeVisible();
+  await expect(page.getByText("Invitation sent to lee@example.com.")).toHaveCount(0);
 });
 
 test("deleting a group asks first, and Cancel deletes nothing", async ({ page }) => {

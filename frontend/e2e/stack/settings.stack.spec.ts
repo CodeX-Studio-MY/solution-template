@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { acceptInvitation, signIn } from "./support";
+import { acceptInvitation, emailsTo, signIn } from "./support";
 
 /** Settings against the real services: the first admin of `demo` manages people, groups and branding. */
 test("the demo admin invites a user, makes a group with a member, and changes the brand colour", async ({ browser, page }) => {
@@ -20,6 +20,12 @@ test("the demo admin invites a user, makes a group with a member, and changes th
   await invite.getByRole("button", { name: "Invite user" }).click();
   await expect(page.getByText(`Invitation sent to user-${run}@demo.example.`)).toBeVisible();
   await expect(page.getByRole("row", { name: new RegExp(`User ${run}.*Invited`) })).toBeVisible();
+
+  // The invitation really was emailed: Mailpit holds it, with the link in the body.
+  await expect
+    .poll(async () => (await emailsTo(`user-${run}@demo.example`)).map((m) => m.subject), { timeout: 15_000 })
+    .toEqual([expect.stringMatching(/^You're invited to /)]);
+  expect((await emailsTo(`user-${run}@demo.example`))[0]!.hasInvitationLink).toBe(true);
 
   await nav.getByRole("link", { name: "Groups" }).click();
   await page.getByRole("button", { name: "New group" }).click();

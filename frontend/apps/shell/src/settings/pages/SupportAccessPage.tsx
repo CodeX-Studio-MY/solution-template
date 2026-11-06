@@ -21,7 +21,7 @@ const done: Record<Decision, string> = { approve: "support.approved", deny: "sup
 
 const tones: Record<SupportAccess["status"], Tone> = { pending: "warning", approved: "success", denied: "default", revoked: "default" };
 
-/** Support requests from the provider: approve, deny or revoke. Nothing is granted without a tenant admin's yes. */
+/** Support requests from the provider: approve, deny or revoke. Unless the tenant waived approval, nothing is granted without an admin's yes. */
 export function Component() {
   const { t } = useTranslation("settings");
   const dialog = useDialog();

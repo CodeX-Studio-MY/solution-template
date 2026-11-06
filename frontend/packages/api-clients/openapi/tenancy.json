@@ -1094,6 +1094,39 @@
         }
       }
     },
+    "/api/tenancy/v1/operator/tenants/{id}/support-access": {
+      "get": {
+        "tags": [
+          "operator"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SupportAccessDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/tenancy/v1/operator/support-access": {
       "post": {
         "tags": [
@@ -2799,9 +2832,13 @@
             "type": "string",
             "format": "uri",
             "nullable": true
+          },
+          "adminEmailSent": {
+            "type": "boolean",
+            "default": false
           }
         },
-        "description": "The outcome of onboarding. AdminInvitationUrl is the first admin\u0027s one-time link; null when onboarding resumed after it was already sent."
+        "description": "The outcome of onboarding. AdminInvitationUrl is the first admin\u0027s one-time link and AdminEmailSent\nsays whether it was also emailed; the link is null when onboarding resumed after it was already sent."
       },
       "OperatorProfile": {
         "required": [
@@ -3814,6 +3851,10 @@
           },
           "status": {
             "$ref": "#/components/schemas/SupportAccessStatus"
+          },
+          "decidedByName": {
+            "type": "string",
+            "nullable": true
           }
         }
       },

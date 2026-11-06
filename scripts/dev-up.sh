@@ -5,7 +5,8 @@
 #
 # It: makes a locally trusted HTTPS certificate for localhost and *.localhost (mkcert), builds the frontend, starts the AppHost
 # (database, Valkey, RabbitMQ, Azurite, Mailpit, every service, the Gateway, the Scheduler), runs the migrations, onboards `demo`
-# (the first plan in platform.yaml, no data), and prints its admin invitation link. Run scripts/dev-down.sh to stop. Everything it writes is in .dev/ (git-ignored).
+# (the first plan in platform.yaml, no data), and prints its admin invitation link and the Aspire dashboard's sign-in link. The invitation is
+# also emailed (Mailpit, http://localhost:8025). Run scripts/dev-down.sh to stop. Everything it writes is in .dev/ (git-ignored).
 set -eu
 cd "$(dirname "$0")/.."
 
@@ -104,9 +105,11 @@ if [ -f .dev/invitations.json ]; then
 else
   echo "The tenant already existed; its invitation link was printed the first time (.dev/invitations.json)."
 fi
-cat <<'DONE'
+# The dashboard asks for a token, which the AppHost prints once into its log: show the whole link, so it opens without a search.
+dashboard=$(sed -n 's/^ *Dashboard: *\(http:\/\/localhost:15100\/login?t=[^ ]*\).*/\1/p' .dev/apphost.log | head -n 1)
+cat <<DONE
 
-  Aspire dashboard (logs, traces, metrics)         http://localhost:15100
+  Aspire dashboard (logs, traces, metrics)         ${dashboard:-http://localhost:15100 (its sign-in link is in .dev/apphost.log)}
   Mailpit (every email the stack sends)            http://localhost:8025
   Stop everything                                  scripts/dev-down.sh
 DONE

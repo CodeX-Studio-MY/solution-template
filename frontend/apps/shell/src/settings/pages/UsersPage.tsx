@@ -113,7 +113,11 @@ function InviteDialog({ onClose }: { onClose: () => void }) {
           body: { ...form, roles: Object.entries(roles).flatMap(([module, role]) => (role ? [{ module, role }] : [])) },
         }),
       ),
-    { invalidate: identityQueries, success: t("users.invited", { email: form.email }), onSuccess: onClose },
+    {
+      invalidate: identityQueries,
+      success: (sent) => t(sent.emailSent ? "users.invited" : "users.invitedNoEmail", { email: form.email }),
+      onSuccess: onClose,
+    },
   );
   const fieldError = (name: string) => (invite.error instanceof ApiError ? invite.error.forField(name)?.message : undefined);
   return (
@@ -195,7 +199,7 @@ function UserPanel({ user, canEdit }: { user: Principal; canEdit: boolean }) {
     },
   );
   const resend = useApiMutation(() => unwrap(identity.POST("/api/identity/v1/users/{id}/invitation", path)), {
-    success: t("users.resent"),
+    success: (sent) => t(sent.emailSent ? "users.resent" : "users.resentNoEmail"),
   });
   const setRole = useApiMutation(
     async ({ module, role }: { module: string; role: Role | null }) => {

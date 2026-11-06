@@ -11,14 +11,15 @@ import TableCell from "@mui/material/TableCell";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import TextField from "@mui/material/TextField";
+import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 import { useTranslation } from "react-i18next";
-import { ApiError, platformDefaults, toNumber, unwrap, useApiMutation, useDialog, useFormatters } from "@saaskit/web-core";
+import { ApiError, modules as platformModules, platformDefaults, toNumber, unwrap, useApiMutation, useDialog, useFormatters } from "@saaskit/web-core";
 import { EmptyState, FormDialog, PageHeader, ProblemAlert, StatusChip, tokens } from "@saaskit/ui-kit";
 import { plansKey, tenancy, tenantsKey, useModules, usePlans, type ModuleRow, type PlanRow } from "../api";
 
-/** Taking these away from a plan takes away the screens where a tenant's admins manage their own people and settings. */
-const tenantAdminModules: readonly string[] = ["access-management", "tenant-settings"];
+/** The platform's own modules are in every plan. Once a plan has one, the server refuses to take it out, so the matrix doesn't offer to. */
+const lockedModules = new Set<string>(platformModules.filter((m) => m.inEveryPlan).map((m) => m.key));
 
 /** The plans and what each includes: plans across the top, modules down the side, a checkbox where they meet. */
 export function Component() {
@@ -95,10 +96,9 @@ function Matrix({ plans, modules, onOpen }: { plans: readonly PlanRow[]; modules
   async function toggle(plan: PlanRow, module: ModuleRow, add: boolean) {
     const count = toNumber(plan.tenantCount);
     const names = { module: module.displayName, plan: plan.displayName, count };
-    const warning = !add && tenantAdminModules.includes(module.moduleKey) ? ` ${t("subscriptions.protectedWarning", names)}` : "";
     const confirmed = await dialog.confirm({
       title: t(add ? "subscriptions.addModuleTitle" : "subscriptions.removeModuleTitle", names),
-      text: t(add ? "subscriptions.addModuleText" : "subscriptions.removeModuleText", names) + warning,
+      text: t(add ? "subscriptions.addModuleText" : "subscriptions.removeModuleText", names),
       confirmLabel: t(add ? "subscriptions.addModule" : "subscriptions.removeModule"),
       tone: add ? "default" : "danger",
     });
@@ -154,16 +154,26 @@ function Matrix({ plans, modules, onOpen }: { plans: readonly PlanRow[]; modules
               </TableCell>
               {plans.map((plan) => {
                 const included = plan.modules.includes(module.moduleKey);
+                const locked = included && lockedModules.has(module.moduleKey);
+                const checkbox = (
+                  <Checkbox
+                    checked={included}
+                    disabled={locked || setModule.isPending}
+                    onChange={() => void toggle(plan, module, !included)}
+                    slotProps={{
+                      input: { "aria-label": t("subscriptions.includes", { module: module.displayName, plan: plan.displayName }) },
+                    }}
+                  />
+                );
                 return (
                   <TableCell key={plan.planId} sx={{ py: 0.5 }}>
-                    <Checkbox
-                      checked={included}
-                      disabled={setModule.isPending}
-                      onChange={() => void toggle(plan, module, !included)}
-                      slotProps={{
-                        input: { "aria-label": t("subscriptions.includes", { module: module.displayName, plan: plan.displayName }) },
-                      }}
-                    />
+                    {locked ? (
+                      <Tooltip title={t("subscriptions.inEveryPlan")} describeChild>
+                        <span>{checkbox}</span>
+                      </Tooltip>
+                    ) : (
+                      checkbox
+                    )}
                   </TableCell>
                 );
               })}

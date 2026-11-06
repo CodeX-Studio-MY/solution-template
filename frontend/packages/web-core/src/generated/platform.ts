@@ -12,12 +12,12 @@ export type Plan = (typeof plans)[number];
 export const moduleKeys = ["access-management", "tenant-settings", "billing", "base"] as const;
 export type ModuleKey = (typeof moduleKeys)[number];
 
-/** Each module's display name (the default; a module's own i18n may translate it) and the plans that include it. */
-export const modules: readonly { key: ModuleKey; name: string; plans: readonly Plan[] }[] = [
-  { key: "access-management", name: "Access Management", plans: ["lite", "advanced", "complete"] },
-  { key: "tenant-settings", name: "Tenant Settings", plans: ["lite", "advanced", "complete"] },
-  { key: "billing", name: "Billing", plans: ["lite", "advanced", "complete"] },
-  { key: "base", name: "Base", plans: ["lite", "advanced", "complete"] },
+/** Each module's display name (the default; a module's own i18n may translate it), the plans that include it, and whether the platform puts it in every plan (an operator can't take it out of one). */
+export const modules: readonly { key: ModuleKey; name: string; plans: readonly Plan[]; inEveryPlan: boolean }[] = [
+  { key: "access-management", name: "Access Management", plans: ["lite", "advanced", "complete"], inEveryPlan: true },
+  { key: "tenant-settings", name: "Tenant Settings", plans: ["lite", "advanced", "complete"], inEveryPlan: true },
+  { key: "billing", name: "Billing", plans: ["lite", "advanced", "complete"], inEveryPlan: true },
+  { key: "base", name: "Base", plans: ["lite", "advanced", "complete"], inEveryPlan: true },
 ];
 
 /** Backend services, routed at /api/{service-key}/*. */

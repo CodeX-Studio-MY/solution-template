@@ -1,5 +1,7 @@
 using Saaskit.Core.Authorization;
+using Saaskit.Core.Platform;
 using Saaskit.Identity.Application;
+using Saaskit.Identity.Domain;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -18,11 +20,23 @@ internal static class PlatformEndpoints
         platform.MapPost("/support-tokens", async ([FromBody] SupportTokenBody body, ISupportTokenIssuer issuer, CancellationToken ct) =>
             await issuer.IssueAsync(new SupportTokenRequest(body.GrantId, body.OperatorId, body.OperatorName, body.Module, body.Role, body.Audience, body.Reason), ct))
             .RequirePlatformService();
+        // Each step of a support-access request (requested, approved, denied, revoked) appears in the tenant's own security log.
+        platform.MapPost("/support-access-events", async ([FromBody] SupportAccessEventBody body, IAuditWriter audit, CancellationToken ct) =>
+        {
+            await audit.WriteAsync(
+                AuditKinds.SupportAccess,
+                subject: body.GrantId.ToString(),
+                details: new { stage = body.Stage, module = body.Module, role = body.Role.ToClaimValue(), reason = body.Reason, @operator = body.Operator },
+                actorId: body.ActorId,
+                actorType: body.ActorType,
+                cancellationToken: ct);
+            return Results.NoContent();
+        }).RequirePlatformService();
         // The first admin of a new tenant: an emailed invitation, never a default password.
         platform.MapPost("/invitations", async ([FromBody] FirstAdminBody body, IAccountService accounts, CancellationToken ct) =>
         {
             var invitation = await accounts.InviteAsync(body.Email, body.DisplayName, body.Modules.Select(m => (m, Saaskit.Core.Platform.Role.Admin)), ct);
-            return new { invitation.PrincipalId, invitation.ExpiresOn, url = invitation.Url };
+            return new { invitation.PrincipalId, invitation.ExpiresOn, url = invitation.Url, invitation.EmailSent };
         }).RequirePlatformService();
         platform.MapGet("/principals/{id:guid}/contact", async (Guid id, IAccessManagement access, CancellationToken ct) =>
             await access.GetContactAsync(id, ct) is { } contact ? Results.Ok(contact) : Results.NotFound()).RequirePlatformService();
@@ -36,6 +50,8 @@ internal static class PlatformEndpoints
     }
 
     internal sealed record SupportTokenBody(Guid GrantId, string OperatorId, string OperatorName, string Module, Saaskit.Core.Platform.Role Role, string Audience, string Reason);
+
+    internal sealed record SupportAccessEventBody(string Stage, Guid GrantId, string ActorId, string ActorType, string Operator, string Module, Saaskit.Core.Platform.Role Role, string Reason);
 
     internal sealed record FirstAdminBody(string Email, string DisplayName, IReadOnlyList<string> Modules);
 

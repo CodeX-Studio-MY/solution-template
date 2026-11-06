@@ -35,7 +35,7 @@ internal static class CSharpPlatformEmitter
         sb.AppendLine("    public static readonly IReadOnlyList<ModuleInfo> All =");
         sb.AppendLine("    [");
         foreach (var module in platform.Modules)
-            sb.AppendLine($"        new({module.Pascal}, {Naming.Quote(module.Name)}, new Guid(\"{Naming.StableGuid("module:" + module.Key)}\"), [{string.Join(", ", module.Plans.Select(Naming.Quote))}]),");
+            sb.AppendLine($"        new({module.Pascal}, {Naming.Quote(module.Name)}, new Guid(\"{Naming.StableGuid("module:" + module.Key)}\"), [{string.Join(", ", module.Plans.Select(Naming.Quote))}], {(PlatformDefinition.IsPlatformModule(module.Key) ? "true" : "false")}),");
         sb.AppendLine("    ];");
         sb.AppendLine("}");
         sb.AppendLine();

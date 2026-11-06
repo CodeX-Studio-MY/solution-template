@@ -24,10 +24,10 @@ public static class Modules
 
     public static readonly IReadOnlyList<ModuleInfo> All =
     [
-        new(AccessManagement, "Access Management", new Guid("9a8337a5-3cd5-5963-9b61-886a163e630f"), ["lite", "advanced", "complete"]),
-        new(TenantSettings, "Tenant Settings", new Guid("4b8bdd8f-2cd0-5914-9d29-e17f948aca9b"), ["lite", "advanced", "complete"]),
-        new(Billing, "Billing", new Guid("d39d3a7b-c5dc-560a-b527-ce06d0158063"), ["lite", "advanced", "complete"]),
-        new(Base, "Base", new Guid("b094255b-e3fd-50c6-9d04-7eb2721d16c0"), ["lite", "advanced", "complete"]),
+        new(AccessManagement, "Access Management", new Guid("9a8337a5-3cd5-5963-9b61-886a163e630f"), ["lite", "advanced", "complete"], true),
+        new(TenantSettings, "Tenant Settings", new Guid("4b8bdd8f-2cd0-5914-9d29-e17f948aca9b"), ["lite", "advanced", "complete"], true),
+        new(Billing, "Billing", new Guid("d39d3a7b-c5dc-560a-b527-ce06d0158063"), ["lite", "advanced", "complete"], true),
+        new(Base, "Base", new Guid("b094255b-e3fd-50c6-9d04-7eb2721d16c0"), ["lite", "advanced", "complete"], true),
     ];
 }
 

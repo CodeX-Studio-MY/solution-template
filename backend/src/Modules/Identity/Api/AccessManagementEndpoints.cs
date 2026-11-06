@@ -65,12 +65,12 @@ internal static class AccessManagementEndpoints
         v1.MapPost("/users/invitations", async ([FromBody] InviteBody body, IAccountService accounts, CancellationToken ct) =>
         {
             var invitation = await accounts.InviteAsync(body.Email, body.DisplayName, body.Roles.Select(r => (r.Module, r.Role)), ct);
-            return TypedResults.Created($"{PlatformServices.Identity.RoutePrefix}/v1/principals/{invitation.PrincipalId}", new InvitationSent(invitation.PrincipalId, invitation.ExpiresOn));
+            return TypedResults.Created($"{PlatformServices.Identity.RoutePrefix}/v1/principals/{invitation.PrincipalId}", new InvitationSent(invitation.PrincipalId, invitation.ExpiresOn, invitation.EmailSent));
         }).RequireModuleRole(Module, Role.Admin);
         v1.MapPost("/users/{id:guid}/invitation", async (Guid id, IAccountService accounts, CancellationToken ct) =>
         {
             var invitation = await accounts.ResendInvitationAsync(id, ct);
-            return new InvitationSent(invitation.PrincipalId, invitation.ExpiresOn);
+            return new InvitationSent(invitation.PrincipalId, invitation.ExpiresOn, invitation.EmailSent);
         }).RequireModuleRole(Module, Role.Admin);
 
         // The tenant's security log: sign-ins, access changes, and what support staff did with support access.
@@ -151,7 +151,7 @@ internal static class AccessManagementEndpoints
 
     internal sealed record InviteRole(string Module, Role Role);
 
-    internal sealed record InvitationSent(Guid PrincipalId, DateTime ExpiresOn);
+    internal sealed record InvitationSent(Guid PrincipalId, DateTime ExpiresOn, bool EmailSent);
 
     internal sealed record InviteBody(string Email, string DisplayName, IReadOnlyList<InviteRole> Roles);
 }

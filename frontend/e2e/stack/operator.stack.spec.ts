@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { devOperator, port, totp } from "./support";
+import { acceptInvitation, devOperator, port, signIn, totp } from "./support";
 
 /** The operator console on its own host, through the Gateway's operator BFF, against the real Tenancy service. */
 test("the development operator signs in, opens demo, and the session lives only in an HttpOnly cookie", async ({ page, context }) => {
@@ -36,6 +36,43 @@ test("the development operator signs in, opens demo, and the session lives only 
 
   await page.getByRole("button", { name: "Sign out" }).click();
   await expect(page.getByRole("heading", { level: 1, name: "Operator sign-in" })).toBeVisible();
+});
+
+test("a support request is approved by the tenant's admin and both sides show every step", async ({ browser, page }) => {
+  const operator = devOperator();
+  const reason = `Stack ${Date.now().toString(36)}: reading an import log`;
+  await page.goto(`https://operator.localhost:${port}/`);
+  await page.getByLabel("Email").fill(operator.email);
+  await page.getByLabel("Password").fill(operator.password);
+  await page.getByLabel("Authenticator code").fill(totp(operator.totpSecret));
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await page.getByRole("button", { name: /demo/i }).first().click();
+
+  // The request is in the operator's own list at once, still waiting.
+  await page.getByLabel("Reason").fill(reason);
+  await page.getByRole("button", { name: "Request" }).click();
+  const list = page.getByRole("table", { name: "Support access" });
+  await expect(list.getByRole("row", { name: new RegExp(`${reason}.*Waiting`) })).toBeVisible();
+
+  // The demo tenant's admin sees it and approves it.
+  await acceptInvitation(browser, "demo");
+  const admin = await browser.newPage({ ignoreHTTPSErrors: true });
+  await signIn(admin, "demo");
+  await admin.getByRole("link", { name: "Platform settings" }).click();
+  const nav = admin.getByRole("navigation", { name: "Settings sections" });
+  await nav.getByRole("link", { name: "Support access" }).click();
+  await admin.getByRole("row", { name: new RegExp(reason) }).getByRole("button", { name: "Approve" }).click();
+  await admin.getByRole("dialog", { name: "Approve support access?" }).getByRole("button", { name: "Approve" }).click();
+  await expect(admin.getByText("Support access approved.")).toBeVisible();
+
+  // The operator sees the answer, and who gave it.
+  await page.reload();
+  await expect(list.getByRole("row", { name: new RegExp(`${reason}.*Approved.*Demo Co Admin`) })).toBeVisible();
+
+  // The customer's security log has the steps under "Support staff action".
+  await nav.getByRole("link", { name: "Security log" }).click();
+  await expect(admin.getByRole("table", { name: "Security log" }).getByRole("row", { name: /Support staff action/ }).first()).toBeVisible();
+  await admin.close();
 });
 
 test("an operator adds a device, grants it access to demo, revokes it, and reads the trail", async ({ page }) => {

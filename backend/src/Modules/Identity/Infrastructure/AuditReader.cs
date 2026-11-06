@@ -1,4 +1,6 @@
+using System.Text.Json;
 using Saaskit.Core.Http;
+using Saaskit.Identity.Domain;
 using Saaskit.Identity.Application;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,6 +21,26 @@ internal sealed class AuditReader(IdentityDbContext db) : IAuditReader
         var names = await db.Principals.AsNoTracking().Where(p => ids.Contains(p.Id)).ToDictionaryAsync(p => p.Id.ToString(), p => p.DisplayName, cancellationToken);
         string? Name(string? id) => id is not null && Guid.TryParse(id, out var guid) ? names.GetValueOrDefault(guid.ToString()) : null;
 
-        return entries.Map(e => new AuditRecord(e.Id, e.OccurredOn, e.Kind, e.ActorId, Name(e.ActorId), e.ActorType, e.OnBehalfOf, e.Subject, Name(e.Subject), e.Details, e.RemoteAddress));
+        // Operators are not principals of the tenant; their name is in the entry's details (support access).
+        string? ActorName(AuditEntry e) => e.ActorType == "operator" ? OperatorName(e.Details) : Name(e.ActorId);
+
+        return entries.Map(e => new AuditRecord(e.Id, e.OccurredOn, e.Kind, e.ActorId, ActorName(e), e.ActorType, e.OnBehalfOf, e.Subject, Name(e.Subject), e.Details, e.RemoteAddress));
+    }
+
+    private static string? OperatorName(string? details)
+    {
+        if (details is null)
+            return null;
+        try
+        {
+            using var document = JsonDocument.Parse(details);
+            return document.RootElement.ValueKind == JsonValueKind.Object && document.RootElement.TryGetProperty("operator", out var name) && name.ValueKind == JsonValueKind.String
+                ? name.GetString()
+                : null;
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
     }
 }

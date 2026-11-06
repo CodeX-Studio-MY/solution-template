@@ -109,7 +109,9 @@ function OnboardDialog({ onClose }: { onClose: () => void }) {
         onClose();
         await dialog.alert({
           title: t("onboard.doneTitle", { name: form.displayName }),
-          text: result.adminInvitationUrl ? t("onboard.doneText", { url: result.adminInvitationUrl }) : t("onboard.doneResumed"),
+          text: result.adminInvitationUrl
+            ? t(result.adminEmailSent ? "onboard.doneText" : "onboard.doneTextNoEmail", { url: result.adminInvitationUrl })
+            : t("onboard.doneResumed"),
           confirmLabel: t("common:actions.close"),
         });
       },

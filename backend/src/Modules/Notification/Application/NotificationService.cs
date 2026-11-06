@@ -1,3 +1,4 @@
+using Saaskit.Core.Email;
 using Saaskit.Core.Http;
 using Saaskit.Core.Security;
 using Saaskit.Core.Tenancy;

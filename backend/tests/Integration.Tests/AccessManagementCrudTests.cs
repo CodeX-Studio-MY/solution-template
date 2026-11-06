@@ -72,6 +72,30 @@ public sealed class AccessManagementCrudTests(Databases databases)
     }
 
     [Fact]
+    public async Task Invitations_report_whether_the_email_went_out_and_still_exist_when_it_did_not()
+    {
+        await using var host = await IdentityTestHost.StartAsync(databases, "demo");
+        var admin = host.ApiClient("demo", (Modules.AccessManagement, Role.Admin));
+
+        var sent = await Read(await admin.PostAsJsonAsync($"{Api}/users/invitations", new { email = "sent@example.com", displayName = "Sent", roles = Array.Empty<object>() }, Ct), HttpStatusCode.Created);
+        sent.GetProperty("emailSent").GetBoolean().ShouldBeTrue();
+
+        host.Messages.Fails = true;
+        var failed = await Read(await admin.PostAsJsonAsync($"{Api}/users/invitations", new { email = "down@example.com", displayName = "Down", roles = Array.Empty<object>() }, Ct), HttpStatusCode.Created);
+        failed.GetProperty("emailSent").GetBoolean().ShouldBeFalse();
+        host.Messages.Links.ShouldNotContain(l => l.Email == "down@example.com");
+
+        // The invitation exists, so it can be resent once the mail server is back.
+        var id = failed.GetProperty("principalId").GetGuid();
+        var resendFailed = await Read(await admin.PostAsync($"{Api}/users/{id}/invitation", null, Ct));
+        resendFailed.GetProperty("emailSent").GetBoolean().ShouldBeFalse();
+        host.Messages.Fails = false;
+        var resent = await Read(await admin.PostAsync($"{Api}/users/{id}/invitation", null, Ct));
+        resent.GetProperty("emailSent").GetBoolean().ShouldBeTrue();
+        host.Messages.Links.Last(l => l.Email == "down@example.com").TenantName.ShouldNotBeNullOrEmpty();
+    }
+
+    [Fact]
     public async Task Admins_read_the_audit_log_newest_first_with_names_and_others_cannot()
     {
         await using var host = await IdentityTestHost.StartAsync(databases, "demo");

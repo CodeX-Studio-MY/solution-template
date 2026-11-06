@@ -44,7 +44,7 @@ internal static partial class InitCommand
         if (!resuming)
         {
             foreach (var module in answers.Modules)
-                KeyCollisions.Check(repoRoot, module);
+                KeyCollisions.Check(repoRoot, module.Key);
         }
 
         // It changes this folder in place, so say which one, in case this is the template's own clone. Only --yes skips the question:
@@ -71,7 +71,7 @@ internal static partial class InitCommand
 
         // Module folders that belong to no module (an earlier run's leftovers, or an editor writing back an open tab) would be renamed
         // and built with the product: they go first. Ones holding committed files stop the run instead.
-        ModuleFolders.Delete(repoRoot, ModuleFolders.Strays(repoRoot, PlatformDefinition.Load(platformPath), answers.Modules));
+        ModuleFolders.Delete(repoRoot, ModuleFolders.Strays(repoRoot, PlatformDefinition.Load(platformPath), answers.Modules.Select(m => m.Key)));
 
         // 1. The product's facts (once), then the rename. The rename runs on every run while the marker is here: it changes nothing
         //    when an earlier run finished it, and finishes it when an earlier run was stopped part-way.
@@ -105,12 +105,13 @@ internal static partial class InitCommand
         var declared = PlatformDefinition.Load(platformPath).Services
             .Where(s => s.Owns.Contains(s.Key) && existing.Contains(s.Key))
             .Select(s => s.Key);
-        foreach (var module in answers.Modules.Concat(declared).Distinct(StringComparer.Ordinal))
+        foreach (var module in answers.Modules.Concat(declared.Select(key => new ModuleChoice(key))).DistinctBy(m => m.Key, StringComparer.Ordinal))
         {
-            if (!existing.Contains(module))
-                Generator(repoRoot, ["new-module", module, .. moduleOptions]);
-            else if (!HasModuleMigrations(repoRoot, module))
-                Generator(repoRoot, ["new-module", module, "--resume", .. moduleOptions]);
+            string[] fromPlan = module.FromPlan is null ? [] : ["--from-plan", module.FromPlan];
+            if (!existing.Contains(module.Key))
+                Generator(repoRoot, ["new-module", module.Key, .. fromPlan, .. moduleOptions]);
+            else if (!HasModuleMigrations(repoRoot, module.Key))
+                Generator(repoRoot, ["new-module", module.Key, "--resume", .. moduleOptions]);
         }
         RecreateCatalogMigrations(repoRoot);
         Generator(repoRoot, ["generate", .. compose]);
@@ -277,16 +278,16 @@ internal static partial class InitCommand
 
     private const string ModulesLine = "modules-to-add:";
 
-    /// <summary>The modules an earlier, unfinished run was asked to add (kept in the marker file).</summary>
-    internal static IReadOnlyList<string> RememberedModules(string repoRoot)
+    /// <summary>The modules an earlier, unfinished run was asked to add, each with its lowest plan if one was given (kept in the marker file).</summary>
+    internal static IReadOnlyList<ModuleChoice> RememberedModules(string repoRoot)
     {
         var marker = Path.Combine(repoRoot, Marker);
         var line = File.Exists(marker) ? File.ReadAllLines(marker).FirstOrDefault(l => l.StartsWith(ModulesLine, StringComparison.Ordinal)) : null;
-        return line is null ? [] : [.. line[ModulesLine.Length..].Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)];
+        return line is null ? [] : ModuleChoice.ParseList(line[ModulesLine.Length..]);
     }
 
     /// <summary>Keeps <paramref name="modules"/> in the marker file, replacing what an earlier run kept.</summary>
-    internal static void RememberModules(string repoRoot, IReadOnlyList<string> modules)
+    internal static void RememberModules(string repoRoot, IReadOnlyList<ModuleChoice> modules)
     {
         var marker = Path.Combine(repoRoot, Marker);
         var lines = File.ReadAllLines(marker).Where(l => !l.StartsWith(ModulesLine, StringComparison.Ordinal)).ToList();
@@ -369,7 +370,8 @@ internal static class InitCommandUsage
 {
     public const string Text =
         "Usage: scripts/generate [--product <key>] [--org \"Org\"] [--timezone <IANA id>] [--currency <ISO 4217>] [--locales en,ms] " +
-        "[--plans lite,advanced,complete] [--cloud azure|aws] [--modules key1,key2] [--yes] [--skip-checks] [--no-git]";
+        "[--plans lite,advanced,complete] [--cloud azure|aws] [--modules key1,key2:advanced,key3:complete] [--yes] [--skip-checks] [--no-git]\n" +
+        "A module's ':plan' is the lowest plan that includes it; every plan from there upward gets it. Without one, it is in every plan.";
 }
 
 /// <summary>What the product is called and its defaults, from the options or asked for, checked before anything changes.</summary>
@@ -381,7 +383,7 @@ internal sealed record InitAnswers(
     IReadOnlyList<string> Locales,
     IReadOnlyList<string> Plans,
     string Cloud,
-    IReadOnlyList<string> Modules)
+    IReadOnlyList<ModuleChoice> Modules)
 {
     /// <summary>A product key: lowercase letters and digits, starting with a letter. It becomes the C# root namespace and the npm scope.</summary>
     internal static readonly Regex ProductPattern = new("^[a-z][a-z0-9]{1,29}$", RegexOptions.CultureInvariant);
@@ -415,18 +417,28 @@ internal sealed record InitAnswers(
             List(Value("--locales", "Locales (comma-separated, the first is the default)", string.Join(",", template.Defaults.Locales))),
             List(Value("--plans", "Plans (comma-separated, lowest first)", string.Join(",", template.Plans))),
             Value("--cloud", "Cloud (azure or aws)", template.Cloud),
-            List(Value("--modules", "First business modules (comma-separated keys, e.g. crop-planning,livestock; empty for none)", "")));
+            ModuleChoice.ParseList(Value("--modules", "First business modules (comma-separated keys, e.g. crop-planning,livestock; empty for none)", "")));
+        // Modules typed at the prompt (not given as an option) are asked for their lowest plan; Enter keeps the lowest plan of all.
+        if (interactive && options["--modules"] is null)
+            answers = answers with { Modules = [.. answers.Modules.Select(m => m.FromPlan is not null || answers.Plans.Count < 2 ? m : m with { FromPlan = AskPlan(m.Key, answers.Plans) })] };
         answers.Validate(template);
         return answers;
+    }
+
+    private static string AskPlan(string module, IReadOnlyList<string> plans)
+    {
+        Console.Write($"Lowest plan that includes '{module}' ({string.Join(", ", plans)}) [{plans[0]}]: ");
+        var typed = Console.ReadLine()?.Trim();
+        return string.IsNullOrEmpty(typed) ? plans[0] : typed;
     }
 
     /// <summary>A resumed run: platform.yaml already has the product's values; only the modules may still be missing.</summary>
     /// <param name="platform">platform.yaml as the earlier run left it.</param>
     /// <param name="options">This run's options.</param>
-    /// <param name="remembered">The modules the first run was asked to add; --modules on this run adds to them.</param>
-    public static InitAnswers From(PlatformDefinition platform, InitOptions options, IReadOnlyList<string> remembered)
+    /// <param name="remembered">The modules the first run was asked to add, with their lowest plans; --modules on this run adds to them.</param>
+    public static InitAnswers From(PlatformDefinition platform, InitOptions options, IReadOnlyList<ModuleChoice> remembered)
     {
-        var modules = remembered.Concat(List(options["--modules"] ?? "")).Distinct(StringComparer.Ordinal).ToList();
+        var modules = remembered.Concat(ModuleChoice.ParseList(options["--modules"] ?? "")).DistinctBy(m => m.Key, StringComparer.Ordinal).ToList();
         var answers = new InitAnswers(platform.Product, platform.Org, platform.Defaults.Timezone, platform.Defaults.Currency,
             platform.Defaults.Locales, platform.Plans, platform.Cloud, modules);
         answers.ValidateModules(platform);
@@ -453,6 +465,7 @@ internal sealed record InitAnswers(
             Roles = template.Roles,
             Plans = [.. Plans],
             Services = template.Services,
+            // The platform's own modules are in every plan; they are the only modules the template has to start with.
             Modules = [.. template.Modules.Select(m => new ModuleDefinition { Key = m.Key, Name = m.Name, Plans = [.. Plans] })],
         };
         candidate.Validate();
@@ -461,10 +474,13 @@ internal sealed record InitAnswers(
 
     private void ValidateModules(PlatformDefinition platform)
     {
-        foreach (var module in Modules)
+        foreach (var choice in Modules)
         {
+            var module = choice.Key;
             if (!Saaskit.Core.Platform.KeyRules.Pattern.IsMatch(module) || Saaskit.Core.Platform.KeyRules.Reserved.Contains(module))
                 throw new PlatformDefinitionException($"'{module}' is not a valid module key: it must match {Saaskit.Core.Platform.KeyRules.Pattern} and not be reserved.");
+            if (choice.FromPlan is not null && !platform.Plans.Contains(choice.FromPlan))
+                throw new PlatformDefinitionException($"Module '{module}': '{choice.FromPlan}' is not one of the plans ({string.Join(", ", platform.Plans)}).");
             // A business module an earlier run added (a service of the same key that owns it) is resumed; any other existing key is
             // one of the platform's own services or modules.
             var service = platform.Services.FirstOrDefault(s => s.Key == module);
@@ -473,10 +489,25 @@ internal sealed record InitAnswers(
             if ((service is not null || isModule) && !addedEarlier)
                 throw new PlatformDefinitionException($"'{module}' is part of the platform already; choose another key.");
         }
-        if (Modules.Distinct(StringComparer.Ordinal).Count() != Modules.Count)
+        if (Modules.Select(m => m.Key).Distinct(StringComparer.Ordinal).Count() != Modules.Count)
             throw new PlatformDefinitionException("A module is listed twice.");
     }
 
     private static List<string> List(string value) =>
         [.. value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)];
+}
+
+/// <summary>A business module to add and, optionally, the lowest plan that includes it: every plan from that one upward gets it (written <c>key:plan</c>).</summary>
+internal sealed record ModuleChoice(string Key, string? FromPlan = null)
+{
+    public static ModuleChoice Parse(string text)
+    {
+        var parts = text.Split(':', 2, StringSplitOptions.TrimEntries);
+        return new ModuleChoice(parts[0], parts.Length > 1 && parts[1].Length > 0 ? parts[1] : null);
+    }
+
+    public static IReadOnlyList<ModuleChoice> ParseList(string text) =>
+        [.. text.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Select(Parse)];
+
+    public override string ToString() => FromPlan is null ? Key : $"{Key}:{FromPlan}";
 }

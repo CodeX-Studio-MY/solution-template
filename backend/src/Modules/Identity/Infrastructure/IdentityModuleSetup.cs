@@ -1,7 +1,9 @@
 using Saaskit.Core.Configuration;
+using Saaskit.Core.Email;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using OpenIddict.Abstractions;
 using OpenIddict.Server;
 
@@ -81,7 +83,9 @@ internal static class IdentityModuleSetup
         services.AddScoped<Application.ITenantSecurity, TenantSecurity>();
         services.AddScoped<Application.ISupportTokenIssuer, SupportTokenIssuer>();
         services.AddHostedService<PlatformClientSeeder>();
-        services.AddSingleton<Application.IAccountMessages, LoggingAccountMessages>();
+        services.AddPlatformOptions<SmtpOptions>(configuration);
+        services.TryAddSingleton<IEmailSender, SmtpEmailSender>();
+        services.AddSingleton<Application.IAccountMessages, SmtpAccountMessages>();
 
         services.AddScoped<OpenIddict.OidcStoreContext>();
         services.AddScoped<OpenIddict.OidcApplicationStore>();

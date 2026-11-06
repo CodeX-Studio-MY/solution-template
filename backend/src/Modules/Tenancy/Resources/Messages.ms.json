@@ -3,6 +3,7 @@
   "errors.tenancy.invalidTransition": "Penyewa tidak boleh membuat perubahan itu daripada keadaannya sekarang.",
   "errors.tenancy.linkedAccountNotFound": "Akaun terpaut itu tidak ditemui.",
   "errors.tenancy.moduleNotFound": "Modul itu tidak ditemui.",
+  "errors.tenancy.moduleRequiredInPlan": "Modul ini sebahagian daripada platform dan termasuk dalam setiap pelan, jadi tidak boleh dikeluarkan daripada pelan.",
   "errors.tenancy.onboardingFailed": "Pendaftaran berhenti separuh jalan. Jalankan semula dengan alamat yang sama untuk menyambung.",
   "errors.tenancy.operatorExists": "Operator dengan e-mel itu sudah wujud.",
   "errors.tenancy.operatorLoginFailed": "Butiran log masuk itu tidak betul, atau akaun dikunci buat seketika.",

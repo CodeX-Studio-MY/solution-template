@@ -27,13 +27,17 @@ const plan = (
   eTag: `"v${planId}"`,
 });
 
+// The platform's own modules are in every plan; the product's own (here Crop Planning) are in the plans from the one that sells them up.
+const platformIncluded = ["access-management", "tenant-settings", "billing"];
 const plans = [
-  plan(1, "lite", "Lite", ["access-management", "tenant-settings"], 12, 99),
-  plan(2, "advanced", "Advanced", ["access-management", "tenant-settings", "billing"], 1, 299),
+  plan(1, "lite", "Lite", platformIncluded, 12, 99),
+  plan(2, "advanced", "Advanced", [...platformIncluded, "crop-planning"], 1, 299),
+  plan(3, "starter", "Starter", [], 0),
 ];
 const modules = [
   { moduleKey: "access-management", displayName: "Access Management" },
   { moduleKey: "billing", displayName: "Billing" },
+  { moduleKey: "crop-planning", displayName: "Crop Planning" },
   { moduleKey: "tenant-settings", displayName: "Tenant Settings" },
 ];
 
@@ -67,41 +71,51 @@ describe("subscriptions matrix", () => {
     expect(within(table).getByRole("columnheader", { name: /Lite/ })).toHaveTextContent("12 tenants");
     expect(within(table).getByRole("columnheader", { name: /Advanced/ })).toHaveTextContent("1 tenant");
     expect(within(table).getByRole("columnheader", { name: /Lite/ })).toHaveTextContent("99.00");
-    expect(within(table).getByRole("rowheader", { name: /Billing/ })).toBeInTheDocument();
-    expect(screen.getByRole("checkbox", { name: "Billing in Lite" })).not.toBeChecked();
-    expect(screen.getByRole("checkbox", { name: "Billing in Advanced" })).toBeChecked();
-    expect(screen.getAllByRole("checkbox")).toHaveLength(6);
+    expect(within(table).getByRole("rowheader", { name: /Crop Planning/ })).toBeInTheDocument();
+    expect(screen.getByRole("checkbox", { name: "Crop Planning in Lite" })).not.toBeChecked();
+    expect(screen.getByRole("checkbox", { name: "Crop Planning in Advanced" })).toBeChecked();
+    expect(screen.getAllByRole("checkbox")).toHaveLength(12);
   });
 
   it("asks first, names how many tenants it reaches, and changes nothing when cancelled", async () => {
     const changes = show();
-    await userEvent.click(await screen.findByRole("checkbox", { name: "Billing in Lite" }));
+    await userEvent.click(await screen.findByRole("checkbox", { name: "Crop Planning in Lite" }));
 
-    const dialog = await screen.findByRole("dialog", { name: "Add Billing to Lite?" });
-    expect(dialog).toHaveTextContent("12 tenants on Lite get Billing straight away.");
+    const dialog = await screen.findByRole("dialog", { name: "Add Crop Planning to Lite?" });
+    expect(dialog).toHaveTextContent("12 tenants on Lite get Crop Planning straight away.");
     await userEvent.click(within(dialog).getByRole("button", { name: "Cancel" }));
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
     expect(changes).toEqual([]);
 
-    await userEvent.click(screen.getByRole("checkbox", { name: "Billing in Lite" }));
+    await userEvent.click(screen.getByRole("checkbox", { name: "Crop Planning in Lite" }));
     await userEvent.click(
-      within(await screen.findByRole("dialog", { name: "Add Billing to Lite?" })).getByRole("button", { name: "Add module" }),
+      within(await screen.findByRole("dialog", { name: "Add Crop Planning to Lite?" })).getByRole("button", { name: "Add module" }),
     );
-    await waitFor(() => expect(changes).toEqual(["PUT /api/tenancy/v1/operator/plans/1/modules/billing"]));
+    await waitFor(() => expect(changes).toEqual(["PUT /api/tenancy/v1/operator/plans/1/modules/crop-planning"]));
   });
 
-  it("warns that tenant admins lose their screens when access management or tenant settings is removed, and not for other modules", async () => {
+  it("removes a product module from a plan after a confirm", async () => {
     const changes = show();
-    await userEvent.click(await screen.findByRole("checkbox", { name: "Tenant Settings in Advanced" }));
-    const warned = await screen.findByRole("dialog", { name: "Remove Tenant Settings from Advanced?" });
-    expect(warned).toHaveTextContent("1 tenant on Advanced loses Tenant Settings straight away");
-    expect(warned).toHaveTextContent("they lose those screens");
-    await userEvent.click(within(warned).getByRole("button", { name: "Remove module" }));
-    await waitFor(() => expect(changes).toEqual(["DELETE /api/tenancy/v1/operator/plans/2/modules/tenant-settings"]));
+    await userEvent.click(await screen.findByRole("checkbox", { name: "Crop Planning in Advanced" }));
+    const dialog = await screen.findByRole("dialog", { name: "Remove Crop Planning from Advanced?" });
+    await userEvent.click(within(dialog).getByRole("button", { name: "Remove module" }));
+    await waitFor(() => expect(changes).toEqual(["DELETE /api/tenancy/v1/operator/plans/2/modules/crop-planning"]));
+  });
 
-    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
-    await userEvent.click(screen.getByRole("checkbox", { name: "Billing in Advanced" }));
-    const plain = await screen.findByRole("dialog", { name: "Remove Billing from Advanced?" });
-    expect(plain).not.toHaveTextContent("they lose those screens");
+  it("shows the platform's modules as locked ticks in the plans that have them, and lets a plan without one add it", async () => {
+    const changes = show();
+    for (const name of ["Billing in Lite", "Tenant Settings in Advanced", "Access Management in Advanced"]) {
+      const locked = await screen.findByRole("checkbox", { name });
+      expect(locked).toBeChecked();
+      expect(locked).toBeDisabled();
+    }
+    expect(changes).toEqual([]);
+
+    // The tooltip says why.
+    await userEvent.hover(screen.getByRole("checkbox", { name: "Billing in Lite" }).closest("span")!.parentElement!);
+    expect(await screen.findByText("Included in every plan")).toBeInTheDocument();
+
+    // A new plan has none yet, so they can be added to it.
+    expect(screen.getByRole("checkbox", { name: "Billing in Starter" })).toBeEnabled();
   });
 });

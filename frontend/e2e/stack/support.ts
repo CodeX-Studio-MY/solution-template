@@ -11,6 +11,26 @@ export const origin = (slug: string) => `https://${slug}.localhost:${port}`;
 /** A long passphrase nobody has used before (the sign-in service checks passwords against known breaches). */
 export const password = "Lantern-Cobalt-Meadow-4719-quiet";
 
+/** Mailpit, the mail catcher the stack sends every email to (its web address, as in the README). */
+export const mailpit = process.env.MAILPIT_URL ?? "http://localhost:8025";
+
+/**
+ * The emails Mailpit holds for an address, newest first: subject and whether the text body links to the sign-in host's invitation page.
+ * The links themselves are never returned, so a failing test can't print one.
+ */
+export async function emailsTo(address: string): Promise<{ subject: string; hasInvitationLink: boolean }[]> {
+  const list = (await (await fetch(`${mailpit}/api/v1/messages?limit=200`)).json()) as {
+    messages: { ID: string; Subject: string; To: { Address: string }[] }[];
+  };
+  const mine = list.messages.filter((m) => m.To.some((to) => to.Address.toLowerCase() === address.toLowerCase()));
+  return Promise.all(
+    mine.map(async (m) => {
+      const detail = (await (await fetch(`${mailpit}/api/v1/message/${m.ID}`)).json()) as { Text: string };
+      return { subject: m.Subject, hasInvitationLink: detail.Text.includes("/account/invitation?") };
+    }),
+  );
+}
+
 export function invitation(slug: string): string | undefined {
   try {
     return (JSON.parse(readFileSync(join(root, ".dev", "invitations.json"), "utf8")) as Record<string, string>)[slug];

@@ -11,10 +11,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Saaskit.Tenancy.Infrastructure;
 
+/// <summary>The modules the platform puts in every plan (<see cref="ModuleInfo.InEveryPlan"/>): taking one out of a plan is refused.</summary>
+internal sealed record LockedPlanModules(IReadOnlySet<string> Keys)
+{
+    public static LockedPlanModules FromPlatform() => new(Modules.All.Where(m => m.InEveryPlan).Select(m => m.Key).ToHashSet(StringComparer.Ordinal));
+}
+
 internal sealed class PlanCatalog(
     CatalogDbContext catalog,
     TenancyCatalogDbContext tenancy,
     ITenantChangeNotifier changes,
+    LockedPlanModules locked,
     TimeProvider time) : IPlanCatalog
 {
     private const decimal MaxPrice = 1_000_000_000m;
@@ -96,6 +103,9 @@ internal sealed class PlanCatalog(
     {
         var plan = await FindAsync(planId, cancellationToken);
         var module = await FindModuleAsync(moduleKey, cancellationToken);
+        // The platform's own modules are in every plan: taking one out would break what the platform is built on.
+        if (locked.Keys.Contains(moduleKey))
+            throw new BusinessRuleException(TenancyErrors.ModuleRequiredInPlan, moduleKey);
         var access = await catalog.PlanModuleAccess.SingleOrDefaultAsync(a => a.PlanId == planId && a.ModuleId == module.ModuleId, cancellationToken);
         if (access is null)
             return (await RowsAsync([plan], cancellationToken))[0];

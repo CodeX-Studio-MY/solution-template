@@ -29,6 +29,7 @@ public static class TenancyErrors
     public static readonly ErrorCode PlanNotFound = new("tenant-settings.plan-not-found", 404, "errors.tenancy.planNotFound");
     public static readonly ErrorCode ModuleNotFound = new("tenant-settings.module-not-found", 404, "errors.tenancy.moduleNotFound");
     public static readonly ErrorCode PlanKeyInUse = new("tenant-settings.plan-key-in-use", 409, "errors.tenancy.planKeyInUse");
+    public static readonly ErrorCode ModuleRequiredInPlan = new("tenant-settings.module-required-in-plan", 422, "errors.tenancy.moduleRequiredInPlan");
     public static readonly ErrorCode PlanRetired = new("tenant-settings.plan-retired", 422, "errors.tenancy.planRetired");
     public static readonly ErrorCode ProviderNotFound = new("tenant-settings.provider-not-found", 404, "errors.tenancy.providerNotFound");
     public static readonly ErrorCode ProviderKeyInUse = new("tenant-settings.provider-key-in-use", 409, "errors.tenancy.providerKeyInUse");

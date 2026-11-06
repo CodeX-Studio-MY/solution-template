@@ -87,4 +87,7 @@ while (-not (Test-Path .dev/invitations.json.done) -and (Get-Date) -lt $deadline
 Write-Host "demo       https://demo.localhost:7443/"
 Write-Host "More tenants: scripts/onboard-tenant.ps1 <slug> [--plan <plan>]"
 if (Test-Path .dev/invitations.json) { Get-Content .dev/invitations.json }
-Write-Host "Aspire dashboard http://localhost:15100 - Mailpit http://localhost:8025 - stop with scripts/dev-down.ps1"
+# The dashboard asks for a token, which the AppHost prints once into its log: show the whole link, so it opens without a search.
+$dashboard = Select-String -Path .dev/apphost.log -Pattern 'Dashboard:\s+(http://localhost:15100/login\?t=\S+)' | Select-Object -First 1
+$dashboardLink = if ($dashboard) { $dashboard.Matches[0].Groups[1].Value } else { 'http://localhost:15100 (its sign-in link is in .dev/apphost.log)' }
+Write-Host "Aspire dashboard $dashboardLink - Mailpit http://localhost:8025 - stop with scripts/dev-down.ps1"

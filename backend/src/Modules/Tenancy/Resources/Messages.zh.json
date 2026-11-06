@@ -3,6 +3,7 @@
   "errors.tenancy.invalidTransition": "租户在当前状态下无法进行该更改。",
   "errors.tenancy.linkedAccountNotFound": "找不到该关联账户。",
   "errors.tenancy.moduleNotFound": "找不到该模块。",
+  "errors.tenancy.moduleRequiredInPlan": "该模块是平台的一部分，包含在每个方案中，因此不能从方案中移除。",
   "errors.tenancy.onboardingFailed": "开通中途停止。请使用相同地址重新运行以继续。",
   "errors.tenancy.operatorExists": "已存在使用该电子邮件的运营人员。",
   "errors.tenancy.operatorLoginFailed": "登录信息不正确，或账户暂时被锁定。",

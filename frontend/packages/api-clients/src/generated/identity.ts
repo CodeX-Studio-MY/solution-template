@@ -1112,7 +1112,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["AnonymousTypeOfGuidAndDateTimeAndUri"];
+                        "application/json": components["schemas"]["AnonymousTypeOfGuidAndDateTimeAndUriAndboolean"];
                     };
                 };
             };
@@ -1222,6 +1222,43 @@ export interface paths {
                     content: {
                         "application/json": components["schemas"]["AnonymousTypeOflong"];
                     };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/identity/v1/platform/support-access-events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["SupportAccessEventBody"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
                 };
             };
         };
@@ -1880,7 +1917,8 @@ export interface components {
         ActiveBody: {
             active: boolean;
         };
-        AnonymousTypeOfGuidAndDateTimeAndUri: {
+        AnonymousTypeOfGuidAndDateTimeAndUriAndboolean: {
+            emailSent: boolean;
             /** Format: date-time */
             expiresOn: string;
             /** Format: uuid */
@@ -1946,6 +1984,7 @@ export interface components {
             name: string;
         };
         InvitationSent: {
+            emailSent: boolean;
             /** Format: date-time */
             expiresOn: string;
             /** Format: uuid */
@@ -2032,6 +2071,17 @@ export interface components {
             displayName: string;
             publicKeyJwk: string | null;
             secret: string | null;
+        };
+        SupportAccessEventBody: {
+            actorId: string;
+            actorType: string;
+            /** Format: uuid */
+            grantId: string;
+            module: string;
+            operator: string;
+            reason: string;
+            role: components["schemas"]["Role"];
+            stage: string;
         };
         SupportTokenBody: {
             audience: string;

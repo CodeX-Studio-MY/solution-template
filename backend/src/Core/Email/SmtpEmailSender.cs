@@ -1,14 +1,14 @@
 using Saaskit.Core.Configuration;
-using Saaskit.Notification.Application;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.Extensions.Options;
 using MimeKit;
 
-namespace Saaskit.Notification.Infrastructure;
+namespace Saaskit.Core.Email;
 
-/// <summary>SMTP through MailKit. Locally this is Mailpit, which catches every email in a web inbox.</summary>
-internal sealed class SmtpEmailSender(IOptions<SmtpOptions> options) : IEmailSender
+/// <summary>SMTP through MailKit. Locally this is Mailpit, which catches every email in a web inbox.
+/// Used by Identity (invitation and reset emails) and Notification.</summary>
+public sealed class SmtpEmailSender(IOptions<SmtpOptions> options) : IEmailSender
 {
     public async Task SendAsync(string toAddress, string toName, string subject, string textBody, CancellationToken cancellationToken = default)
     {

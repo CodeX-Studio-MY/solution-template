@@ -120,6 +120,7 @@ internal static class TenancyEndpoints
         secured.MapPost("/tenants/{id:guid}/cancel-offboarding", (Guid id, ClaimsPrincipal user, ITenantLifecycle lifecycle, CancellationToken ct) => lifecycle.CancelOffboardingAsync(id, Actor(user), ct));
         secured.MapPost("/tenants/{id:guid}/complete-deletion", (Guid id, ClaimsPrincipal user, ITenantLifecycle lifecycle, CancellationToken ct) => lifecycle.CompleteDeletionAsync(id, Actor(user), ct));
 
+        secured.MapGet("/tenants/{id:guid}/support-access", (Guid id, ISupportAccess access, CancellationToken ct) => access.ListForTenantAsync(id, ct));
         secured.MapPost("/support-access", (ClaimsPrincipal user, [FromBody] SupportAccessRequest body, ISupportAccess access, CancellationToken ct) =>
             access.RequestAsync(Identity(user), body, ct));
         secured.MapPost("/support-access/{id:guid}/token", (Guid id, ClaimsPrincipal user, ISupportAccess access, CancellationToken ct) =>

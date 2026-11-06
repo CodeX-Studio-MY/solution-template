@@ -3,15 +3,17 @@ using Saaskit.Core.Platform;
 namespace Saaskit.Identity.Application;
 
 /// <summary>A link emailed to a person: where it goes, who it is for, and why.</summary>
-public sealed record AccountLink(string Kind, string Email, string DisplayName, Uri Url, DateTime ExpiresOn);
+public sealed record AccountLink(string Kind, string Email, string DisplayName, Uri Url, DateTime ExpiresOn, string TenantName);
 
-/// <summary>Sends account emails. M3 replaces the default (which only logs) with an event for the Notification module.</summary>
+/// <summary>Sends account emails. The default sends plain text over SMTP (Mailpit locally); it never throws.</summary>
 public interface IAccountMessages
 {
-    Task SendAsync(AccountLink link, CancellationToken cancellationToken = default);
+    /// <summary>Returns whether the email went out. A failure is logged without the link and does not throw.</summary>
+    Task<bool> SendAsync(AccountLink link, CancellationToken cancellationToken = default);
 }
 
-public sealed record InvitationResult(Guid PrincipalId, Uri Url, DateTime ExpiresOn);
+/// <summary>The invitation just created. <paramref name="EmailSent"/> is false when the email could not be sent: the invitation still exists and can be resent.</summary>
+public sealed record InvitationResult(Guid PrincipalId, Uri Url, DateTime ExpiresOn, bool EmailSent);
 
 /// <summary>Result of accepting an invitation or resetting a password.</summary>
 public sealed record AccountOutcome(bool Succeeded, IReadOnlyList<string> Errors, Guid? PrincipalId = null)
