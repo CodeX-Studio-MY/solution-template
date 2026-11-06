@@ -18,9 +18,10 @@ import Tabs from "@mui/material/Tabs";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { useTranslation } from "react-i18next";
-import { ApiError, modules, unwrap, useApiMutation, useApiQuery, useDialog, type Role } from "@saaskit/web-core";
+import { ApiError, modules, unwrap, useApiMutation, useApiQuery, useDialog, useFormatters, type Role } from "@saaskit/web-core";
 import {
   ActivityTable,
+  EmptyState,
   PageHeader,
   ProblemAlert,
   RoleSelect,
@@ -28,9 +29,10 @@ import {
   StatusChip,
   TenantProfileForm,
   type SettingsView,
+  type Tone,
   type TenantProfile,
 } from "@saaskit/ui-kit";
-import { plansKey, tenancy, tenantsKey, useModules, usePlans, type TenantSummary } from "../api";
+import { plansKey, tenancy, tenantsKey, useModules, usePlans, type SupportAccess, type TenantSummary } from "../api";
 import { statusTone } from "./statusTone";
 import { TenantAccess, TenantLogins } from "./TenantAccess";
 
@@ -199,6 +201,7 @@ function Overview({ tenant }: { tenant: TenantSummary }) {
       </Section>
       <Section title={t("tenant.support")} hint={t("tenant.supportHint")}>
         <SupportRequest tenant={tenant} />
+        <SupportRequests tenantId={tenant.id} />
       </Section>
       <Section title={t("tenants.status")}>
         <Stack spacing={2}>
@@ -399,7 +402,7 @@ function SupportRequest({ tenant }: { tenant: TenantSummary }) {
       ),
     {
       invalidate: [tenantsKey],
-      success: (grant) => t("tenant.requested", { status: grant.status }),
+      success: (grant) => t("tenant.requested", { status: t(`tenant.supportStatuses.${grant.status}`) }),
       onSuccess: () => setForm((f) => ({ ...f, reason: "" })),
     },
   );
@@ -447,6 +450,60 @@ function SupportRequest({ tenant }: { tenant: TenantSummary }) {
           {t("tenant.request")}
         </Button>
       </div>
+    </Stack>
+  );
+}
+
+const supportTones: Record<SupportAccess["status"], Tone> = { pending: "warning", approved: "success", denied: "default", revoked: "default" };
+
+/** What was asked of this tenant, and what its admin answered. A request refreshes it, so the new pending row appears at once. */
+function SupportRequests({ tenantId }: { tenantId: string }) {
+  const { t } = useTranslation("operator");
+  const format = useFormatters();
+  const list = useApiQuery([...tenantsKey, tenantId, "support-access"], (signal) =>
+    unwrap(tenancy.GET("/api/tenancy/v1/operator/tenants/{id}/support-access", { params: { path: { id: tenantId } }, signal })),
+  );
+  const rows = list.data ?? [];
+  return (
+    <Stack spacing={1} sx={{ mt: 3 }}>
+      <Typography variant="h4" component="h3">
+        {t("tenant.supportList")}
+      </Typography>
+      <ProblemAlert error={list.error ?? undefined} />
+      {list.data && rows.length === 0 ? (
+        <EmptyState title={t("tenant.supportEmpty")} />
+      ) : rows.length > 0 ? (
+        <Paper variant="outlined" sx={{ overflowX: "auto" }}>
+          <Table size="small" aria-label={t("tenant.supportList")}>
+            <TableHead>
+              <TableRow>
+                <TableCell>{t("tenant.module")}</TableCell>
+                <TableCell>{t("tenant.role")}</TableCell>
+                <TableCell>{t("tenant.reason")}</TableCell>
+                <TableCell>{t("tenant.supportStatus")}</TableCell>
+                <TableCell>{t("tenant.supportUntil")}</TableCell>
+                <TableCell>{t("tenant.supportDecidedBy")}</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {rows.map((grant) => (
+                <TableRow key={grant.id}>
+                  <TableCell>{modules.find((m) => m.key === grant.module)?.name ?? grant.module}</TableCell>
+                  <TableCell>{t(`common:roles.${grant.role}`)}</TableCell>
+                  <TableCell>{grant.reason}</TableCell>
+                  <TableCell>
+                    <StatusChip label={t(`tenant.supportStatuses.${grant.status}`)} tone={supportTones[grant.status]} />
+                  </TableCell>
+                  <TableCell>{format.dateTime(grant.expiresOn)}</TableCell>
+                  <TableCell>
+                    {grant.decidedByName ?? (grant.status === "approved" ? t("tenant.supportNoApproval") : t("tenant.supportNobody"))}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </Paper>
+      ) : null}
     </Stack>
   );
 }

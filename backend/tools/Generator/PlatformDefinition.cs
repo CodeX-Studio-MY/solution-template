@@ -38,11 +38,15 @@ public sealed class PlatformDefinition
         ("identity", ["access-management"]),
         ("tenancy", ["tenant-settings", "billing"]),
         ("notification", []),
+        ("base", ["base"]),
     ];
 
+    /// <summary>Whether the module is one of the platform's own. Those are in every plan and an operator can't take them out of one.</summary>
+    internal static bool IsPlatformModule(string moduleKey) => PlatformParts.Any(part => part.Owns.Contains(moduleKey));
+
     /// <summary>
-    /// Fails if a platform service or module was removed or moved. They can be renamed in the menu (<c>name</c>) and limited to some
-    /// plans (<c>plans</c>), but not taken out: the platform's code depends on them.
+    /// Fails if a platform service or module was removed or moved, or is missing from a plan. They can be renamed in the menu
+    /// (<c>name</c>), but not taken out or kept from a plan: the platform's code depends on them.
     /// </summary>
     public void RequirePlatformParts()
     {
@@ -57,10 +61,13 @@ public sealed class PlatformDefinition
             }
             foreach (var module in owns)
             {
-                if (Modules.All(m => m.Key != module))
-                    errors.Add($"module '{module}' is part of the platform and can't be removed. To keep it from customers, list only the plans that should have it (plans: [...]).");
+                var declaredModule = Modules.FirstOrDefault(m => m.Key == module);
+                if (declaredModule is null)
+                    errors.Add($"module '{module}' is part of the platform and can't be removed.");
                 else if (!declared.Owns.Contains(module))
                     errors.Add($"module '{module}' must stay owned by service '{service}'.");
+                else if (Plans.Except(declaredModule.Plans).ToList() is { Count: > 0 } missing)
+                    errors.Add($"module '{module}' is part of the platform and must be in every plan (missing: {string.Join(", ", missing)}).");
             }
         }
         if (errors.Count > 0)

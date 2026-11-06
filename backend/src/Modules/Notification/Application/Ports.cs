@@ -16,12 +16,6 @@ public interface IContactDirectory
     Task<IReadOnlyList<Contact>> MembersOfAsync(string moduleKey, string minimumRole, CancellationToken cancellationToken = default);
 }
 
-/// <summary>Sends email. The default adapter speaks SMTP (Mailpit locally). Templates are localized per tenant by the caller.</summary>
-public interface IEmailSender
-{
-    Task SendAsync(string toAddress, string toName, string subject, string textBody, CancellationToken cancellationToken = default);
-}
-
 /// <summary>Pushes a new notification to the person's open browser sessions in real time (SignalR).</summary>
 public interface INotificationPusher
 {

@@ -39,7 +39,8 @@
     "adminName": "First administrator's name",
     "submit": "Onboard",
     "doneTitle": "{{name}} is ready",
-    "doneText": "Send this one-time link to the first administrator: {{url}}",
+    "doneText": "We emailed the first administrator an invitation. This one-time link works too, if you need to pass it on: {{url}}",
+    "doneTextNoEmail": "The invitation email could not be sent. Send this one-time link to the first administrator yourself: {{url}}",
     "doneResumed": "Onboarding finished. The first administrator was already invited."
   },
   "tenant": {
@@ -75,7 +76,20 @@
     "minutes": "For (minutes)",
     "reason": "Reason",
     "request": "Request",
-    "requested": "Support access requested ({{status}})."
+    "requested": "Support access requested ({{status}}).",
+    "supportList": "Support access",
+    "supportEmpty": "No support access requested yet.",
+    "supportStatus": "Status",
+    "supportUntil": "Until",
+    "supportDecidedBy": "Decided by",
+    "supportNoApproval": "Approval not required",
+    "supportNobody": "Not decided yet",
+    "supportStatuses": {
+      "pending": "Waiting",
+      "approved": "Approved",
+      "denied": "Denied",
+      "revoked": "Revoked"
+    }
   },
   "lifecycle": {
     "suspend": "Suspend",
@@ -253,6 +267,7 @@
     "tenantCount_other": "{{count}} tenants",
     "retired": "Retired",
     "includes": "{{module}} in {{plan}}",
+    "inEveryPlan": "Included in every plan",
     "moduleNote": "Modules are part of the product's code, so they are listed here but can't be added.",
     "empty": "No plans yet.",
     "emptyHint": "Add a plan to start selling.",
@@ -287,7 +302,6 @@
     "addModuleText_other": "{{count}} tenants on {{plan}} get {{module}} straight away.",
     "removeModuleText_one": "{{count}} tenant on {{plan}} loses {{module}} straight away, even where it was added on its own.",
     "removeModuleText_other": "{{count}} tenants on {{plan}} lose {{module}} straight away, even where it was added on their own.",
-    "protectedWarning": "{{module}} is where a tenant's admins manage their own people and settings. Without it they lose those screens.",
     "addModule": "Add module",
     "removeModule": "Remove module",
     "moduleAdded": "{{module}} added to {{plan}}.",

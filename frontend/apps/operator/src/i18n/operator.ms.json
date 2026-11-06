@@ -39,7 +39,8 @@
     "adminName": "Nama pentadbir pertama",
     "submit": "Daftarkan",
     "doneTitle": "{{name}} sudah sedia",
-    "doneText": "Hantar pautan sekali guna ini kepada pentadbir pertama: {{url}}",
+    "doneText": "Kami telah menghantar jemputan melalui e-mel kepada pentadbir pertama. Pautan sekali guna ini juga boleh digunakan jika anda perlu menyampaikannya: {{url}}",
+    "doneTextNoEmail": "E-mel jemputan tidak dapat dihantar. Hantar sendiri pautan sekali guna ini kepada pentadbir pertama: {{url}}",
     "doneResumed": "Pendaftaran selesai. Pentadbir pertama telah pun dijemput."
   },
   "tenant": {
@@ -75,7 +76,20 @@
     "minutes": "Selama (minit)",
     "reason": "Sebab",
     "request": "Minta",
-    "requested": "Akses sokongan diminta ({{status}})."
+    "requested": "Akses sokongan diminta ({{status}}).",
+    "supportList": "Akses sokongan",
+    "supportEmpty": "Belum ada akses sokongan diminta.",
+    "supportStatus": "Status",
+    "supportUntil": "Sehingga",
+    "supportDecidedBy": "Diputuskan oleh",
+    "supportNoApproval": "Kelulusan tidak diperlukan",
+    "supportNobody": "Belum diputuskan",
+    "supportStatuses": {
+      "pending": "Menunggu",
+      "approved": "Diluluskan",
+      "denied": "Ditolak",
+      "revoked": "Dibatalkan"
+    }
   },
   "lifecycle": {
     "suspend": "Gantung",
@@ -252,6 +266,7 @@
     "tenantCount_other": "{{count}} penyewa",
     "retired": "Ditamatkan",
     "includes": "{{module}} dalam {{plan}}",
+    "inEveryPlan": "Termasuk dalam setiap pelan",
     "moduleNote": "Modul ialah sebahagian daripada kod produk, jadi ia disenaraikan di sini tetapi tidak boleh ditambah.",
     "empty": "Belum ada pelan.",
     "emptyHint": "Tambah pelan untuk mula menjual.",
@@ -283,7 +298,6 @@
     "removeModuleTitle": "Buang {{module}} daripada {{plan}}?",
     "addModuleText_other": "{{count}} penyewa dalam {{plan}} mendapat {{module}} serta-merta.",
     "removeModuleText_other": "{{count}} penyewa dalam {{plan}} kehilangan {{module}} serta-merta, termasuk yang ditambah secara berasingan.",
-    "protectedWarning": "{{module}} ialah tempat pentadbir penyewa mengurus orang dan tetapan mereka. Tanpanya mereka kehilangan skrin tersebut.",
     "addModule": "Tambah modul",
     "removeModule": "Buang modul",
     "moduleAdded": "{{module}} ditambah ke {{plan}}.",

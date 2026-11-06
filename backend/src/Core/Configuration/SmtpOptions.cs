@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Saaskit.Core.Configuration;
 
-[OptionsSection("Smtp", "Outgoing email from the Notification module (Mailpit locally).")]
+[OptionsSection("Smtp", "Outgoing email: account emails from Identity and notifications from Notification (Mailpit locally).")]
 public sealed record SmtpOptions
 {
     [Required]

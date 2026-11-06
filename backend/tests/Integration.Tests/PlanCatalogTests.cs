@@ -112,7 +112,12 @@ public sealed class PlanCatalogTests(Databases databases)
     public async Task Changing_a_plans_modules_changes_every_tenant_on_it_and_tells_the_services()
     {
         var heard = new HashSet<Guid>();
-        await using var host = await TenancyTestHost.StartAsync(databases, builder => builder.Services.AddSingleton<ITenantChangeListener>(new Recorder(heard)));
+        // The template has only the platform's own modules, which are locked in every plan; a product's modules are not. Billing stands in for one.
+        await using var host = await TenancyTestHost.StartAsync(databases, builder =>
+        {
+            builder.Services.AddSingleton<ITenantChangeListener>(new Recorder(heard));
+            builder.Services.AddSingleton(new LockedPlanModules(new HashSet<string>()));
+        });
         var op = await SignInAsync(host);
         var plan = await Read(await op.PostAsJsonAsync($"{Api}/plans", NewPlan("team"), Ct), HttpStatusCode.Created);
         var id = plan.GetProperty("planId").GetInt32();
@@ -161,6 +166,27 @@ public sealed class PlanCatalogTests(Databases databases)
         var activity = (await Read(await op.GetAsync($"{Api}/tenants/{b}/activity", Ct))).GetProperty("items").EnumerateArray().Select(e => e.GetProperty("kind").GetString()).ToList();
         activity.ShouldContain("plan-module-added");
         activity.ShouldContain("plan-module-removed");
+    }
+
+    [Fact]
+    public async Task The_platforms_own_modules_cannot_be_taken_out_of_a_plan_but_can_be_added_to_one()
+    {
+        await using var host = await TenancyTestHost.StartAsync(databases);
+        var op = await SignInAsync(host);
+        var seeded = (await Read(await op.GetAsync($"{Api}/plans", Ct))).EnumerateArray().First();
+        var id = seeded.GetProperty("planId").GetInt32();
+
+        // Locked: the seeded plan has the module, and the server refuses to take it out.
+        seeded.GetProperty("modules").EnumerateArray().Select(m => m.GetString()).ShouldContain(Modules.Billing);
+        var refused = await op.DeleteAsync($"{Api}/plans/{id}/modules/{Modules.Billing}", Ct);
+        refused.StatusCode.ShouldBe(HttpStatusCode.UnprocessableEntity);
+        (await refused.Content.ReadAsStringAsync(Ct)).ShouldContain("tenant-settings.module-required-in-plan");
+        (await Read(await op.GetAsync($"{Api}/plans", Ct))).EnumerateArray().First().GetProperty("modules").EnumerateArray().Select(m => m.GetString()).ShouldContain(Modules.Billing);
+
+        // A plan an operator creates starts empty, and the platform's modules can still be added to it.
+        var created = await Read(await op.PostAsJsonAsync($"{Api}/plans", NewPlan("fresh"), Ct), HttpStatusCode.Created);
+        var freshId = created.GetProperty("planId").GetInt32();
+        (await Read(await op.PutAsync($"{Api}/plans/{freshId}/modules/{Modules.Billing}", null, Ct))).GetProperty("modules").EnumerateArray().Select(m => m.GetString()).ShouldContain(Modules.Billing);
     }
 
     private sealed class Recorder(HashSet<Guid> heard) : ITenantChangeListener

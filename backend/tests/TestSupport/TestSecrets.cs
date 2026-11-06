@@ -24,5 +24,8 @@ public static class TestSecrets
         new("RabbitMq:ConnectionString", databases.RabbitMqConnectionString),
         new("Storage:Provider", "local"),
         new("Storage:LocalPath", LocalFiles),
+        // Identity binds the mail settings; tests that look at account emails replace the sender.
+        new("Smtp:Host", "localhost"),
+        new("Smtp:FromAddress", "no-reply@saaskit.test"),
     ];
 }

@@ -9,7 +9,7 @@ scripts/new-module.sh goods-receipt --name "Goods Receipt"       # macOS and Lin
 scripts/new-module.ps1 goods-receipt --name "Goods Receipt"      # Windows
 ```
 
-The other options are `--no-frontend` (backend only) and `--skip-compose` (leave `deploy/docker-compose.yml` as it is). It needs Docker only to run the tests afterwards. What it does, in order:
+The other options are `--from-plan <plan>` (the lowest plan that includes the module; every plan from there upward gets it, and without it the module is in every plan), `--no-frontend` (backend only) and `--skip-compose` (leave `deploy/docker-compose.yml` as it is). It needs Docker only to run the tests afterwards. What it does, in order:
 
 1. Adds the service and the module to `platform.yaml` (the only file you would otherwise edit by hand), with the next free port.
 2. Creates the backend with `dotnet new saaskit-module`: `backend/src/Modules/GoodsReceipt` (Domain, Application, Infrastructure, Api),
@@ -111,8 +111,11 @@ list, an add and a confirm-then-delete.
 
 ## What to look at next
 
-- **Plans and entitlement**: `platform.yaml` lists the plans that include the module (the default is all of them). A module only some
-  plans have is an *add-on*: list only those plans (`plans: [advanced, complete]`).
+- **Plans and entitlement**: `platform.yaml` lists the plans that include the module. Say the lowest plan that has it and every plan above
+  gets it too: `scripts/new-module.sh goods-receipt --from-plan advanced` writes `plans: [advanced, complete]` (the first-run
+  generator takes `--modules goods-receipt:advanced`). Without a plan the module is in every plan. A module only some plans have is an
+  *add-on*. The platform's own modules (access management, tenant settings, billing and base) are in every plan and the operator
+  console doesn't let anyone take them out of one; `platform.yaml` fails validation if one is missing from a plan.
 - **Events**: declare them in `backend/src/Contracts` with `[IntegrationEvent("{module-key}.{what-happened}", 1)]`, publish with
   `IEventPublisher` inside your transaction, consume with `AddEventConsumer`. `docs/events.md` is generated.
 - **Per-tenant variation**: see [tenant-customization.md](tenant-customization.md). Start with a setting; do not branch on the tenant.

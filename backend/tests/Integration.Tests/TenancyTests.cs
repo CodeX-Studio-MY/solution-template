@@ -253,7 +253,7 @@ public sealed class TenancyTests(Databases databases)
         // The tenant sees it in its own audit log, attributed to the operator.
         await host.Identity.InTenantAsync("helped", async sp =>
         {
-            var entry = await sp.GetRequiredService<IdentityDbContext>().AuditLog.SingleAsync(a => a.Kind == "support-access", Ct);
+            var entry = await sp.GetRequiredService<IdentityDbContext>().AuditLog.SingleAsync(a => a.Kind == "support-access" && a.Details!.Contains("audience"), Ct);
             entry.ActorType.ShouldBe("operator");
             entry.ActorId.ShouldBe(requested.GetProperty("operatorId").GetGuid().ToString());
         });
@@ -261,6 +261,55 @@ public sealed class TenancyTests(Databases databases)
         // Revoking takes effect at the next token request.
         (await admin.PostAsync($"{Api}/support-access/{grantId}/revoke", null, Ct)).StatusCode.ShouldBe(HttpStatusCode.OK);
         (await op.PostAsync($"{Api}/operator/support-access/{grantId}/token", null, Ct)).StatusCode.ShouldBe(HttpStatusCode.Forbidden);
+    }
+
+    [Fact]
+    public async Task Every_step_of_a_support_request_is_visible_to_the_operator_and_in_the_tenants_security_log()
+    {
+        await using var host = await TenancyTestHost.StartAsync(databases);
+        var op = await OperatorAsync(host);
+        var tenantId = (await Read<JsonElement>(await OnboardAsync(op, "visible"))).GetProperty("tenantId").GetGuid();
+        // An active person of the tenant: invited, and the invitation accepted.
+        var dana = await host.Identity.InTenantAsync("visible", async sp =>
+        {
+            var accounts = sp.GetRequiredService<Saaskit.Identity.Application.IAccountService>();
+            var invitation = await accounts.InviteAsync("dana@example.com", "Dana Admin", [], Ct);
+            (await accounts.AcceptInvitationAsync(LoginBrowser.Query(invitation.Url.PathAndQuery, "token"), "correct horse battery staple", Ct)).Succeeded.ShouldBeTrue();
+            return invitation;
+        });
+        var admin = host.Client("visible.localhost");
+        admin.DefaultRequestHeaders.Authorization = IdentityTestHost.Bearer(host.Identity.Callers.Create(tenantId, roles: ["tenant-settings:admin"], audience: PlatformServices.Tenancy.Audience, subject: dana.PrincipalId.ToString()));
+
+        (await op.GetAsync($"{Api}/operator/tenants/{Guid.NewGuid()}/support-access", Ct)).StatusCode.ShouldBe(HttpStatusCode.NotFound);
+        (await Read<JsonElement[]>(await op.GetAsync($"{Api}/operator/tenants/{tenantId}/support-access", Ct))).ShouldBeEmpty();
+
+        var grantId = (await Read<JsonElement>(await op.PostAsJsonAsync($"{Api}/operator/support-access", new { tenantSlug = "visible", reason = "Investigating ticket 42 for the customer", role = "manager", module = Modules.TenantSettings, minutes = 30 }, Ct))).GetProperty("id").GetGuid();
+        var pending = (await Read<JsonElement[]>(await op.GetAsync($"{Api}/operator/tenants/{tenantId}/support-access", Ct))).Single();
+        pending.GetProperty("status").GetString().ShouldBe("pending");
+        pending.GetProperty("operatorName").GetString().ShouldBe("Ops One");
+
+        (await admin.PostAsync($"{Api}/support-access/{grantId}/approve", null, Ct)).StatusCode.ShouldBe(HttpStatusCode.OK);
+        var approved = (await Read<JsonElement[]>(await op.GetAsync($"{Api}/operator/tenants/{tenantId}/support-access", Ct))).Single();
+        approved.GetProperty("status").GetString().ShouldBe("approved");
+        approved.GetProperty("decidedByName").GetString().ShouldBe("Dana Admin");
+
+        (await admin.PostAsync($"{Api}/support-access/{grantId}/revoke", null, Ct)).StatusCode.ShouldBe(HttpStatusCode.OK);
+
+        // The operator's activity names the admin who decided, not just an ID.
+        var activity = (await Read<JsonElement>(await op.GetAsync($"{Api}/operator/tenants/{tenantId}/activity", Ct))).GetProperty("items").EnumerateArray().ToList();
+        activity.Single(a => a.GetProperty("kind").GetString() == "support-access-approved").GetProperty("actorName").GetString().ShouldBe("Dana Admin");
+
+        // The customer's security log has all three steps, in order.
+        await host.Identity.InTenantAsync("visible", async sp =>
+        {
+            var entries = await sp.GetRequiredService<IdentityDbContext>().AuditLog.Where(a => a.Kind == "support-access").OrderBy(a => a.Id).ToListAsync(Ct);
+            entries.Select(e => JsonDocument.Parse(e.Details!).RootElement.GetProperty("stage").GetString()).ShouldBe(["requested", "approved", "revoked"]);
+            entries[0].ActorType.ShouldBe("operator");
+            entries[1].ActorType.ShouldBe("user");
+            entries[1].ActorId.ShouldBe(dana.PrincipalId.ToString());
+            entries.ShouldAllBe(e => e.Subject == grantId.ToString());
+            JsonDocument.Parse(entries[0].Details!).RootElement.GetProperty("reason").GetString()!.ShouldContain("ticket 42");
+        });
     }
 
     [Fact]

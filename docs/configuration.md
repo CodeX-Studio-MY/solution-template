@@ -128,7 +128,7 @@ This service's own client credentials, for system work and for exchanging users'
 
 ## Smtp
 
-Outgoing email from the Notification module (Mailpit locally).
+Outgoing email: account emails from Identity and notifications from Notification (Mailpit locally).
 
 | Environment variable | Type | Required | Default | Description |
 |---|---|---|---|---|

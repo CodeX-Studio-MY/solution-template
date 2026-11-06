@@ -215,10 +215,13 @@ internal sealed class IdentityTestHost : IAsyncDisposable
     }
 }
 
-/// <summary>Collects account links instead of emailing them.</summary>
+/// <summary>Collects account links instead of emailing them. Set <see cref="Fails"/> to behave like a mail server that is down.</summary>
 internal sealed class CapturingAccountMessages : IAccountMessages
 {
     private readonly List<AccountLink> _links = [];
+
+    /// <summary>When true, nothing is captured and every send reports that the email did not go out.</summary>
+    public volatile bool Fails;
 
     public IReadOnlyList<AccountLink> Links
     {
@@ -229,10 +232,12 @@ internal sealed class CapturingAccountMessages : IAccountMessages
         }
     }
 
-    public Task SendAsync(AccountLink link, CancellationToken cancellationToken = default)
+    public Task<bool> SendAsync(AccountLink link, CancellationToken cancellationToken = default)
     {
+        if (Fails)
+            return Task.FromResult(false);
         lock (_links)
             _links.Add(link);
-        return Task.CompletedTask;
+        return Task.FromResult(true);
     }
 }

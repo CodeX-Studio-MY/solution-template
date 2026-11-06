@@ -3,6 +3,7 @@
   "errors.tenancy.invalidTransition": "The tenant can't make that change from its current state.",
   "errors.tenancy.linkedAccountNotFound": "That linked account was not found.",
   "errors.tenancy.moduleNotFound": "That module was not found.",
+  "errors.tenancy.moduleRequiredInPlan": "This module is part of the platform and is included in every plan, so it can't be removed from one.",
   "errors.tenancy.onboardingFailed": "Onboarding stopped part-way. Run it again with the same address to resume.",
   "errors.tenancy.operatorExists": "An operator with that email already exists.",
   "errors.tenancy.operatorLoginFailed": "Those sign-in details are not right, or the account is locked for a while.",

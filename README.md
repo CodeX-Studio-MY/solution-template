@@ -75,8 +75,8 @@ mkcert -version      # v1.4.x
 3. Run the generator. It scaffolds the product and asks for anything you don't pass:
 
    ```sh
-   scripts/generate.sh --product farm360 --org "CodeX Studio" --modules crop-planning,livestock      # macOS and Linux
-   scripts/generate.ps1 --product farm360 --org "CodeX Studio" --modules crop-planning,livestock     # Windows
+   scripts/generate.sh --product farm360 --org "CodeX Studio" --modules crop-planning,livestock:advanced      # macOS and Linux
+   scripts/generate.ps1 --product farm360 --org "CodeX Studio" --modules crop-planning,livestock:advanced     # Windows
    ```
 
    It writes your answers into `platform.yaml`, renames the template's placeholder (`saaskit`, `Saaskit`, `@saaskit/*`) to your product
@@ -91,7 +91,7 @@ mkcert -version      # v1.4.x
    | `--timezone`, `--currency`, `--locales` | `Asia/Kuala_Lumpur`, `MYR`, `en,ms,zh` | Defaults for new tenants. |
    | `--plans` | `lite,advanced,complete` | The plans you sell, lowest first (the template's own). `platform.yaml` seeds the first plans; the operator console manages them afterwards. |
    | `--cloud` | `azure` | `azure` or `aws`. |
-   | `--modules` | none | The first business modules, as keys (`crop-planning,livestock`). Add more later with `scripts/new-module.sh`. |
+   | `--modules` | none | The first business modules, as keys (`crop-planning,livestock`). Add `:plan` to a key for the lowest plan that includes it: `livestock:advanced` puts it in Advanced and every plan above; without one it is in every plan. Asked for each module when you type the list at the prompt. Add more later with `scripts/new-module.sh <key> --from-plan <plan>`. |
    | `--yes` | | Ask nothing; use the defaults for what isn't passed (`--product` is still required). |
    | `--skip-checks`, `--no-git` | | Skip the build and checks; don't commit. |
 
@@ -108,7 +108,8 @@ scripts/dev-up.ps1      # Windows (Windows PowerShell 5.1 and PowerShell 7 both 
 ```
 
 It makes the certificate, builds the frontend, starts the whole stack, applies the migrations and creates the `demo` tenant. At the end it
-prints the tenant's address and its first admin's invitation link. The invitation is also saved in `.dev/invitations.json` (git-ignored).
+prints the tenant's address, its first admin's invitation link and the link that opens the Aspire dashboard. The invitation is also saved in
+`.dev/invitations.json` (git-ignored), and emailed to Mailpit.
 
 | Option | macOS and Linux | Windows |
 |---|---|---|
@@ -119,7 +120,7 @@ prints the tenant's address and its first admin's invitation link. The invitatio
 |---|---|
 | Customer app (demo tenant) | `https://demo.localhost:7443/` |
 | Operator console | `https://operator.localhost:7443/` |
-| Aspire dashboard (logs, traces, metrics) | `http://localhost:15100` |
+| Aspire dashboard (logs, traces, metrics) | the link `dev-up` printed (it carries a login token; also in `.dev/apphost.log`), else `http://localhost:15100` |
 | Mailpit | `http://localhost:8025` |
 
 **What can go wrong**
@@ -147,10 +148,10 @@ prints the tenant's address and its first admin's invitation link. The invitatio
    the public Have I Been Pwned range API; offline, only the length rule applies.
 3. Sign in with `admin@demo.example` and your password. You land on `https://demo.localhost:7443/`. To sign in later, open that address.
 
-No email is sent in this release. Invitation and password-reset links are written to the Identity service's log: open the Aspire
-dashboard (`http://localhost:15100`), choose the `identity` resource, open its console logs and search for `Account link`. An
-invitation that "is not valid any more" was used or has expired: run `scripts/dev-down.sh --reset` (`scripts/dev-down.ps1 -Reset`) and
-`dev-up` again for new links. The `.example` addresses are not real mailboxes.
+Invitation and password-reset emails arrive in Mailpit (`http://localhost:8025`), which catches everything the stack sends; the link is
+in the email. An invitation that "is not valid any more" was used or has expired: ask for a new one (**Resend invitation** in the customer
+app), or run `scripts/dev-down.sh --reset` (`scripts/dev-down.ps1 -Reset`) and `dev-up` again. The `.example` addresses are not real
+mailboxes, which is why Mailpit is where to look.
 
 **Operator.** `dev-up` creates a development operator, `dev-operator@example.com`, and saves its password and authenticator key in
 `.dev/operator.json` (git-ignored). Open `https://operator.localhost:7443/`, add the key to an authenticator app, and sign in with the

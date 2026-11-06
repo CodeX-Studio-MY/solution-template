@@ -49,7 +49,7 @@ internal sealed partial class Onboarding(
             await tenancy.SaveChangesAsync(cancellationToken);
         }
 
-        Uri? invitation = null;
+        FirstAdminInvitation? invitation = null;
         while (!run.IsDone)
         {
             var step = run.NextStep;
@@ -67,10 +67,10 @@ internal sealed partial class Onboarding(
             }
             await tenancy.SaveChangesAsync(cancellationToken);
         }
-        return new OnboardResult(run.TenantId!.Value, slug, invitation);
+        return new OnboardResult(run.TenantId!.Value, slug, invitation?.Url, invitation?.EmailSent ?? false);
     }
 
-    private async Task<Uri?> RunStepAsync(OnboardingRun run, OnboardingStep step, CancellationToken cancellationToken)
+    private async Task<FirstAdminInvitation?> RunStepAsync(OnboardingRun run, OnboardingStep step, CancellationToken cancellationToken)
     {
         switch (step)
         {

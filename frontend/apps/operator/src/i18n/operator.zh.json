@@ -39,7 +39,8 @@
     "adminName": "第一位管理员的姓名",
     "submit": "开通",
     "doneTitle": "{{name}} 已就绪",
-    "doneText": "请将此一次性链接发送给第一位管理员：{{url}}",
+    "doneText": "我们已通过电子邮件向第一位管理员发送了邀请。如需转交，也可使用此一次性链接：{{url}}",
+    "doneTextNoEmail": "邀请邮件未能发送。请自行将此一次性链接发送给第一位管理员：{{url}}",
     "doneResumed": "开通已完成。第一位管理员此前已收到邀请。"
   },
   "tenant": {
@@ -75,7 +76,20 @@
     "minutes": "时长（分钟）",
     "reason": "原因",
     "request": "申请",
-    "requested": "已申请支持访问（{{status}}）。"
+    "requested": "已申请支持访问（{{status}}）。",
+    "supportList": "支持访问",
+    "supportEmpty": "尚未申请支持访问。",
+    "supportStatus": "状态",
+    "supportUntil": "截止",
+    "supportDecidedBy": "决定人",
+    "supportNoApproval": "无需批准",
+    "supportNobody": "尚未决定",
+    "supportStatuses": {
+      "pending": "等待中",
+      "approved": "已批准",
+      "denied": "已拒绝",
+      "revoked": "已撤销"
+    }
   },
   "lifecycle": {
     "suspend": "暂停",
@@ -252,6 +266,7 @@
     "tenantCount_other": "{{count}} 个租户",
     "retired": "已停用",
     "includes": "{{plan}} 中的 {{module}}",
+    "inEveryPlan": "包含在每个方案中",
     "moduleNote": "模块属于产品代码的一部分，因此这里只列出而不能添加。",
     "empty": "还没有方案。",
     "emptyHint": "添加方案以开始销售。",
@@ -283,7 +298,6 @@
     "removeModuleTitle": "从 {{plan}} 中移除 {{module}}？",
     "addModuleText_other": "{{plan}} 上的 {{count}} 个租户将立即获得 {{module}}。",
     "removeModuleText_other": "{{plan}} 上的 {{count}} 个租户将立即失去 {{module}}，单独添加的也不例外。",
-    "protectedWarning": "{{module}} 是租户管理员管理自己人员和设置的地方。没有它，他们将失去这些页面。",
     "addModule": "添加模块",
     "removeModule": "移除模块",
     "moduleAdded": "已将 {{module}} 加入 {{plan}}。",

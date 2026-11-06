@@ -7,9 +7,9 @@ browser for this release.
 
 - **Google, Microsoft, Apple and Facebook sign-in is settings only.** The operator console stores each provider's settings and can
   enable one once they are complete, but the sign-in page has no buttons and nobody can sign in with them.
-- **No email is sent for accounts.** Invitation and password-reset links are shown once in the operator console (when onboarding a tenant)
-  and written to the Identity service's log. Nothing delivers them, although the screens still say "Invitation sent" and "Check your
-  email". Send the link yourself, or register your own `IAccountMessages` (the default only logs).
+- **Account emails are English only.** Invitation and password-reset emails are sent over SMTP (Mailpit locally; a product configures the
+  `Smtp` settings, see [configuration](configuration.md)), but their text is plain English whatever the person's language. Register your own
+  `IAccountMessages` to change the wording or the channel.
 - **Customer sign-in pages are English only.** The customer app and the operator console are translated (English, Malay, Chinese); the
   pages on the sign-in host (sign-in, password, invitation) have no language switch.
 - **Passkey sign-in has no automated test.** The sign-in page offers "Use a passkey". It needs a WebAuthn authenticator to test, and this
@@ -22,7 +22,8 @@ browser for this release.
   stays empty for the same reason: sign-in does not write to it.
 - **Operators have no roles.** Any operator can do everything, including starting a tenant's offboarding and completing its deletion.
 - **Support access can be requested, approved and issued, but not used from the console.** An operator asks for time-limited access to
-  one module. The tenant's admin approves or denies it under Settings, Support access. The operator API then issues a 10-minute token
+  one module, and sees the request and the admin's answer on the tenant's Overview. The tenant's admin approves or denies it under
+  Settings, Support access, and every step is in the tenant's Security log. The operator API then issues a 10-minute token
   (`POST /api/tenancy/v1/operator/support-access/{id}/token`), but the console has no control that uses it, and the Gateway does not
   accept it.
 - **Billing is a placeholder.** `billing` is a module in the plans, but there is no billing provider (`NoBilling`): every tenant is in good

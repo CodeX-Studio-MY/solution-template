@@ -2,6 +2,7 @@ using Saaskit.Contracts;
 using Saaskit.Core.Composition;
 using Saaskit.Core.Configuration;
 using Saaskit.Core.Data;
+using Saaskit.Core.Email;
 using Saaskit.Core.Localization;
 using Saaskit.Core.Messaging;
 using Saaskit.Core.Platform;
@@ -11,6 +12,7 @@ using Saaskit.Notification.Application;
 using Saaskit.Notification.Infrastructure;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using StackExchange.Redis;
 
@@ -30,7 +32,7 @@ public sealed class NotificationModule : IPlatformModule
 
         services.AddScoped<INotificationStore, NotificationStore>();
         services.AddScoped<NotificationService>();
-        services.AddSingleton<IEmailSender, SmtpEmailSender>();
+        services.TryAddSingleton<IEmailSender, SmtpEmailSender>();
         services.AddScoped<INotificationPusher, SignalRNotificationPusher>();
         services.AddPlatformServiceClient<IContactDirectory, IdentityDirectoryClient>(PlatformServices.Identity);
 

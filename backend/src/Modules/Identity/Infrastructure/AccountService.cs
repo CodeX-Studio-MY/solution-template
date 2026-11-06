@@ -51,8 +51,8 @@ internal sealed class AccountService(
         await db.SaveChangesAsync(cancellationToken);
 
         var url = InvitationUrl(token);
-        await messages.SendAsync(new AccountLink("invitation", email.Trim(), displayName, url, expires), cancellationToken);
-        return new InvitationResult(principal.Id, url, expires);
+        var sent = await messages.SendAsync(new AccountLink("invitation", email.Trim(), displayName, url, expires, tenant.Tenant.DisplayName), cancellationToken);
+        return new InvitationResult(principal.Id, url, expires, sent);
     }
 
     public async Task<InvitationResult> ResendInvitationAsync(Guid principalId, CancellationToken cancellationToken = default)
@@ -67,8 +67,8 @@ internal sealed class AccountService(
         await db.SaveChangesAsync(cancellationToken);
 
         var url = InvitationUrl(token);
-        await messages.SendAsync(new AccountLink("invitation", invitation.Email, principal.DisplayName, url, expires), cancellationToken);
-        return new InvitationResult(principalId, url, expires);
+        var sent = await messages.SendAsync(new AccountLink("invitation", invitation.Email, principal.DisplayName, url, expires, tenant.Tenant.DisplayName), cancellationToken);
+        return new InvitationResult(principalId, url, expires, sent);
     }
 
     private Uri InvitationUrl(string token) =>
@@ -121,7 +121,7 @@ internal sealed class AccountService(
         // Single use: the token is bound to the security stamp, which changes when the password does.
         var resetToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(await users.GeneratePasswordResetTokenAsync(user)));
         var url = new Uri($"{tenancy.Value.Issuer}account/reset?tenant={Uri.EscapeDataString(tenant.Tenant.Slug)}&uid={user.Id}&token={resetToken}");
-        await messages.SendAsync(new AccountLink("password-reset", user.Email, principal.DisplayName, url, time.GetUtcNow().UtcDateTime.AddHours(1)), cancellationToken);
+        await messages.SendAsync(new AccountLink("password-reset", user.Email, principal.DisplayName, url, time.GetUtcNow().UtcDateTime.AddHours(1), tenant.Tenant.DisplayName), cancellationToken);
         await audit.WriteAsync(AuditKinds.PasswordReset, subject: user.Id.ToString(), details: new { stage = "requested" }, cancellationToken: cancellationToken);
     }
 

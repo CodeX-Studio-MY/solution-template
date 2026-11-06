@@ -4,12 +4,14 @@ using Saaskit.Core.Catalog;
 using Saaskit.Core.Configuration;
 using Saaskit.Core.Errors;
 using Saaskit.Core.Platform;
+using Saaskit.Core.Security;
 using Saaskit.Core.Tenancy;
 using Saaskit.Tenancy.Application;
 using Saaskit.Tenancy.Domain;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Saaskit.Tenancy.Infrastructure;
@@ -155,11 +157,12 @@ internal sealed class OperatorPreferences(TenancyCatalogDbContext db) : IOperato
     }
 }
 
-internal sealed class SupportAccess(
+internal sealed partial class SupportAccess(
     TenancyCatalogDbContext db,
     CatalogDbContext catalog,
     IIdentityClient identity,
-    TimeProvider time) : ISupportAccess
+    TimeProvider time,
+    ILogger<SupportAccess> logger) : ISupportAccess
 {
     /// <summary>Operators never get more than manager, and only in one module at a time.</summary>
     private static readonly Role MaxRole = Role.Manager;
@@ -181,16 +184,28 @@ internal sealed class SupportAccess(
         db.AuditLog.Add(new TenancyAuditEntry(now, tenant.Id, "support-access-requested", operatorIdentity.Id.ToString(),
             JsonSerializer.Serialize(new { request.Module, role = request.Role.ToClaimValue(), request.Reason, status = grant.Status.ToString() })));
         await db.SaveChangesAsync(cancellationToken);
+        await RecordInIdentityAsync("requested", grant, operatorIdentity.Id.ToString(), "operator", operatorIdentity.DisplayName, cancellationToken);
         return ToDto(grant, tenant.Slug, operatorIdentity.DisplayName);
     }
 
     public async Task<IReadOnlyList<SupportAccessDto>> ListForTenantAsync(Guid tenantId, CancellationToken cancellationToken = default)
     {
-        var slug = (await catalog.Tenants.AsNoTracking().SingleAsync(t => t.Id == tenantId, cancellationToken)).Slug;
+        var slug = (await catalog.Tenants.AsNoTracking().SingleOrDefaultAsync(t => t.Id == tenantId, cancellationToken))?.Slug
+            ?? throw new NotFoundException(TenancyErrors.TenantNotFound);
         var grants = await db.SupportAccessGrants.AsNoTracking().Where(g => g.TenantId == tenantId).OrderByDescending(g => g.CreatedOn).ToListAsync(cancellationToken);
         var names = await db.Operators.AsNoTracking().ToDictionaryAsync(o => o.Id, o => o.DisplayName, cancellationToken);
-        return [.. grants.Select(g => ToDto(g, slug, names.GetValueOrDefault(g.OperatorId, "operator")))];
+
+        // Who decided is in the audit entry the decision wrote (the grant only keeps the admin's ID); newest entry wins.
+        var decisions = await db.AuditLog.AsNoTracking()
+            .Where(e => e.TenantId == tenantId && DecisionKinds.Contains(e.Kind)).OrderBy(e => e.Id).ToListAsync(cancellationToken);
+        var deciders = new Dictionary<Guid, string>();
+        foreach (var entry in decisions)
+            if (AuditDetails.Text(entry.Details, "grantId") is { } grantId && Guid.TryParse(grantId, out var id) && AuditDetails.Text(entry.Details, "by") is { } by)
+                deciders[id] = by;
+        return [.. grants.Select(g => ToDto(g, slug, names.GetValueOrDefault(g.OperatorId, "operator"), deciders.GetValueOrDefault(g.Id)))];
     }
+
+    private static readonly string[] DecisionKinds = ["support-access-approved", "support-access-denied", "support-access-revoked"];
 
     public async Task<SupportAccessDto> DecideAsync(Guid tenantId, Guid grantId, SupportAccessStatus decision, string decidedBy, CancellationToken cancellationToken = default)
     {
@@ -210,11 +225,15 @@ internal sealed class SupportAccess(
             default:
                 throw new BusinessRuleException(TenancyErrors.SupportAccessInvalid, $"A {grant.Status} grant can't become {decision}.");
         }
-        db.AuditLog.Add(new TenancyAuditEntry(time.GetUtcNow().UtcDateTime, tenantId, $"support-access-{decision.ToString().ToLowerInvariant()}", decidedBy, JsonSerializer.Serialize(new { grantId })));
+        // The actor stays the admin's ID; the name is in the details so both consoles can show it.
+        var by = await NameOfAsync(tenantId, decidedBy, cancellationToken);
+        db.AuditLog.Add(new TenancyAuditEntry(time.GetUtcNow().UtcDateTime, tenantId, $"support-access-{decision.ToString().ToLowerInvariant()}", decidedBy,
+            JsonSerializer.Serialize(new { grantId, by, module = grant.Module, role = grant.Role.ToClaimValue() })));
         await db.SaveChangesAsync(cancellationToken);
         var slug = (await catalog.Tenants.AsNoTracking().SingleAsync(t => t.Id == tenantId, cancellationToken)).Slug;
         var op = await db.Operators.AsNoTracking().SingleAsync(o => o.Id == grant.OperatorId, cancellationToken);
-        return ToDto(grant, slug, op.DisplayName);
+        await RecordInIdentityAsync(decision.ToString().ToLowerInvariant(), grant, decidedBy, PrincipalType.User.ToClaimValue(), op.DisplayName, cancellationToken);
+        return ToDto(grant, slug, op.DisplayName, by);
     }
 
     public async Task<SupportTokenDto> IssueTokenAsync(OperatorIdentity operatorIdentity, Guid grantId, CancellationToken cancellationToken = default)
@@ -239,8 +258,47 @@ internal sealed class SupportAccess(
         return token;
     }
 
-    private static SupportAccessDto ToDto(SupportAccessGrant g, string slug, string operatorName) =>
-        new(g.Id, g.TenantId, slug, g.OperatorId, operatorName, g.Reason, g.Role, g.Module, g.ExpiresOn, g.Status);
+    /// <summary>
+    /// Tells the tenant's security log about a step. Tenancy's own record is authoritative, so a failure here is logged (without
+    /// anything secret) and the request or decision stands.
+    /// </summary>
+    private async Task RecordInIdentityAsync(string stage, SupportAccessGrant grant, string actorId, string actorType, string operatorName, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await identity.RecordSupportAccessAsync(grant.TenantId,
+                new SupportAccessEvent(stage, grant.Id, actorId, actorType, operatorName, grant.Module, grant.Role, grant.Reason), cancellationToken);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            LogSecurityLogFailed(logger, ex, stage, grant.TenantId);
+        }
+    }
+
+    /// <summary>The display name of the tenant person who decided, or null when Identity can't say.</summary>
+    private async Task<string?> NameOfAsync(Guid tenantId, string principalId, CancellationToken cancellationToken)
+    {
+        if (!Guid.TryParse(principalId, out var id))
+            return null;
+        try
+        {
+            return await identity.GetPrincipalNameAsync(tenantId, id, cancellationToken);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            LogNameFailed(logger, ex, tenantId);
+            return null;
+        }
+    }
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Could not write the {Stage} step of a support-access request to the security log of tenant {TenantId}")]
+    private static partial void LogSecurityLogFailed(ILogger logger, Exception exception, string stage, Guid tenantId);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Could not look up the name of the person who decided a support-access request for tenant {TenantId}")]
+    private static partial void LogNameFailed(ILogger logger, Exception exception, Guid tenantId);
+
+    private static SupportAccessDto ToDto(SupportAccessGrant g, string slug, string operatorName, string? decidedByName = null) =>
+        new(g.Id, g.TenantId, slug, g.OperatorId, operatorName, g.Reason, g.Role, g.Module, g.ExpiresOn, g.Status, decidedByName);
 }
 
 internal sealed class ModuleManifestProvider(

@@ -43,7 +43,7 @@ public interface IOperatorSessions
     Task<OperatorIdentity?> ValidateAsync(string token, CancellationToken cancellationToken = default);
 }
 
-public sealed record SupportAccessDto(Guid Id, Guid TenantId, string TenantSlug, Guid OperatorId, string OperatorName, string Reason, Role Role, string Module, DateTime ExpiresOn, SupportAccessStatus Status);
+public sealed record SupportAccessDto(Guid Id, Guid TenantId, string TenantSlug, Guid OperatorId, string OperatorName, string Reason, Role Role, string Module, DateTime ExpiresOn, SupportAccessStatus Status, string? DecidedByName = null);
 
 public sealed record SupportAccessRequest(string TenantSlug, string Reason, Role Role, string Module, int Minutes);
 

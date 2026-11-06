@@ -12,10 +12,26 @@ namespace Saaskit.Generator;
 /// </summary>
 internal static class NewModuleCommand
 {
+    internal const string Usage = "Usage: scripts/new-module <module-key> [--name \"Display Name\"] [--from-plan <plan>] [--no-frontend] [--skip-compose] [--resume] [--no-catalog-migration]";
+
+    /// <summary>
+    /// The plans that include a module whose lowest plan is <paramref name="fromPlan"/>: that plan and every higher one. Without it,
+    /// the lowest plan of all, so every plan. <paramref name="plans"/> is platform.yaml's list, lowest first.
+    /// </summary>
+    internal static IReadOnlyList<string> PlansFrom(IReadOnlyList<string> plans, string? fromPlan)
+    {
+        if (fromPlan is null)
+            return plans;
+        var index = plans.ToList().IndexOf(fromPlan);
+        return index >= 0 ? [.. plans.Skip(index)] : throw new PlatformDefinitionException($"'{fromPlan}' is not one of the plans ({string.Join(", ", plans)}).");
+    }
+
     public static int Run(string repoRoot, string[] args)
     {
-        var key = args.FirstOrDefault(a => !a.StartsWith("--", StringComparison.Ordinal)) ?? throw new PlatformDefinitionException("Usage: scripts/new-module <module-key> [--name \"Display Name\"] [--no-frontend] [--skip-compose] [--resume] [--no-catalog-migration]");
+        var key = args.FirstOrDefault(a => !a.StartsWith("--", StringComparison.Ordinal)) ?? throw new PlatformDefinitionException(Usage);
         var displayName = Option(args, "--name") ?? DisplayName(key);
+        // --from-plan: the lowest plan that includes the module; every plan from there upward gets it (default: the lowest plan of all).
+        var fromPlan = Option(args, "--from-plan");
         var withFrontend = !args.Contains("--no-frontend");
         var skipCompose = args.Contains("--skip-compose");
         // --resume: the module is already in platform.yaml (an earlier run stopped part-way, or someone declared it there by hand);
@@ -45,12 +61,13 @@ internal static class NewModuleCommand
         else
         {
             Check(platform, key);
+            var plans = PlansFrom(platform.Plans, fromPlan);
             KeyCollisions.Check(repoRoot, key);
             var port = Math.Max(5100, platform.Services.Max(s => s.Port)) + 1;
             var frontendPort = 3100 + platform.Modules.Count + 1;
 
-            Console.WriteLine($"Adding module '{key}' ({pascal}), backend port {port}.");
-            AddToPlatformYaml(Path.Combine(repoRoot, "platform.yaml"), key, displayName, port, platform.Plans);
+            Console.WriteLine($"Adding module '{key}' ({pascal}), backend port {port}, in the plans {string.Join(", ", plans)}.");
+            AddToPlatformYaml(Path.Combine(repoRoot, "platform.yaml"), key, displayName, port, plans);
 
             // 1. The backend, from the dotnet new template.
             CreateBackend(repoRoot, platform, key, pascal);

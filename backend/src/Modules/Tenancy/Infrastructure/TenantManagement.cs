@@ -101,10 +101,12 @@ internal sealed class TenantManagement(
     {
         await FindAsync(tenantId, cancellationToken);
         var entries = await tenancy.AuditLog.AsNoTracking().Where(e => e.TenantId == tenantId).OrderByDescending(e => e.Id).ToPageAsync(page, cancellationToken);
-        // Operators are named; a tenant's own people are named by the Identity service, so they stay IDs here.
+        // Operators are named. A tenant's own people are named by the Identity service, so they stay IDs here, except where the entry
+        // recorded the name (a tenant admin deciding a support-access request).
         var ids = entries.Items.Select(e => Guid.TryParse(e.Actor, out var id) ? id : (Guid?)null).OfType<Guid>().Distinct().ToList();
         var operators = await tenancy.Operators.AsNoTracking().Where(o => ids.Contains(o.Id)).ToDictionaryAsync(o => o.Id, o => o.DisplayName, cancellationToken);
-        return entries.Map(e => new TenantActivity(e.Id, e.OccurredOn, e.Kind, e.Actor, Guid.TryParse(e.Actor, out var id) ? operators.GetValueOrDefault(id) : null, e.Details));
+        return entries.Map(e => new TenantActivity(e.Id, e.OccurredOn, e.Kind, e.Actor,
+            (Guid.TryParse(e.Actor, out var id) ? operators.GetValueOrDefault(id) : null) ?? AuditDetails.Text(e.Details, "by"), e.Details));
     }
 
     public async Task<TenantSummary> UpdateProfileAsync(Guid tenantId, TenantProfile profile, string actor, CancellationToken cancellationToken = default)

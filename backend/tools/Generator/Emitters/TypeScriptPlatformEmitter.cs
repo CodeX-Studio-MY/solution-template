@@ -26,10 +26,10 @@ internal static class TypeScriptPlatformEmitter
         sb.AppendLine($"export const moduleKeys = [{List(platform.Modules.Select(m => m.Key))}] as const;");
         sb.AppendLine("export type ModuleKey = (typeof moduleKeys)[number];");
         sb.AppendLine();
-        sb.AppendLine("/** Each module's display name (the default; a module's own i18n may translate it) and the plans that include it. */");
-        sb.AppendLine("export const modules: readonly { key: ModuleKey; name: string; plans: readonly Plan[] }[] = [");
+        sb.AppendLine("/** Each module's display name (the default; a module's own i18n may translate it), the plans that include it, and whether the platform puts it in every plan (an operator can't take it out of one). */");
+        sb.AppendLine("export const modules: readonly { key: ModuleKey; name: string; plans: readonly Plan[]; inEveryPlan: boolean }[] = [");
         foreach (var module in platform.Modules)
-            sb.AppendLine($"  {{ key: \"{module.Key}\", name: \"{module.Name.Replace("\"", "\\\"", StringComparison.Ordinal)}\", plans: [{List(module.Plans)}] }},");
+            sb.AppendLine($"  {{ key: \"{module.Key}\", name: \"{module.Name.Replace("\"", "\\\"", StringComparison.Ordinal)}\", plans: [{List(module.Plans)}], inEveryPlan: {(PlatformDefinition.IsPlatformModule(module.Key) ? "true" : "false")} }},");
         sb.AppendLine("];");
         sb.AppendLine();
         sb.AppendLine("/** Backend services, routed at /api/{service-key}/*. */");
