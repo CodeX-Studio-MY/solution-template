@@ -29,6 +29,7 @@
     "modules": "Perkhidmatan platform",
     "features": "Ciri",
     "support": "Akses sokongan",
+    "feedback": "Maklum balas",
     "users": "Pengguna",
     "groups": "Kumpulan",
     "devices": "Peranti",
@@ -93,6 +94,17 @@
       "denied": "Ditolak",
       "revoked": "Ditarik balik"
     }
+  },
+  "feedback": {
+    "subtitle": "Apa yang dihantar oleh warga organisasi anda kepada penyedia anda. Sesiapa yang telah log masuk boleh menghantar maklum balas dari bar atas.",
+    "sender": "Daripada",
+    "kind": "Jenis",
+    "rating": "Penilaian",
+    "message": "Mesej",
+    "page": "Halaman",
+    "sentOn": "Dihantar",
+    "status": "Status",
+    "empty": "Belum ada maklum balas."
   },
   "users": {
     "subtitle": "Orang yang boleh log masuk, dan apa yang boleh mereka lakukan dalam setiap modul.",

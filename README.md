@@ -300,7 +300,7 @@ flowchart LR
 | Service | Route | Local port | Owns modules | Databases |
 |---|---|---|---|---|
 | `identity` | `/api/identity/*` | 5001 | `access-management` | tenant, catalog |
-| `tenancy` | `/api/tenancy/*` | 5002 | `tenant-settings`, `billing` | catalog |
+| `tenancy` | `/api/tenancy/*` | 5002 | `tenant-settings`, `billing`, `feedback` | catalog |
 | `notification` | `/api/notification/*` | 5003 | — | tenant |
 | `base` | `/api/base/*` | 5101 | `base` | tenant |
 
@@ -309,6 +309,7 @@ flowchart LR
 | `access-management` | Access Management | lite, advanced, complete |
 | `tenant-settings` | Tenant Settings | lite, advanced, complete |
 | `billing` | Billing | lite, advanced, complete |
+| `feedback` | Feedback | lite, advanced, complete |
 | `base` | Base | lite, advanced, complete |
 <!-- END GENERATED: modules -->
 

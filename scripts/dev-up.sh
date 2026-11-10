@@ -66,7 +66,7 @@ fi
 
 rm -f .dev/invitations.json.done
 echo "Starting the stack ($provider, $layout)... logs: .dev/apphost.log"
-Database__Provider="$provider" AppHost__Layout="$layout" AppHost__Seed=true \
+Database__Provider="$provider" AppHost__Layout="$layout" AppHost__Seed=true RateLimit__AuthPerAddressPerMinute=300 \
   Dev__CertificatePath="$root/.dev/certs/localhost.pem" Dev__CertificateKeyPath="$root/.dev/certs/localhost-key.pem" \
   Dev__FrontendPath="$root/frontend/dist" DevSeed__InvitationsFile="$root/.dev/invitations.json" \
   nohup dotnet run --project backend/src/AppHost --launch-profile http > .dev/apphost.log 2>&1 &

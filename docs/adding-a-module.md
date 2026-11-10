@@ -143,7 +143,7 @@ list, an add and a confirm-then-delete.
 - **Plans and entitlement**: `platform.yaml` lists the plans that include the module. Say the lowest plan that has it and every plan above
   gets it too: `scripts/new-module.sh goods-receipt --from-plan advanced` writes `plans: [advanced, complete]` (the first-run
   generator takes `--modules goods-receipt:advanced`). Without a plan the module is in every plan. A module only some plans have is an
-  *add-on*. The platform's own modules (access management, tenant settings, billing and base) are in every plan and the operator
+  *add-on*. The platform's own modules (access management, tenant settings, billing, feedback and base) are in every plan and the operator
   console doesn't let anyone take them out of one; `platform.yaml` fails validation if one is missing from a plan.
 - **Events**: see [Contracts](#contracts-what-other-modules-may-use) below. `docs/events.md` is generated.
 - **Per-tenant variation**: see [tenant-customization.md](tenant-customization.md). Start with a setting; do not branch on the tenant.

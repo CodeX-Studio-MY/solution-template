@@ -9,7 +9,7 @@ export const plans = ["lite", "advanced", "complete"] as const;
 export type Plan = (typeof plans)[number];
 
 /** Access modules: what roles and plans apply to. */
-export const moduleKeys = ["access-management", "tenant-settings", "billing", "base"] as const;
+export const moduleKeys = ["access-management", "tenant-settings", "billing", "feedback", "base"] as const;
 export type ModuleKey = (typeof moduleKeys)[number];
 
 /** Each module's display name (the default; a module's own i18n may translate it), the plans that include it, and whether the platform puts it in every plan (an operator can't take it out of one). */
@@ -17,6 +17,7 @@ export const modules: readonly { key: ModuleKey; name: string; plans: readonly P
   { key: "access-management", name: "Access Management", plans: ["lite", "advanced", "complete"], inEveryPlan: true },
   { key: "tenant-settings", name: "Tenant Settings", plans: ["lite", "advanced", "complete"], inEveryPlan: true },
   { key: "billing", name: "Billing", plans: ["lite", "advanced", "complete"], inEveryPlan: true },
+  { key: "feedback", name: "Feedback", plans: ["lite", "advanced", "complete"], inEveryPlan: true },
   { key: "base", name: "Base", plans: ["lite", "advanced", "complete"], inEveryPlan: true },
 ];
 

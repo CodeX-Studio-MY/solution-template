@@ -14,7 +14,11 @@ export type TenantPrincipalRow = TenancySchemas["schemas"]["TenantPrincipalRow"]
 export type AccessAuditRow = TenancySchemas["schemas"]["AccessAuditRow"];
 export type AccessStatus = TenancySchemas["schemas"]["TenantAccessStatus"];
 
+export type FeedbackRow = TenancySchemas["schemas"]["FeedbackRow"];
+export type FeedbackStatus = TenancySchemas["schemas"]["FeedbackStatus"];
+
 export const tenantsKey = ["tenancy", "operator", "tenants"];
+export const feedbackKey = ["tenancy", "operator", "feedback"];
 export const principalsKey = ["tenancy", "operator", "principals"];
 export type PlanRow = TenancySchemas["schemas"]["PlanRow"];
 export type PlanCreate = TenancySchemas["schemas"]["PlanCreate"];

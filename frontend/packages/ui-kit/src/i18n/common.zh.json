@@ -49,6 +49,18 @@
     "moduleSettings": "设置",
     "platformSettings": "平台设置"
   },
+  "feedback": {
+    "open": "发送反馈",
+    "title": "发送反馈",
+    "text": "告诉我们哪里有问题、您希望有什么功能，或任何其他想法。反馈会发送给运营此服务的团队。",
+    "kind": "反馈类型",
+    "kinds": { "bug": "缺陷", "idea": "建议", "other": "其他" },
+    "rating": "使用感受如何？（可选）",
+    "message": "您的留言",
+    "send": "发送",
+    "sent": "反馈已发送，谢谢。",
+    "statuses": { "new": "新", "reviewed": "已查看", "done": "已完成" }
+  },
   "home": {
     "welcome": "欢迎",
     "intro": "请从菜单中选择一个模块。",

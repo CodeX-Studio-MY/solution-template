@@ -1,4 +1,5 @@
 {
+  "errors.feedback.notFound": "That feedback was not found.",
   "errors.tenancy.grantNotFound": "That support access request was not found.",
   "errors.tenancy.invalidTransition": "The tenant can't make that change from its current state.",
   "errors.tenancy.linkedAccountNotFound": "That linked account was not found.",

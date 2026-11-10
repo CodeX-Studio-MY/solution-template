@@ -8,5 +8,6 @@ public static class ModuleKeys
     public const string AccessManagement = "access-management";
     public const string TenantSettings = "tenant-settings";
     public const string Billing = "billing";
+    public const string Feedback = "feedback";
     public const string Base = "base";
 }

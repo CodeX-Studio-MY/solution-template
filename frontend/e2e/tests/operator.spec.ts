@@ -133,6 +133,22 @@ const provider = (id: number, key: string, type: string, name: string, extra: Re
   ...extra,
 });
 
+const feedbackItem = (id: number, tenantName: string, kind: string, message: string, status: string, rating: number | null) => ({
+  feedbackId: `88888888-8888-8888-8888-88888888888${id}`,
+  tenantId: demo.id,
+  tenantSlug: demo.slug,
+  tenantName,
+  senderId: "99999999-9999-9999-9999-999999999999",
+  senderName: "Aisha Rahman",
+  kind,
+  rating,
+  message,
+  pagePath: "/settings/users",
+  status,
+  createdOn: "2026-10-30T09:30:00Z",
+  eTag: `"f${id}-1"`,
+});
+
 /** The operator console on its own host, with the Gateway's operator BFF mocked. */
 async function mockOperator(page: Page, calls: string[]) {
   let signedIn = false;
@@ -161,6 +177,10 @@ async function mockOperator(page: Page, calls: string[]) {
     plan(1, "lite", "Lite", ["access-management", "tenant-settings", "billing"], 12, 99),
     plan(2, "advanced", "Advanced", ["access-management", "tenant-settings", "billing", "crop-planning"], 4, 299),
     plan(3, "complete", "Complete", ["access-management", "tenant-settings", "billing", "crop-planning"], 1, null),
+  ];
+  let feedback = [
+    feedbackItem(1, "Demo Co", "bug", "The export button does nothing", "new", 2),
+    feedbackItem(2, "Demo Co", "idea", "Please add a dark mode", "reviewed", null),
   ];
   let providers = [
     provider(1, "google", "google", "Google", {
@@ -232,6 +252,22 @@ async function mockOperator(page: Page, calls: string[]) {
         route,
         providers.find((p) => String(p.identityProviderId) === edited[1]),
       );
+    }
+    if (key === "GET /api/tenancy/v1/operator/feedback") {
+      const query = new URL(request.url()).searchParams;
+      return json(route, page_(feedback.filter((f) => !query.get("status") || f.status === query.get("status"))));
+    }
+    const triaged = /^POST \/api\/tenancy\/v1\/operator\/feedback\/([^/]+)\/status$/.exec(key);
+    if (triaged) {
+      const current = feedback.find((f) => f.feedbackId === triaged[1]);
+      if (!current || current.eTag !== request.headers()["if-match"]) return json(route, { code: "platform.precondition-failed" }, 412);
+      const changed = {
+        ...current,
+        status: (request.postDataJSON() as { status: string }).status,
+        eTag: `"${current.eTag.slice(1, -2)}2"`,
+      };
+      feedback = feedback.map((f) => (f === current ? changed : f));
+      return json(route, changed);
     }
     if (key === "GET /api/tenancy/v1/operator/tenants") return json(route, [tenant]);
     if (key === `GET /api/tenancy/v1/operator/tenants/${demo.id}`) return json(route, tenant);
@@ -540,5 +576,50 @@ test("an operator changes the console language, on the sign-in screen and after 
   await expect(page.locator("html")).toHaveAttribute("lang", "ms");
   expect(calls).toContain("PUT /api/tenancy/v1/operator/me/preferences");
   await settled(page);
+  await expectAccessible(page);
+});
+
+test("an operator reads feedback from every tenant, filters it, and moves an item to reviewed with its ETag", async ({ page, baseURL }) => {
+  const problems = watchProblems(page);
+  const calls: string[] = [];
+  await mockOperator(page, calls);
+  await page.goto(baseURL!.replace("//localhost", "//operator.localhost"));
+  await page.getByLabel("Email").fill("ops@example.com");
+  await page.getByLabel("Password").fill("secret");
+  await page.getByLabel("Authenticator code").fill("123456");
+  await page.getByRole("button", { name: "Sign in" }).click();
+
+  await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Feedback" }).click();
+  await expect(page.getByRole("heading", { level: 1, name: "Feedback" })).toBeVisible();
+  const table = page.getByRole("table", { name: "Feedback" });
+  await expect(table.getByRole("row", { name: /Demo Co.*Aisha Rahman.*Bug.*The export button does nothing/ })).toBeVisible();
+  await expect(table.getByRole("row", { name: /Idea.*Please add a dark mode/ })).toBeVisible();
+  await expectAccessible(page);
+
+  await page.getByRole("button", { name: "New", exact: true }).click();
+  await expect(table.getByRole("row", { name: /Please add a dark mode/ })).toHaveCount(0);
+
+  await table.getByRole("combobox", { name: "Change the status of this feedback" }).click();
+  await page.getByRole("option", { name: "Reviewed" }).click();
+  await expect(page.getByText("Status saved.")).toBeVisible();
+  await expect(page.getByText("No feedback with that status.")).toBeVisible();
+  expect(calls).toContain("POST /api/tenancy/v1/operator/feedback/88888888-8888-8888-8888-888888888881/status");
+
+  await page.getByRole("button", { name: "All", exact: true }).click();
+  await expect(table.getByRole("row", { name: /The export button does nothing/ })).toBeVisible();
+  await expect(table.getByRole("combobox", { name: "Change the status of this feedback" }).first()).toHaveText("Reviewed");
+  expect(problems.filter((p) => !p.includes("401"))).toEqual([]);
+});
+
+test("a tenant's page shows its latest feedback next to Support", async ({ page, baseURL }) => {
+  await mockOperator(page, []);
+  await page.goto(baseURL!.replace("//localhost", "//operator.localhost"));
+  await page.getByLabel("Email").fill("ops@example.com");
+  await page.getByLabel("Password").fill("secret");
+  await page.getByLabel("Authenticator code").fill("123456");
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await page.getByRole("button", { name: "Demo Co" }).click();
+
+  await expect(page.getByRole("region", { name: "Latest feedback" }).getByText("The export button does nothing")).toBeVisible();
   await expectAccessible(page);
 });

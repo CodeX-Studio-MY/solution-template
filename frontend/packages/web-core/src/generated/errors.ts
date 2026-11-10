@@ -11,6 +11,7 @@ export const errorCodes = {
   "access-management.preferences-not-for-support": { status: 403, messageKey: "errors.identity.preferencesNotForSupport" },
   "access-management.principal-not-found": { status: 404, messageKey: "errors.identity.principalNotFound" },
   "access-management.unknown-module": { status: 422, messageKey: "errors.identity.unknownModule" },
+  "feedback.not-found": { status: 404, messageKey: "errors.feedback.notFound" },
   "platform.access-changed": { status: 401, messageKey: "errors.platform.accessChanged" },
   "platform.access-check-unavailable": { status: 503, messageKey: "errors.platform.accessCheckUnavailable" },
   "platform.business-rule": { status: 422, messageKey: "errors.platform.businessRule" },

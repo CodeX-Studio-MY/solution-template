@@ -57,6 +57,21 @@ internal static class TenancyEndpoints
             access.DecideAsync(tenant.Tenant.Id, id, SupportAccessStatus.Denied, who.Id ?? "unknown", ct)).RequireModuleRole(Modules.TenantSettings, Role.Admin);
         support.MapPost("/{id:guid}/revoke", (Guid id, ITenantContext tenant, ICurrentPrincipal who, ISupportAccess access, CancellationToken ct) =>
             access.DecideAsync(tenant.Tenant.Id, id, SupportAccessStatus.Revoked, who.Id ?? "unknown", ct)).RequireModuleRole(Modules.TenantSettings, Role.Admin);
+
+        // Any signed-in user may send feedback, with no role in any module: nobody needs access granted before they can speak up.
+        // The tenant's admins read what their own users sent.
+        var feedback = v1.MapGroup($"/{Modules.Feedback}").WithTags(Modules.Feedback);
+        feedback.MapPost("", async (ITenantContext tenant, ICurrentPrincipal who, [FromBody] FeedbackSubmit body, IFeedbackService service, HttpResponse response, CancellationToken ct) =>
+        {
+            // A support session acts for the customer: it must not send feedback in their name.
+            if (who.ActorId is not null || !Guid.TryParse(who.Id, out var senderId))
+                throw new ForbiddenException();
+            var row = await service.SubmitAsync(tenant.Tenant.Id, senderId, body, ct);
+            response.Headers.ETag = row.ETag;
+            return TypedResults.Created($"{PlatformServices.Tenancy.RoutePrefix}/v1/feedback", row);
+        }).AllowPrincipalTypes(PrincipalType.User);
+        feedback.MapGet("", (ITenantContext tenant, [AsParameters] PageRequest page, IFeedbackService service, CancellationToken ct) =>
+            service.ListForTenantAsync(tenant.Tenant.Id, page, ct)).RequireModuleRole(Modules.Feedback, Role.Admin);
     }
 
     /// <summary>
@@ -125,6 +140,15 @@ internal static class TenancyEndpoints
             access.RequestAsync(Identity(user), body, ct));
         secured.MapPost("/support-access/{id:guid}/token", (Guid id, ClaimsPrincipal user, ISupportAccess access, CancellationToken ct) =>
             access.IssueTokenAsync(Identity(user), id, ct));
+
+        secured.MapGet($"/{Modules.Feedback}", (FeedbackStatus? status, Guid? tenantId, [AsParameters] PageRequest page, IFeedbackService service, CancellationToken ct) =>
+            service.ListAllAsync(status, tenantId, page, ct)).WithTags(Modules.Feedback);
+        secured.MapPost($"/{Modules.Feedback}/{{id:guid}}/status", async (Guid id, [FromBody] FeedbackStatusBody body, [FromHeader(Name = "If-Match")] string? ifMatch, ClaimsPrincipal user, IFeedbackService service, HttpResponse response, CancellationToken ct) =>
+        {
+            var row = await service.SetStatusAsync(id, body.Status, ifMatch, ActorId(user), ct);
+            response.Headers.ETag = row.ETag;
+            return row;
+        }).WithTags(Modules.Feedback);
 
         MapPlanEndpoints(secured);
         MapIdentityProviderEndpoints(secured);
@@ -267,6 +291,8 @@ internal static class TenancyEndpoints
     internal sealed record EnabledBody(bool Enabled);
 
     internal sealed record PreferencesBody(string? Locale);
+
+    internal sealed record FeedbackStatusBody(FeedbackStatus Status);
 
     internal sealed record GrantBody(string? Reason);
 

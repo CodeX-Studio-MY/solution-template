@@ -36,7 +36,7 @@ public sealed class PlatformDefinition
     internal static readonly (string Service, string[] Owns)[] PlatformParts =
     [
         ("identity", ["access-management"]),
-        ("tenancy", ["tenant-settings", "billing"]),
+        ("tenancy", ["tenant-settings", "billing", "feedback"]),
         ("notification", []),
         ("base", ["base"]),
     ];

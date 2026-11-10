@@ -1,4 +1,5 @@
 {
+  "errors.feedback.notFound": "Maklum balas itu tidak ditemui.",
   "errors.tenancy.grantNotFound": "Permintaan akses sokongan itu tidak dijumpai.",
   "errors.tenancy.invalidTransition": "Penyewa tidak boleh membuat perubahan itu daripada keadaannya sekarang.",
   "errors.tenancy.linkedAccountNotFound": "Akaun terpaut itu tidak ditemui.",

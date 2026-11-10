@@ -34,9 +34,12 @@ public sealed class TenancyCatalogDbContext(DbContextOptions<TenancyCatalogDbCon
 
     public DbSet<TenantPrincipalLogin> TenantPrincipalLogins => Set<TenantPrincipalLogin>();
 
+    public DbSet<Feedback> FeedbackEntries => Set<Feedback>();
+
     protected override void ConfigureModel(ModelBuilder modelBuilder)
     {
         ConfigurePrincipals(modelBuilder);
+        ConfigureFeedback(modelBuilder);
 
         modelBuilder.Entity<OnboardingRun>(run =>
         {
@@ -190,6 +193,22 @@ public sealed class TenancyCatalogDbContext(DbContextOptions<TenancyCatalogDbCon
             login.Property(l => l.TraceId).HasMaxLength(32).IsUnicode(false).IsFixedLength();
             login.HasIndex(l => new { l.TenantId, l.OccurredOn });
             login.HasIndex(l => new { l.PrincipalId, l.OccurredOn });
+        });
+    }
+
+    /// <summary>Same storage rules as the principals: the key is named after the table, codes are one byte and ASCII values aren't Unicode.</summary>
+    private static void ConfigureFeedback(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Feedback>(feedback =>
+        {
+            feedback.ToTable("Feedback", t => t.HasCheckConstraint("CK_Feedback_Rating", "[Rating] IS NULL OR [Rating] BETWEEN 1 AND 5"));
+            feedback.Property(f => f.SenderName).HasMaxLength(Feedback.MaxSenderNameLength);
+            feedback.Property(f => f.Message).HasMaxLength(Feedback.MaxMessageLength);
+            feedback.Property(f => f.PagePath).HasMaxLength(Feedback.MaxPagePathLength).IsUnicode(false);
+            feedback.Property(f => f.Status).HasDefaultValue(FeedbackStatus.New);
+            AuditColumns(feedback);
+            feedback.HasIndex(f => new { f.TenantId, f.CreatedOn });
+            feedback.HasIndex(f => new { f.Status, f.CreatedOn });
         });
     }
 

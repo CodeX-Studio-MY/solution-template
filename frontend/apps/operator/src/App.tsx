@@ -32,6 +32,7 @@ const router = createBrowserRouter([
       { path: "tenants/:id", lazy: () => import("./pages/Tenant") },
       { path: "principals", lazy: () => import("./pages/Principals") },
       { path: "principals/:id", lazy: () => import("./pages/Principal") },
+      { path: "feedback", lazy: () => import("./pages/Feedback") },
       { path: "subscriptions", lazy: () => import("./pages/Subscriptions") },
       { path: "sign-in-providers", lazy: () => import("./pages/SignInProviders") },
     ],
@@ -88,11 +89,12 @@ function Layout() {
           <Typography variant="h6" component={RouterLink} to="/" sx={{ color: "inherit", textDecoration: "none" }}>
             {t("title")}
           </Typography>
-          <Box component="nav" aria-label={t("nav.label")} sx={{ display: "flex", gap: 0.5, flexGrow: 1 }}>
+          <Box component="nav" aria-label={t("nav.label")} sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, flexGrow: 1 }}>
             {(
               [
                 ["/", "nav.tenants"],
                 ["/principals", "nav.principals"],
+                ["/feedback", "nav.feedback"],
                 ["/subscriptions", "nav.subscriptions"],
                 ["/sign-in-providers", "nav.signInProviders"],
               ] as const

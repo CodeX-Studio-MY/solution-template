@@ -46,6 +46,7 @@ public sealed class TenancyModule : IPlatformModule
         services.AddScoped<IPlanCatalog, PlanCatalog>();
         services.AddScoped<IIdentityProviderCatalog, IdentityProviderCatalog>();
         services.AddScoped<IPrincipalDirectory, PrincipalDirectory>();
+        services.AddScoped<IFeedbackService, FeedbackService>();
         services.AddPlatformServiceClient<IIdentityClient, IdentityClient>(PlatformServices.Identity);
 
         // Operators are a separate realm with their own scheme, so tenant bearer tokens never authenticate them.

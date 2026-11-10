@@ -29,6 +29,14 @@ browser for this release.
 - **Billing is a placeholder.** `billing` is a module in the plans, but there is no billing provider (`NoBilling`): every tenant is in good
   standing. A plan's monthly price is shown in the console and used for nothing else.
 
+- **Feedback has no send limit, screenshots or email.** Anyone signed in can send feedback from the top bar (a message is capped at 2000
+  characters), and the operator reads it under Feedback. There is no per-user daily limit, no screenshot, and no email to the operator
+  when something new arrives. Add a limit if spam shows up.
+- **A deployment with tenants already in it needs Feedback added by hand.** The catalog migration puts `feedback` in every plan, but
+  tenants that exist already don't get the module until you add it on the tenant's Overview (or re-add it to their plan), and a tenant's
+  admin then needs the Feedback role under Users before **Settings, Feedback** lists anything. Tenants onboarded afterwards get both. Sending
+  feedback needs neither.
+
 ## Tenants and data
 
 - **Offboarding exports nothing and leaves files behind.** The export step is a placeholder (`NoExportYet`); a product adds an exporter
