@@ -318,6 +318,7 @@ flowchart LR
 platform.yaml                 the single source for structure
 backend/src/Core*             the shared kernel: tenancy, data (SQL Server provider), messaging, security, files, observability
 backend/src/Contracts         versioned events and the settings / flag declarations modules share
+backend/src/Contracts/Modules/*  one folder per business module: its events, views and typed client, for other modules to use
 backend/src/Modules/*         one class library per module: Domain, Application, Infrastructure, Api
 backend/src/Hosts/*           a thin host per module, and AllInOne.Host
 backend/src/{Gateway,Scheduler,Migrator,AppHost,DevSeed}

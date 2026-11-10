@@ -1,11 +1,10 @@
+using Saaskit.Contracts.Sample;
 using Saaskit.Core.Errors;
 using Saaskit.Core.Http;
 using Saaskit.Core.Platform;
 using Saaskit.Sample.Domain;
 
 namespace Saaskit.Sample.Application;
-
-public sealed record ItemDto(Guid Id, string Name, DateTime CreatedOn, string ETag);
 
 public sealed record SaveItemInput(string Name);
 
@@ -25,6 +24,10 @@ public interface IItemRepository
 
     void Add(Item item);
 
+    /// <summary>Saves an integration event with the next <see cref="SaveAsync"/>, in the same transaction, for the relay to publish.</summary>
+    void Publish<TEvent>(TEvent integrationEvent)
+        where TEvent : class;
+
     string ETagOf(Item item);
 
     /// <summary>Applies the client's <c>If-Match</c> before a change. 428 if missing; 412 on save if stale.</summary>
@@ -36,22 +39,23 @@ public interface IItemRepository
 /// <summary>The use cases. Every business rule is in the domain or here; endpoints only translate HTTP.</summary>
 public sealed class ItemService(IItemRepository items, TimeProvider time)
 {
-    public async Task<Page<ItemDto>> ListAsync(PageRequest page, CancellationToken cancellationToken = default) =>
+    public async Task<Page<ItemView>> ListAsync(PageRequest page, CancellationToken cancellationToken = default) =>
         (await items.ListAsync(page, cancellationToken)).Map(ToDto);
 
-    public async Task<ItemDto> GetAsync(Guid id, CancellationToken cancellationToken = default) =>
+    public async Task<ItemView> GetAsync(Guid id, CancellationToken cancellationToken = default) =>
         ToDto(await items.FindAsync(id, cancellationToken) ?? throw new NotFoundException(SampleErrors.NotFound));
 
-    public async Task<ItemDto> CreateAsync(SaveItemInput input, CancellationToken cancellationToken = default)
+    public async Task<ItemView> CreateAsync(SaveItemInput input, CancellationToken cancellationToken = default)
     {
         Validate(input);
         var item = new Item(input.Name);
         items.Add(item);
+        items.Publish(new ItemCreated.V1(item.Id, item.Name));
         await items.SaveAsync(cancellationToken);
         return ToDto(item);
     }
 
-    public async Task<ItemDto> RenameAsync(Guid id, string? ifMatch, SaveItemInput input, CancellationToken cancellationToken = default)
+    public async Task<ItemView> RenameAsync(Guid id, string? ifMatch, SaveItemInput input, CancellationToken cancellationToken = default)
     {
         Validate(input);
         var item = await items.FindAsync(id, cancellationToken) ?? throw new NotFoundException(SampleErrors.NotFound);
@@ -72,5 +76,5 @@ public sealed class ItemService(IItemRepository items, TimeProvider time)
     private static void Validate(SaveItemInput input) =>
         new ValidationBuilder().Required("name", input.Name, "Name").MaxLength("name", input.Name, Item.MaxNameLength, "Name").ThrowIfAny();
 
-    private ItemDto ToDto(Item item) => new(item.Id, item.Name, item.CreatedOn, items.ETagOf(item));
+    private ItemView ToDto(Item item) => new(item.Id, item.Name, items.ETagOf(item));
 }

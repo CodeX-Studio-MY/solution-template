@@ -1,5 +1,6 @@
 # Adds a module (see scripts/new-module.sh).
-#   scripts/new-module.ps1 <module-key> [--name "Display Name"] [--no-frontend] [--skip-compose]
+#   scripts/new-module.ps1 <module-key> [--name "Display Name"] [--from-plan <plan>] [--no-frontend] [--skip-compose]
+#                                        [--resume] [--no-catalog-migration]
 # Native commands report problems on stderr and by exit code. 'Stop' would end the script at the first stderr line and hide
 # the rest of the message, so it stays 'Continue'; the exit code is passed on.
 $ErrorActionPreference = 'Continue'

@@ -117,6 +117,42 @@ public sealed class InitTests : IDisposable
     }
 
     [Fact]
+    public void A_contracts_folder_left_by_a_removed_module_is_found()
+    {
+        foreach (var dir in new[] { "backend/src/Contracts/Modules/Master", "backend/src/Contracts/Modules/CropPlanning", "backend/src/Contracts/Customization" })
+            Directory.CreateDirectory(Path.Combine(_root, dir));
+
+        ModuleFolders.Strays(_root, Template(), ["crop-planning"]).ShouldBe(["backend/src/Contracts/Modules/Master"]);
+    }
+
+    [Fact]
+    public void A_key_whose_contracts_folder_exists_is_refused()
+    {
+        Directory.CreateDirectory(Path.Combine(_root, "backend", "src", "Contracts", "Modules", "CropPlanning"));
+
+        Should.Throw<PlatformDefinitionException>(() => KeyCollisions.Check(_root, "crop-planning")).Message.ShouldContain("Contracts/Modules/CropPlanning");
+    }
+
+    [Fact]
+    public void A_modules_contracts_are_written_from_the_template_with_its_key_and_name()
+    {
+        var template = Path.Combine("templates", "backend-module", "src", "Contracts", "Modules", "Sample");
+        Directory.CreateDirectory(Path.Combine(_root, template));
+        foreach (var file in Directory.EnumerateFiles(Path.Combine(RepoRoot.Find(), template), "*.cs"))
+            File.Copy(file, Path.Combine(_root, template, Path.GetFileName(file)));
+
+        NewModuleCommand.CopyContracts(_root, "crop-planning", "CropPlanning");
+
+        var folder = NewModuleCommand.ContractsFolder(_root, "CropPlanning");
+        Directory.EnumerateFiles(folder).Select(Path.GetFileName).Order().ShouldBe(["CropPlanningClient.cs", "CropPlanningEvents.cs", "CropPlanningViews.cs"]);
+        var events = File.ReadAllText(Path.Combine(folder, "CropPlanningEvents.cs"));
+        events.ShouldContain("crop-planning.item-created");
+        events.ShouldContain(".Contracts.CropPlanning;");
+        File.ReadAllText(Path.Combine(folder, "CropPlanningClient.cs")).ShouldContain("ModuleKeys.CropPlanning");
+        Directory.EnumerateFiles(folder).Select(File.ReadAllText).ShouldAllBe(text => !text.Contains("Sample") && !text.Contains("sample-key"));
+    }
+
+    [Fact]
     public void A_platform_module_cant_be_removed()
     {
         var platform = Template();
@@ -130,8 +166,9 @@ public sealed class InitTests : IDisposable
     public void A_module_declared_in_platform_yaml_by_hand_is_found_until_it_is_scaffolded()
     {
         var platform = Template();
-        // The template's own business module, Base, is committed on disk, so only the one added by hand is unscaffolded.
-        Directory.CreateDirectory(Path.Combine(_root, "backend", "src", "Modules", "Base"));
+        // The business modules platform.yaml already lists (Base, and a product's own) are on disk, so only the one added by hand is unscaffolded.
+        foreach (var service in platform.Services.Where(s => s.Owns.Contains(s.Key)))
+            Directory.CreateDirectory(Path.Combine(_root, "backend", "src", "Modules", Naming.Pascal(service.Key)));
         platform.Services.Add(new ServiceDefinition { Key = "purchase", Port = 5004, Owns = ["purchase"] });
         platform.Modules.Add(new ModuleDefinition { Key = "purchase", Name = "Purchase", Plans = [.. platform.Plans] });
 
@@ -267,10 +304,12 @@ public sealed class InitTests : IDisposable
         var path = Path.Combine(_root, "platform.yaml");
         File.Copy(Path.Combine(RepoRoot.Find(), "platform.yaml"), path);
 
-        NewModuleCommand.AddToPlatformYaml(path, "pharmacy", "Pharmacy", 5102, NewModuleCommand.PlansFrom(["lite", "advanced", "complete"], "complete"));
+        // A key and port no product uses, so the test also holds after a product has added its own modules.
+        var port = PlatformDefinition.Load(path).Services.Max(s => s.Port) + 1;
+        NewModuleCommand.AddToPlatformYaml(path, "plan-check", "Plan Check", port, NewModuleCommand.PlansFrom(["lite", "advanced", "complete"], "complete"));
 
         var written = PlatformDefinition.Load(path);
-        written.Modules.Single(m => m.Key == "pharmacy").Plans.ShouldBe(["complete"]);
+        written.Modules.Single(m => m.Key == "plan-check").Plans.ShouldBe(["complete"]);
         written.Modules.Single(m => m.Key == "base").Plans.ShouldBe(["lite", "advanced", "complete"]);
     }
 

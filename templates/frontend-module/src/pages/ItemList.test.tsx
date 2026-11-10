@@ -47,14 +47,12 @@ describe("ItemList", () => {
               {
                 id: "1",
                 name: "Widget",
-                createdOn: "2026-10-09T01:00:00Z",
                 eTag: '"v1"',
               },
             ])
           : {
               id: "2",
               name: "Gadget",
-              createdOn: "2026-10-09T01:00:00Z",
               eTag: '"v1"',
             };
       return Promise.resolve(
@@ -116,7 +114,6 @@ describe("ItemList", () => {
                   {
                     id: "1",
                     name: "Widget",
-                    createdOn: "2026-10-09T01:00:00Z",
                     eTag: '"v1"',
                   },
                 ]),

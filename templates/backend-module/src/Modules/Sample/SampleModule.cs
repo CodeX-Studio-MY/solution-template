@@ -1,6 +1,7 @@
 using Saaskit.Core.Composition;
 using Saaskit.Core.Data;
 using Saaskit.Core.Localization;
+using Saaskit.Core.Messaging;
 using Saaskit.Core.Platform;
 using Saaskit.Sample.Api;
 using Saaskit.Sample.Application;
@@ -21,6 +22,7 @@ public sealed class SampleModule : IPlatformModule
         var services = builder.Services;
         services.AddModuleDbContext<SampleDbContext>(Service.Schema);
         services.AddModuleMessages(typeof(SampleModule).Assembly);
+        services.AddModuleOutbox<SampleDbContext>(Service.Schema);   // the relay publishes the events the module saves (ItemCreated)
         services.AddScoped<IItemRepository, ItemRepository>();
         services.AddScoped<ItemService>();
     }

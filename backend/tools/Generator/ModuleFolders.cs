@@ -1,17 +1,23 @@
 namespace Saaskit.Generator;
 
 /// <summary>
-/// The folders a module lives in (backend module, migrations, host, tests, frontend module), and the ones that belong to no service
+/// The folders a module lives in (backend module, migrations, host, tests, contracts, frontend module), and the ones that belong to no service
 /// or module in platform.yaml: what an abandoned run left behind, or what an editor wrote back from an open tab after the folder was
 /// deleted. Such a folder is never built into the solution.
 /// </summary>
 internal static class ModuleFolders
 {
+    /// <summary>Where each module's own contracts live, one folder per module: <c>backend/src/Contracts/Modules/{Pascal}</c>.</summary>
+    internal const string ContractsFolder = "backend/src/Contracts/Modules";
+
     /// <summary>Folders of the platform that aren't named after a key.</summary>
     private static readonly string[] PlatformFolders = ["AllInOne.Host", "Architecture.Tests", "Core.Tests", "Generator.Tests", "Integration.Tests", "TestSupport"];
 
-    /// <summary>The backend folders that hold one project each, named <c>{Pascal}</c> or <c>{Pascal}.{Kind}</c>.</summary>
-    private static readonly string[] BackendFolders = ["backend/src/Modules", "backend/src/Hosts", "backend/tests"];
+    /// <summary>
+    /// The backend folders that hold one project each, named <c>{Pascal}</c> or <c>{Pascal}.{Kind}</c>, and a module's contracts
+    /// (<c>{Pascal}</c> under Contracts/Modules). Contracts compiles every .cs file in its folder, so a leftover one would still build.
+    /// </summary>
+    private static readonly string[] BackendFolders = ["backend/src/Modules", "backend/src/Hosts", "backend/tests", ContractsFolder];
 
     /// <summary>Stray folders, as paths relative to the repository root with forward slashes.</summary>
     /// <param name="repoRoot">The repository root.</param>

@@ -1,12 +1,13 @@
 using Saaskit.Core.Data;
 using Saaskit.Core.Http;
+using Saaskit.Core.Messaging;
 using Saaskit.Sample.Application;
 using Saaskit.Sample.Domain;
 using Microsoft.EntityFrameworkCore;
 
 namespace Saaskit.Sample.Infrastructure;
 
-internal sealed class ItemRepository(SampleDbContext db) : IItemRepository
+internal sealed class ItemRepository(SampleDbContext db, IEventPublisher publisher) : IItemRepository
 {
     // Queries are tracked on purpose: the ETag is read from the tracked row version.
     public Task<Page<Item>> ListAsync(PageRequest page, CancellationToken cancellationToken = default) =>
@@ -16,6 +17,9 @@ internal sealed class ItemRepository(SampleDbContext db) : IItemRepository
         db.Items.SingleOrDefaultAsync(i => i.Id == id, cancellationToken);
 
     public void Add(Item item) => db.Items.Add(item);
+
+    public void Publish<TEvent>(TEvent integrationEvent)
+        where TEvent : class => publisher.Publish(db, integrationEvent);
 
     public string ETagOf(Item item) => db.GetETag(item);
 

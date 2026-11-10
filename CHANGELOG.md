@@ -3,6 +3,24 @@
 All notable changes to this project are written here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 the project uses [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- **A new module gets its contracts.** `scripts/new-module` creates `backend/src/Contracts/Modules/{Pascal}` with an event, a view
+  record and a typed client for the module, which other modules may reference (they may not reference the module itself). The
+  template's example uses all three: the API returns `ItemView`, creating an item publishes `ItemCreated.V1` through the module's
+  outbox, and `{Pascal}Client.GetItemAsync` reads an item. An architecture test checks that a module's events are named after its key.
+
+### Changed
+
+- The usage text of `scripts/new-module` lists every option (`--from-plan`, `--resume`, `--no-catalog-migration`).
+
+### Fixed
+
+- A scaffolded product's tests failed for a module that isn't in the lowest plan (`--modules appointments:advanced`): the test tenant
+  now gets the lowest plan that includes the module under test. Two generator tests no longer assume the template's own `platform.yaml`.
+
 ## [0.1.1] - 2026-11-06
 
 ### Fixed

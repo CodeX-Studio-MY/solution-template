@@ -2,7 +2,7 @@ namespace Saaskit.Contracts;
 
 /// <summary>
 /// Events the platform itself produces or consumes, for every module to use. One type per version; change by adding optional
-/// fields only. A module's own events live next to these, in a file named after the module.
+/// fields only. A module's own events live in its folder, <c>Modules/{Pascal}</c>, next to its views and typed client.
 /// </summary>
 public static class TenantDayStarted
 {
