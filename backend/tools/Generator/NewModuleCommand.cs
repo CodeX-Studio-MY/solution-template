@@ -6,7 +6,7 @@ namespace Saaskit.Generator;
 
 /// <summary>
 /// <c>scripts/new-module &lt;key&gt;</c>: adds a module to <c>platform.yaml</c>, creates its backend (module, host, tests) and frontend
-/// module from the clean templates in <c>templates/</c>, generates everything that follows from platform.yaml (constants, migrations
+/// module from the clean templates in <c>templates/</c> (with the contracts other modules may use), generates everything that follows from platform.yaml (constants, migrations
 /// projects, gateway route, AppHost, compose, API client), creates its first migrations for every database provider,
 /// and installs the frontend dependencies. No other file needs a manual edit.
 /// </summary>
@@ -54,6 +54,10 @@ internal static class NewModuleCommand
             {
                 KeyCollisions.Check(repoRoot, key);
                 CreateBackend(repoRoot, platform, key, pascal);
+            }
+            else if (!Directory.Exists(ContractsFolder(repoRoot, pascal)))
+            {
+                CopyContracts(repoRoot, key, pascal);   // a module made before contracts were scaffolded
             }
             if (withFrontend && !Directory.Exists(Path.Combine(repoRoot, "frontend", "modules", key)))
                 CopyFrontend(repoRoot, key, pascal, declared.Name, 3100 + platform.Modules.IndexOf(declared) + 1);
@@ -109,7 +113,7 @@ internal static class NewModuleCommand
             Run(PnpmPath.Resolve(),Path.Combine(repoRoot, "frontend"), "install");
 
         Console.WriteLine();
-        Console.WriteLine($"Done. '{key}' is ready: backend/src/Modules/{pascal}, backend/src/Hosts/{pascal}.Host, backend/tests/{pascal}.Tests" + (withFrontend ? $", frontend/modules/{key}." : "."));
+        Console.WriteLine($"Done. '{key}' is ready: backend/src/Modules/{pascal}, backend/src/Hosts/{pascal}.Host, backend/tests/{pascal}.Tests, {ModuleFolders.ContractsFolder}/{pascal}" + (withFrontend ? $", frontend/modules/{key}." : "."));
         Console.WriteLine("Next: build and test (dotnet test --project backend/tests/" + pascal + ".Tests), then replace the example Item with your domain.");
         return 0;
     }
@@ -117,7 +121,29 @@ internal static class NewModuleCommand
     /// <summary>The module's backend class library folder: <c>backend/src/Modules/{Pascal}</c>.</summary>
     internal static string BackendFolder(string repoRoot, string pascal) => Path.Combine(repoRoot, "backend", "src", "Modules", pascal);
 
-    /// <summary>The backend (module, host, tests), from the dotnet new template.</summary>
+    /// <summary>The module's contracts folder, where its events, views and typed client live: <c>backend/src/Contracts/Modules/{Pascal}</c>.</summary>
+    internal static string ContractsFolder(string repoRoot, string pascal) => Path.Combine(repoRoot, ModuleFolders.ContractsFolder, pascal);
+
+    /// <summary>
+    /// Writes the module's contracts alone, from the dotnet new template, for a module that has its backend but no contracts folder.
+    /// The replacements are the template's own (<c>sample-key</c>, <c>Sample</c>), made in one pass; the template already carries the
+    /// product's name, because renaming the product renames it too.
+    /// </summary>
+    internal static void CopyContracts(string repoRoot, string key, string pascal)
+    {
+        var source = Path.Combine(repoRoot, "templates", "backend-module", ModuleFolders.ContractsFolder["backend/".Length..], "Sample");
+        var target = ContractsFolder(repoRoot, pascal);
+        Directory.CreateDirectory(target);
+        var names = new Dictionary<string, string>(StringComparer.Ordinal) { ["sample-key"] = key, ["Sample"] = pascal };
+        var pattern = new System.Text.RegularExpressions.Regex(string.Join('|', names.Keys.Select(System.Text.RegularExpressions.Regex.Escape)));
+        foreach (var file in Directory.EnumerateFiles(source, "*.cs"))
+        {
+            var text = pattern.Replace(File.ReadAllText(file), match => names[match.Value]);
+            File.WriteAllText(Path.Combine(target, Path.GetFileName(file).Replace("Sample", pascal, StringComparison.Ordinal)), text, new UTF8Encoding(false));
+        }
+    }
+
+    /// <summary>The backend (module, host, tests, contracts), from the dotnet new template.</summary>
     private static void CreateBackend(string repoRoot, PlatformDefinition platform, string key, string pascal)
     {
         var template = Path.Combine(repoRoot, "templates", "backend-module");

@@ -27,9 +27,14 @@ internal static class KeyCollisions
             .ToList();
     }
 
-    /// <summary>Fails with the places it was found, when <paramref name="key"/> collides.</summary>
+    /// <summary>Fails with the places it was found, when <paramref name="key"/> collides, or when its contracts folder already exists.</summary>
     public static void Check(string repoRoot, string key)
     {
+        var contracts = NewModuleCommand.ContractsFolder(repoRoot, Naming.Pascal(key));
+        if (Directory.Exists(contracts))
+            throw new PlatformDefinitionException(
+                $"'{key}' can't be a module key: {Path.GetRelativePath(repoRoot, contracts).Replace('\\', '/')} already exists. Delete it, or choose another key.");
+
         var found = Find(repoRoot, key);
         if (found.Count > 0)
             throw new PlatformDefinitionException(

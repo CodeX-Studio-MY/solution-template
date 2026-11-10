@@ -1,8 +1,13 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
+using Saaskit.Contracts.Sample;
+using Saaskit.Core.Messaging;
 using Saaskit.Core.Platform;
 using Saaskit.Core.Security;
+using Saaskit.Sample.Infrastructure;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Role = Saaskit.Core.Platform.Role;
 
 namespace Saaskit.Sample.Tests;
@@ -77,5 +82,41 @@ public sealed class SampleApiTests(Databases databases)
         var invalid = await user.PostAsJsonAsync($"{Api}/items", new { name = "" }, Ct);
         invalid.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
         (await ReadAsync(invalid, HttpStatusCode.BadRequest)).GetProperty("errors").EnumerateObject().Select(e => e.Name).ShouldContain("name");
+    }
+
+    [Theory]
+    [MemberData(nameof(Databases.Providers), MemberType = typeof(Databases))]
+    public async Task The_api_returns_the_view_other_modules_share(string provider)
+    {
+        await using var host = await ModuleTestHost.StartAsync<SampleModule>(databases, provider, null, "demo");
+        var user = host.Client("demo", host.Token("demo", roles: AsUser));
+
+        var created = await ReadAsync(await user.PostAsJsonAsync($"{Api}/items", new { name = "Widget" }, Ct), HttpStatusCode.Created);
+
+        // The same record the typed client reads: ItemView(Id, Name, ETag).
+        created.EnumerateObject().Select(p => p.Name).Order().ShouldBe(["eTag", "id", "name"]);
+        created.Deserialize<ItemView>(JsonSerializerOptions.Web)!.Name.ShouldBe("Widget");
+    }
+
+    [Theory]
+    [MemberData(nameof(Databases.Providers), MemberType = typeof(Databases))]
+    public async Task Creating_an_item_saves_its_event_in_the_outbox_with_the_item(string provider)
+    {
+        await using var host = await ModuleTestHost.StartAsync<SampleModule>(databases, provider, null, "demo");
+        var user = host.Client("demo", host.Token("demo", roles: AsUser));
+
+        var created = await ReadAsync(await user.PostAsJsonAsync($"{Api}/items", new { name = "Widget" }, Ct), HttpStatusCode.Created);
+
+        // The relay may already have published it (PublishedOn), so look at what was saved, not whether it was sent.
+        var saved = await host.InTenantAsync("demo", sp => sp.GetRequiredService<SampleDbContext>().OutboxMessages.ToListAsync(Ct));
+        var message = saved.ShouldHaveSingleItem();
+        $"{message.Name}.v{message.Version}".ShouldBe("sample-key.item-created.v1");
+        var payload = JsonSerializer.Deserialize<ItemCreated.V1>(message.Payload, EventJson.Options)!;
+        payload.ItemId.ShouldBe(created.GetProperty("id").GetGuid());
+        payload.Name.ShouldBe("Widget");
+
+        // A request that stores nothing (bad input) saves no event.
+        (await user.PostAsJsonAsync($"{Api}/items", new { name = "" }, Ct)).StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        (await host.InTenantAsync("demo", sp => sp.GetRequiredService<SampleDbContext>().OutboxMessages.CountAsync(Ct))).ShouldBe(1);
     }
 }

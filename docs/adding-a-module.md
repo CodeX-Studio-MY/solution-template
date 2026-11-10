@@ -1,7 +1,7 @@
 # Adding a module
 
 A module is a vertical slice with one key, used by its backend part and its frontend part: `goods-receipt` is `GoodsReceipt` in the
-backend (a class library, a thin host, migrations for every database provider, tests) and `frontend/modules/goods-receipt` in the
+backend (a class library, a thin host, migrations for every database provider, tests, contracts for other modules) and `frontend/modules/goods-receipt` in the
 browser. One command creates all of it from the clean templates in `templates/`:
 
 ```sh
@@ -9,11 +9,11 @@ scripts/new-module.sh goods-receipt --name "Goods Receipt"       # macOS and Lin
 scripts/new-module.ps1 goods-receipt --name "Goods Receipt"      # Windows
 ```
 
-The other options are `--from-plan <plan>` (the lowest plan that includes the module; every plan from there upward gets it, and without it the module is in every plan), `--no-frontend` (backend only) and `--skip-compose` (leave `deploy/docker-compose.yml` as it is). It needs Docker only to run the tests afterwards. What it does, in order:
+The other options are `--from-plan <plan>` (the lowest plan that includes the module; every plan from there upward gets it, and without it the module is in every plan), `--no-frontend` (backend only), `--skip-compose` (leave `deploy/docker-compose.yml` as it is), `--resume` (the module is already in `platform.yaml`: create whatever of it is missing, its contracts folder included, and finish the remaining steps) and `--no-catalog-migration` (you make the catalog's migration yourself). It needs Docker only to run the tests afterwards. What it does, in order:
 
 1. Adds the service and the module to `platform.yaml` (the only file you would otherwise edit by hand), with the next free port.
 2. Creates the backend with `dotnet new saaskit-module`: `backend/src/Modules/GoodsReceipt` (Domain, Application, Infrastructure, Api),
-   `backend/src/Hosts/GoodsReceipt.Host` and `backend/tests/GoodsReceipt.Tests`.
+   `backend/src/Hosts/GoodsReceipt.Host` and `backend/tests/GoodsReceipt.Tests`, and its contracts, `backend/src/Contracts/Modules/GoodsReceipt`.
 3. Creates `frontend/modules/goods-receipt` from `templates/frontend-module`.
 4. Runs the generator (`scripts/generate.sh`, `scripts/generate.ps1` on Windows): the constants (`Modules.GoodsReceipt`, `PlatformServices.GoodsReceipt`), the Gateway route, the AppHost
    resource, the compose file, the migrations projects,
@@ -42,6 +42,7 @@ its shape:
 | `Infrastructure/` | The module's own `DbContext` and schema; repositories; no other module reads these tables |
 | `Api/` | `RequireModuleRole` on every endpoint, `Idempotency-Key` on create, `If-Match` on changes, paging |
 | `Resources/Messages.*.json` | Messages in every locale from `platform.yaml` |
+| `Contracts/Modules/GoodsReceipt` | An event, a view record and a typed client, for other modules (see below) |
 | `Host/Program.cs` | About 10 lines: `AddPlatform(...)`, `AddModule<...>()`, `UsePlatform()` |
 | `Tests` | Domain unit tests, and integration tests of the module hosted exactly as in production on every provider in `platform.yaml`, including tenant isolation |
 
@@ -54,6 +55,34 @@ its shape:
 - A migration exists for every model change, per provider. (`MigrationsConsistencyTests`)
 - No spatial type (`NetTopologySuite`) in `Api` or `Contracts`. (`ModuleBoundaryTests`)
 - The frontend module imports only `ui-kit`, `web-core` and `api-clients`, never another module. (ESLint boundaries, with tests)
+
+## Contracts: what other modules may use
+
+A module may reference `Core` and `Contracts` only, never another module. So what one module offers the others is in
+`backend/src/Contracts/Modules/GoodsReceipt` (namespace `Saaskit.Contracts.GoodsReceipt`), in three files that open with a short note on what belongs there. The
+template's example uses all three, so the pattern works from the start; replace the examples with your own.
+
+| File | What it holds | The rule |
+|---|---|---|
+| `GoodsReceiptEvents.cs` | Integration events, such as `ItemCreated.V1` with `[IntegrationEvent("goods-receipt.item-created", 1)]` | The name starts with the module key (`ContractsTests` checks it). A published `V1` never changes except for new optional fields; a breaking change is a new `V2`, published next to it until every consumer has moved. |
+| `GoodsReceiptViews.cs` | The records the module's API returns, such as `ItemView`; the OpenAPI document and the frontend's typed client use them too | Only what another module may rely on. Add optional fields; never rename or remove one. |
+| `GoodsReceiptClient.cs` | `IGoodsReceiptClient` and its implementation, which calls the module's HTTP API | Reads and commands other modules truly need. It uses only the framework, so Contracts still references nothing. |
+
+To publish, the module registers its outbox (`services.AddModuleOutbox<GoodsReceiptDbContext>(Service.Schema)` in `Register`, already there in the template) and calls
+`IEventPublisher.Publish(db, event)` before the `SaveChanges` that stores the data, so both commit together or not at all and a relay sends the event after the commit.
+The outbox table is part of every module's `DbContext`, so there is no migration to add.
+
+Another module uses them like this:
+
+```csharp
+// In the consuming module's Register: call it (adds the base address and the right token) ...
+services.AddPlatformServiceClient<IGoodsReceiptClient, GoodsReceiptClient>(PlatformServices.GoodsReceipt);
+// ... and/or react to it (the consumer is an IEventConsumer<ItemCreated.V1>; its inbox lives in the consumer's own DbContext).
+services.AddEventConsumer<ItemCreated.V1, ItemCreatedConsumer, MyDbContext>(Service, Modules.MyModule);
+```
+
+The last argument of `AddEventConsumer` is the module the consumer itself belongs to (`Modules.MyModule`, the consuming module): it only receives events for tenants that have that module.
+The platform's own types, such as `NotificationRequested` and `TenantDayStarted`, are in `backend/src/Contracts` itself.
 
 ## Changing the data model
 
@@ -116,8 +145,7 @@ list, an add and a confirm-then-delete.
   generator takes `--modules goods-receipt:advanced`). Without a plan the module is in every plan. A module only some plans have is an
   *add-on*. The platform's own modules (access management, tenant settings, billing and base) are in every plan and the operator
   console doesn't let anyone take them out of one; `platform.yaml` fails validation if one is missing from a plan.
-- **Events**: declare them in `backend/src/Contracts` with `[IntegrationEvent("{module-key}.{what-happened}", 1)]`, publish with
-  `IEventPublisher` inside your transaction, consume with `AddEventConsumer`. `docs/events.md` is generated.
+- **Events**: see [Contracts](#contracts-what-other-modules-may-use) below. `docs/events.md` is generated.
 - **Per-tenant variation**: see [tenant-customization.md](tenant-customization.md). Start with a setting; do not branch on the tenant.
 - **A page in another module's screen**: declare a slot in `web-core` and contribute with `extensions` in the manifest.
 

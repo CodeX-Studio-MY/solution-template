@@ -22,7 +22,7 @@ import {
 } from "@saaskit/web-core";
 import { EmptyState, PageHeader, ProblemAlert } from "@saaskit/ui-kit";
 import { client } from "../client";
-import type { ItemDto } from "../types";
+import type { ItemView } from "../types";
 
 /** Everything that shows items: this list and any `useMaster("__KEY__", ...)` picker elsewhere in the app. */
 const itemQueries = [["__KEY__", "items"], masterKey("__KEY__")];
@@ -53,7 +53,7 @@ export function Component() {
     },
   );
   const remove = useApiMutation(
-    (item: ItemDto) =>
+    (item: ItemView) =>
       unwrapEmpty(
         client.DELETE("/api/__KEY__/v1/items/{id}", {
           params: { path: { id: item.id }, header: { "If-Match": item.eTag } },
@@ -62,7 +62,7 @@ export function Component() {
     { invalidate: itemQueries, success: t("list.deleted") },
   );
 
-  async function confirmRemove(item: ItemDto) {
+  async function confirmRemove(item: ItemView) {
     const confirmed = await dialog.confirm({
       title: t("list.deleteTitle", { name: item.name }),
       text: t("list.deleteText"),

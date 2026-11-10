@@ -52,7 +52,10 @@ public sealed class ModuleTestHost : IAsyncDisposable
     /// <summary>The in-memory server's handler, for clients that aren't HttpClient-based (SignalR).</summary>
     public HttpMessageHandler Handler => _app.GetTestServer().CreateHandler();
 
-    /// <summary>Starts <typeparamref name="TModule"/>; tenants named like "demo-complete" get the last plan in platform.yaml, the rest the first.</summary>
+    /// <summary>
+    /// Starts <typeparamref name="TModule"/>; tenants named like "demo-complete" get the last plan in platform.yaml, the rest the lowest
+    /// plan that includes the module (so a module sold only in higher plans can still be tested).
+    /// </summary>
     public static Task<ModuleTestHost> StartAsync<TModule>(Databases databases, string provider, Action<WebApplicationBuilder>? configure = null, params string[] tenantSlugs)
         where TModule : IPlatformModule =>
         StartCoreAsync(databases, provider, [TModule.Service], builder => builder.AddModule<TModule>(), configure, tenantSlugs);
@@ -62,6 +65,10 @@ public sealed class ModuleTestHost : IAsyncDisposable
         where TFirst : IPlatformModule
         where TSecond : IPlatformModule =>
         StartCoreAsync(databases, provider, [TFirst.Service, TSecond.Service], builder => builder.AddModule<TFirst>().AddModule<TSecond>(), configure, tenantSlugs);
+
+    /// <summary>The lowest plan whose modules include every module the given services own.</summary>
+    private static string LowestPlanFor(PlatformService[] services) =>
+        Plans.All.First(plan => services.SelectMany(s => s.OwnedModules).All(key => Modules.All.Single(m => m.Key == key).Plans.Contains(plan)));
 
     private static async Task<ModuleTestHost> StartCoreAsync(
         Databases databases,
@@ -113,7 +120,8 @@ public sealed class ModuleTestHost : IAsyncDisposable
             await using (var scope = app.Services.CreateAsyncScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<CatalogDbContext>();
-                var plan = slug.Contains("complete", StringComparison.Ordinal) ? Plans.All[^1] : Plans.All[0];   // a tenant named "...plus" gets the top plan
+                // A tenant named "...complete" gets the top plan; the rest the lowest plan that includes the modules under test.
+                var plan = slug.Contains("complete", StringComparison.Ordinal) ? Plans.All[^1] : LowestPlanFor(services);
                 var tenant = new CatalogTenant(slug, slug, SeededPlans.IdOf(plan), PlatformInfo.DefaultTimeZone, PlatformInfo.DefaultCurrency, "en",
                     new TenantPlacementData { Provider = provider, ServerPool = "default", DatabaseName = Databases.UniqueName("tenant") });
                 tenant.ChangeStatus(TenantStatus.Active);

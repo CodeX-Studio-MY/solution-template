@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <!-- Versioned integration events and shared contract types only. References nothing, so any module can depend on it. -->
+  <!-- The platform's own types are here; each business module's events, views and typed client are in Modules/{Pascal}. -->
   <PropertyGroup>
     <IsPackable>true</IsPackable>
   </PropertyGroup>

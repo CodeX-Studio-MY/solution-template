@@ -1,3 +1,4 @@
+using Saaskit.Contracts.Sample;
 using Saaskit.Core.Authorization;
 using Saaskit.Core.Http;
 using Saaskit.Core.Platform;
@@ -32,7 +33,7 @@ internal static class SampleEndpoints
             var created = await service.CreateAsync(body, ct);
             response.Headers.ETag = created.ETag;
             return Results.Created($"{PlatformServices.Sample.RoutePrefix}/v1/items/{created.Id}", created);
-        }).RequireModuleRole(Modules.Sample, Role.User).RequireIdempotency<SampleDbContext>().Produces<ItemDto>(StatusCodes.Status201Created);
+        }).RequireModuleRole(Modules.Sample, Role.User).RequireIdempotency<SampleDbContext>().Produces<ItemView>(StatusCodes.Status201Created);
 
         // Changes carry the version the client last saw (If-Match): 428 if missing, 412 if someone else changed it first.
         items.MapPut("/{id:guid}", async (Guid id, SaveItemInput body, [FromHeader(Name = "If-Match")] string? ifMatch, ItemService service, HttpResponse response, CancellationToken ct) =>
@@ -46,9 +47,9 @@ internal static class SampleEndpoints
         }).RequireModuleRole(Modules.Sample, Role.Manager).Produces(StatusCodes.Status204NoContent);
     }
 
-    private static ItemDto With(HttpResponse response, ItemDto dto)
+    private static ItemView With(HttpResponse response, ItemView view)
     {
-        response.Headers.ETag = dto.ETag;
-        return dto;
+        response.Headers.ETag = view.ETag;
+        return view;
     }
 }
