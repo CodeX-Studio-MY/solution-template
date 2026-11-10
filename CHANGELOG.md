@@ -3,6 +3,22 @@
 All notable changes to this project are written here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 the project uses [Semantic Versioning](https://semver.org/).
 
+## [0.1.3] - 2026-11-11
+
+### Added
+
+- **A Feedback module in every product.** Anyone signed in can send feedback from a button in the customer app's top bar: a type
+  (bug, idea or other), an optional rating from 1 to 5, a message, and the page it was sent from. A tenant's admins read their own
+  tenant's feedback under **Settings, Feedback**; the operator console has a **Feedback** page across every tenant, with a status
+  filter and a status menu (new, reviewed, done) that uses `If-Match`, and the latest items also appear on the tenant's Overview.
+  `feedback` is a platform module hosted by the tenancy service and locked into every plan, like billing. The data is in the catalog
+  database (a `Feedback` table, with new catalog and tenancy migrations); the sender's name is stored with each item.
+
+### Changed
+
+- **`dev-up` raises the sign-in rate limit to 300 a minute for the local stack only.** Every `pnpm e2e:stack` test signs in from the
+  same address, and the full run went past the default of 30. Deployed services keep the default.
+
 ## [0.1.2] - 2026-11-10
 
 ### Added
@@ -80,6 +96,7 @@ Principals directory is not connected to sign-in. Billing is a placeholder and p
 Operators can request support access but cannot use it from the console. Customer sign-in pages are English only. No account emails are
 sent. CI only builds. The PowerShell scripts were not run on Windows. See [docs/known-limitations.md](docs/known-limitations.md).
 
+[0.1.3]: https://github.com/CodeX-Studio-MY/solution-template/releases/tag/v0.1.3
 [0.1.2]: https://github.com/CodeX-Studio-MY/solution-template/releases/tag/v0.1.2
 [0.1.1]: https://github.com/CodeX-Studio-MY/solution-template/releases/tag/v0.1.1
 [0.1.0]: https://github.com/CodeX-Studio-MY/solution-template/releases/tag/v0.1.0

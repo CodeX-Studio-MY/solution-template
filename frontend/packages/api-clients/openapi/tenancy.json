@@ -368,6 +368,88 @@
         }
       }
     },
+    "/api/tenancy/v1/feedback": {
+      "post": {
+        "tags": [
+          "feedback"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FeedbackSubmit"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeedbackRow"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "feedback"
+        ],
+        "parameters": [
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "string"
+                }
+              ],
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "string"
+                }
+              ],
+              "format": "int32",
+              "default": 25
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageOfFeedbackRow"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/tenancy/v1/operator/sessions": {
       "post": {
         "tags": [
@@ -1179,6 +1261,123 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/SupportTokenDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenancy/v1/operator/feedback": {
+      "get": {
+        "tags": [
+          "feedback"
+        ],
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/FeedbackStatus"
+            }
+          },
+          {
+            "name": "tenantId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "string"
+                }
+              ],
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "string"
+                }
+              ],
+              "format": "int32",
+              "default": 25
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageOfFeedbackRow"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenancy/v1/operator/feedback/{id}/status": {
+      "post": {
+        "tags": [
+          "feedback"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FeedbackStatusBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeedbackRow"
                 }
               }
             }
@@ -2389,6 +2588,152 @@
         },
         "description": "A feature flag for a tenant: its default, the tenant\u0027s own choice (if any) and the result."
       },
+      "FeedbackKind": {
+        "enum": [
+          "bug",
+          "idea",
+          "other"
+        ]
+      },
+      "FeedbackRow": {
+        "required": [
+          "feedbackId",
+          "tenantId",
+          "tenantSlug",
+          "tenantName",
+          "senderId",
+          "senderName",
+          "kind",
+          "rating",
+          "message",
+          "pagePath",
+          "status",
+          "createdOn",
+          "eTag"
+        ],
+        "type": "object",
+        "properties": {
+          "feedbackId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tenantId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tenantSlug": {
+            "type": "string"
+          },
+          "tenantName": {
+            "type": "string"
+          },
+          "senderId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "senderName": {
+            "type": "string"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/FeedbackKind"
+          },
+          "rating": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "enum": [
+                  null
+                ],
+                "nullable": true
+              }
+            ],
+            "format": "uint8",
+            "nullable": true
+          },
+          "message": {
+            "type": "string"
+          },
+          "pagePath": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/FeedbackStatus"
+          },
+          "createdOn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "eTag": {
+            "type": "string"
+          }
+        },
+        "description": "One piece of feedback with its tenant, as both the tenant\u0027s admins and the operator list it."
+      },
+      "FeedbackStatus": {
+        "enum": [
+          "new",
+          "reviewed",
+          "done"
+        ]
+      },
+      "FeedbackStatusBody": {
+        "required": [
+          "status"
+        ],
+        "type": "object",
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/FeedbackStatus"
+          }
+        }
+      },
+      "FeedbackSubmit": {
+        "required": [
+          "kind",
+          "rating",
+          "message",
+          "pagePath"
+        ],
+        "type": "object",
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/FeedbackKind"
+          },
+          "rating": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "enum": [
+                  null
+                ],
+                "nullable": true
+              }
+            ],
+            "format": "uint8",
+            "nullable": true
+          },
+          "message": {
+            "type": "string"
+          },
+          "pagePath": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "description": "What a user sends. byte? FeedbackSubmit.Rating is optional (1 to 5); string? FeedbackSubmit.PagePath is the page they were on."
+      },
       "GrantBody": {
         "required": [
           "reason"
@@ -2879,6 +3224,75 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/AccessAuditRow"
+            }
+          },
+          "pageNumber": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "format": "int32"
+          },
+          "pageSize": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "format": "int32"
+          },
+          "totalCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "format": "int32"
+          },
+          "totalPages": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "format": "int32"
+          },
+          "hasNext": {
+            "type": "boolean"
+          }
+        },
+        "description": "The one response shape for lists."
+      },
+      "PageOfFeedbackRow": {
+        "required": [
+          "items",
+          "pageNumber",
+          "pageSize",
+          "totalCount"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FeedbackRow"
             }
           },
           "pageNumber": {
@@ -4173,6 +4587,9 @@
     },
     {
       "name": "support-access"
+    },
+    {
+      "name": "feedback"
     },
     {
       "name": "operator"

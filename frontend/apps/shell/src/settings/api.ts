@@ -10,6 +10,9 @@ export type Group = IdentitySchemas["schemas"]["GroupDto"];
 export type Assignment = IdentitySchemas["schemas"]["AssignmentDto"];
 export type SupportAccess = TenancySchemas["schemas"]["SupportAccessDto"];
 export type TenantSummary = TenancySchemas["schemas"]["TenantSummary"];
+export type FeedbackRow = TenancySchemas["schemas"]["FeedbackRow"];
+export type FeedbackKind = TenancySchemas["schemas"]["FeedbackKind"];
+export type FeedbackStatus = TenancySchemas["schemas"]["FeedbackStatus"];
 export type Enrollment = IdentitySchemas["schemas"]["MachineEnrollmentDto"];
 
 /** Every access change can affect any list of people, groups or roles: refresh all of identity's queries and masters. */

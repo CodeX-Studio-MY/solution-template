@@ -64,6 +64,15 @@ export const settingsSections: readonly SettingsSection[] = [
     lazy: () => import("./pages/SupportAccessPage"),
   },
   {
+    path: "feedback",
+    group: "organization",
+    label: "sections.feedback",
+    ns: "settings",
+    module: "feedback",
+    role: "admin",
+    lazy: () => import("./pages/FeedbackPage"),
+  },
+  {
     path: "activity",
     group: "organization",
     label: "sections.activity",

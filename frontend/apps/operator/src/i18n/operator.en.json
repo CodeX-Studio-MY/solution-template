@@ -110,7 +110,29 @@
     "tenants": "Tenants",
     "principals": "Principals",
     "subscriptions": "Subscriptions",
-    "signInProviders": "Sign-in providers"
+    "signInProviders": "Sign-in providers",
+    "feedback": "Feedback"
+  },
+  "feedback": {
+    "title": "Feedback",
+    "subtitle": "What people in every tenant have sent. Mark it reviewed when you have read it, and done when it is dealt with.",
+    "all": "All",
+    "filter": "Status",
+    "tenant": "Tenant",
+    "sender": "From",
+    "kind": "Type",
+    "rating": "Rating",
+    "message": "Message",
+    "page": "Page",
+    "sentOn": "Sent",
+    "status": "Status",
+    "empty": "No feedback yet.",
+    "noMatches": "No feedback with that status.",
+    "changeStatus": "Change the status of this feedback",
+    "saved": "Status saved.",
+    "recent": "Latest feedback",
+    "recentHint": "The most recent feedback from this tenant's people.",
+    "viewAll": "See all feedback"
   },
   "principals": {
     "title": "Principals",

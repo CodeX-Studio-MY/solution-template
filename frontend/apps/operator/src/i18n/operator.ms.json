@@ -110,7 +110,29 @@
     "tenants": "Penyewa",
     "principals": "Prinsipal",
     "subscriptions": "Langganan",
-    "signInProviders": "Penyedia log masuk"
+    "signInProviders": "Penyedia log masuk",
+    "feedback": "Maklum balas"
+  },
+  "feedback": {
+    "title": "Maklum balas",
+    "subtitle": "Apa yang dihantar oleh orang di setiap penyewa. Tandakan sebagai disemak setelah dibaca, dan selesai setelah ditangani.",
+    "all": "Semua",
+    "filter": "Status",
+    "tenant": "Penyewa",
+    "sender": "Daripada",
+    "kind": "Jenis",
+    "rating": "Penilaian",
+    "message": "Mesej",
+    "page": "Halaman",
+    "sentOn": "Dihantar",
+    "status": "Status",
+    "empty": "Belum ada maklum balas.",
+    "noMatches": "Tiada maklum balas dengan status itu.",
+    "changeStatus": "Tukar status maklum balas ini",
+    "saved": "Status disimpan.",
+    "recent": "Maklum balas terkini",
+    "recentHint": "Maklum balas terbaharu daripada orang di penyewa ini.",
+    "viewAll": "Lihat semua maklum balas"
   },
   "principals": {
     "title": "Prinsipal",

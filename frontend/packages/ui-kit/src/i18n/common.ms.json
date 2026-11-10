@@ -49,6 +49,18 @@
     "moduleSettings": "Tetapan",
     "platformSettings": "Tetapan platform"
   },
+  "feedback": {
+    "open": "Hantar maklum balas",
+    "title": "Hantar maklum balas",
+    "text": "Beritahu kami apa yang tidak berfungsi, apa yang anda mahukan, atau apa-apa sahaja. Ia dihantar kepada pasukan yang mengendalikan perkhidmatan ini.",
+    "kind": "Jenis maklum balas",
+    "kinds": { "bug": "Pepijat", "idea": "Idea", "other": "Lain-lain" },
+    "rating": "Bagaimana pengalaman anda? (pilihan)",
+    "message": "Mesej anda",
+    "send": "Hantar",
+    "sent": "Maklum balas dihantar. Terima kasih.",
+    "statuses": { "new": "Baharu", "reviewed": "Disemak", "done": "Selesai" }
+  },
   "home": {
     "welcome": "Selamat datang",
     "intro": "Pilih modul daripada menu.",

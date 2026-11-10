@@ -32,7 +32,8 @@ import {
   type Tone,
   type TenantProfile,
 } from "@saaskit/ui-kit";
-import { plansKey, tenancy, tenantsKey, useModules, usePlans, type SupportAccess, type TenantSummary } from "../api";
+import { feedbackKey, plansKey, tenancy, tenantsKey, useModules, usePlans, type SupportAccess, type TenantSummary } from "../api";
+import { FeedbackTable } from "../components/FeedbackTable";
 import { statusTone } from "./statusTone";
 import { TenantAccess, TenantLogins } from "./TenantAccess";
 
@@ -203,6 +204,9 @@ function Overview({ tenant }: { tenant: TenantSummary }) {
         <SupportRequest tenant={tenant} />
         <SupportRequests tenantId={tenant.id} />
       </Section>
+      <Section title={t("feedback.recent")} hint={t("feedback.recentHint")}>
+        <RecentFeedback tenantId={tenant.id} />
+      </Section>
       <Section title={t("tenants.status")}>
         <Stack spacing={2}>
           <FormControlLabel
@@ -219,6 +223,30 @@ function Overview({ tenant }: { tenant: TenantSummary }) {
         </Stack>
       </Section>
     </Stack>
+  );
+}
+
+/** The tenant's latest feedback, with the same status menu as the Feedback page. */
+function RecentFeedback({ tenantId }: { tenantId: string }) {
+  const { t } = useTranslation("operator");
+  const list = useApiQuery([...feedbackKey, { tenantId, recent: true }], (signal) =>
+    unwrap(tenancy.GET("/api/tenancy/v1/operator/feedback", { params: { query: { tenantId, Page: 1, PageSize: 5 } }, signal })),
+  );
+  const items = list.data?.items ?? [];
+  return (
+    <>
+      <ProblemAlert error={list.error ?? undefined} />
+      {list.data && items.length === 0 ? (
+        <EmptyState title={t("feedback.empty")} />
+      ) : (
+        <Paper variant="outlined" sx={{ overflowX: "auto" }}>
+          <FeedbackTable rows={items} showTenant={false} />
+        </Paper>
+      )}
+      <Link component={RouterLink} to="/feedback" underline="hover" sx={{ display: "inline-block", mt: 2 }}>
+        {t("feedback.viewAll")}
+      </Link>
+    </>
   );
 }
 
@@ -454,7 +482,12 @@ function SupportRequest({ tenant }: { tenant: TenantSummary }) {
   );
 }
 
-const supportTones: Record<SupportAccess["status"], Tone> = { pending: "warning", approved: "success", denied: "default", revoked: "default" };
+const supportTones: Record<SupportAccess["status"], Tone> = {
+  pending: "warning",
+  approved: "success",
+  denied: "default",
+  revoked: "default",
+};
 
 /** What was asked of this tenant, and what its admin answered. A request refreshes it, so the new pending row appears at once. */
 function SupportRequests({ tenantId }: { tenantId: string }) {

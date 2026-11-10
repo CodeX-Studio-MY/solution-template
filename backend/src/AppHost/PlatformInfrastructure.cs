@@ -303,12 +303,18 @@ internal sealed class PlatformInfrastructure
         return gateway;
     }
 
-    private IResourceBuilder<ProjectResource> ConfigureDatabase(IResourceBuilder<ProjectResource> project) =>
-        project
+    private IResourceBuilder<ProjectResource> ConfigureDatabase(IResourceBuilder<ProjectResource> project)
+    {
+        project = project
             .WithEnvironment(ConfigKeys.Database.Provider, Provider)
             .WithEnvironment(ConfigKeys.Database.CatalogConnectionString, Catalog)
             .WithEnvironment(ConfigKeys.Database.Servers(DefaultServerPool), TenantServer)
             .WithEnvironment(ConfigKeys.Tenancy.BaseDomain, BaseDomain);
+        // scripts/dev-up raises the sign-in limit: every browser test signs in from the same address within a minute.
+        if (Environment.GetEnvironmentVariable(ConfigKeys.RateLimit.AuthPerAddressPerMinute) is { Length: > 0 } authLimit)
+            project = project.WithEnvironment(ConfigKeys.RateLimit.AuthPerAddressPerMinute, authLimit);
+        return project;
+    }
 }
 
 /// <summary>The secrets the stack needs, generated once and persisted in the AppHost's user secrets.</summary>

@@ -58,6 +58,7 @@ Remove-Item .dev/invitations.json.done -ErrorAction SilentlyContinue
 $env:Database__Provider = $Provider
 $env:AppHost__Layout = if ($AllInOne) { 'all-in-one' } else { 'services' }
 $env:AppHost__Seed = 'true'
+$env:RateLimit__AuthPerAddressPerMinute = '300'   # every browser test signs in from one address within a minute
 $env:Dev__CertificatePath = "$root/.dev/certs/localhost.pem"
 $env:Dev__CertificateKeyPath = "$root/.dev/certs/localhost-key.pem"
 $env:Dev__FrontendPath = "$root/frontend/dist"

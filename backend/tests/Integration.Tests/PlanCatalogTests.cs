@@ -183,6 +183,12 @@ public sealed class PlanCatalogTests(Databases databases)
         (await refused.Content.ReadAsStringAsync(Ct)).ShouldContain("tenant-settings.module-required-in-plan");
         (await Read(await op.GetAsync($"{Api}/plans", Ct))).EnumerateArray().First().GetProperty("modules").EnumerateArray().Select(m => m.GetString()).ShouldContain(Modules.Billing);
 
+        // Feedback is one of them: every product has it from the start.
+        seeded.GetProperty("modules").EnumerateArray().Select(m => m.GetString()).ShouldContain(Modules.Feedback);
+        var feedbackRefused = await op.DeleteAsync($"{Api}/plans/{id}/modules/{Modules.Feedback}", Ct);
+        feedbackRefused.StatusCode.ShouldBe(HttpStatusCode.UnprocessableEntity);
+        (await feedbackRefused.Content.ReadAsStringAsync(Ct)).ShouldContain("tenant-settings.module-required-in-plan");
+
         // A plan an operator creates starts empty, and the platform's modules can still be added to it.
         var created = await Read(await op.PostAsJsonAsync($"{Api}/plans", NewPlan("fresh"), Ct), HttpStatusCode.Created);
         var freshId = created.GetProperty("planId").GetInt32();

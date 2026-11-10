@@ -23,6 +23,7 @@ import { useColorScheme } from "@mui/material/styles";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import MenuIcon from "@mui/icons-material/Menu";
 import MenuOpen from "@mui/icons-material/MenuOpen";
+import FeedbackIcon from "@mui/icons-material/FeedbackOutlined";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import SettingsIcon from "@mui/icons-material/Settings";
@@ -41,6 +42,7 @@ import {
 } from "@saaskit/web-core";
 import { Icon, LanguageMenu, tokens } from "@saaskit/ui-kit";
 import { settingsSections, visibleSections } from "../settings/sections";
+import { FeedbackDialog } from "./FeedbackDialog";
 import { useConfigurableModules, useModuleName } from "../settings/api";
 
 interface Props {
@@ -93,6 +95,7 @@ export function AppShell({ manifests }: Props) {
   const { pathname } = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(readCollapsed);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
   const moduleRoles = session?.moduleRoles ?? {};
 
   const moduleName = useModuleName();
@@ -188,6 +191,11 @@ export function AppShell({ manifests }: Props) {
               </IconButton>
             </Tooltip>
           ) : null}
+          <Tooltip title={t("common:feedback.open")}>
+            <IconButton aria-label={t("common:feedback.open")} aria-haspopup="dialog" onClick={() => setFeedbackOpen(true)}>
+              <FeedbackIcon />
+            </IconButton>
+          </Tooltip>
           <LanguageMenu onChange={saveLanguage} />
           <UserMenu highestRole={highestRole(moduleRoles)} tenantName={tenant.name} />
         </Toolbar>
@@ -247,6 +255,7 @@ export function AppShell({ manifests }: Props) {
         ) : null}
         <Outlet />
       </Box>
+      {feedbackOpen ? <FeedbackDialog onClose={() => setFeedbackOpen(false)} /> : null}
     </Box>
   );
 }

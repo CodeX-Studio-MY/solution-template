@@ -35,6 +35,67 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/tenancy/v1/feedback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    Page?: number | string;
+                    PageSize?: number | string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PageOfFeedbackRow"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["FeedbackSubmit"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["FeedbackRow"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/tenancy/v1/me/activity": {
         parameters: {
             query?: never;
@@ -211,6 +272,89 @@ export interface paths {
             };
         };
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/tenancy/v1/operator/feedback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    Page?: number | string;
+                    PageSize?: number | string;
+                    status?: components["schemas"]["FeedbackStatus"];
+                    tenantId?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PageOfFeedbackRow"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/tenancy/v1/operator/feedback/{id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    "If-Match"?: string;
+                };
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["FeedbackStatusBody"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["FeedbackRow"];
+                    };
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -2248,6 +2392,42 @@ export interface components {
             moduleKey: string;
             override: boolean | null;
         };
+        /** @enum {unknown} */
+        FeedbackKind: "bug" | "idea" | "other";
+        /** @description One piece of feedback with its tenant, as both the tenant's admins and the operator list it. */
+        FeedbackRow: {
+            /** Format: date-time */
+            createdOn: string;
+            eTag: string;
+            /** Format: uuid */
+            feedbackId: string;
+            kind: components["schemas"]["FeedbackKind"];
+            message: string;
+            pagePath: string;
+            /** Format: uint8 */
+            rating: (number | string | (null)) | null;
+            /** Format: uuid */
+            senderId: string;
+            senderName: string;
+            status: components["schemas"]["FeedbackStatus"];
+            /** Format: uuid */
+            tenantId: string;
+            tenantName: string;
+            tenantSlug: string;
+        };
+        /** @enum {unknown} */
+        FeedbackStatus: "new" | "reviewed" | "done";
+        FeedbackStatusBody: {
+            status: components["schemas"]["FeedbackStatus"];
+        };
+        /** @description What a user sends. byte? FeedbackSubmit.Rating is optional (1 to 5); string? FeedbackSubmit.PagePath is the page they were on. */
+        FeedbackSubmit: {
+            kind: components["schemas"]["FeedbackKind"];
+            message: string;
+            pagePath: string | null;
+            /** Format: uint8 */
+            rating: (number | string | (null)) | null;
+        };
         GrantBody: {
             reason: string | null;
         };
@@ -2378,6 +2558,19 @@ export interface components {
         PageOfAccessAuditRow: {
             hasNext?: boolean;
             items: components["schemas"]["AccessAuditRow"][];
+            /** Format: int32 */
+            pageNumber: number | string;
+            /** Format: int32 */
+            pageSize: number | string;
+            /** Format: int32 */
+            totalCount: number | string;
+            /** Format: int32 */
+            totalPages?: number | string;
+        };
+        /** @description The one response shape for lists. */
+        PageOfFeedbackRow: {
+            hasNext?: boolean;
+            items: components["schemas"]["FeedbackRow"][];
             /** Format: int32 */
             pageNumber: number | string;
             /** Format: int32 */

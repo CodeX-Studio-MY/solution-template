@@ -29,6 +29,7 @@
     "modules": "平台服务",
     "features": "功能",
     "support": "支持访问",
+    "feedback": "反馈",
     "users": "用户",
     "groups": "用户组",
     "devices": "设备",
@@ -93,6 +94,17 @@
       "denied": "已拒绝",
       "revoked": "已撤销"
     }
+  },
+  "feedback": {
+    "subtitle": "贵组织成员发送给服务提供方的反馈。任何已登录的人都可以从顶栏发送反馈。",
+    "sender": "发送人",
+    "kind": "类型",
+    "rating": "评分",
+    "message": "留言",
+    "page": "页面",
+    "sentOn": "发送时间",
+    "status": "状态",
+    "empty": "暂无反馈。"
   },
   "users": {
     "subtitle": "可以登录的人员，以及他们在每个模块中可以执行的操作。",

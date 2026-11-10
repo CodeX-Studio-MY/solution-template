@@ -29,6 +29,7 @@
     "modules": "Platform services",
     "features": "Features",
     "support": "Support access",
+    "feedback": "Feedback",
     "users": "Users",
     "groups": "Groups",
     "devices": "Devices",
@@ -93,6 +94,17 @@
       "denied": "Denied",
       "revoked": "Revoked"
     }
+  },
+  "feedback": {
+    "subtitle": "What your organisation's people have sent to your provider. Anyone signed in can send feedback from the top bar.",
+    "sender": "From",
+    "kind": "Type",
+    "rating": "Rating",
+    "message": "Message",
+    "page": "Page",
+    "sentOn": "Sent",
+    "status": "Status",
+    "empty": "No feedback yet."
   },
   "users": {
     "subtitle": "People who can sign in, and what they can do in each module.",

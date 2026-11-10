@@ -253,3 +253,41 @@ test("the operator console isn't served on a tenant host, and the tenant app isn
   });
   expect(login.status()).toBe(404);
 });
+
+test("the demo user sends feedback, the operator marks it reviewed, and the tenant admin sees the new status", async ({
+  browser,
+  page,
+}) => {
+  const operator = devOperator();
+  const message = `Stack ${Date.now().toString(36)}: the export button does nothing`;
+
+  // The demo tenant's admin (any signed-in user may send) sends it from the header.
+  await acceptInvitation(browser, "demo");
+  const admin = await browser.newPage({ ignoreHTTPSErrors: true });
+  await signIn(admin, "demo");
+  await admin.getByRole("button", { name: "Send feedback" }).click();
+  const dialog = admin.getByRole("dialog", { name: "Send feedback" });
+  await dialog.getByRole("button", { name: "Bug" }).click();
+  await dialog.getByLabel("Your message").fill(message);
+  await dialog.getByRole("button", { name: "Send", exact: true }).click();
+  await expect(admin.getByText("Feedback sent. Thank you.")).toBeVisible();
+
+  // The operator finds it across tenants and marks it reviewed.
+  await page.goto(`https://operator.localhost:${port}/`);
+  await page.getByLabel("Email").fill(operator.email);
+  await page.getByLabel("Password").fill(operator.password);
+  await page.getByLabel("Authenticator code").fill(totp(operator.totpSecret));
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Feedback" }).click();
+  const row = page.getByRole("table", { name: "Feedback" }).getByRole("row", { name: new RegExp(message) });
+  await expect(row).toBeVisible();
+  await row.getByRole("combobox", { name: "Change the status of this feedback" }).click();
+  await page.getByRole("option", { name: "Reviewed" }).click();
+  await expect(page.getByText("Status saved.")).toBeVisible();
+
+  // The tenant admin reads it in Settings with the new status.
+  await admin.getByRole("link", { name: "Platform settings" }).click();
+  await admin.getByRole("navigation", { name: "Settings sections" }).getByRole("link", { name: "Feedback" }).click();
+  await expect(admin.getByRole("table", { name: "Feedback" }).getByRole("row", { name: new RegExp(`${message}.*Reviewed`) })).toBeVisible();
+  await admin.close();
+});

@@ -49,6 +49,18 @@
     "moduleSettings": "Settings",
     "platformSettings": "Platform settings"
   },
+  "feedback": {
+    "open": "Send feedback",
+    "title": "Send feedback",
+    "text": "Tell us what is not working, what you would like, or anything else. It goes to the team that runs this service.",
+    "kind": "Type of feedback",
+    "kinds": { "bug": "Bug", "idea": "Idea", "other": "Other" },
+    "rating": "How is it going? (optional)",
+    "message": "Your message",
+    "send": "Send",
+    "sent": "Feedback sent. Thank you.",
+    "statuses": { "new": "New", "reviewed": "Reviewed", "done": "Done" }
+  },
   "home": {
     "welcome": "Welcome",
     "intro": "Choose a module from the menu.",

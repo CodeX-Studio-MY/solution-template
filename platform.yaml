@@ -18,12 +18,12 @@ plans: [lite, advanced, complete]          # lowest to highest
 #   services: what RUNS. A process with a port, a gateway route (/api/{key}/*), a container, its own schema and token audience.
 #   modules:  what is SOLD and PERMISSIONED. Plans include it, users hold a role in it, it has a menu entry and a micro-frontend.
 # A service hosts ("owns") zero or more modules. Business features are almost always one service owning one module with the same
-# key, which is what scripts/new-module adds. The platform services below are the exceptions: tenancy hosts two modules, and
+# key, which is what scripts/new-module adds. The platform services below are the exceptions: tenancy hosts three modules, and
 # notification hosts none (it is infrastructure nobody buys or holds a role in).
 
 services:                              # databases: where the service keeps data (tenant is the default)
   - { key: identity,           port: 5001, owns: [access-management], databases: [tenant, catalog] }
-  - { key: tenancy,            port: 5002, owns: [tenant-settings, billing], databases: [catalog] }
+  - { key: tenancy,            port: 5002, owns: [tenant-settings, billing, feedback], databases: [catalog] }
   - { key: notification,       port: 5003, owns: [] }
   - { key: base,               port: 5101, owns: [base] }
 
@@ -31,4 +31,5 @@ modules:                               # plans: which plans include the module
   - { key: access-management,  name: Access Management,  plans: [lite, advanced, complete] }
   - { key: tenant-settings,    name: Tenant Settings,    plans: [lite, advanced, complete] }
   - { key: billing,            name: Billing,            plans: [lite, advanced, complete] }
+  - { key: feedback,           name: Feedback,           plans: [lite, advanced, complete] }
   - { key: base,               name: Base,               plans: [lite, advanced, complete] }

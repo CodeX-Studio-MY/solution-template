@@ -110,7 +110,29 @@
     "tenants": "租户",
     "principals": "主体",
     "subscriptions": "订阅",
-    "signInProviders": "登录提供方"
+    "signInProviders": "登录提供方",
+    "feedback": "反馈"
+  },
+  "feedback": {
+    "title": "反馈",
+    "subtitle": "各租户的成员发送的反馈。读过后标记为已查看，处理完后标记为已完成。",
+    "all": "全部",
+    "filter": "状态",
+    "tenant": "租户",
+    "sender": "发送人",
+    "kind": "类型",
+    "rating": "评分",
+    "message": "留言",
+    "page": "页面",
+    "sentOn": "发送时间",
+    "status": "状态",
+    "empty": "暂无反馈。",
+    "noMatches": "没有该状态的反馈。",
+    "changeStatus": "更改此反馈的状态",
+    "saved": "状态已保存。",
+    "recent": "最新反馈",
+    "recentHint": "该租户成员最近发送的反馈。",
+    "viewAll": "查看全部反馈"
   },
   "principals": {
     "title": "主体",
