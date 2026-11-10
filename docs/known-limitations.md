@@ -1,6 +1,6 @@
 # Known limitations
 
-What does not work yet, or works differently from what you might expect, in release 0.1.1. Each item was checked against the code or in a
+What does not work yet, or works differently from what you might expect, in release 0.1.2. Each item was checked against the code or in a
 browser for this release.
 
 ## Sign-in and accounts

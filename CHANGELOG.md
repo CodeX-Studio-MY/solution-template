@@ -3,7 +3,7 @@
 All notable changes to this project are written here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 the project uses [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [0.1.2] - 2026-11-10
 
 ### Added
 
@@ -80,5 +80,6 @@ Principals directory is not connected to sign-in. Billing is a placeholder and p
 Operators can request support access but cannot use it from the console. Customer sign-in pages are English only. No account emails are
 sent. CI only builds. The PowerShell scripts were not run on Windows. See [docs/known-limitations.md](docs/known-limitations.md).
 
+[0.1.2]: https://github.com/CodeX-Studio-MY/solution-template/releases/tag/v0.1.2
 [0.1.1]: https://github.com/CodeX-Studio-MY/solution-template/releases/tag/v0.1.1
 [0.1.0]: https://github.com/CodeX-Studio-MY/solution-template/releases/tag/v0.1.0
