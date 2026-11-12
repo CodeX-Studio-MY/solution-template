@@ -3,6 +3,19 @@
 All notable changes to this project are written here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 the project uses [Semantic Versioning](https://semver.org/).
 
+## [0.1.4] - 2026-11-12
+
+### Fixed
+
+- **Scaffolding works again.** New high-severity advisories on `Microsoft.AspNetCore.SignalR.StackExchangeRedis` 10.0.13 and
+  `Aspire.Hosting` 13.6.1 made the restore fail (warnings are errors), so `scripts/generate` stopped part-way. The .NET servicing
+  packages are now 10.0.15, and Aspire is 13.6.5.
+- The first `scripts/generate` run accepts `--skip-compose` and `--skip-api`, and finds the Aspire CLI in `~/.aspire/bin` like later
+  runs do.
+- A scaffolded product's README is titled with the product's name, and its CHANGELOG starts empty instead of carrying the template's.
+- The guides, runbooks and ADRs were checked against the code. Outdated statements were corrected, for example that invitations are
+  only logged, the `MsFarmDto` naming, and ADR 0011's title.
+
 ## [0.1.3] - 2026-11-11
 
 ### Added
@@ -96,6 +109,7 @@ Principals directory is not connected to sign-in. Billing is a placeholder and p
 Operators can request support access but cannot use it from the console. Customer sign-in pages are English only. No account emails are
 sent. CI only builds. The PowerShell scripts were not run on Windows. See [docs/known-limitations.md](docs/known-limitations.md).
 
+[0.1.4]: https://github.com/CodeX-Studio-MY/solution-template/releases/tag/v0.1.4
 [0.1.3]: https://github.com/CodeX-Studio-MY/solution-template/releases/tag/v0.1.3
 [0.1.2]: https://github.com/CodeX-Studio-MY/solution-template/releases/tag/v0.1.2
 [0.1.1]: https://github.com/CodeX-Studio-MY/solution-template/releases/tag/v0.1.1

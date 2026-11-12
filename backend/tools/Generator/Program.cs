@@ -37,7 +37,7 @@ try
             Console.WriteLine($"Renamed '{args[2]}' to '{args[4]}' in {renamed.ChangedFiles.Count} files and {renamed.RenamedPaths.Count} paths.");
             return 0;
         default:
-            Console.Error.WriteLine($"Unknown command '{command}'. Commands: generate [--check] [--skip-compose] [--skip-api] | init (see scripts/generate) | new-module <key> [--name \"Display Name\"] [--no-frontend] [--skip-compose] | rename --from <product> --to <product>");
+            Console.Error.WriteLine($"Unknown command '{command}'. Commands: generate [--check] [--skip-compose] [--skip-api] | init (see scripts/generate) | new-module <key> [--name \"Display Name\"] [--from-plan <plan>] [--no-frontend] [--skip-compose] [--resume] [--no-catalog-migration] | rename --from <product> --to <product>");
             return 2;
     }
 }

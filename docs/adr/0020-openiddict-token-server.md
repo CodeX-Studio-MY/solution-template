@@ -16,4 +16,4 @@ Duende IdentityServer (commercial licence), Keycloak or a hosted IdP (a second s
 
 ## Consequences
 
-DPoP is not implemented (deviation 20). Machine clients must set `typ: client-authentication+jwt` on assertions (deviation 11).
+DPoP is not implemented: tokens are bearer tokens. Machine clients must set `typ: client-authentication+jwt` on assertions, because OpenIddict requires it ([ADR 0028](0028-token-server-and-gateway-choices.md)).

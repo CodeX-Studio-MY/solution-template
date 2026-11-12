@@ -5,8 +5,8 @@ module for it, **Base** (`base`, in every plan). It ships empty: its migration h
 opens an empty page. This guide adds the first master entity, `MsFarm`, from the database to the screen. Every other master (`MsCrop`,
 `MsStatus`, `MsFarmBlock`) is the same steps again.
 
-In a product called Aviot the module is `Aviot.Base`, the context is `BaseDbContext`, and `Modules.Base` is the key. The code below says
-`Saaskit`: use your product's name. The module template (`templates/backend-module`, `templates/frontend-module`) has a complete example,
+In a product called Aviot the module is `Aviot.Base`, the context is `BaseDbContext`, and `Modules.Base` is the key. The namespaces in the
+code below start with this repository's product name, which is already your product's name once you have scaffolded it. The module template (`templates/backend-module`, `templates/frontend-module`) has a complete example,
 an `Item`, to copy from.
 
 ## The naming rule
@@ -82,11 +82,27 @@ The table lives in the `base` schema of each tenant's database. No other module 
 
 ## 3. The service
 
-`Application/MsFarmService.cs`: a port to the store (`IMsFarmRepository`), the use cases, the DTOs and the module's error catalog.
+`Application/MsFarmService.cs`: a port to the store (`IMsFarmRepository`), the use cases, the input record and the module's error catalog.
 Endpoints only translate HTTP; the rules (validation, "not found") live here. Copy `ItemService.cs` from the module template
 (`templates/backend-module/src/Modules/Sample/Application/`) and rename: `ListAsync`, `GetAsync`, `CreateAsync`, `RenameAsync`,
 `DeleteAsync`, with `ApplyIfMatch` before every change. Copy `Infrastructure/ItemRepository.cs` the same way as `MsFarmRepository`
 (it is `internal`).
+
+What the API returns is a view record in `Contracts`, not a type of the service: the OpenAPI document, the typed client and other modules
+all use it. Base has no contracts folder yet, so create `backend/src/Contracts/Modules/Base/BaseViews.cs` (the Contracts project picks up
+every file under its folder, so nothing else needs editing), following `templates/backend-module/src/Contracts/Modules/Sample/SampleViews.cs`:
+
+```csharp
+namespace Saaskit.Contracts.Base;
+
+/// <param name="Id">The farm.</param>
+/// <param name="Name">What it is called.</param>
+/// <param name="ETag">Its version, for <c>If-Match</c> on a change.</param>
+public sealed record MsFarmView(Guid Id, string Name, string ETag);
+```
+
+The service returns `MsFarmView` (`using Saaskit.Contracts.Base;`), as `ItemService` returns `ItemView`. Keep to what another module may rely on:
+add optional fields, never rename or remove one.
 
 ```csharp
 [ErrorCatalog(Modules.Base)]
@@ -125,10 +141,10 @@ farms.MapPost("", async (SaveFarmInput body, MsFarmService service, HttpResponse
     var created = await service.CreateAsync(body, ct);
     response.Headers.ETag = created.ETag;
     return Results.Created($"{PlatformServices.Base.RoutePrefix}/v1/farms/{created.Id}", created);
-}).RequireModuleRole(Modules.Base, Role.Manager).RequireIdempotency<BaseDbContext>().Produces<MsFarmDto>(StatusCodes.Status201Created);
+}).RequireModuleRole(Modules.Base, Role.Manager).RequireIdempotency<BaseDbContext>().Produces<MsFarmView>(StatusCodes.Status201Created);
 ```
 
-Add `GET /{id}`, `PUT /{id}` (`If-Match`) and `DELETE /{id}` the same way; `Api/SampleEndpoints.cs` in the module template has all five. Never write a role name or a module key as a string: `SingleSourceOfTruthTests`
+`BaseEndpoints.cs` also needs `using Saaskit.Contracts.Base;`. Add `GET /{id}`, `PUT /{id}` (`If-Match`) and `DELETE /{id}` the same way; `Api/SampleEndpoints.cs` in the module template has all five. Never write a role name or a module key as a string: `SingleSourceOfTruthTests`
 fails the build.
 
 ## 5. The migration
@@ -149,11 +165,11 @@ Then run `scripts/generate.sh` (`scripts/generate.ps1` on Windows): it exports B
 ## 6. The screen
 
 `frontend/modules/base/src/pages/FarmList.tsx`. Copy `src/pages/ItemList.tsx` and `src/types.ts` from `templates/frontend-module` and rename
-(`types.ts` exports `MsFarmDto` from the generated `BaseSchemas`). The page uses the hooks every module screen uses:
+(`types.ts` exports `MsFarmView` from the generated `BaseSchemas`). The page uses the hooks every module screen uses:
 
 - `useApiQuery` for the list, and `useApiMutation` for create, rename and delete (it refreshes the queries you name and shows a snackbar).
 - `useDialog().confirm` before a delete.
-- `PageHeader`, `EmptyState`, `ProblemAlert` and `FormDialog` from `@saaskit/ui-kit`.
+- `PageHeader`, `EmptyState` and `ProblemAlert` from `@saaskit/ui-kit`.
 - All text through `useTranslation("base")`, with the string in `locales/en.json`, `ms.json` and `zh.json`. Colours come from the theme,
   never from a value typed in the page.
 

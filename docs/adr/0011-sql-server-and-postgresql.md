@@ -1,4 +1,4 @@
-# 0011. Support SQL Server and PostgreSQL
+# 0011. SQL Server now; PostgreSQL later
 
 Status: accepted, amended 2026-10-11 and 2026-11-05 (see the end)
 
@@ -7,6 +7,8 @@ Status: accepted, amended 2026-10-11 and 2026-11-05 (see the end)
 Customers' clouds and policies differ; some products need SQL Server, others PostgreSQL, and the choice must not change the code.
 
 ## Decision
+
+*Superseded by the amendments below: SQL Server is the only supported provider in this release.*
 
 Two supported providers, chosen per environment by `Database:Provider`. Business code is provider-neutral EF Core LINQ; everything that differs (sequential GUIDs vs UUIDv7, row version vs `xmin`, filtered-index SQL, native JSON, sequence counters, locks, naming) is behind `IDatabaseProvider` in `Core.Data.SqlServer` and `Core.Data.PostgreSql`. Each module has a migrations project per provider generated from the same model, and every test that touches data runs on both (Testcontainers, SQL Server 2025 and PostgreSQL 18).
 

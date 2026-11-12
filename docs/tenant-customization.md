@@ -15,8 +15,7 @@ goods-receipt`) and a `supplier-rating` add-on; replace them with your own modul
 | 7. Tenant-only module | A whole capability only some plans include | The `supplier-rating` module |
 | Branding (a setting) | Colour and logo | `BrandingSettings` (built in) |
 
-`TenantCustomizationTests` covers rungs 1 and 2 with a test-only settings record and flag, and the module templates' tests show the rest
-in a module of your own.
+`TenantCustomizationTests` covers rungs 1 and 2 with a test-only settings record and flag.
 
 ## Which rung do I need?
 
@@ -44,7 +43,7 @@ The rules that hold for every rung:
 
 ## 1. Setting
 
-A typed record in `src/Contracts`, with a default for every value:
+A typed record in `backend/src/Contracts`, with a default for every value:
 
 ```csharp
 [TenantSettings(ModuleKeys.GoodsReceipt)]
@@ -116,7 +115,7 @@ endpoints, so a module that wants them adds its own, shaped like this (the paths
 - `GET /api/goods-receipt/v1/custom-fields?entity=goods-receipt` returns the definitions; records carry `"customFields": { "warehouse": "WH-1" }`.
 - Admins define them with `PUT /api/goods-receipt/v1/custom-fields/{entity}/{key}` (label, type `text|number|date|list`, required, options, order).
 - The module validates every write against the definitions with `CustomFieldValidator` (required, type, listed option; unknown keys are refused, not stored).
-- The frontend renders them with `<CustomFieldsSection entity="goods-receipt" />` from `ui-kit`. It is driven entirely by the definitions
+- The frontend renders them with `<CustomFieldsSection entity="goods-receipt" values={customFields} onChange={setCustomFields} />` from `ui-kit`. It is driven entirely by the definitions
   endpoint above, so there is no tenant-specific code in the frontend, and a tenant with no definitions sees nothing.
 - Keys other modules rely on are agreed in `Contracts` (`WellKnownCustomFields`).
 

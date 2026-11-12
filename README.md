@@ -17,19 +17,23 @@ SQL Server 2025 is the supported database. PostgreSQL is not supported in this r
 
 ## Prerequisites
 
-`scripts/dev-up.sh` and `scripts/dev-up.ps1` check for these tools and stop with a message if one is missing.
+`scripts/dev-up.sh` checks for `docker`, `dotnet`, `node` and `curl`, and `scripts/dev-up.ps1` for `docker`, `dotnet`, `node` and `mkcert`. Each stops with a
+message if one is missing. If pnpm is missing, they enable it with corepack. If mkcert is missing, `dev-up.sh` installs it with Homebrew. They do not check Git, the
+Node.js version, or whether Docker is running.
 
 | Tool | Version | Why | Windows (winget) |
 |---|---|---|---|
 | [.NET SDK](https://dotnet.microsoft.com/download) | 10 (`global.json` pins 10.0.102 or a later 10.0 feature band) | builds and runs the backend and the Aspire AppHost | `winget install Microsoft.DotNet.SDK.10` |
-| [Docker Desktop](https://www.docker.com/products/docker-desktop/) | current, **running**, Linux containers | SQL Server, RabbitMQ, Valkey, Mailpit and Azurite run as containers | `winget install Docker.DockerDesktop` |
+| [Docker Desktop](https://www.docker.com/products/docker-desktop/) | current, **running**, Linux containers | SQL Server, RabbitMQ, Valkey, Mailpit and Azurite (SeaweedFS with `--cloud aws`) run as containers | `winget install Docker.DockerDesktop` |
 | [Node.js](https://nodejs.org/) | **24 or later** (`frontend/package.json` requires it) | frontend build; the generator also reads the TypeScript design tokens with it | `winget install OpenJS.NodeJS.LTS` |
 | pnpm | 12.x (pinned by `packageManager`) | frontend workspace | `npm install -g pnpm` |
+| curl | any | `dev-up` waits for the Gateway with it (`dev-up.sh` checks that it is there) | already in Windows 10 and later (`curl.exe`) |
 | [mkcert](https://github.com/FiloSottile/mkcert) | any | a locally trusted HTTPS certificate for `localhost` and `*.localhost` | `winget install FiloSottile.mkcert` |
 | Git | any | clone and update the repository | `winget install Git.Git` |
 
-Optional: the Aspire CLI (`aspire`). The generator needs it to publish `deploy/docker-compose.yml`. Without it, add `--skip-compose`
-to the generate commands.
+Optional: the Aspire CLI (`aspire`). The generator needs it to publish `deploy/docker-compose.yml`. It finds it on `PATH`, in the
+`ASPIRE_CLI` environment variable, or at `~/.aspire/bin/aspire`. Without it, scaffolding skips the compose file by itself, and later
+`scripts/generate.sh --check` and `scripts/new-module.sh` need `--skip-compose`.
 
 After installing, once:
 
@@ -81,21 +85,28 @@ mkcert -version      # v1.4.x
 
    It writes your answers into `platform.yaml`, renames the template's placeholder (`saaskit`, `Saaskit`, `@saaskit/*`) to your product
    everywhere, adds the first business modules (backend, frontend, migrations, CI), generates everything, installs, builds and checks,
-   removes what only the template needs, and makes the first commit. If a step fails, fix it and run the same command again: it continues
+   removes what only the template needs, retitles the README to `# {Product}` (`# Farm360`), resets `CHANGELOG.md` to an empty `## [Unreleased]`
+   section, and makes the first commit. Without `--yes` it first asks "Continue?", because it changes the folder in place. If a step fails, fix it and run the same command again: it continues
    where it stopped.
 
    | Option | Default | Meaning |
    |---|---|---|
-   | `--product` | asked | The product key: lowercase letters and digits (`farm360`). It becomes the C# root namespace (`Farm360.Core`), the npm scope (`@farm360/ui-kit`), token audiences and container names. |
+   | `--product` | asked | The product key: 2 to 30 lowercase letters and digits, starting with a letter (`farm360`). `system`, `microsoft`, `windows` and `saaskit` are reserved. It becomes the C# root namespace (`Farm360.Core`), the npm scope (`@farm360/ui-kit`), token audiences and container names. |
    | `--org` | `CodeX Studio` | The organization, for package metadata. |
    | `--timezone`, `--currency`, `--locales` | `Asia/Kuala_Lumpur`, `MYR`, `en,ms,zh` | Defaults for new tenants. |
    | `--plans` | `lite,advanced,complete` | The plans you sell, lowest first (the template's own). `platform.yaml` seeds the first plans; the operator console manages them afterwards. |
    | `--cloud` | `azure` | `azure` or `aws`. |
    | `--modules` | none | The first business modules, as keys (`crop-planning,livestock`). Add `:plan` to a key for the lowest plan that includes it: `livestock:advanced` puts it in Advanced and every plan above; without one it is in every plan. Asked for each module when you type the list at the prompt. Add more later with `scripts/new-module.sh <key> --from-plan <plan>`. |
-   | `--yes` | | Ask nothing; use the defaults for what isn't passed (`--product` is still required). |
+   | `--yes`, `-y` | | Ask nothing, not even "Continue?"; use the defaults for what isn't passed (`--product` is still required). |
    | `--skip-checks`, `--no-git` | | Skip the build and checks; don't commit. |
+   | `--skip-compose`, `--skip-api` | | Leave `deploy/docker-compose.yml` alone (done by itself when the Aspire CLI is missing); skip the OpenAPI export and typed clients. |
 
-4. [Run it locally](#run-it-locally).
+4. After scaffolding:
+   - Point `origin` at your own repository: `git remote set-url origin <your repo>`.
+   - Set the copyright owner in `LICENSE`.
+   - The `demo` tenant is on the lowest plan. A module added with a higher plan (`livestock:advanced`) does not show for `admin@demo.example` until you
+     raise the tenant's plan: in the operator console, open **Tenants**, then the tenant, and change its **Plan**.
+5. [Run it locally](#run-it-locally).
 
 Maintaining the template itself: `scripts/generate.sh --template` regenerates it without scaffolding, and `--check` never scaffolds.
 <!-- END TEMPLATE ONLY -->
@@ -170,9 +181,10 @@ email, the password and the 6-digit code. Never reuse these details outside deve
 | Check nothing generated has drifted | `scripts/generate.sh --check` | `scripts/generate.ps1 --check` |
 | Check the license policy | `scripts/check-licenses.sh` | `scripts/check-licenses.ps1` |
 
-`scripts/onboard-tenant` also takes `--name "Display Name"` and `--admin-email you@example.com`. The `--plan` value is a plan key
-(`lite`, `advanced` or `complete` in the template). The generate scripts also take `--skip-compose` (leave `deploy/docker-compose.yml`
-alone) and `--skip-api` (skip the OpenAPI export and typed clients).
+`scripts/onboard-tenant` also takes `--name "Display Name"`, `--admin-email you@example.com` and `--url` (the Tenancy service's address; by default it
+tries `http://localhost:5002`, then `5001`). The `--plan` value is a plan key (`lite`, `advanced` or `complete` in the template). The generate scripts also take `--skip-compose` (leave `deploy/docker-compose.yml`
+alone) and `--skip-api` (skip the OpenAPI export and typed clients). `scripts/new-module` takes `--name "Display Name"`, `--from-plan <plan>`,
+`--no-frontend` and `--skip-compose`.
 
 ## Build features
 
@@ -245,14 +257,14 @@ no packages. A release is therefore a manual step:
 
 1. Run the [tests](#test), `scripts/generate.sh --check` and `scripts/check-licenses.sh` yourself.
 2. Merge to `main` and wait for CI to pass.
-3. Tag the commit (`git tag -a v0.1.0 -m "v0.1.0"`, then `git push origin v0.1.0`) and create the GitHub release from the matching
-   section of [CHANGELOG.md](CHANGELOG.md).
+3. Tag the commit with your own version (for your first release, `git tag -a v0.1.0 -m "v0.1.0"`, then `git push origin v0.1.0`) and create the
+   GitHub release from the matching section of your [CHANGELOG.md](CHANGELOG.md), which starts as an empty `## [Unreleased]`.
 4. Build and push your images ([Deploy](#deploy), step 2) if you deploy from a registry.
 
 ## Known limitations
 
-Several features are not connected yet: the Google, Microsoft, Apple and Facebook buttons, billing, operator roles, using support
-access from the console, and sending email. The full, checked list is in [docs/known-limitations.md](docs/known-limitations.md).
+Several features are not connected yet: the Google, Microsoft, Apple and Facebook sign-in buttons, billing, operator roles, using support
+access from the console, and the notification bell. The full, checked list is in [docs/known-limitations.md](docs/known-limitations.md).
 
 ## Reference
 
@@ -319,11 +331,11 @@ flowchart LR
 platform.yaml                 the single source for structure
 backend/src/Core*             the shared kernel: tenancy, data (SQL Server provider), messaging, security, files, observability
 backend/src/Contracts         versioned events and the settings / flag declarations modules share
-backend/src/Contracts/Modules/*  one folder per business module: its events, views and typed client, for other modules to use
-backend/src/Modules/*         one class library per module: Domain, Application, Infrastructure, Api
-backend/src/Hosts/*           a thin host per module, and AllInOne.Host
+backend/src/Contracts/Modules/*  one folder per business module that `new-module` adds: its events, views and typed client (Base has none)
+backend/src/Modules/*         one class library per module: Domain, Application, Infrastructure, Api (Base has only Api and Infrastructure)
+backend/src/Hosts/*           a thin host per service, and AllInOne.Host
 backend/src/{Gateway,Scheduler,Migrator,AppHost,DevSeed}
-backend/tests/*               architecture, core, identity, integration (Testcontainers), generator, and the shared TestSupport
+backend/tests/*               architecture, base, core, identity, integration (Testcontainers), generator, and the shared TestSupport
 backend/tools/*               the generator and the OpenAPI exporter
 frontend/apps/*               the shell (the host app) and the operator console
 frontend/modules/*            federated modules; frontend/packages/{ui-kit,web-core,api-clients} are shared

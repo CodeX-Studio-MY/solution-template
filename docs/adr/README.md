@@ -14,7 +14,7 @@ Each page states a decision, why, and the alternative that was rejected. Add one
 | 0008 | [Observable and operable](0008-observable-and-operable.md) |
 | 0009 | [Boundaries are enforced by tests, not by convention](0009-boundaries-enforced-by-tests.md) |
 | 0010 | [Single source of truth and `scripts/generate`](0010-single-source-of-truth.md) |
-| 0011 | [Support SQL Server and PostgreSQL](0011-sql-server-and-postgresql.md) |
+| 0011 | [SQL Server now; PostgreSQL later](0011-sql-server-and-postgresql.md) |
 | 0012 | [A thin messaging layer over RabbitMQ.Client](0012-rabbitmq-client-messaging.md) |
 | 0013 | [Valkey locally, any Redis-protocol store in the cloud](0013-valkey-and-redis-protocol.md) |
 | 0014 | [Object storage and its emulators](0014-object-storage-emulators.md) |

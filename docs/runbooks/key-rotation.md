@@ -1,7 +1,8 @@
 # Key rotation
 
-Nothing secret is in the repository; every key below is in the secret store (or a managed identity), and every rotation is done by
-**adding the new key first and removing the old one later**, so nothing is ever refused during the change.
+Nothing secret is in the repository; every key below is in the secret store (or a managed identity), and every rotation of a key
+is done by **adding the new key first and removing the old one later**, so nothing is ever refused during the change. Service secrets are the
+exception (see below).
 
 ## Token signing keys (ES256)
 
@@ -14,8 +15,9 @@ Only the Identity service holds the private key. Services validate with the publ
 4. Wait longer than the longest token lifetime (`TokenServer:AccessTokenMinutes`, refresh tokens are re-signed on use) plus the JWKS cache time.
 5. Remove the old key from `TokenServer:SigningKeys` and deploy again.
 
-**If a key leaked**: do steps 1-3 immediately, remove the old key at once (accepting that every session signs in again), and revoke
-everything: `POST /api/identity/v1/platform/revoke-all-tokens` for each tenant (a service call; it raises every principal's `access_version`).
+**If a key leaked**: do steps 1-3 immediately and remove the old key at once. Tokens signed with it stop validating, so every session signs in
+again. Revoking every token of a tenant (`POST /api/identity/v1/platform/revoke-all-tokens`) is a platform service call that operators can't make
+yet (see [known limitations](../known-limitations.md)).
 
 ## Encryption keys for codes and refresh tokens
 
@@ -27,10 +29,13 @@ one after the longest refresh-token lifetime (`TokenServer:RefreshTokenDays`).
 Each service has a client secret (`ServiceClient:ClientSecret`), and the Identity service holds the matching one in
 `TokenServer:PlatformClientSecrets` keyed by client ID (`{product}-{service}`, and `{product}-bff` for the Gateway).
 
-1. Generate a new secret and add it to Identity's `PlatformClientSecrets` for that client (the setting accepts the new value as a
-   replacement; during the switch, deploy Identity first, then the service).
-2. Set the service's `ServiceClient:ClientSecret` (or the Gateway's `Bff:ClientSecret`) to the new value and deploy it.
-3. Confirm service-to-service calls succeed (`platform.service-token-unavailable` stops appearing), then remove the old secret.
+A secret holds one value, so this is not an add-then-remove change: there is a short cut-over, between the two deploys below, when the service's
+calls are refused. Do them one right after the other.
+
+1. Generate a new secret and set it as that client's entry in Identity's `PlatformClientSecrets`. Deploy Identity: it replaces the stored
+   secret when it starts.
+2. Set the service's `ServiceClient:ClientSecret` (or the Gateway's `Bff:ClientSecret`) to the same value and deploy it.
+3. Confirm service-to-service calls succeed (`platform.service-token-unavailable` stops appearing).
 
 Where the cloud supports it, prefer a managed identity for the service's own cloud access (object storage, databases) so there is nothing to rotate.
 

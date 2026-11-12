@@ -1,6 +1,6 @@
 # Known limitations
 
-What does not work yet, or works differently from what you might expect, in release 0.1.3. Each item was checked against the code or in a
+What does not work yet, or works differently from what you might expect, in release 0.1.4. Each item was checked against the code or in a
 browser for this release.
 
 ## Sign-in and accounts
@@ -21,6 +21,9 @@ browser for this release.
   access you grant them, do not appear in the customer app's Users page and do not let anyone sign in. The tenant's **Login history** tab
   stays empty for the same reason: sign-in does not write to it.
 - **Operators have no roles.** Any operator can do everything, including starting a tenant's offboarding and completing its deletion.
+- **An operator can't revoke all of a tenant's tokens.** `POST /api/identity/v1/platform/revoke-all-tokens` needs a platform service principal, and
+  only offboarding calls it. There is no operator action for it. To cut off one person, deactivate their principal (see the
+  [incident runbook](runbooks/incident-response.md)).
 - **Support access can be requested, approved and issued, but not used from the console.** An operator asks for time-limited access to
   one module, and sees the request and the admin's answer on the tenant's Overview. The tenant's admin approves or denies it under
   Settings, Support access, and every step is in the tenant's Security log. The operator API then issues a 10-minute token
@@ -39,8 +42,8 @@ browser for this release.
 
 ## Tenants and data
 
-- **Offboarding exports nothing and leaves files behind.** The export step is a placeholder (`NoExportYet`); a product adds an exporter
-  for each module that holds customer data. Completing a deletion drops the tenant's database but not its files in object storage.
+- **Offboarding exports nothing and leaves files behind.** The export step is a placeholder (`NoExportYet`); a product replaces it with
+  an exporter that covers every module that holds customer data. Completing a deletion drops the tenant's database but not its files in object storage.
   Delete them yourself, as the [offboarding runbook](runbooks/offboarding.md) says.
 - **Uploaded files are not scanned for malware.** The default scanner accepts everything ([ADR 0029](adr/0029-messaging-files-and-data-defaults.md)).
   Register your own `IMalwareScanner` before taking real uploads.

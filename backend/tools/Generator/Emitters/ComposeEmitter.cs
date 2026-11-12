@@ -37,7 +37,8 @@ internal static partial class ComposeEmitter
         }
     }
 
-    private static string Aspire()
+    /// <summary>The Aspire CLI: <c>ASPIRE_CLI</c>, else its installer's folder (~/.aspire/bin), else <c>aspire</c> on PATH.</summary>
+    internal static string Aspire()
     {
         var fromEnvironment = Environment.GetEnvironmentVariable("ASPIRE_CLI");
         if (!string.IsNullOrEmpty(fromEnvironment))

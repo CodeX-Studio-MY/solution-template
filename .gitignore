@@ -14,7 +14,6 @@ test-results/
 .env
 *.pfx
 *.pem
-!deploy/.env.example
 .DS_Store
 .idea/
 

@@ -15,12 +15,13 @@ The other options are `--from-plan <plan>` (the lowest plan that includes the mo
 2. Creates the backend with `dotnet new saaskit-module`: `backend/src/Modules/GoodsReceipt` (Domain, Application, Infrastructure, Api),
    `backend/src/Hosts/GoodsReceipt.Host` and `backend/tests/GoodsReceipt.Tests`, and its contracts, `backend/src/Contracts/Modules/GoodsReceipt`.
 3. Creates `frontend/modules/goods-receipt` from `templates/frontend-module`.
-4. Runs the generator (`scripts/generate.sh`, `scripts/generate.ps1` on Windows): the constants (`Modules.GoodsReceipt`, `PlatformServices.GoodsReceipt`), the Gateway route, the AppHost
-   resource, the compose file, the migrations projects,
-   `AllInOne.Host`'s registration, the OpenAPI document, the typed API client and the TypeScript types.
+4. Runs the generator (`scripts/generate.sh`, `scripts/generate.ps1` on Windows), without the API files and the compose file, which need the module to compile: the
+   constants (`Modules.GoodsReceipt`, `PlatformServices.GoodsReceipt`), the Gateway route, the AppHost resource, the migrations projects and
+   `AllInOne.Host`'s registration.
 5. Creates the module's first migration for every provider in `platform.yaml` (SQL Server), and the catalog migration (the catalog seeds the list of modules and
    plans, which just changed).
-6. Installs the frontend dependencies.
+6. Runs the generator again, now that the module builds: the OpenAPI document, the typed API client, the TypeScript types and the compose file.
+7. Installs the frontend dependencies.
 
 Nothing else needs a manual edit. Then:
 
@@ -49,10 +50,12 @@ its shape:
 ## Rules the build enforces (so you don't have to remember them)
 
 - A module references `Core` and `Contracts` only; never another module. (`ModuleBoundaryTests`)
-- `Domain` depends on nothing, `Application` on `Domain`, `Api` and `Infrastructure` on `Application`. (`ModuleBoundaryTests`)
-- No `DbContext` maps another module's schema; only the Migrator references migrations. (`DataOwnershipTests`)
+- `Domain` depends on nothing, and `Application` only on `Domain`. (`ModuleBoundaryTests`) The rule that `Api` and `Infrastructure` depend on
+  `Application` is a convention; no test checks it.
+- No `DbContext` maps another module's schema. (`DataOwnershipTests`)
+- Only the Migrator references the migrations assemblies. (`ModuleBoundaryTests`)
 - No hard-coded module keys, role names, flag keys or `/api/` paths; no comparing `TenantId` or `TenantSlug`. (`SingleSourceOfTruthTests`)
-- A migration exists for every model change, per provider. (`MigrationsConsistencyTests`)
+- A migration exists for every model change, per provider. (`MigrationsConsistencyTests`, in `Integration.Tests`: it runs with the tests, not with the build, and needs no database.)
 - No spatial type (`NetTopologySuite`) in `Api` or `Contracts`. (`ModuleBoundaryTests`)
 - The frontend module imports only `ui-kit`, `web-core` and `api-clients`, never another module. (ESLint boundaries, with tests)
 
@@ -129,7 +132,7 @@ query cache, the snackbar and the dialog host, so a module only calls the hooks.
 |---|---|---|
 | Load data | `useApiQuery(key, (signal) => unwrap(client.GET(...)))` | Cached under `key`, shared with every module (TanStack Query, ADR 0025). Typed by the OpenAPI document. |
 | Change data | `useApiMutation(fn, { invalidate, success })` | Refreshes `invalidate` and shows `success`. A failure shows the server's localized message, except field errors, which the form shows (`error.forField(name)`). |
-| Reference ("master") data | `useMaster("farm", "/api/farm/v1/farms")` and `<MasterSelect master={...} />` | Any service's list endpoint (array or `Page<T>`), fetched once for the whole app; `options`, `byId`, `labelOf`. After changing a master, invalidate `masterKey("farm")`. |
+| Reference ("master") data | `useMaster("base", "/api/base/v1/farms")` and `<MasterSelect master={...} />` | Any service's list endpoint (array or `Page<T>`), fetched once for the whole app; `options`, `byId`, `labelOf`. After changing a master, invalidate `masterKey("base")`. |
 | Tell the person something | `useSnackbar().success(...)` / `info` / `warning` / `error` / `fromError(e)` | Callable outside React too (`snackbar`). |
 | Ask first | `if (await useDialog().confirm({ title, tone: "danger" })) ...` | `alert({ title, text })` for a message that needs an OK. One dialog at a time. |
 | A small form in a dialog | `<FormDialog>` | Enter submits; fields are the children. |
@@ -145,7 +148,7 @@ list, an add and a confirm-then-delete.
   generator takes `--modules goods-receipt:advanced`). Without a plan the module is in every plan. A module only some plans have is an
   *add-on*. The platform's own modules (access management, tenant settings, billing, feedback and base) are in every plan and the operator
   console doesn't let anyone take them out of one; `platform.yaml` fails validation if one is missing from a plan.
-- **Events**: see [Contracts](#contracts-what-other-modules-may-use) below. `docs/events.md` is generated.
+- **Events**: see [Contracts](#contracts-what-other-modules-may-use) above. `docs/events.md` is generated.
 - **Per-tenant variation**: see [tenant-customization.md](tenant-customization.md). Start with a setting; do not branch on the tenant.
 - **A page in another module's screen**: declare a slot in `web-core` and contribute with `extensions` in the manifest.
 

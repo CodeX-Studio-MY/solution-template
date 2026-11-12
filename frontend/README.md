@@ -23,8 +23,10 @@ pnpm e2e                    # needs `pnpm build` first (the mocked-API tests)
 pnpm e2e:stack              # signs in against the running stack (scripts/dev-up.sh first)
 ```
 
-`pnpm dev` inside `apps/shell` or a module runs it with live reload and proxies `/api`, `/bff` and `/mfe` to a running Gateway
-(`GATEWAY_URL`, default `https://localhost:7443`); set `RSBUILD_PROXY=1` for the shell.
+`pnpm dev` inside `apps/shell`, `apps/operator` or a module runs it with live reload against a running Gateway (`GATEWAY_URL`). The shell and
+the operator console proxy only when `RSBUILD_PROXY=1` is set: the shell sends `/api`, `/bff` and `/mfe` to `https://localhost:7443`, and the
+operator console sends `/api` and `/bff` to `https://operator.localhost:7443`. A module always proxies `/api` and `/bff` (default
+`https://localhost:7443`).
 
 ## Design system
 

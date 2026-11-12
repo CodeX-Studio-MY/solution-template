@@ -30,8 +30,9 @@ log of access changes; Tenancy has one of tenant and customization changes.
   (`platform.access-changed`, 401) on its next request. There is no waiting for the token to expire.
 - A machine's key: `DELETE /api/identity/v1/principals/{id}/keys/{keyId}`.
 - A role: `DELETE /api/identity/v1/principals/{id}/assignments/{module}` (also raises the version).
-- **Everyone in a tenant**: the platform service call `POST /api/identity/v1/platform/revoke-all-tokens` (made by offboarding; operators do it
-  through support tooling).
+- **Everyone in a tenant**: there is no operator action for this yet. `POST /api/identity/v1/platform/revoke-all-tokens` can be called only by a
+  platform service, and only offboarding does (see [known limitations](../known-limitations.md)). Until there is one, revoke the principals one
+  by one, as above.
 - **A leaked signing key**: see [key-rotation.md](key-rotation.md).
 
 If the valkey outage handling matters: while the access-version store is unavailable, services fail closed for requests that need the check

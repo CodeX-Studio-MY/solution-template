@@ -8,6 +8,8 @@ Modules need to store locations, for example where a farm is. Both providers sup
 through the PostGIS extension. In .NET, EF Core reads and writes them as NetTopologySuite types (BSD-3-Clause). Modules must stay
 provider-neutral (ADR 0011) and reference no database provider (ADR 0009).
 
+PostgreSQL and PostGIS are not reachable in this release: SQL Server is the only supported provider (ADR 0011).
+
 ## Decision
 
 Spatial support is switched on once, in the provider packages. `Core.Data.SqlServer` and `Core.Data.PostgreSql` call `UseNetTopologySuite()`.
