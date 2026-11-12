@@ -357,6 +357,19 @@ public sealed class InitTests : IDisposable
     }
 
     [Fact]
+    public void The_readme_title_becomes_the_product_name() =>
+        InitCommand.WithProductTitle("# Multi-tenant SaaS template\nText.\n", "farm360").ShouldBe("# Farm360\nText.\n");
+
+    [Fact]
+    public void The_options_that_regenerate_are_accepted_on_the_first_run()
+    {
+        var options = InitOptions.Parse(["--product", "farm360", "--skip-compose", "--skip-api"]);
+
+        options.SkipCompose.ShouldBeTrue();
+        options.SkipApi.ShouldBeTrue();
+    }
+
+    [Fact]
     public void The_answers_replace_the_values_in_platform_yaml_and_keep_its_comments()
     {
         var path = Path.Combine(_root, "platform.yaml");

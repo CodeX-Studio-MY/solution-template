@@ -16,4 +16,4 @@ MinIO as the S3 emulator (its licence and the features removed from its communit
 
 ## Consequences
 
-The default scanner accepts everything (deviation 26); production should register a real one.
+The default scanner accepts everything, because the template ships no scanner; production should register a real one.

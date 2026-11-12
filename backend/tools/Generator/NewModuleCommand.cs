@@ -88,7 +88,7 @@ internal static class NewModuleCommand
         // 4. The module's first migration, for every database provider. Each is skipped if an earlier run already created it.
         foreach (var provider in DataContexts.Providers(platform))
         {
-            // `dotnet ef` is a local tool: it is only on the path inside backend/ (see backend/.config/dotnet-tools.json).
+            // `dotnet ef` is a local tool: it is only on the path inside backend/ (see backend/dotnet-tools.json).
             var backend = Path.Combine(repoRoot, "backend");
             var project = $"src/Modules/{pascal}.Migrations.{provider.Suffix}";
             if (!HasMigration(Path.Combine(backend, project, "Migrations", pascal), "Initial"))

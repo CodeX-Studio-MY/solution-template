@@ -93,8 +93,8 @@ internal static partial class InitCommand
         var pnpm = PnpmPath.Resolve();
         Step(pnpm, Path.Combine(repoRoot, "frontend"), "install");   // the package scope changed, so the lockfile does too
         Step("dotnet", Path.Combine(repoRoot, "backend"), "tool", "restore");   // dotnet ef, for the migrations
-        var skipCompose = !AspireAvailable();
-        if (skipCompose)
+        var skipCompose = options.SkipCompose || !AspireAvailable();
+        if (skipCompose && !options.SkipCompose)
             Console.WriteLine("The Aspire CLI isn't installed: deploy/docker-compose.yml is left as it is. Install it (https://aspire.dev) and run scripts/generate.sh (scripts/generate.ps1 on Windows) later.");
 
         // A module an earlier run added to platform.yaml but stopped before its migrations is resumed, not added again.
@@ -114,7 +114,7 @@ internal static partial class InitCommand
                 Generator(repoRoot, ["new-module", module.Key, "--resume", .. moduleOptions]);
         }
         RecreateCatalogMigrations(repoRoot);
-        Generator(repoRoot, ["generate", .. compose]);
+        Generator(repoRoot, ["generate", .. compose, .. options.SkipApi ? ["--skip-api"] : Array.Empty<string>()]);
 
         // 3. A first check that what was generated builds and follows the rules. The integration tests need Docker and take longer.
         //    Folders can appear while this runs (an editor saving a tab of a deleted file), so they are cleared again first. The
@@ -131,7 +131,9 @@ internal static partial class InitCommand
 
         // 4. Nothing of the template is left, so scripts/generate only regenerates from now on.
         var readme = Path.Combine(repoRoot, "README.md");
-        File.WriteAllText(readme, WithoutTemplateSections(File.ReadAllText(readme)), new UTF8Encoding(false));
+        File.WriteAllText(readme, WithProductTitle(WithoutTemplateSections(File.ReadAllText(readme)), answers.Product), new UTF8Encoding(false));
+        // The template's release history is not the product's.
+        File.WriteAllText(Path.Combine(repoRoot, "CHANGELOG.md"), NewChangelog, new UTF8Encoding(false));
         foreach (var path in TemplateOnly.Select(p => Path.Combine(repoRoot, p)))
         {
             if (File.Exists(path))
@@ -171,6 +173,20 @@ internal static partial class InitCommand
     }
 
     /// <summary>The text without its template-only sections (each from its start line to its end line, inclusive).</summary>
+    /// <summary>The CHANGELOG.md a new product starts with.</summary>
+    internal const string NewChangelog =
+        "# Changelog\n\nAll notable changes to this project are written here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and\n" +
+        "the project uses [Semantic Versioning](https://semver.org/).\n\n## [Unreleased]\n";
+
+    /// <summary>The README's first heading becomes the product's name.</summary>
+    internal static string WithProductTitle(string text, string product)
+    {
+        if (!text.StartsWith("# ", StringComparison.Ordinal))
+            return text;
+        var end = text.IndexOf('\n');
+        return $"# {Naming.Pascal(product)}" + (end < 0 ? "" : text[end..]);
+    }
+
     internal static string WithoutTemplateSections(string text)
     {
         var kept = new List<string>();
@@ -207,11 +223,9 @@ internal static partial class InitCommand
 
     private static bool AspireAvailable()
     {
-        if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ASPIRE_CLI")))
-            return true;
         try
         {
-            Processes.Capture("aspire", Directory.GetCurrentDirectory(), "", "--version");
+            Processes.Capture(Emitters.ComposeEmitter.Aspire(), Directory.GetCurrentDirectory(), "", "--version");
             return true;
         }
         catch (PlatformDefinitionException)
@@ -233,7 +247,7 @@ internal static partial class InitCommand
             var migrations = Path.Combine(backend, project, "Migrations", "Catalog");
             if (Directory.Exists(migrations))
                 Directory.Delete(migrations, recursive: true);
-            // `dotnet ef` is a local tool: it is only on the path inside backend/ (see backend/.config/dotnet-tools.json).
+            // `dotnet ef` is a local tool: it is only on the path inside backend/ (see backend/dotnet-tools.json).
             Step("dotnet", backend, "restore", project);
             Step("dotnet", backend, "ef", "migrations", "add", "Initial", "-p", project, "-s", project, "-c", "CatalogDbContext", "-o", "Migrations/Catalog");
         }
@@ -332,7 +346,7 @@ internal static partial class InitCommand
 }
 
 /// <summary>The options of <c>scripts/generate</c> on the template.</summary>
-internal sealed record InitOptions(IReadOnlyDictionary<string, string> Values, bool Yes, bool SkipChecks, bool NoGit)
+internal sealed record InitOptions(IReadOnlyDictionary<string, string> Values, bool Yes, bool SkipChecks, bool NoGit, bool SkipCompose = false, bool SkipApi = false)
 {
     private static readonly string[] Known = ["--product", "--org", "--timezone", "--currency", "--locales", "--plans", "--cloud", "--modules"];
 
@@ -341,7 +355,7 @@ internal sealed record InitOptions(IReadOnlyDictionary<string, string> Values, b
     public static InitOptions Parse(string[] args)
     {
         var values = new Dictionary<string, string>(StringComparer.Ordinal);
-        bool yes = false, skipChecks = false, noGit = false;
+        bool yes = false, skipChecks = false, noGit = false, skipCompose = false, skipApi = false;
         for (var i = 0; i < args.Length; i++)
         {
             switch (args[i])
@@ -355,6 +369,12 @@ internal sealed record InitOptions(IReadOnlyDictionary<string, string> Values, b
                 case "--no-git":
                     noGit = true;
                     break;
+                case "--skip-compose":
+                    skipCompose = true;
+                    break;
+                case "--skip-api":
+                    skipApi = true;
+                    break;
                 case var name when Known.Contains(name) && i + 1 < args.Length:
                     values[name] = args[++i];
                     break;
@@ -362,7 +382,7 @@ internal sealed record InitOptions(IReadOnlyDictionary<string, string> Values, b
                     throw new PlatformDefinitionException($"Unknown option '{args[i]}'.\n{InitCommandUsage.Text}");
             }
         }
-        return new InitOptions(values, yes, skipChecks, noGit);
+        return new InitOptions(values, yes, skipChecks, noGit, skipCompose, skipApi);
     }
 }
 
@@ -370,7 +390,7 @@ internal static class InitCommandUsage
 {
     public const string Text =
         "Usage: scripts/generate [--product <key>] [--org \"Org\"] [--timezone <IANA id>] [--currency <ISO 4217>] [--locales en,ms] " +
-        "[--plans lite,advanced,complete] [--cloud azure|aws] [--modules key1,key2:advanced,key3:complete] [--yes] [--skip-checks] [--no-git]\n" +
+        "[--plans lite,advanced,complete] [--cloud azure|aws] [--modules key1,key2:advanced,key3:complete] [--yes] [--skip-checks] [--no-git] [--skip-compose] [--skip-api]\n" +
         "A module's ':plan' is the lowest plan that includes it; every plan from there upward gets it. Without one, it is in every plan.";
 }
 

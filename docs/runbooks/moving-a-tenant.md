@@ -1,7 +1,6 @@
 # Moving a tenant, and data residency
 
-A tenant is a database plus a row in the catalog that says where it lives (**placement**: provider, server pool, database name, and an
-optional secret reference). Moving a tenant means moving the database and changing that row. No code or configuration of the
+A tenant is a database plus a row in the catalog that says where it lives (**placement**: provider, server pool and database name). Moving a tenant means moving the database and changing that row. No code or configuration of the
 services changes.
 
 ## Moving to another server or pool
@@ -12,11 +11,11 @@ Plan for a short read-only window: the length of a copy of that tenant's databas
 2. **Suspend the tenant**: `POST /api/tenancy/v1/operator/tenants/{id}/suspend` (people can still sign in and read).
 3. **Copy the database** with the cloud's tools: backup and restore, or the provider's replication/export (`<copy command: source, target>`).
    Verify row counts for the largest tables.
-4. **Create the target database's access** (login/role) the same way a new tenant's is created.
+4. **Check access**: a host connects with the pool's connection string (`Database:Servers:{pool}`) and the tenant's database name, so that
+   login must be able to open the copy. There are no per-tenant logins.
 5. **Run the Migrator against the copy** to prove the schema is current: `Migrator --tenant {slug}` (after step 6, or with the placement
    pointed at the copy).
-6. **Change the placement** in the catalog (`catalog.Tenants`: `Placement_ServerPool`, `Placement_DatabaseName`, and the secret reference if the
-   target uses one). Within `Database:TenantCacheSeconds` every host uses the new location; restart them to be immediate.
+6. **Change the placement** in the catalog (`catalog.Tenants`: `Placement_ServerPool` and `Placement_DatabaseName`). Within `Database:TenantCacheSeconds` every host uses the new location; restart them to be immediate.
 7. **Resume**: `POST /api/tenancy/v1/operator/tenants/{id}/resume`. Verify by signing in and creating a harmless change.
 8. **Keep the old database** read-only for a week, then drop it (or follow [offboarding](offboarding.md)'s deletion step).
 

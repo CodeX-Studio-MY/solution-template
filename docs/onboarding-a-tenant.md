@@ -34,15 +34,16 @@ Each step is recorded in the catalog; a failed run **resumes where it stopped** 
 4. **Reference data**: modules create their own on first use; customer data is never seeded.
 5. **Entitlements**: the plan's modules are enabled.
 6. **Activation**: the tenant becomes `Active` (services refuse a tenant that is still `Provisioning`).
-7. **First admin invitation**: a single-use link. The operator console and the API answer show it once, and Identity writes it to its log.
-   Nothing is emailed in this release (see [known limitations](known-limitations.md)). There are no default passwords anywhere.
+7. **Browser sign-in addresses**: Identity registers the tenant's `/bff/signin-oidc` and `/bff/signout-callback-oidc` addresses for the Gateway.
+8. **First admin invitation**: a single-use link, emailed to the admin (to Mailpit locally). The operator console and the API answer show
+   it once. It is never written to a log. There are no default passwords anywhere.
 
 ## Isolation, and how to check it
 
 - Another tenant's data is in another database: there is no filter to forget. The platform's integration tests and every module's
   tests (from the module template) create two tenants and assert that neither sees the other's rows, files, events or notifications.
 - Customization (settings, flags, custom fields) is stored per tenant and never read across tenants
-  (`TenantCustomizationTests`, `One_tenants_customization_never_affects_another`).
+  (`TenantCustomizationTests`, `Customization_is_stored_per_tenant_in_the_catalog`).
 - The tenant resolves from the host name and must match the token's tenant; a mismatch is refused (`platform.tenant-mismatch`).
 
 ## After onboarding

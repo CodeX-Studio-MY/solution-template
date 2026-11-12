@@ -5,7 +5,7 @@ emits (the ASP.NET Core and HTTP client metrics from OpenTelemetry, the health c
 
 | Objective | Indicator | Target | Alert when |
 |---|---|---|---|
-| API availability | Share of requests per service that are not 5xx (excluding 503 from a deliberate read-only tenant) | 99.9% over 30 days | Burning the error budget 6× too fast for 1 hour |
+| API availability | Share of requests per service that are not 5xx | 99.9% over 30 days | Burning the error budget 6× too fast for 1 hour |
 | API latency | p95 duration of `/api/*` per service | < 500 ms (reads), < 1 s (writes) | p95 above target for 15 minutes |
 | Sign-in | Success rate of the authorization-code flow, and p95 of `/connect/token` | 99.9%, < 300 ms | Success rate below 99% for 10 minutes |
 | Event delivery | Age of the oldest message in any non-DLQ queue; messages in any `.dlq` | < 60 s; 0 | Age > 5 minutes, or any dead letter |

@@ -29,7 +29,7 @@ Because every tenant has its own database, a restore never involves the other te
    (`<cloud restore command: source database, target name, time>`). Do not overwrite the live database yet.
 4. **Check it**: run the Migrator against the restored copy to make sure the schema matches the code that is deployed
    (`Migrator --tenant {slug}` after pointing the tenant's placement at it in step 5, or against a scratch catalog).
-5. **Switch the tenant to it**: set the tenant's `DatabaseName` in the catalog to the restored database
+5. **Switch the tenant to it**: set the tenant's `Placement_DatabaseName` in the catalog to the restored database
    (`catalog.Tenants`, placement columns), and wait for the tenant cache to expire (`Database:TenantCacheSeconds`) or restart the hosts.
 6. **Resume the tenant**: `POST /api/tenancy/v1/operator/tenants/{id}/resume`.
 7. **Verify**: sign in as the tenant's admin, open the latest records, check `Migrator` reports the tenant migrated.
